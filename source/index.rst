@@ -12,6 +12,7 @@ Contents:
    :maxdepth: 2
 
    sphinx-instructions
+   user-stories/hyperreduction-Aster
 
 
 
