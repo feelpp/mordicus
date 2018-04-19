@@ -249,6 +249,11 @@ intersphinx_mapping = {'http://docs.python.org/': None}
 
 #import os
 #print( os.getcwd() )
+try:
+    import sphinxcontrib.plantuml
+    extensions = ['sphinxcontrib.plantuml', ]
+    plantuml = 'java -jar ../bin/plantuml.jar'
+except ImportError:
+    print("The plantuml extension is disabled --- if you want to use it install")
+    print("      sphinxcontrib.plantuml")
 
-extensions = ['sphinxcontrib.plantuml', ]
-plantuml = 'java -jar ../bin/plantuml.jar'
