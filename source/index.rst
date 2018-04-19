@@ -8,6 +8,8 @@ Welcome to RomFileFormat's documentation!
 
 Contents:
 
+**Cas d'usage**
+
 .. toctree::
    :maxdepth: 2
 
@@ -15,6 +17,12 @@ Contents:
    user-stories/hyperreduction-Aster
    user-stories/linear-thermics-MAP
 
+**CR des séances de travail**
+
+.. toctree::
+   :maxdepth: 2
+
+   meetings/2018_04_19.rst
 
 
 Indices and tables
