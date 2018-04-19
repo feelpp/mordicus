@@ -13,6 +13,7 @@ Contents:
 
    sphinx-instructions
    user-stories/hyperreduction-Aster
+   user-stories/linear-thermics-MAP
 
 
 
