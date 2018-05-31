@@ -1,0 +1,14 @@
+#!/bin/bash
+
+
+PLANTUML=../UseCasesAndUserStories/bin/plantuml.jar
+PLANTUML_OPT=
+
+if [ ! -f /usr/bin/dot ]; then
+    GRAPHVIZ=/home/zebulon/local/anaconda_new/bin/dot
+    PLANTUML_OPT="$PLANTUML_OPT -graphvizdot"
+fi
+
+java -jar $PLANTUML $PLANTUML_OPT $GRAPHVIZ $1
+
+
