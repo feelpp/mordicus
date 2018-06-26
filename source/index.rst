@@ -8,14 +8,19 @@ Welcome to RomFileFormat's documentation!
 
 Contents:
 
-**Cas d'usage**
+**Génération de cette page**
 
 .. toctree::
    :maxdepth: 2
 
    sphinx-instructions
-   user-stories/hyperreduction-Aster
-   user-stories/linear-thermics-MAP
+
+**Cas d'usage**
+
+.. toctree::
+   :maxdepth: 2
+
+   UseCasesAndUserStories/index
 
 **CR des séances de travail**
 
