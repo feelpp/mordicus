@@ -29,6 +29,7 @@ import os
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
+    'sphinx.ext.intersphinx',
     'sphinx.ext.todo',
     'sphinx.ext.mathjax',
 ]
@@ -46,8 +47,8 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'RomFileFormat'
-copyright = u'2018, "Basile Marchand"'
+project = u'Rom File Format'
+copyright = u'2018, Mines ParisTech/EDF R&D/Safran Tech'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -101,8 +102,9 @@ pygments_style = 'sphinx'
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-html_theme = 'default'
-
+##html_theme = 'pyramid'
+html_theme = 'sphinx_rtd_theme'
+##html_theme = 'cloud'
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
@@ -156,16 +158,16 @@ html_static_path = ['_static']
 #html_domain_indices = True
 
 # If false, no index is generated.
-#html_use_index = True
+html_use_index = True
 
 # If true, the index is split into individual pages for each letter.
 #html_split_index = False
 
 # If true, links to the reST sources are added to the pages.
-#html_show_sourcelink = True
+html_show_sourcelink = True
 
 # If true, "Created using Sphinx" is shown in the HTML footer. Default is True.
-#html_show_sphinx = True
+html_show_sphinx = True
 
 # If true, "(C) Copyright ..." is shown in the HTML footer. Default is True.
 #html_show_copyright = True
@@ -179,7 +181,7 @@ html_static_path = ['_static']
 #html_file_suffix = None
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'RomFileFormatdoc'
+htmlhelp_basename = 'rofifo'
 
 
 # -- Options for LaTeX output ---------------------------------------------
@@ -199,8 +201,8 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-  ('index', 'RomFileFormat.tex', u'RomFileFormat Documentation',
-   u'"Basile Marchand"', 'manual'),
+  ('index', 'RoFiFo.tex', u'Rom File Format',
+   u'Mines ParisTech/EDF R\&D/Safran Tech', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -229,8 +231,8 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'romfileformat', u'RomFileFormat Documentation',
-     [u'"Basile Marchand"'], 1)
+    ('index', 'RoFiFo', u'RoFiFo',
+     [u''], 1)
 ]
 
 # If true, show URL addresses after external links.
@@ -243,8 +245,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  ('index', 'RomFileFormat', u'RomFileFormat Documentation',
-   u'"Basile Marchand"', 'RomFileFormat', 'One line description of project.',
+  ('index', 'RoFiFo', u'RoFiFo',
+   u'', 'RoFiFo', 'One line description of project.',
    'Miscellaneous'),
 ]
 
@@ -257,5 +259,18 @@ texinfo_documents = [
 # How to display URL addresses: 'footnote', 'no', or 'inline'.
 #texinfo_show_urls = 'footnote'
 
-# If true, do not generate a @detailmenu in the "Top" node's menu.
-#texinfo_no_detailmenu = False
+
+# Example configuration for intersphinx: refer to the Python standard library.
+intersphinx_mapping = {'http://docs.python.org/': None}
+
+
+#import os
+#print( os.getcwd() )
+try:
+    import sphinxcontrib.plantuml
+    extensions = ['sphinxcontrib.plantuml', ]
+    plantuml = 'java -jar ../bin/plantuml.jar'
+except ImportError:
+    print("The plantuml extension is disabled --- if you want to use it install")
+    print("      sphinxcontrib.plantuml")
+
