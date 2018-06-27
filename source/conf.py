@@ -275,7 +275,11 @@ try:
     extensions.append('sphinxcontrib.plantuml')
     # This line is recommended by sphinxcontrib doc
     # https://pypi.org/project/sphinxcontrib-plantuml/
-    plantuml = 'java -jar ../bin/plantuml.jar'
+    # Path relative to the source/configuration directory,
+    #    see http://www.sphinx-doc.org/en/master/usage/configuration.html
+    import os.path as osp
+    jar_path = osp.join(osp.dirname(osp.abspath('.')), 'bin', 'plantuml.jar')
+    plantuml = 'java -jar {}'.format(jar_path)
 except ImportError:
     print("The plantuml extension is disabled --- if you want to use it install")
     print("      sphinxcontrib.plantuml")

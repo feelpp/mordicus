@@ -22,6 +22,14 @@ Contents:
 
    UseCasesAndUserStories/index
 
+**Modèle de données**
+
+.. toctree::
+   :maxdepth: 2
+
+   datamodel/index
+
+
 **CR des séances de travail**
 
 .. toctree::

@@ -1,0 +1,79 @@
+@startuml
+
+'*********** The Mesh class  ********'
+class Mesh{
+
+}
+
+'*********** The Field class  ********'
+class Field{
+
+}
+
+class ParametricField{
+
+}
+
+class GeometricParam{
+
+
+}
+
+class SpatialField{
+field_t type
+vector<double> values 
+
+bool checkParameterType()
+bool isPrimal()
+string name()
+}
+
+
+enum field_t{
+          
+}
+
+
+class Results{
+Matrix convertMatrix()
+}
+
+
+
+'************** POD part ************************'
+class Snapshots{
+
+}
+
+class PODmodes{
+
+}
+
+
+class PODBasis{
+String contextInfo 
+}
+
+
+'**************** Temporal part *******************'
+class TemporalField{
+
+}
+
+class Interval{
+
+}
+
+
+Field o-- Mesh
+Field <|-- ParametricField
+GeometricParam --> ParametricField
+Field <|-- SpatialField
+SpatialField <|-- Snapshots
+Results o-- Snapshots : agregation
+SpatialField <|-- PODmodes
+PODBasis  o-- "1*" PODmodes : agregation
+Field <|-- TemporalField
+Interval --> TemporalField 
+
+@enduml
