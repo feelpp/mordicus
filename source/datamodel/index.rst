@@ -7,3 +7,4 @@ Class diagrams
     :maxdepth: 1
 
     class_diagram_1
+    glossary
