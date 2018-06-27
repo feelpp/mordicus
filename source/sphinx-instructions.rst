@@ -31,4 +31,19 @@ Generating the pages
 
 Simply run ``make html`` from the root directory of the repository.
 
+Installing sphinxcontrib-plantuml python package
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Run the following command and it will install onto ``${HOME}/.local/lib/python2.7/site-packages``:
+
+.. code-block:: sh
+
+    edf-proxy-cli.py
+    pip install --user --proxy proxypac.edf.fr:3128 sphinxcontrib-plantuml
+    # Add to PYTHONPATH
+    export PYTHONPATH=${PYTHONPATH}:${HOME}/.local/lib/python2.7/site-packages
+    # Check
+    echo ${PYTHONPATH} | sed 's/:/\n/g' | grep '.local'
+
+
 
