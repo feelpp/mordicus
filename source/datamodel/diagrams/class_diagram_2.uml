@@ -1,0 +1,148 @@
+@startuml
+
+class SOLVEUR {
+}
+
+class OPERATEUR_DE_CONSTRUCTION {
+    _poids
+}
+
+class Solveur_HF {
+    _operateurs : OPERATEUR_DE_CONSTRUCTION
+}
+
+SOLVEUR <|-- Solveur_HF
+SOLVEUR <|-- OPERATEUR_DE_CONSTRUCTION
+Solveur_HF o-- "0..*" OPERATEUR_DE_CONSTRUCTION : "_operateurs"
+
+class DOMAINE_DE_CALCUL {
+}
+
+class DONNEES_FIXES {
+}
+
+class DONNEES_VARIABLES {
+}
+
+DONNEES_VARIABLES --> "_domaine_de_calcul" DOMAINE_DE_CALCUL : prend la valeur d'une realisation
+
+class DONNEES_DU_PROBLEME {
+    _donnees_fixes : DONNEES_FIXES
+    _donnees_variables : DONNEES_VARIABLES
+}
+
+DONNEES_DU_PROBLEME *-- "0..*" DONNEES_FIXES : "{XOR} \n _donnees_fixes"
+DONNEES_DU_PROBLEME *-- "0..*" DONNEES_VARIABLES : "{XOR} \n _donnees_variables"
+
+
+class CAS_A_RESOUDRE {
+    _solveurhf : Solveur_HF
+    _donnees : DONNEES_DU_PROBLEME
+}
+
+CAS_A_RESOUDRE "0..*" --> Solveur_HF : "_solveurhf"
+CAS_A_RESOUDRE "0..*" --> "_donnees" DONNEES_DU_PROBLEME
+
+class SOLUTION_CAS {
+}
+
+CAS_A_RESOUDRE *-- "_solution" SOLUTION_CAS
+
+class COLLECTION_SOLUTION_CAS {
+    _solutions : SOLUTION_CAS
+    _domaine : DOMAINE_DE_CALCUL
+}
+
+COLLECTION_SOLUTION_CAS o-- "0..*" SOLUTION_CAS : "_solutions"
+COLLECTION_SOLUTION_CAS --> "1..*" DOMAINE_DE_CALCUL : "définit des domaines de calcul pour les données variables"
+
+class OPERATEUR_DE_COMPRESSION {
+    _est_lineaire
+    _solveur : SOLVEUR
+    _op_constructions : OPERATEUR_DE_CONSTRUCTION
+}
+
+OPERATEUR_DE_COMPRESSION "0..*" --> "0..1" SOLVEUR : "_solveur"
+OPERATEUR_DE_COMPRESSION "0..*" --> "0..*" OPERATEUR_DE_CONSTRUCTION : "_op_constructions"
+
+class MODELE_REDUIT {
+}
+
+class Solveur_METHODE_DE_REDUCTION {
+    _solveur_hf : Solveur_HF
+    _modele_reduit : MODELE_REDUIT
+    _op_compression : OPERATEUR_DE_COMPRESSION
+    _solutions : COLLECTION_SOLUTION_CAS
+}
+
+
+Solveur_METHODE_DE_REDUCTION "0..*" --> "1..*" COLLECTION_SOLUTION_CAS : _solutions
+Solveur_METHODE_DE_REDUCTION *-- OPERATEUR_DE_COMPRESSION : _op_compression
+Solveur_METHODE_DE_REDUCTION "1" --> "1" MODELE_REDUIT : "P.construit"
+
+class Base_Reduite {
+}
+
+class POD {
+}
+Solveur_METHODE_DE_REDUCTION <|-- Base_Reduite
+Solveur_METHODE_DE_REDUCTION <|-- POD
+
+class SOLUTION_REDUITE_CAS {
+}
+
+class CAS_REDUIT_A_RESOUDRE {
+    _solution : SOLUTION_REDUITE_CAS
+    _solveur : Solveur_METHODE_DE_REDUCTION
+}
+
+CAS_REDUIT_A_RESOUDRE *-- SOLUTION_REDUITE_CAS : _solution
+CAS_REDUIT_A_RESOUDRE --> Solveur_METHODE_DE_REDUCTION : _solveur
+
+class ECART_A_LA_SOLUTION {
+    _solution_hf : SOLUTION_CAS
+    _solution_rd : SOLUTION_REDUITE_CAS
+}
+ECART_A_LA_SOLUTION --> SOLUTION_CAS : _solution_hf
+ECART_A_LA_SOLUTION --> SOLUTION_REDUITE_CAS : _solution_rd
+
+class DOMAINE_DE_CALCUL_REDUIT {
+    _domaine_de_reference : DOMAINE_DE_CALCUL
+}
+
+DOMAINE_DE_CALCUL_REDUIT --> DOMAINE_DE_CALCUL : _domaine_de_reference
+
+class SOUS_DOMAINE_DE_CALCUL_REDUIT {
+}
+
+class NUAGE_DE_POINTS {
+}
+
+DOMAINE_DE_CALCUL_REDUIT <|-- SOUS_DOMAINE_DE_CALCUL_REDUIT
+NUAGE_DE_POINTS <|-- SOUS_DOMAINE_DE_CALCUL_REDUIT
+
+class PROJECTION {
+}
+
+class EIM_ECM {
+    domaine_reduit : NUAGE_DE_POINTS
+}
+
+EIM_ECM --> NUAGE_DE_POINTS : domaine_reduit
+
+OPERATEUR_DE_COMPRESSION <|-- EIM_ECM
+OPERATEUR_DE_COMPRESSION <|-- ECSW_HYPER_REDUCTION
+OPERATEUR_DE_COMPRESSION <|-- PROJECTION
+
+class ECSW_HYPER_REDUCTION {
+    domaine_reduit : SOUS_DOMAINE_DE_CALCUL_REDUIT
+}
+
+EIM_ECM --> SOUS_DOMAINE_DE_CALCUL_REDUIT : domaine_reduit
+
+class EDP {
+}
+
+EDP -- "1..*" SOLVEUR
+
+@enduml
