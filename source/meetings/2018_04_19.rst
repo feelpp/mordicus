@@ -1,0 +1,25 @@
+.. _meeting_2018_04_19:
+
+==================================
+CR séance de travail du 19/04/2018
+==================================
+
+Participants: Martine Paolillo, Falipe Bordeu, Fabien Casenave, Jean-Philippe Argaud, Nissrine Akkari, Basile Marchand, Guilhem Ferté
+
+    #. **Point NDA**: version modifiée transmise aux juristes EDF. Si OK, pourra être envoyé pour signature.
+
+    #. **Dépôt git**: Basile a ouvert un dépôt gitlab dont il est admin (merci à lui). Le contacter (basile.marchand@mat.ensmp.fr) pour des demandes de création de comptes. Le dépôt contient un dossier ``source`` avec fichiers sources au format RST. Quand on lance ``make html`` dans le dépot, le rendu html se construit dans un dossier ``build``. Commande ``firefox build/html/index.html`` pour ouvrir la page web générée.
+
+    #. **Conférence Morepas**: une conférence sur la réduction de modèles s'est tenue du 10/04 au 13/04 à Nantes. Guilhem mettra quelques éléments de REX dans le dépôt git.
+
+    #. **Suite du travail sur les use case**: Falipe et Fabien ont présenté leurs use case, dont un sous forme de diagramme d'activités. Des élements sur le modèle de données utilisé dans l'implémentation actuelle de Safran ont également été présentés. Les trois slides concernés seront versés dans le dépôt git, sous forme de doc ou d'image. Guilhem a rédigé un scénario utilisateur sur la réduction de modèle en termique instationnaire (non présenté un réunion). Basile a présenté un modèle de données utilisé dans le cadre d'une application PGD, à verser dans le dépôt git.
+
+    #. **Début de la conception du modèle de données**: une ébauche de modèles de données a été dessinée au tableau sous forme de diagramme de classes. Basile propose de le reporter dans le dépôt git.
+
+    #. **Prochaine séance de travail**: le 31/05, consacrée à la conception du modèle de données, sous réserve qu'Eric Fayolle puisse participer. (Hors réunion) Ne faudrait-il pas prévoir toute la journée, avec pour objectif d'avoir une première ébauche du modèle de données à la fin?
+
+    #. **D'ici la prochaine séance**: outre le report des différents éléments présentés dans le dépôt git, chaque participant poursuit le travail sur les use case s'il le juge nécessaire. Sutout vrai pour EDF où les applications sont dispersées.
+
+
+
+
