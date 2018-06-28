@@ -17,3 +17,7 @@ Fait en séance le 31/05/2018:
 Retranscription avec plantuml:
 
 .. uml:: diagrams/class_diagram_2.uml
+
+Une tentative de fusion:
+
+.. uml:: diagrams/class_diagram_3.uml
