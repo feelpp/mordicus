@@ -47,5 +47,29 @@ Run the following command and it will install onto ``${HOME}/.local/lib/python2.
 
 I include the jar file in its last version (0.11), it can be downlodad `on the planuml download page <https://downloads.sourceforge.net/project/plantuml/plantuml.jar?r=https%3A%2F%2Fsourceforge.net%2Fprojects%2Fplantuml%2Ffiles%2Fplantuml.jar%2Fdownload&ts=1530089699>`_.
 
+Installing Modelio on Debian or Ubuntu
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The download page of Modelio can be found `here <https://www.modelio.org/downloads/download-modelio.html>`_.
+
+Download the ``.deb`` file (64-bit for EDF). Then run:
+
+.. code-block:: sh
+
+    chmod 744 modelio-open-source3.7_3.7.1_amd64.deb
+
+    # Install prerequisite
+    sudo apt-get install libwebkitgtk-1.0-0
+
+    sudo dpkg -i modelio-open-source3.7_3.7.1_amd64.deb
+
+Modelio is ready to start:
+
+.. code-block:: sh
+
+    modelio-open-source3.7
+
+
+
 
 
