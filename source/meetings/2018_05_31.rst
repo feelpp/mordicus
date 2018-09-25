@@ -1,0 +1,83 @@
+.. _meeting_2018_05_31:
+
+==================================
+CR séance de travail du 31/05/2018
+==================================
+
+Participants: Fabien Casenave, Jean-Philippe Argaud, Nissrine Akkari, Basile Marchand, Guilhem Ferté, Eric Fayolle
+
+Réflexion: comment passer d'un modèle de données à la spécification d'une interface (API) pour les échanges ? 
+
+Piste de réflexion: travailler sur les **modèles de données métier** (MDM)
+
+    #. MDM = données utiles à une méthode. Objet conceptuel pour faire réfléchir.
+
+    #. Quelles sont les données communes entre les méthodes? Exemple: *BASE_REDUITE* = nouvelle donnée commune à plusieurs méthodes.
+           
+    #. Quelles sont les autres données utilisées dans les méthodes?
+
+    #. Via le MDM, des liens vont s'établir entre (i) *les données du problème* et (ii) *les différentes méthodes* (via les MDM) => **Piste de travail n°1**
+
+Autres conseils Eric sur cette problématique:
+
+    #. Bien préciser le contour de l'opération de normalisation voulue: "paramétrer un solveur générique de réduction de modèle"
+
+    #. "Solveur générique de ROM": assemblage pour définir la **bibliothèque de réduction** et le **modèle réduit**
+
+    #. Poser le contour des différents systèmes impliqués (découpage), puis regarder les lignes plus en détail
+
+    #. Identifier les **paramètres fonctionnels**, qui mèneront à la définition des **interfaces standard**
+
+.. todo::
+
+   Notes en vrac, pas tout bien compris. A corriger/préciser avec Eric
+
+Réflexion sur le modèle de données inspirées par la présentation du schéma de Felipe. Questions:
+
+    #. Donner une définition de réduction / hyper-réduction. Pour l'instant, on réserve *hyper-réduction* à la méthode de David Ryckelynck.
+
+    #. Opérateur de construction: on doit pouvoir y rentrer l'évaluation d'un calcul *complet* ou *réduit*
+
+    #. *Poids* est un attribut à mettre dans *OPERATEUR_DE_CONSTRUCTION*
+
+    #. Déplacer les éléments de part et d'autre (à gauche et à droite) de *SOLVEUR_REDUIT*.
+          
+       - à droite, les données dont il a besoin => modèle *réduit*
+
+       - à gauche, les autres données => modèle *complet*
+
+    #. Bien regarder les liens entre les deux modèles de données pour la définition des API => **piste de travail n°2**
+
+
+Utiliser les différentes implémentations en fonction de l'environnement d'exécution. Travail sur l'architecture (commun??)
+
+Exemple: "custom function" nécessaire au modèle réduit. Fonction passée en paramètre? Déclencher par un mot-clé? Charger dynamiquement le module qui implémente la fonction? Information supplémentaire au domaine de calcul => implémentation Safran = on transmet avec un pickle. Donc ce n'est pas forcément un domaine réduit, c'est une fonction.
+
+Réflexion sur le futur travail dans Mordicus:
+
+    #. Ok faire travailler tout le monde sur UML, envoyer récap Wikipédia si besoin
+
+    #. Proposer un **découpage** qui parle à tous
+
+    #. Définir un mode de fonctionnement avec un intégrateur, garant de l'intégrité du modèle.
+
+    #. Méthodes automatiques pour vérifier la cohérence du modèle de données
+
+.. todo::
+
+    Pas bien compris ce dernier point, en demander plus à Eric
+
+Suite:
+
+    #. bien préciser l'objet = **modèle fonctionnel**, l'objectif est de **cadrer la sémantique**. Pas (encore) de définir un modèle d'implémentation. Structurer le modèle en fonction des use cases et de leur fréquence: on conçoit un agencement des données optimal pour les use cases les plus fréquents.
+
+    #. Outil: utiliser **Modelio**, gratuit et complet. Pour info, Eric utilise XSD commercial.
+
+    #. Plusieurs vues de travail dans la barre de menus en haut.
+
+.. todo::
+
+    Intégrer au diagramme les modifs faites en séance au tableau => DONE EF
+
+    Rédiger des élements de définition => DONE GF
+

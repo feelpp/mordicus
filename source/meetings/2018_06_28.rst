@@ -1,0 +1,69 @@
+.. _meeting_2018_06_28:
+
+==================================
+CR séance de travail du 28/06/2018
+==================================
+
+Participants: Fabien Casenave, Jean-Philippe Argaud, Nissrine Akkari, Basile Marchand, Guilhem Ferté, Eric Fayolle
+
+.. todo::
+
+   JPA: Rédiger un cas d'usage sur la neutronique car particulier au niveau des structures de données (les modes vivent sur des coordonnées en énergie, assimilable maillage 1D).
+
+On travaille en séance sur la fusion entre les deux diagrammes.
+
+Propositions préliminaires d'Eric:
+
+    #. *Results* est *COLLECTION_SOLUTION_CAS* (retenu). Prévoir une classe *POD basis* dérivée ? (ne sera finalement pas retenu)
+
+    #. *SpatialField* est *SOLUTION_CAS* ? Prévoir un attribut *is_snapshot* ou *is_POD_mode* pour différencier les deux cas ? (on fera finalement la différence sur l'indexation)
+
+    #. *Mesh* est *DOMAINE_DE_CALCUL* ? Entre *SOLUTION_CAS* et *DOMAINE_DE_CALCUL*, on remplace l'aggrégation par une association (finalement, on remplacera DOMAINE_DE_CALCUL, trop ambigu, parSUPPORT_INDEXATION et SUPPORT_SNAPSHOT).
+
+    #. A déterminer pour le reste.
+
+Modifications faites en séance afin de fusionner les deux diagrammes:
+
+    #. On parle de *SUPPORT_SNAPSHOT* et pas directement maillage -> cf méthodes à géométrie variable
+
+    #. Définition des "snapshot": on sépare bien *clé* (INDEX) et *valeur* (FIELD), et leurs supports respectifs => *SNAPSHOT* contient les deux
+          
+    #. *DOMAINE_DE_CALCUL*, trop ambigu, est séparé en deux *SUPPORT_INDEXATION* et *SUPPORT_SNAPSHOT* selon cette logique
+
+    #. *BASE_ORDRE_REDUIT* à la place de *BASE_REDUITE*, réservé à l'ensemble de méthodes dérivant des travaux de Prudhomme, Maday, Patera
+
+    #. Ok pour attribut *échantillonage_previsionnel* ms attention à bien le définir: c'est le candidat pour le réalisé (cf méthodes greedy).
+
+    #. *DOMAINE_CALCUL_REDUIT* devient *DOMAINE_INTEGRATION_REDUIT*
+
+Fusion des deux diagrammes faite en séance au tableau.
+
+.. todo::
+
+   GF: modifications au glossaire correspondantes.
+   
+   Reporter dans le diagramme UML la fusion sur le tableau. => DONE
+
+Discussion outils pour la conception UML:
+
+    #. XMI: format officiel OMG pour diagrammes UML;
+
+    #. Attention ne normalise pas le *layout* du diagramme. A redessiner dans Modelio -> se transmettre le zip de Modelio plutôt.
+
+.. todo::
+
+   GF: installer Modelio, y reporter le diagramme et mettre le zip dans le dépôt. => DONE
+
+Comment travailler en commun sur la conception quand on sera 10 et plus seulement 3. Conseil Eric:
+
+    * Apporter une base de départ, puis chacun dessine sur telle ou telle partie du modèle de données sur laquelle il est plus enclin.
+
+    * Discussion générale sur la portée de Mordicus. Rassurer les partenaires sur l'ambition générale du projet: pas une bibliothèque qui fait tout ms architecture modulaire prévue pour que les modules et codes qu'on y met puissent se parler. Bien expliquer la démarche: pas redévelopper un noyau qui fait tout. Attention terme "généricité"
+
+    Séance prochaine:
+
+    #. Raffiner *OPERATEUR_DE_CONSTRUCTION*
+
+    #. Raffiner *param_geo*
+
+

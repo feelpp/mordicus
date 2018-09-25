@@ -36,6 +36,8 @@ Contents:
    :maxdepth: 2
 
    meetings/2018_04_19.rst
+   meetings/2018_05_31.rst
+   meetings/2018_06_28.rst
 
 
 Indices and tables
