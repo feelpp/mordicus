@@ -20,10 +20,24 @@ Retranscription "légère":
 
 Archive contenant les sources modelio :download:`archive zip <data/Mordicus_Datamodel.zip>`.
 
-Retranscription avec plantuml:
+Diagramme de classe 3
+---------------------
+
+Fait en séance le 28/06/2018:
+
+.. image:: images/Seance_06_2018.png
+
+Retranscriptions avec plantuml
+------------------------------
+
+.. warning:: 
+
+   OBSOLETE, kept for illustration purposes (Modelio better than plantuml)
+ 
+Diagramme 2
 
 .. uml:: diagrams/class_diagram_2.uml
 
-Une tentative de fusion:
+Une tentative de fusion
 
 .. uml:: diagrams/class_diagram_3.uml
