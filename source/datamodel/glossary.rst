@@ -40,8 +40,8 @@ A lire chronologiquement (idéalement).
     EDP
         Les équations continues correspondant au cas à résoudre.
 
-    DOMAINE_DE_CALCUL
-        Ensemble d'entités géométriques (points, arêtes, faces, volumes...) sur lesquelles s'appuient à la fois la définition du problème et sa traduction en équations.
+    SUPPORT_SNAPSHOT
+        Ensemble d'entités géométriques (points, arêtes, faces, volumes...) sur lesquelles s'appuient à la fois la définition du problème et sa traduction en équations. SUPPORT_SNAPSHOT est une généralisation de MAILLAGE qui permet d'inclure les méthodes à géométrie variable et d'autres use cases particulier (neutronique).
 
         Caractéristiques: Souvent de nature discrète (maillage) et de grande taille
 
@@ -49,8 +49,13 @@ A lire chronologiquement (idéalement).
 
         Questions: inclut-on également l'élément de référence et les fonctions de forme en EF? Parle-t-on du problème discret (maillage) ou continu (CAO)?
 
-    SOLUTION_CAS
-        Valeur d'une quantité mathématique pour laquelle le système d'équations **discret** est satisfait (*Larousse*), pour une valeur de paramètre donnée, temps **inclus**. Une solution se rapporte, via son cas et éventuellement sa valeur de paramètre, à un domaine de calcul.
+    MAILLAGE
+        Spécialisation de SUPPORT_SNAPSHOT, c'est une discrétisation spaciale d'un milieu continu pouvant être directement utilisée par les méthodes numériques de résolution d'EDP communes: éléments finis ou volumes finis. Il s'agit d'un ensemble de cellules (ou encore éléments) dont l'intersection mutuelle est soit vide, soit une seul point, soit une arête, soit une face.
+
+        Questions: les éléments qui constituent un maillage restent à définir plus précisément.
+
+    SOLUTION_CAS ou SNAPSHOT
+        Valeur d'une quantité mathématique pour laquelle le système d'équations **discret** est satisfait (*Larousse*), pour une valeur de paramètre donnée, temps **inclus**. Une solution se rapporte, via son cas et éventuellement sa valeur de paramètre, à un support géométrique de type SUPPORT_SNAPSHOT. Une SOLUTION_CAS contient une **clé** (INDEXATION) permettant de repérer la valeur de paramètre à laquelle elle se rapporte, et une **valeur** (attribut *field*).
 
         Caractéristique: la *quantité mathématique* en question est souvent un *vecteur*. On parle souvent de *snapshot* en réduction de modèles.
 
@@ -59,8 +64,8 @@ A lire chronologiquement (idéalement).
 
         Caractéristique: souvent utilisée par les algorithme sous forme d'une matrice :math:`Q`, dite *matrice des snapshots*.
 
-    DOMAINE_DE_CALCUL_REDUIT
-        Filtre sur un domaine de calcul, permettant de sélectionner des entités géométriques d'intérêt pour la construction d'opérateurs compressés.
+    DOMAINE_INTEGRATION_REDUIT
+        Filtre sur un SUPPORT_SNAPSHOT, permettant de sélectionner des entités géométriques d'intérêt pour la construction d'opérateurs compressés.
         
         Caractéristique: souvent de petite taille.
 
@@ -71,7 +76,7 @@ A lire chronologiquement (idéalement).
 
         Exemples: poids du schéma de quadrature, matrices et vecteurs précalculés, routine de comportement, fonctions de calcul des quantités duales, procédures de reconstruction du gradient, procédures d'assemblage particulières etc.
 
-        Caractéristique: on peut imaginer qu'un certain nombre d'opérateurs de construction "classiques" soient présents dans l'implémentation par défaut. Certains opérateurs de constructions simples reposent sur des projections (produits matrices/vecteurs) à partir de matrices et vecteurs précalculées par un solveur HF.
+        Caractéristique: on peut imaginer qu'un certain nombre d'opérateurs de construction "classiques" soient présents dans l'implémentation par défaut. Certains opérateurs de constructions simples reposent sur des projections (produits matrices/vecteurs) à partir de matrices et vecteurs précalculées par un solveur HF. Ils doivent pouvoir être appelés depuis un calcul *complet* ou *réduit*.
 
         Questions: a priori, inclut également les routines permettant la traduction en équations du problème réduit à partir des coordonnées réduites? (Hypperreduction.ComputeReducedInternalForces et Hyperreduction.ComputeReducedGlobalTangentMatrix)? Faut-il distinguer donnée et procédure dans le modèle de données? Est-ce qu'on inclut les donnée ou procédure utile non pas à la traduction en équations, ms à la résolution algébrique? Classe dérivée "OPERATEUR_DE_PROJECTION"? Faire apparaître les matrices et vecteurs précalculés et l'entité informatique responsable de ce pré-calcul?
 
@@ -92,4 +97,27 @@ A lire chronologiquement (idéalement).
 
         Question: quelle différence avec MODELE_REDUIT? Pour moi, c'est la même chose. Quest-ce qui pilote l'ensemble de la définition d'un CAS_REDUIT_A_RESOUDRE? Est-ce METHODE_DE_REDUCTION en délégant certaines parties à OPERATEUR_DE_COMPRESSION?
 
+    HYPER_REDUCTION
+        Méthode de compression définie par Ryckelynck et al [Ryckelyck09]_, consistant à résoudre un problème aux éléments finis sur un sous-maillage du maillage existant.
 
+    POIDS
+        Poids d'un schéma de quadrature utilisé pour approximer une intégrale.
+
+    SUPPORT_INDEXATION
+        Domaine de définition dans lequel les paramètres sont autorisés à prendre leurs valeurs *ou* ensemble mathématique discret permettant d'indexer de façon univoque des champs. Dans le premier cas, peut être défini par des bornes.
+
+        Caractéristique: dans le cas des méthodes Greedy, on évalue un indicateur a posteriori sur un ensemble de points réparti sur le domaine paramétrique. On parle de *training set* dans la littérature. Dans ce cas, c'est l'attribut *échantillonage_previsionnel* qui porte cette information: c'est un candidat pour le réalisé.
+
+    INDEXATION
+        Valeur de paramètres pour laquelle une solution est effectivement disponible.
+
+    VECTEUR_BASE_ORDRE_REDUIT
+        *Champ* issu d'un algorithme de sélection (méthode base réduite) ou de compression (SVD) appliqué à une COLLECTION_SOLUTION_CAS.
+
+    BASE_ORDRE_REDUIT
+        Base de l'espace réduit sur lequel on projette les équations du problèmes. Collection de VECTEUR_BASE_ORDRE_REDUIT produite par une méthode de réduction et utilisée par une méthode de compression.
+
+    BASE_REDUITE
+        Désigne les méthodes de production d'une base d'ordre réduit reposant sur de sélections gloutonnes de vecteurs pour construire la base d'ordre réduit. Exemples: celles proposées par Maday, Prudhomme, Patera [Réfs?]
+
+.. [Ryckelyck09] D. Ryckelynck, Hyper reduction of mechanical models involving internal variables, International Journal for Numerical Methods in Engineering, Volume 77, Issue 1, Pages: 75-89, (2009).

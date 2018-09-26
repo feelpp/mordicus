@@ -40,7 +40,7 @@ Fusion des deux diagrammes faite en séance au tableau.
 
 .. todo::
 
-   GF: modifications au glossaire correspondantes.
+   GF: modifications au glossaire correspondantes => DONE
    
    Reporter dans le diagramme UML la fusion sur le tableau. => DONE
 
