@@ -4,6 +4,4 @@
 Safran Tech Use Case
 ====================
 
-.. toctree::
-    :maxdepth: 1
-    
+Downloadable file :download:`pdf <20180925-HDF5_EDF.pdf>` or `pptx <20180925-HDF5_EDF.pptx>`.
