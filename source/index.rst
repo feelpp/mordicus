@@ -15,14 +15,21 @@ Contents:
 
    sphinx-instructions
 
-**Cas d'usage**
+**Exemples d'utilisation**
 
 .. toctree::
    :maxdepth: 2
 
-   UseCasesAndUserStories/index
+   example-use/index
 
-**Modèle de données**
+**Fonctionnalités et acteurs**
+
+.. toctree::
+   :maxdepth: 2
+
+   features-description/index
+
+**Modèle de données et glossaire**
 
 .. toctree::
    :maxdepth: 2

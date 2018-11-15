@@ -1,13 +1,12 @@
 .. master file
 
-Fonctionnalités
-===============
+Exemples d'utilisation
+======================
 
 .. toctree::
    :maxdepth: 1
 
-   SAFRAN <SAFRAN/index>
-   Mines <Mines/index>
+   EDF <EDF/index>
 
 
 Indices and tables

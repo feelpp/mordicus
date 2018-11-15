@@ -27,6 +27,11 @@ Fait en séance le 28/06/2018:
 
 .. image:: images/Seance_06_2018.png
 
+Travail préparatoire
+--------------------
+
+Safran sketch of a data model can be found here :download:`pdf <data/ROMDataModel.pdf>` or :download:`pptx <data/ROMDataModel.pptx>`.
+
 Retranscriptions avec plantuml
 ------------------------------
 

@@ -41,8 +41,12 @@ Quel structure pour le retour utilisateur ?
 Dépend du modèle réduit : 
 
 - PGD  
- * Nombre de modes
- * Décomposition considérée (paramétrage)
- * La discrétisation de chaque dimension
+
+    * Nombre de modes
+
+    * Décomposition considérée (paramétrage)
+
+    * La discrétisation de chaque dimension
+
 - Hyper Réduction 
- * 
+
