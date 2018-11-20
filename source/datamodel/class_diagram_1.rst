@@ -37,7 +37,7 @@ Retranscriptions avec plantuml
 
 .. warning:: 
 
-   OBSOLETE, kept for illustration purposes (Modelio better than plantuml)
+   OBSOLETE, kept for illustration purposes, to show that Modelio is better than plantuml.
  
 Diagramme 2
 

@@ -8,7 +8,7 @@ A lire chronologiquement (idéalement).
 .. glossary::
 
     CAS_A_RESOUDRE
-        Question d'intérêt à résoudre dans un domaine quelconque (*Larousse*), par un raisonnement scientifique traduisible en équations. On parle aussi de *problème*.
+        Question d'intérêt à résoudre dans un domaine quelconque (définition du *Larousse*), par un raisonnement scientifique traduisible en équations. On parle aussi de *problème*.
         
     SOLVEUR
         Ensemble d'opérations permettant la traduction en équations du problème à partir d'informations "de plus haut niveau", puis sa résolution. Il prend la forme d'un logiciel.
