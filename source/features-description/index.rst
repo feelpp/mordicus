@@ -8,6 +8,7 @@ Fonctionnalités
 
    SAFRAN <SAFRAN/index>
    Mines <Mines/index>
+   MORDICUS <MORDICUS/index>
 
 
 Indices and tables
