@@ -7,6 +7,7 @@ Exemples d'utilisation
    :maxdepth: 1
 
    EDF <EDF/index>
+   MORDICUS <MORDICUS/index>
 
 
 Indices and tables
