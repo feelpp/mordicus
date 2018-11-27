@@ -89,7 +89,7 @@ Compresseur de données métier
 Manipulateur de données métier compressées
 ------------------------------------------
 
-**Objectif** : Manipuler de données compressées (interpoler, fusionner, orthonormaliser des bases)
+**Objectif** : Manipuler les données compressées
 
 **Input** : 
 
@@ -103,7 +103,7 @@ Manipulateur de données métier compressées
 
 - description méta-données métier
 
-**Exemple** :
+**Exemple** :  interpoler, fusionner, orthonormaliser des bases
 
 
 Visualisateur de données compressées
@@ -113,7 +113,7 @@ Visualisateur de données compressées
 
 **Input** : 
 
-- liste de clusters
+- données compréssées
 
 **Output** :
 
