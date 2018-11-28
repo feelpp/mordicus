@@ -120,6 +120,19 @@ Visualisateur de données compressées
 - écran
 
 
+Sérialisation de données compressées
+------------------------------------
+
+**Objectif** : sauver les données compressées indépendamment du support, machine
+
+**Input** : 
+
+- données compressées
+
+**Output** :
+
+- fichiers, disques, cloud...
+
 
 Compression des opérateurs
 --------------------------
