@@ -1,8 +1,6 @@
 
 .. note::
 
-   *Auteur* : Fabien Casenave
-
    *Contributeurs* : participants à la réunion du 21/11/2018
 
    *Date*   : 22/11/2018
