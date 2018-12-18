@@ -65,7 +65,8 @@ Besides, each *observation* relates to a *localisation* of the sensor on the spa
 
 Hereafter is a class diagram summarizing this section:
 
-.. todo:: insert class diagram here
+.. image:: images/Hackathon2_diagram_1.png
+   :scale: 100 %
 
 As was mentioned in Hackathon 1, the offline process decomposes into a *generation of the reduced basis* phase and an *operator compression* phase.
 
