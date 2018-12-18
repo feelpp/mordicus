@@ -14,8 +14,19 @@ Le zip Modelio est téléchargeable au lien suivant :download:`zip <data/Mordicu
 Zoom sur la partie "pilote de données de simulation"
 ----------------------------------------------------
 
+.. todo:: report of the workshop about this in November Hackathon
+
 .. image:: images/ZOOM_pilote_donnees_simulation.png
    :scale: 60 %
+
+Open questions
+~~~~~~~~~~~~~~
+
+   * expand on the nature of parameters :math:`\mu \in \mathbb{R}^N`. What about a variable geometry?
+
+   * can we say that a *vector of unknowns* aggregates fields ?
+
+   * design of experiments that interacts with the reduced-order model: effect on the *indexing support* data structure?
 
 
 Zoom over the "offline processing" part
@@ -69,13 +80,14 @@ As said before, the *data compression* phase aims at producing a reduced-order b
 
 The treatment workflow for this phase may be concisely represented by the following diagram:
 
-.. todo:: add the word diagram here
+.. image:: images/Hackathon2_Workshop2_1.png
+   :scale: 100 %
 
 A few comments:
 
    - 1rst step: consists of comparing discrete supports of all provided results, and bringing them all down to the same if not already the case. This is not always possible (and an area of research on its own). But there are two common cases:
 
-       * when meshes are *topologically identical* one with another. Then a *mapping* exists (this concept is to be developed further, has it to be defined by the user ?) to bring all results down to the same mesh. This case commonly happens in the study of forming processes.
+       * when meshes are *topologically identical* one with another. Then a *mapping* exists (this concept is to be developed further, has it to be defined by the user ? one minimal requirement is that two nodes mapped onto each other have the same unknown number) to bring all results down to the same mesh. This case commonly happens in the study of forming processes.
 
        * when a *projection operator* onto a unique reference mesh is provided by the user alongside with each result. This may be the case in advanced application (e.g. FSI)
 
@@ -91,7 +103,7 @@ Note that the autocorrelation matrix :math:`A` may also be built from :math:`Q`,
      
        * or alongside time-parameter-state dimension as :math:`Q Q^T` (*method of snapshots*).
 
-   - 3rd step: the reduced basis is generated from :math:`Q` with a complete SVD and basis truncation, or an incomplete SVD. From :math:`A`, it is computed by means of the eigenvalues :math:`\lambda_i` and vectors `\mathbf{\xi}_i` and the results :math:`\mathbf{u}` according to :math:`\mathbf{\phi}_i (\mathbf{x}) = \dfrac{1}{\sqrt{\lambda_i}} \sum_{n=1}^{N_s} \xi_{i,n} \mathbf{u}_n (\mathbf{x})`, cf [Lorenzi16]_.
+   - 3rd step: the reduced basis is generated from :math:`Q` with a complete SVD and basis truncation, or an incomplete SVD. From :math:`A`, it is computed by means of the eigenvalues :math:`\lambda_i` and vectors :math:`\mathbf{\xi}_i` and the results :math:`\mathbf{u}` according to :math:`\mathbf{\phi}_i (\mathbf{x}) = \dfrac{1}{\sqrt{\lambda_i}} \sum_{n=1}^{N_s} \xi_{i,n} \mathbf{u}_n (\mathbf{x})`, cf [Lorenzi16]_.
 
 .. [Lorenzi16] S. Lorenzi, G. Rozza et al, POD-Galerkin Method for Finite Volume Approximation of Navier-Stokes and RANS equations, Computer Methods in Applied Mechanics and Engineering, (2016).
 
@@ -149,6 +161,9 @@ Quality indicators may be separated into:
 .. todo:: examples for each
 
 For the latter case, the reduced-order results should come out under a format that the target external comparison tool can operate. The target Quantity of Interest for comparison should be easily accessible from the reduced-order result.
+
+Summary class diagram for the offline part
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. image:: images/ZOOM_traitements_offline.png
    :scale: 70 %
