@@ -144,7 +144,8 @@ A object *separation of variables* hosts the information for such a decompositio
 
 The problematic of an standard for an abstract function evaluation is close to the FMI/FMU standard.
 
-.. todo:: add the diagram
+.. image:: images/Hackathon2_diagram_2.png
+   :scale: 100 %
 
 .. todo:: the datamodel for other compression algos as the EIM remain to be defined more in details.
 
