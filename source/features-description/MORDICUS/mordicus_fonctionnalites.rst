@@ -235,5 +235,77 @@ REMARQUES
 
 - la séparation offline/online est volontairement absente: pour certaines méthodes, comme la méthode des bases réduites, ces notions sont mélangées
 
+Summary of discussions from HK1
+--------------------------------
 
++----------------------+------------------------------------------------------------+
+|**User environment**  | - User Data generation                                     |
++                      +------------------------------------------------------------+
+|                      | - User Data classification                                 |
++                      +------------------------------------------------------------+
+|                      | - User Data extraction                                     |
++                      +------------------------------------------------------------+
+|                      | - User Data compression                                    |
++                      +------------------------------------------------------------+
+|                      | - Compressed User Data manipulation                        |
++----------------------+------------------------------------------------------------+
+|**Shared environment**| - Compressed data visualization                            |
++                      +------------------------------------------------------------+
+|                      | - Compressed data serialization                            |
++----------------------+------------------------------------------------------------+
+|                      | - Compression of operators                                 |
++                      +------------------------------------------------------------+
+|                      | - Compression of sources                                   |
++                      +------------------------------------------------------------+
+|    **MORDICUS**      | - Resolution of reduced problem                            |
++                      +------------------------------------------------------------+
+|                      | - Reconstruction of interesting quantities                 |
++                      +------------------------------------------------------------+
+|                      | - Error evaluation (algorithmic, verification, validation) |
++----------------------+------------------------------------------------------------+
+
+
+**Remark:**
+
+- **User environment** requiring specific treatment,  etc. algorithms, etc. should be defined and developed by partners.
+
+- **Shared environment** includes data transfer, storage, visualization, etc.
+
+- **MORDICUS containts** algorithms developed by all, communicates with **User environment** via APIs .
+
+
+Non-intrusive process
+-----------------------------
+
+1. **Non-intrusive typical process**
+
+.. image:: img/non_intrusive_process.png
+   :scale: 80 %
+   :align: center
+
+- :math:`X` = Model variables
+
+- :math:`Y` = Model responses
+
+- :math:`X_{new}` = Model new variables to predict
+
+- :math:`Y_{new}` = Model new predicted responses
+
+- :math:`C` = Coefficients
+
+- :math:`F` = Base function
+
+2. **API Use cases**
+
+- GUI
+
+- Data exchange
+
+- Super Elements
+
+- Adaptive enrichment
+
+Intrusive process
+-----------------------------
+**To be defined**
 
