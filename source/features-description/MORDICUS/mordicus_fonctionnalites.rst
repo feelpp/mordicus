@@ -271,7 +271,7 @@ Summary of discussions from HK1
 
 - **Shared environment** includes data transfer, storage, visualization, etc.
 
-- **MORDICUS containts** algorithms developed by all, communicates with **User environment** via APIs .
+- **MORDICUS contains** algorithms developed by all, communicates with **User environment** via APIs .
 
 
 Non-intrusive process
@@ -293,7 +293,7 @@ Non-intrusive process
 
 - :math:`C` = Coefficients
 
-- :math:`F` = Base function
+- :math:`F` = Basis function
 
 2. **API Use cases**
 
@@ -309,3 +309,4 @@ Intrusive process
 -----------------------------
 **To be defined**
 
+This is the biggest unknown of the project at this stage. Should be discussed in order to ensure standard relevance for Hyper Reduction method.
