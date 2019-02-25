@@ -1,0 +1,139 @@
+//Elise Grosjean
+//NIRB methodes à deux grilles
+//FreeFem++ script.edp mesh1.msh mesh2.msh snapshots.txt uh.txt ns 
+//mesh1.msh= maillage fin
+//mesh2.msh= maillage grossier
+//snapshots.txt (vitesses)
+//uh.txt vitesse a approcher
+//ns = nombre de snapshots
+
+load "lapack"
+//ofstream fileErr("errors.txt");
+///********************* LECTURE DU MAILLAGE *******************///
+
+
+string mesh1=ARGV[2]; //mesh1.msh 
+string mesh2=ARGV[3]; 
+string snapshot=ARGV[4];
+string vitesse=ARGV[5];
+
+mesh Th = readmesh(mesh1);
+mesh Th2=readmesh(mesh2);
+plot(Th,wait=true);
+plot(Th2,wait=true);
+fespace Vh(Th,[P2,P2]);
+fespace Vh2(Th2,[P2,P2]);
+
+
+
+
+///********************* LECTURE DES VITESSES *******************///
+//Snapshots
+
+//Vitesse sur le maillage grossier à approcher
+Vh2 [uhh,vhh];
+ifstream fVel(vitesse) ;
+fVel>>uhh[];
+fVel>>vhh[];
+plot([uhh,vhh],cmm="test",wait=true);
+cout<<"fichier pour la matrice des snapshots: "<<snapshot<<endl;
+ifstream fData(snapshot) ;
+int ns; //number of snapshots
+ns=ARGV[6];   
+
+Vh[int] [usnsh,vsnsh](ns); //ns Vecteurs vitesse [u1,u2]
+
+for(int i=0;i<ns;i++){
+	fData>>usnsh[i][];
+	fData>>vsnsh[i][];
+
+	//plot([usnsh[i],vsnsh[i]],cmm="test",wait=true);
+}
+
+
+cout<<"fin de lecture du fichier "<<endl;
+
+
+//Solution sur le maillage fin:
+//Vh [uex,vex];
+//uex[]=usnsh[0][];
+
+///*************************** POD *********************///
+/* build the correlation matrix:
+ * C_ij = (u_i,u_j)
+ */
+real[int,int] C(ns,ns);
+//matrix C=int2d(Th)(usnsh'*usnsh);
+for (int i=0;i<ns;i++){
+  for (int j=i;j<ns;j++){
+    C(j,i) = int2d(Th)(usnsh[i]*usnsh[j]+vsnsh[i]*vsnsh[j]);
+    C(i,j) =C(j,i);
+   }
+}
+
+cout << "correlation matrix: ... done "<< endl;
+//cout << C << endl;
+
+// identity matrix
+real[int,int] II(ns,ns);
+II=0; 
+//II.diag=1;
+for (int i=0;i<ns;i++) II(i,i)=1.;
+
+real[int] ev(ns); //Valeurs propres
+real[int,int] eVec(ns,ns); //Vecteurs propres
+int k1=dsygvd(C,II,ev,eVec); //Pb aux valeurs propres C.v=lambda.v
+cout<<"eigenvalues... done"<<endl;
+
+
+real[int,int] matVec(Vh.ndof,ns); //matrice vitesse
+int i,j;
+
+
+for(int i=0;i<ns;i++)
+	matVec(:,i)=usnsh[i][];  
+
+real normsn=1;
+
+real[int,int] eVec2(ns,ns);
+for(int i=0;i<ns;i++){
+	eVec2(:,i)=eVec(:,ns-1-i);// reordering: most energetic modes first
+}
+
+nev=5;
+
+cout<<"number of modes: "<<nev<<endl;
+Vh[int] [mod1,mod2](nev); //modes propres
+// calcul des modes et remplissage des modes dans la matrice mod1[][] + normalisation
+for (i=0;i<nev;i++){
+    mod1[i][]=matVec*eVec2(:,i); 
+    normsn = sqrt(int2d(Th)(square(mod1[i])+square(mod2[i])));
+    mod1[i][]/=normsn;
+}
+
+cout<<"modes ...done"<<endl;
+for(i=0;i<nev;i++) {
+	plot([usnsh[i],vsnsh[i]],cmm="mode"+i,wait=1);
+//cout<<endl;
+}
+
+//////////****************** Approximation sur le maillage fin *********************/// 
+
+Vh [usol,vsol];
+usol[]=0.;
+for(i=0;i<nev;i++){
+	usol[]+=int2d(Th)(uhh*mod1[i]+vhh*mod2[i])*mod1[i][];
+
+}
+cout<<"approximation for nev = " <<nev<<" ... done "<<endl;
+//error estimate
+/*real err2=sqrt(int2d(Th)(square(usol-uex)+square(vsol-vex)));
+err2=err2/sqrt(int2d(Th)(square(uex)+square(vex)));
+cout<<"err relative "<<err2<<endl;
+plot([uhh,vhh],cmm="maillage grossier",wait=true);
+plot([usol,vsol],cmm="projection",wait=true);
+Vh [err11,err21];
+[err11,err21]=[abs(usol-uex),abs(vsol-vex)];
+plot([err11,err21],cmm="erreur",wait=true);
+fileErr<<nev<<" "<<err2<<" "<<ev(ns-nev-1)<<endl;
+*/
