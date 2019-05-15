@@ -8,8 +8,7 @@ Exemples d'utilisation
 
    EDF <EDF/index>
    MORDICUS <MORDICUS/index>
-	      viscous_fall
-	      Sorbonne
+   viscous_fall <viscous_fall>
 
 
 Indices and tables
