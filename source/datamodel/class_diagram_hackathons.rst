@@ -317,6 +317,25 @@ Zoom sur la partie "traitements online"
 .. image:: images/ZOOM_traitements_online.png
    :scale: 70 %
 
+Z-set initial guess
+~~~~~~~~~~~~~~~~~~~
+
+Actuellement dans Z-set, un modèle d'ordre réduit c'est:
+
+    - un nombre de dof
+
+    - un vecteur de poids par dof
+
+    - une matrice de modes empiriques
+
+    - une matrice de covariance issu de la phase d'apprentissage offline (version incrémentale)
+
+    - la discrétisation temporelle de la dernière simulation online
+
+    - la matrice des coordonnées réduites de la dernière simulation online
+
+    - la nature de la base orthogonale ou non
+
 
 Annexes
 =======

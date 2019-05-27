@@ -36,37 +36,20 @@ A lire chronologiquement (idéalement).
     VARIABLE_PARAMETERS
         Données considérées pour la question d'intérêt comme variables. On parle aussi de **paramètres**. Un cas possèdant des données variables est dit **paramétrique**. En termes d'attributs, une première information permet de savoir où elles s'insèrent dans la mise en donnée du problème **continu**: cela prend la forme d'un identifiant repris dans la mise en données du problème. D'autres informations peuvent décrire la nature physique de ce paramètre, en vue de les afficher dans le modèle réduit => DONNEES_IO.
 
-        Attributs:
-            Une seconde information est le domaine de variation admissible => SUPPORT_INDEXATION
-
-            TODO: Identifiant pour insertion dans la mise en données du problème.
-
-            TODO: Informations sur la nature physique du paramètre.
-
-            Optionnel: ensemble discret de valeurs à balayer, valeurs effectivement balayées.
-
-        Remarques:
-
-            TODO: DONNEES_IO contiendrait DONNEES_VARIABLES
+        Exigences:
+            Il contient / peut accéder à l'ensemble discret de valeurs à balayer et aux valeurs effectivement balayées. Une seconde information est le domaine de variation admissible => SUPPORT_INDEXATION
 
     DONNEES_INPUT_OUTPUT
-        Description des entrées/sorties de la fonction de transfert, dont le réducteur de modèle non intrusif cherche une représentation réduite (plutôt adapté pour les méta-modèles). Prévu dans CASE_DATA dans le modèle de données.
+        Description des entrées/sorties de la fonction de transfert, dont le réducteur de modèle non intrusif cherche une représentation réduite (plutôt adapté pour les méta-modèles) => non retenu comme classe indépendente dans le modèle de données, prévu dans CASE_DATA.
 
     EDP
         Equation différentielle dont les solutions sont les fonctions inconnues dépendant de plusieurs variables vérifiant certaines conditions concernant leurs dérivées partielles
 
     SUPPORT_DISCRET
-        Hiérarchie d’entités de :math:`\setR^N` (points, arêtes, faces, volumes...) sur lesquelles s’appuient à la fois la définition du problème et sa traduction en équations. Il doit prévoir la possibilité de tagguer des groupes d’entités. Des domaines de définition (espace, temps, paramètres ou une combinaison des précédents) peuvent être générés par produit cartésien de supports discrets.
-
-        Attribut:
-            TODO: Eléments support par famille, selon leur nature géométrique (celle-ci étant précisée pour chaque famille).
+        Hiérarchie d’entités de :math:`\R^N` (points, arêtes, faces, volumes...) sur lesquelles s’appuient à la fois la définition du problème et sa traduction en équations. Il doit prévoir la possibilité de tagguer des groupes d’entités. Des domaines de définition (espace, temps, paramètres ou une combinaison des précédents) peuvent être générés par produit cartésien de supports discrets.
 
         Remarques:
             Le terme se rapport à la notion d'ensemble dénombrable, potentiellement peut prêter à confusion.
-
-            TODO: changer le nom
-
-            TODO: ajouter le lien avec l'espace d'approximation dont on a besoin pour passer de "state variable" à "champ".
 
     DOF_SUPPORT
          Association entre (i) une entité géométrique ou un ensemble de plusieurs d’entités topologique et (ii) une ou plusieurs inconnues (1 ddl) du problème. Une inconnue a au plus un support. Dans la plupart des cas, ce sont des nœuds (éléments finis) ou des points (volumes finis), mais pas nécessairement.
@@ -81,8 +64,6 @@ A lire chronologiquement (idéalement).
         Nature d’un résultat, elle est associée à une seule unité au sens (SI + sans unité).
 
         Remarque:
-            TODO: Faut-il préciser la nature locale ou globale (intensive ou extensive) de la grandeur.
-
             Comment seront gérée les unités différentes ?
 
     FIELD
@@ -91,24 +72,16 @@ A lire chronologiquement (idéalement).
        Remarque:
            Attention au temporel comme support discret en particulier dans le cas où on change le maillage en temps => c'est l'objet COLLECTION_SOLUTION_CAS qui va alors gérer.
 
-           TODO: FIELD à rapporter à SOLUTION_CAS ?
-
-           TODO: Un field peut-il avoir un support en temps paramètres ? Traiter le cas de time series: classe dérivée ou classe sans rapport.
-
     UNKNOWN_VECTOR
-           C’est le vecteur d’état (vecteur des variables d’état discrètes) X que le problème doit déterminer. C’est la sortie primale de la modélisation. Il peut mélanger des inconnues de différentes unités, autrement dit mélanger différentes quantités physiques : déplacement, pression, multiplicateur de Lagrange… Une inconnue peut être associée à un support de ddl. Ce n’est pas systématique (cf certains multiplicateur de Lagrange introduits de façon purement algébrique). Un vecteur d’inconnues est donc également associé à un support discret, mais de façon plus indirecte. Un vecteur d’inconnues agrège plusieurs vecteur d’état (multiplicateurs...), dont certaines peuvent ne pas avoir de représentation spatiale.
+           C’est le vecteur d’état (vecteur des variables d’état discrètes) X que le problème doit déterminer. C’est la sortie primale de la modélisation. Il peut mélanger des inconnues de différentes unités, autrement dit mélanger différentes quantités physiques : déplacement, pression, multiplicateur de Lagrange... Une inconnue peut être associée à un support de ddl. Ce n’est pas systématique (cf certains multiplicateur de Lagrange introduits de façon purement algébrique). Un vecteur d’inconnues est donc également associé à un support discret, mais de façon plus indirecte. Un vecteur d’inconnues agrège plusieurs vecteur d’état (multiplicateurs...), dont certaines peuvent ne pas avoir de représentation spatiale.
 
            Remarque:
-                TODO: Bien distinguer de la notion de variable d'état telle qu'introduite en physique.
+                Attention à ne pas confondre avec la notion de variable d'état telle qu'introduite en physique.
 
     QUANTITY_VECTOR (state variable) OK
            Vecteur correspondant à une seule quantité physique et pouvant se représenter comme un champ via un espace d’approximation, lequel s’appuie sur le support discret. Exemples d’espaces d’approximation : espace polynomiaux par éléments associées aux éléments finis de Lagrange, de Hermite… A l’inverse, un champ se représente comme variable d’état par une méthode d’interpolation visant à définir un vecteur à partir d’opérations (éventuellement intégrales) sur les valeurs du champ.
 
            Remarque:
-               TODO: je parlerais de champ continu et de champ discret si c'est bien cette notion qui différencie FIELD et STATE_VARIABLE.
-
-               TODO: Lien vers APPROXIMATION_SPACE à rajouter.
-
                A discuter: pas de lien avec le support discret directement.
 
     APPROXIMATION_SPACE
@@ -120,8 +93,6 @@ A lire chronologiquement (idéalement).
         Remarque:
              Un champ a été défini comme portant une unique quantité physique. La sortie peut être constituée de plusieurs champs.
 
-             TODO: faire le lien avec DONNEES_INPUT_OUTPUT
-   
     MAILLAGE
         Spécialisation de SUPPORT_SNAPSHOT, c'est une discrétisation spatiale d'un milieu continu pouvant être directement utilisée par les méthodes numériques de résolution d'EDP communes: éléments finis ou volumes finis. Il s'agit d'un ensemble de cellules (ou encore éléments) dont l'intersection mutuelle est soit vide, soit une seul point, soit une arête, soit une face.
 
@@ -132,11 +103,6 @@ A lire chronologiquement (idéalement).
         Valeur d'une quantité solution pour laquelle le système d'équations **discret** est satisfait (*Larousse*), pour une valeur de (paramètre, temps) donnée. Une solution se rapporte, via son cas et éventuellement sa valeur de paramètre, à un SUPPORT_DISCRET. Une SOLUTION_CAS contient une **clé** (INDEXATION) permettant de repérer la valeur de (paramètre, temps) à laquelle elle se rapporte, et une **valeur** (attribut *field*) qui est un vecteur solution, par exemple un champ ou un vecteur d'inconnues
 
         Caractéristique: la *quantité mathématique* en question est souvent un *vecteur*. On parle souvent de *snapshot* en réduction de modèles.
-
-        Remarque:
-            TODO: Expliciter la condition d'un unique support discret
-
-            TODO: un snapshot peut-il directement être une quantité d'intérêt (une réalisation)
 
     COLLECTION_SOLUTIONS
         Ensemble de solutions, chacune étant qualifée par sa valeur des données variables (temps inclus), parmi les valeurs effectivement balayées.
@@ -155,7 +121,7 @@ A lire chronologiquement (idéalement).
         Filtre sur un SUPPORT_DISCRET, permettant de sélectionner des entités géométriques d'intérêt pour la construction d'opérateurs compressés. Exemple: points d’intégrations empiriques (nuage de points), éléments finis d’une hyper-réduction (sous-domaine de calcul réduit). Par filtre, on entend une sélection qui entraîne que le domaine réduit est un nouveau support discret.
 
        Remarques:
-            TODO: vérifier que le DOMAINE_REDUIT est une classe qui dérive de SUPPORT_DISCRET. Cette exigence est motivée car il doit pouvoir être indépendant des supports haute-fidélité.
+            DOMAINE_REDUIT est une classe qui dérive de SUPPORT_DISCRET car il doit pouvoir être indépendant des supports haute-fidélité.
         
         Caractéristique: souvent de petite taille.
 
@@ -180,18 +146,12 @@ A lire chronologiquement (idéalement).
 
         Question: expliquer pourquoi ce n'est pas équivalent à dire "opérations de la phase *offline* n'impliquant pas de domaine de calcul réduit"? Elle s'appuie sur la matrice des snapshots indépendamment du problème?
 
-        Remarques:
-            TODO: vérifier que BASE_REDUITE dérive de COLLECTION_SOLUTIONS
-
     COMPRESSION_DES_OPERATEURS
         Opérations ayant pour but la production des opérateurs de construction d'un modèle réduit ou la diminution de leur complexité algorithmique (dans le but d'accélérer la phase *online*). Il produit des opérateurs de construction réduits. Exemples: il peut s’agir d’une méthode de projection d’opérateurs de construction précalculés sur une base réduite, ou de méthodes faisant appel à un domaine réduit. Les premiers prennent en entrée des opérateurs complets, les seconds des opérateurs réduits dans le but d’effectuer une deuxième opération de réduction.
 
         Caractéristique: il peut s'agir d'une méthode de projection d'opérateurs de construction précalculés sur une base réduite, ou de méthodes faisant appel à un domaine réduit. Les premiers prennent en entrée des opérateurs complets, les seconds des opérateurs réduits dans le but d'effectuer une deuxième opération de réduction.
 
         Question: expliquer pourquoi ce n'est pas équivalent à dire "opérations de la phase *offline* impliquant un domaine de calcul réduit"? Appeler ça "METHODE" plutôt qu'opérateur.
-
-        Remarques:
-            TODO: changer l'intitulé dans le modèle de données.
 
     REDUCED_CASE_TO_SOLVE
         Ensemble des informations nécessaires à la réalisation de la phase *online*. On trouve donc des données du problème, les mêmes que celles qui ont servies à la définition du problème complet associé, mis à part que les données fixes ne sont que consultables, seules les données variables sont modifiables dans la plage spécifiée. On trouve également un solveur réduit assorti des opérateurs de constructions réduits qui le complètent.
@@ -204,9 +164,6 @@ A lire chronologiquement (idéalement).
     QUADRATURE_WEIGHTS
         Poids d'un schéma de quadrature utilisé pour approximer une intégrale.
 
-        Remarques:
-            TODO: nom à changer dans le modèle de données
-
     VECTEUR_BASE_ORDRE_REDUIT
         *Champ* ou *vecteur d'inconnues* (suivant ce qui est nécessaire pour la méthode de compression a appliquer) issu d'un algorithme de sélection (méthode base réduite) ou de compression (SVD) appliqué à une COLLECTION_SOLUTIONS. Pour certaines applications, on parle de *mode* ou de *mode empirique*.
 
@@ -215,8 +172,5 @@ A lire chronologiquement (idéalement).
 
     RB_METHOD
         Désigne les méthodes de production d'une base d'ordre réduit reposant sur de sélections gloutonnes de vecteurs pour construire la base d'ordre réduit. Exemples: celles proposées par Maday, Prudhomme, Patera [Réfs?]
-
-        Remarques:
-            TODO: changer le vocabulaire dans le modèle de données.
 
 .. [Ryckelyck09] D. Ryckelynck, Hyper reduction of mechanical models involving internal variables, International Journal for Numerical Methods in Engineering, Volume 77, Issue 1, Pages: 75-89, (2009).
