@@ -1,7 +1,7 @@
-.. _class_diagram:
+.. _class_diagram_hackathon:
 
-Dernière version en date du modèle de données
-=============================================
+Hackathons dédiés au modèle de données
+======================================
 
 Sous forme de diagramme de classe produit avec Modelio.
 
