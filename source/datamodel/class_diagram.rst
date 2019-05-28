@@ -53,6 +53,9 @@ It references a **FIXED_PARAMETERS** objects that we could have made variable - 
  -value                the value of fixed parameter
  -ref_insertion_jdd    a string identifier that relates to the main instruction file and says how the value is used
 
+ .. todo::
+     In the *domain model* as drawn up, *FIXED_PARAMETER* and *VARIABLE_PARAMETER* only supports real values. It's important in the future to extend this to support at least: input time signal and discrete support. Indeed, input time signals are the varying data for a family of model mainly for linear problems. As for discrete supports, they come into play in advanced method with a non-parametrized variable geometry. It's important to support both in Mordicus, which seems not too complicated given that the corresponding objects exist in Mordicus(respectively *QUANTITY_OF_INTEREST* and *DISCRETE_SUPPORT* to be explained later).
+
 In addition, *SOLVER_DATASET* references an **EXTERNAL_SOLVING_PROCEDURE** object that caracterizes the external solving tool to Mordicus. This object does not represent the solver itself, that shall not be included in Mordicus, but it says how to call it. For this, it has the following attributes:
 
  -solver_name                  a unique identifier for this installation of this external solver tool
@@ -68,7 +71,46 @@ In addition, *SOLVER_DATASET* references an **EXTERNAL_SOLVING_PROCEDURE** objec
 Discrete support: a generalization of the mesh
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Yet to write
+Among the data gathered by *CASE_DATA*, one deserves special attention: the ones with **DISCRETE_SUPPORT** data type. The numerical description of the problem to solve almost always relies on *discrete supports*, at least for time and space, that plays a specific role during the reduction process and for the reconstruction of reduced results.
+
+The *DISCRETE_SUPPORT* is a common data type to specify *definition domains* in space, time or parameter. *Definition domains* may also be defined by a cartesian product of discrete supports implicitely: the result *discrete support* of the cartesian product is not computed, it would be too heavy in memory.
+
+.. _v0_zoom2:
+.. figure:: images/v0_zoom2.png
+
+.. todo::
+   Represent this ability to do cartesian products on the datamodel by a reference of *DISCRETE_SUPPORT* onto itself.
+
+In this way, space, time and parameter-based *discrete supports* are instances of the same class. For instance, a 1D space mesh and a time discrete interval are represented by the same data structure. Nevertheless, *DISCRETE_SUPPORT* contains attributes (see :numref:`v0_zoom2`):
+
+ -type                    into "space", "time", "parameter", "tensorial_product". Indicates the quantity the discrete support relates to.
+ -topological_dimension   the dimention N of the surrouding space, or the number of reals to give to define a point.
+ -has_been_read           because mesh files can be heavy, their loading in memory can be delayed until needed:
+                          this attributes tells wether the discrete support has been loaded in memory or it still has to be imported from a file
+ -has_been_built          tells if the discrete support has been explicitely built or exists as a definition (e.g. "All points between 0 and 10 with a stride of 0.5")
+
+.. todo::
+    For not yet loaded mesh, add a file attribute.
+
+A *DISCRETE_SUPPORT* is a hierarchy of entities in :math:`\mathbb{R}^N` (nodes, edges, faces,volumes), starting at the lowest level (dimension 0 objects) with *nodes* or *points*. **NODES** are defined straight by their *coordinates* attribute, whereas **POINTS** take their definition from a higher-level entity: consider the center of a finite-volume cell or a Gauss point (defined from a reference finite element) for instance.
+
+The discrete support is conceptually a tree of **ENTITIES**, represented in the class diagram according to the composite design pattern (see :numref:`v0_zoom2`): leaf *entities* are nodes, and higher-level *entities* are defined from them on. Let take the example of a 3D mesh: in most cases, the volumes (level 3 entities) are defined straight from the nodes, intermediate entities (edges, surfaces) are omitted. They would be heavy in memory, and can be reconstructed by the viewer from the ordered list of "child" nodes. As for us, the support is merely defined as a tree of entities under the conditions that parent be at a strictly higher level than children, but no further condition. So, an entity has 2 attributes:
+
+ -dim                          the "dimension" or "level" of the entity (0 for points and nodes, 1 for edges, 2 for faces, 3 for volumes)
+ -reference_element_topology   a string qualifying the topology of the element. For instance: "triangle_3nodes", "triangle_6nodes", "hexaedron_8nodes" etc.
+                               
+ 
+ This *reference_element_topology* attribute allows to call a finite element logics, possibly coded by Mordicus modules, specifically for each type of element, for instance for specific reduction methods such as hyper-reduction. However, this logics is internal to such a module and the underlying internal data do not appear in Mordicus, which only needs to provide the module with a referenced element topology in a common list for each element in the mesh.
+
+.. note::
+    It is conceptually attractive to define each entity exclusively from the next lower level (edges from nodes, faces from edges etc), but as said this would imply heavy and unnecessary information: there is seldom the need, for instance, to define all faces of the mesh in the model. On the other side, it is comfortable for some methods (special finite volume) to have faces available in the mesh, hence the choice to prescribe no further condition.
+
+A *DISCRETE_SUPPORT* has the ability to tag groups of entities.
+
+.. todo::
+    Represent this ability in class diagram.
+
+Only those features of *POINT* that persist after the local element treatment are published as attributes, as potential useful data to reduction procedures. For instance, for a Gauss point in the context of a finite element method, the reference coordinate, reference shape functions values and reference quadrature weights are *not* kept. They may be recovered upon request from the element characteristics, in particular *reference_element_topology*. But the real coordinates and quadrature weights are kept in a persistent point object: it will serve as a shortcut to reduction procedures such as empirical quadrature, which would then have not need to dig into the finite element logics.
 
 
 
