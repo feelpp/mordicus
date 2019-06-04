@@ -6,18 +6,17 @@ Description of version v0 of the datamodel
 Foreword
 --------
 
-This section summarizes the *domain model* for the scope that Mordicus should cover. It is not (yet) an *implementation model*: it does not say how things will effectively be implemented in Mordicus, though it gives a first hint. For instance, a *classifier* in this diagram will not necessarily lead to a *class* in Mordicus. But it does describe the structure of data that will be employed in Mordicus.
+This section summarizes the *domain model* of the scope that Mordicus should cover. It is not (yet) an *implementation model*: it does not say how things will effectively be implemented in Mordicus, though it gives a first hint. For instance, a *classifier* in this diagram will not necessarily lead to a *class* in Mordicus. But it does describe the structure of data that will be employed in Mordicus.
 
 This *domain model* identifies all data Mordicus will need direct access to. It encompasses the whole information needed to get the data science methods in Mordicus to work. Therefore, information about the modeled physics, or the PDE solving techniques scarcely appear in this data model. When not needed by the data science method, this information is internal to the solver or a custom method that Mordicus will call, and therefore it does appear in the data model.
 
 Overview of the model
 ---------------------
 
-Here is the *domain model* under the form of a class diagram:
+The full *domain model* is presented under the form of a class diagram on :numref:`full_model`. In hard to read in this state, so we'll go into details in the coming paragraphs, and the data model is available for interactive consultation on the open software Modelio, with the zip file at this link :download:`zip <data/Mordicus_Datamodel.zip>`.
 
-.. image:: images/REFERENCE_CLASS_DIAGRAM.png
-
-For modification in Modelio, the zip file is available at this link :download:`zip <data/Mordicus_Datamodel.zip>`.
+.. _full_model:
+.. figure:: images/REFERENCE_CLASS_DIAGRAM.png
 
 Data simulation part
 --------------------
@@ -120,13 +119,16 @@ Only those features of *POINT* that persist after the local element treatment ar
 Quantities of interest, fields and unknowns: the 3 kinds of results
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The specified *outputs* to *CASE_DATA* may be of 3 kinds, ranging from "closer to business user" to "closer to mathematical techniques":
+The specified *outputs* to *CASE_DATA* may be of 3 kinds, see :numref:`v0_zoom3`, ranging from "closer to business user" to "closer to mathematical techniques":
 
     * quantities of interest
 
     * field
 
     * vector of unknown.
+
+.. _v0_zoom3:
+.. figure:: images/v0_zoom3.png
 
 The **QUANTITY_OF_INTEREST** class aims at equally representing signals from "physical" or "numerical" sensors of the case. In attribute *series_value*, it bears one value (possibly a vector, or a tensor) for each index of the indexing system of the case. It may originate from a post-processing of the simulation (for instance, flow through a section) or from experimental data. In other words, it is an observation on the system. Many times, the end business user is only interested in a few *quantities of interest* in the result of a simulation.
 
@@ -207,7 +209,7 @@ With this in mind, let us come back to the *localisation* description of *QUANTI
       
     * and obviously representing the reduced coordinates with respect to empirical modes.
 
-The informations contained in *RESTRICTION_FIELD_STRUCTURE* allow to build a :math:`\mathbf{Z} \in \mathbb{R}^{N \times n}` matrix, that link the coordinates :math:`\mathbf{u} \in \mathbb{R}^N` of the full-space basis with the coordinates :math:`:mathbf{a} \in \mathbb{R}^n` in the reduced-space basis. This relation is:
+The informations contained in *RESTRICTION_FIELD_STRUCTURE* allow to build a :math:`\mathbf{Z} \in \mathbb{R}^{N \times n}` matrix, that link the coordinates :math:`\mathbf{u} \in \mathbb{R}^N` of the full-space basis with the coordinates :math:`\mathbf{a} \in \mathbb{R}^n` in the reduced-space basis. This relation is:
 
     * typically :math:`\mathbf{u} = \mathbf{Z} \mathbf{a}` for DOF elimination, with :math:`\mathbf{Z}` a basis of the null-space of the the constraint matrix :math:`\mathbf{B}` (i.e. such that :math:`\mathbf{Z}` has full rank and :math:`\mathbf{B} \mathbf{Z} = 0`;
 
@@ -243,14 +245,17 @@ This is done by means of the following attributes:
 
 In addition to that, a *field_fieldindex2index* array is also provided as an attribute. For an input (field number, index in field structure), it returns the index in the unknown structure. Though this could be build from reverse analysis of the above, it has to be kept in memory and up-to-date for obvious performance purposes.
 
-Say there are :math:`\mathcal{N}` unknowns. The same way we did for *RESTRICTION_FIELD_STRUCTURE*, we may be able to define a restriction mechanism *RESTRICTION_UNKNOWNS_STRUCTURE* to describe smaller vectors of unknows representing coordinates in subspaces of :math:`mathbb{R}^{\mathcal{N}}`, based on *vector of unknowns* representing Z-columns. For the sake of clarity, int is not represented on the current data model.
+Say there are :math:`\mathcal{N}` unknowns. The same way we did for *RESTRICTION_FIELD_STRUCTURE*, we may be able to define a restriction mechanism *RESTRICTION_UNKNOWNS_STRUCTURE* to describe smaller vectors of unknows representing coordinates in subspaces of :math:`\mathbb{R}^{\mathcal{N}}`, based on *vector of unknowns* representing Z-columns. For the sake of clarity, int is not represented on the current data model.
 
 .. _io_indexing:
 
 Description of inputs and outputs, indexing mechanism
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-As was said in case_data_, the *CASE_DATA* object includes information about the *model* to be reduced. In other words, it has to describe the input/output of the transfer function, a reduced representation of which which be built by a "model reduction user".
+As was said in case_data_, the *CASE_DATA* object includes information about the *model* to be reduced. In other words, it has to describe the input/output of the transfer function, a reduced representation of which which be built by a "model reduction user", see :numref:`v0_zoom4`.
+
+.. _v0_zoom4:
+.. figure:: images/v0_zoom4.png
 
 For this, the parameters according to which reduction will take place are defined as instances of the **VARIABLE_PARAMETERS** class. They have attribute:
 
@@ -303,7 +308,11 @@ Internal solving procedures and standard functions
 
 In the data model in its current state, the high-dimensional problem is solved by an external solver. As for the reduced model, for a maximal genericity the resolution code of the associated equations (ODEs, more often) will often be included in the Mordicus library: these approaches are called *non-intrusive*, and particularly useful when there is limited or no possible interaction with the external solver (e.g. commercial software). Moreover, a functional requirement of Mordicus is to support exporting the reduced-order model to standard formats (PXDMF, FMI...).
 
-So besides the *EXTERNAL_SOLVING_PROCEDURE*, we introduce an *INTERNAL_SOLVING_PROCEDURE*, each of which is derived from an abstract **SOLVING_PROCEDURE**.
+So besides the *EXTERNAL_SOLVING_PROCEDURE*, we introduce an *INTERNAL_SOLVING_PROCEDURE*, each of which is derived from an abstract **SOLVING_PROCEDURE**, see :numref:`v0_zoom5`.
+
+.. _v0_zoom5:
+.. figure:: images/v0_zoom5.png
+
 
 Conceptually, a *solving procedure* is a program that is able to evaluate a model - **reduced-order** or **full-order** - at a point of the parametric space. For now, in this *domain model*, *full-order* models are evaluated by *external procedures* and *reduced-order* models are by internal procedures. This is a restriction to be lifted in the future.
 
@@ -318,19 +327,19 @@ In practice, when the "model reducing user" will need to include a new kind of r
  
 So an **INTERNAL_SOLVING_PROCEDURE** is the only object for top-level "custom" functions not developed as a method of an existing class of Mordicus datamodel. It deserves a peculiar treatment, with additional context and constrains because:
 
-    * it should proper form to be easily converted to external formats (PXDMF, FMI...)
+    * it should have a form that makes conversion to external formats (PXDMF, FMI...) easy
 
     * it should have enough information to be archived in a shared catalog of reduced-order models
 
-    * there is many ODE's resolution procedures, of various techniques, and its not reasonable to ask the developer to do it subclassing some pre-existing class in Mordicus
+    * there is many ODE's resolution procedures, of various techniques, and its not reasonable to ask the developer to do it by subclassing some pre-existing class in Mordicus
 
     * developing a new solving procedure is expected to be, by far, the most frequent kind of development of module developers. It deserves a specific frame.
 
 So that it can be found and called straight from its name, its implementation has to follow Mordicus guidelines (yet to be written). For instance, some demands to the module developer would read::
 
-    Call it Internal_Procedure_NAME, implement in C++ and declare as ``extern "C"`` in a separate file Internal_Procedure_NAME.hpp
-    Put source files in ``$MORDICUS_SOURCE_ROOT_DIR/src/internal_procedures``
-    Declare new procedure in the registry in ``$MORDICUS_SOURCE_ROOT_DIR/src/conf/registry.cfg``".
+    Call it Internal_Procedure_NAME, implement in C++ and declare as extern "C" in a separate file Internal_Procedure_NAME.hpp
+    Put source files in $MORDICUS_SOURCE_ROOT_DIR/src/internal_procedures
+    Declare new procedure in the registry in $MORDICUS_SOURCE_ROOT_DIR/src/conf/registry.cfg.
 
 In addition to these coding principles and conventions, an *INTERNAL_SOLVING_PROCEDURE* declares its *interface*: its input arguments types should be chosen among acknowledged *offline* data structures. These are all types of *resolution data*, i.e. *offline* pre-computed data that is essential for the reduced-order model to run. Fot the reduction methods identified thus far in the Hackathons, the comprehensive list is: *MATRIX*, *VECTOR_OF_UNKNOWN*, *REDUCED_DOMAIN*, *OPERATOR_DECOMPOSITION*, *COLLECTION_SOLUTION_CAS*, *STANDARD_FUNCTION_IMPLEMENTATION* (we'll come back to the latter).
 
@@ -368,6 +377,10 @@ The global registry of an installation of Mordicus registers two kinds of object
 For instance, some demands to the user could read::
     Be implemented in C++ and compiled separately, the file path being declared to Mordicus registry at runtime with a specific Mordicus syntax
     Abide by the interface of one of the "blank" operations known to mordicus registry
+ 
+    We do not (yet) say how *STANDARD_FUNCTION_IMPLEMENTATION* and *INTERNAL_SOLVING_PROCEDURE* will be loaded or unloaded at runtime or even during execution (for the latter). But there are ways to do it even in compiled languages as C++, see e.g. here_.
+
+.. _here: https://theopnv.com/dynamic-loading/
 
 The *STANDARD_FUNCTION_IMPLEMENTATION* owns the following attributes:
 
@@ -390,11 +403,14 @@ In the case of a calling *INTERNAL_RESOLUTION_PROCEDURES*, the expected prototyp
 Compression of data and compression of operators
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-A reduction procedure is often made of two steps:
+A reduction procedure is often made of two steps, see :numref:`v0_zoom6`:
 
    * a *data compression* phase, in which one or several *reduced-order bases* are generated,
 
    * an *operator compression* phase, which relies on these bases to build reduced-order *resolution data*, to be employed in a reduced-order resolution procedure
+
+.. _v0_zoom6:
+.. figure:: images/v0_zoom6.png
 
 A **COMPRESSION_OF_DATA** procedure uses high-dimensional solutions (snapshots) to build a few space functions, making up a *reduced order basis* (BASE_ORDRE_REDUIT), defining a smaller subspace where to look for the solution. Let :math:`Q \in \mathbb{R}^{N \times n_s}` be the snapshot matrix, with :math:`n_s` the number of snapshots. The autocorrelation matrix can be built as :math:`Q^T M Q`, with :math:`M` the matrix of the scalar product deemed relevant to the problem, or as :math:`Q Q^T` (method of snapshots).
 
@@ -440,7 +456,7 @@ ECSW                                   COLLECTION_SOLUTION_CAS                  
 Decomposition of operators
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Among those types, the **DECOMPOSITION_OF_OPERATORS** data type deserves some attention. It describes an operator expansion that splits variables, as:
+Among those types, the **DECOMPOSITION_OF_OPERATORS** data type deserves some attention, see :numref:`v0_zoom5`. It describes an operator expansion that splits variables, as:
 
 .. math::
 
@@ -482,6 +498,10 @@ The data model for the *online* part has been designed according to the followin
 .. todo::
     Move *BASE_ORDRE_REDUIT* on the *offline* side ?
 
+The online data structures are summarized on :numref:`v0_zoom7`
+
+.. _v0_zoom7:
+.. figure:: images/v0_zoom7.png
 
 Links of the reduced case with the resolution part
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
