@@ -46,7 +46,7 @@ A lire chronologiquement (idéalement).
         Equation différentielle dont les solutions sont les fonctions inconnues dépendant de plusieurs variables vérifiant certaines conditions concernant leurs dérivées partielles
 
     SUPPORT_DISCRET
-        Hiérarchie d’entités de :math:`\R^N` (points, arêtes, faces, volumes...) sur lesquelles s’appuient à la fois la définition du problème et sa traduction en équations. Il doit prévoir la possibilité de tagguer des groupes d’entités. Des domaines de définition (espace, temps, paramètres ou une combinaison des précédents) peuvent être générés par produit cartésien de supports discrets.
+        Hiérarchie d’entités de :math:`\mathbb{R}^N` (points, arêtes, faces, volumes...) sur lesquelles s’appuient à la fois la définition du problème et sa traduction en équations. Il doit prévoir la possibilité de tagguer des groupes d’entités. Des domaines de définition (espace, temps, paramètres ou une combinaison des précédents) peuvent être générés par produit cartésien de supports discrets.
 
         Remarques:
             Le terme se rapport à la notion d'ensemble dénombrable, potentiellement peut prêter à confusion.
