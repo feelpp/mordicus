@@ -78,7 +78,7 @@ A lire chronologiquement (idéalement).
            Remarque:
                 Attention à ne pas confondre avec la notion de variable d'état telle qu'introduite en physique.
 
-    QUANTITY_VECTOR (state variable) OK
+    QUANTITY_VECTOR
            Vecteur correspondant à une seule quantité physique et pouvant se représenter comme un champ via un espace d’approximation, lequel s’appuie sur le support discret. Exemples d’espaces d’approximation : espace polynomiaux par éléments associées aux éléments finis de Lagrange, de Hermite… A l’inverse, un champ se représente comme variable d’état par une méthode d’interpolation visant à définir un vecteur à partir d’opérations (éventuellement intégrales) sur les valeurs du champ.
 
            Remarque:

@@ -65,6 +65,7 @@ In addition, *SOLVER_DATASET* references an **EXTERNAL_SOLVING_PROCEDURE** objec
  -environment_variables        an optional dictionary of environment variables to set before calling
  -root_install_dir             the root install directory of the solver (may be in environment_variables too)
  -solver_call_procedure_type   one of "Python", "shell", "FMI". Channel through which to call the solver
+ -procedure_to_call_solver     the file implemeting the calling procedure. It is the shell or python script calling the external tool.
  -postpro_datadriver_callback  a *STANDARD_FUNCTION_DECLARATION*, specifies the expected interface for
                                potential callback in the Mordicus standard that the user may want to call
                                after the solver in order to convert the results to Mordicus data type.
@@ -290,6 +291,8 @@ The **INDEXATION** object gives:
  -ordinal_number                      or alternatively, for indexing empirical modes (they do not correspond to a particular value of parameters), the ordinal number of the modes
                                       (1 being higher energy mode)
 
+.. _offline_treatments:
+
 Offline treatments
 ------------------
 
@@ -298,7 +301,7 @@ in the previous part, we have seen all structures related to the high-dimensiona
 Internal solving procedures and standard functions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-In the data model in its current state, the high-dimensional problem is solved by an external solver. As for the reduced model, for a maximal genericity the associated resolution code will often included in the Mordicus library: these approaches are called *non-intrusive*, and particularly useful when there is limited possible interaction or coding in the external solver (commercial software) and practical to consider exporting the reduced model in a number of formats (PXDMF, FMI...)
+In the data model in its current state, the high-dimensional problem is solved by an external solver. As for the reduced model, for a maximal genericity the resolution code of the associated equations (ODEs, more often) will often be included in the Mordicus library: these approaches are called *non-intrusive*, and particularly useful when there is limited or no possible interaction with the external solver (e.g. commercial software). Moreover, a functional requirement of Mordicus is to support exporting the reduced-order model to standard formats (PXDMF, FMI...).
 
 So besides the *EXTERNAL_SOLVING_PROCEDURE*, we introduce an *INTERNAL_SOLVING_PROCEDURE*, each of which is derived from an abstract **SOLVING_PROCEDURE**.
 
@@ -307,22 +310,233 @@ Conceptually, a *solving procedure* is a program that is able to evaluate a mode
 .. todo::
     Include in the *domain model* the case when the reduced resolution procedure calls an external solver (intrusive), still very useful in some cases
 
-In practice, when the "model reducing user" will need to include a new kind of resolution in Mordicus (e.g. add a reduced resolution of thermal transient problems), he will have to create a new *RESOLUTION_PROCEDURE*.
+In practice, when the "model reducing user" will need to include a new kind of resolution in Mordicus (e.g. add a reduced resolution of thermal transient problems), he will have to create a new *RESOLUTION_PROCEDURE*. A *RESOLUTION_PROCEDURE* is the top-level "function" object of Mordicus datamodel. It's the only one that can be created by:
+
+    * an end user or a module developer (for *EXTERNAL_SOLVING_PROCEDURE*)
+
+    * a module developer (for *INTERNAL_SOLVING_PROCEDURE*)
+ 
+So an **INTERNAL_SOLVING_PROCEDURE** is the only object for top-level "custom" functions not developed as a method of an existing class of Mordicus datamodel. It deserves a peculiar treatment, with additional context and constrains because:
+
+    * it should proper form to be easily converted to external formats (PXDMF, FMI...)
+
+    * it should have enough information to be archived in a shared catalog of reduced-order models
+
+    * there is many ODE's resolution procedures, of various techniques, and its not reasonable to ask the developer to do it subclassing some pre-existing class in Mordicus
+
+    * developing a new solving procedure is expected to be, by far, the most frequent kind of development of module developers. It deserves a specific frame.
+
+So that it can be found and called straight from its name, its implementation has to follow Mordicus guidelines (yet to be written). For instance, some demands to the module developer would read::
+
+    Call it Internal_Procedure_NAME, implement in C++ and declare as ``extern "C"`` in a separate file Internal_Procedure_NAME.hpp
+    Put source files in ``$MORDICUS_SOURCE_ROOT_DIR/src/internal_procedures``
+    Declare new procedure in the registry in ``$MORDICUS_SOURCE_ROOT_DIR/src/conf/registry.cfg``".
+
+In addition to these coding principles and conventions, an *INTERNAL_SOLVING_PROCEDURE* declares its *interface*: its input arguments types should be chosen among acknowledged *offline* data structures. These are all types of *resolution data*, i.e. *offline* pre-computed data that is essential for the reduced-order model to run. Fot the reduction methods identified thus far in the Hackathons, the comprehensive list is: *MATRIX*, *VECTOR_OF_UNKNOWN*, *REDUCED_DOMAIN*, *OPERATOR_DECOMPOSITION*, *COLLECTION_SOLUTION_CAS*, *STANDARD_FUNCTION_IMPLEMENTATION* (we'll come back to the latter).
+
+The attributes of the abstract *SOLVING_PROCEDURE* are:
+
+ -procedure_reference            a identifier for the *procedure*, unique in the installation of Mordicus
+ -nb_arguments                   the number of arguments of the procedure
+ -resolution_data_type_in        the types of input arguments. By default, only the standard type and *File* type are supported
+                                 However, in the *internal* case, additional data types are supported for input:
+                                 *MATRIX*, *VECTOR_OF_UNKNOWN*, *REDUCED_DOMAIN*, *OPERATOR_DECOMPOSITION*, *COLLECTION_SOLUTION_CAS*
+
+.. todo::
+    Expand on the rules to implement internal procedures and conventions to reference them in the Mordicus installation.
+
+In fact, ODE's resolution (possibly resulting from a disretization of PDE) is not the only *goal* we may have when writing a *SOLVING_PROCEDURE*. The other *goal* would be the computation of high-dimentional data necessary vital to the reduction procedure (a mass matrix, for instance).
+
+.. todo::
+    Add *goal* attribute, with possible values "reduced-order model resolution" or "computing related data"
+
+The *INTERNAL_SOLVING_PROCEDURE* owns attributes:
+
+ -description_ode_pde               indicative attribute, describes the kind of ODE/PDE being solved, for easy indexing in a catalog
+ -description_kind_of_problem       indicative attribute, describes the kind of physical problem being solved
+
+.. note::
+    In the current *domain model*, a frozen interface is not prescribed per goal. Doing so would require, for instance, for all reduced-order model resolution procedures to have interface ``SOLUTION_REDUITE* = Internal_Procedure_NAME(CAS_REDUIT_A_RESOUDRE*)``. We chose not to impose that because we believe it is not the module developer's responsability to extract the *offline* data from CAS_REDUIT_A_RESOUDRE, before running through the ODE's resolution. It is a standard operation Mordicus kernel should be in charge of.
 
 
+The global registry of an installation of Mordicus registers two kinds of objects *SOLVING_PROCEDURE* and **STANDARD_FUNCTION_IMPLEMENTATION**. The *STANDARD_FUNCTION_IMPLEMENTATION* is the lower-level "custom function" object of Mordicus data model. By "custom function", we still mean a function that is not developed as a method of one of Mordicus existing classes. *STANDARD_FUNCTION_IMPLEMENTATION* are meant for internal use, to fill in blanks in a higher level functions, for instance an existing reduction method implemented as a class method of Mordicu,s or an existing resolution procedure. Therefore, the developer has more freedom than with *INTERNAL_SOLVING_PROCEDURE* :
 
-.. old code from now on
+   * *STANDARD_FUNCTION_IMPLEMENTATION* have free interface among the data type of Mordicus, while *INTERNAL_SOLVING_PROCEDURE* has only a limited number of compatible data types;
+
+   * *STANDARD_FUNCTION_IMPLEMENTATION* are subjected to lighter developement guidelines and conventions, and may be provided by the user at runtime.
+
+For instance, some demands to the user could read::
+    Be implemented in C++ and compiled separately, the file path being declared to Mordicus registry at runtime with a specific Mordicus syntax
+    Abide by the interface of one of the "blank" operations known to mordicus registry
+
+The *STANDARD_FUNCTION_IMPLEMENTATION* owns the following attributes:
+
+ -implementor_id           an identifier for the registry, indentifying this implementation among those sharing the same declaration 
+ -implementor_file         the file implementing the function
+ -expression               or a literal expression for the function (in simple cases)
+ -implementor_language     the programming language used (C++ or python)
+
+In order to verify that the provided implementations match the known blanks, calling and called functions should compare their expected prototypes. This is achieved by means of a **STANDARD_FUNCTION_DECLARATION** object, included in every implementation. It owns attributes:
+
+ -func_name         function name, serves for Mordicus registry to generate the interface
+ -input_types       types of input arguments, among all standard and Mordicus types
+ -output_types      types of output arguments, among all standard and Mordicus types
+ -namespace         the Mordicus namespace (package / class) the function should be put to
+
+In the case of a calling *INTERNAL_RESOLUTION_PROCEDURES*, the expected prototypes of their *STANDARD_FUNCTION_IMPLEMENTATION* arguments is given by the *prototype_of_called_functions* attribute. For the methods of the class in Mordicus, when declaring a "blank to be filled by a custom function", the expected prototype should be provided as well.
+
+.. _compression:
+
+Compression of data and compression of operators
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+A reduction procedure is often made of two steps:
+
+   * a *data compression* phase, in which one or several *reduced-order bases* are generated,
+
+   * an *operator compression* phase, which relies on these bases to build reduced-order *resolution data*, to be employed in a reduced-order resolution procedure
+
+A **COMPRESSION_OF_DATA** procedure uses high-dimensional solutions (snapshots) to build a few space functions, making up a *reduced order basis* (BASE_ORDRE_REDUIT), defining a smaller subspace where to look for the solution. Let :math:`Q \in \mathbb{R}^{N \times n_s}` be the snapshot matrix, with :math:`n_s` the number of snapshots. The autocorrelation matrix can be built as :math:`Q^T M Q`, with :math:`M` the matrix of the scalar product deemed relevant to the problem, or as :math:`Q Q^T` (method of snapshots).
+
+Possible procedure parameters are:
+
+ -method                     among the available algorithms available for this in the install (kernel+modules) of Mordicus
+ -has_fixed_basis_size       True if the user wants to build fixed-size bases
+ -fixed_basis_size           if so, the number of vectors to generate in the basis
+ -scalar_product_matrix      the matrix of the scalar product to use to generate the covariance matrix
+
+Two popular families of methods are the **METHOD_POD** and **RB_METHOD**. The first has procedure parameters:
+
+ -is_snapshot_mathod         True if the snapshot method is used
+ -SVD_variant                variant of the singular value decomposition algorithm used (full SVD, thin SVD...)
+ -SVD_tolerance              the relative tolerance at which SVD should be truncated (if not *has_fixed_basis_size*)
+
+The latter encompasses greedy selection / reorthogonalization method to build a reduce basis. An argument is the relative tolerance above which the current element should be selected to enrich the basis.
+
+While the mechanisms of *COMPRESSION_OF_DATA* are somewhat independent of the kind of problem (they mostly rely on the correlation between computed solutions), the **COMPRESSION_OF_OPERATORS** methods are much more diverse and dependent of the features of the problem.
+
+To be as common as possible, they take as inputs:
+
+   * a *reduced order basis*,
+
+   * high-dimensional resolution data, the size or complexity of which shall be reduced after they have been applied.
+
+The **RESOLUTION_DATA_OBJECT** terminology encompasses all possible data thus taken as an input. It has a *type* attribute, to be chosen (for now) among "MATRIX", "VECTOR_OF_UNKNOWNS", "DECOMPOSITION_OF_OPERATORS" or "COLLECTION_SOLUTION_CAS". In the latter case, we refer to additional pre-computed results (dual fields, typically).
+
+The *COMPRESSION_OF_OPERATORS* returns an object with a type listed by the **REDUCED_RESOLUTION_DATA_OBJECT**: "DOMAINE_REDUIT", "SOLUTION_REDUITE_CAS" (e.g. initial condition in reduced coordinates), "BASE_ORDRE_REDUIT" (additional basis necessary to the online phase, e.g. decomposition of a non-linear term by EIM) and the 3 types listed above.
+
+These choices stem from the analysis of input and return types for the indentified *operator compression* methods thus far, summarized in the following table:
+
+=====================================  ======================================================  =========================================
+Method                                 Types of input resolution data                          Types of output resolution data
+=====================================  ======================================================  =========================================
+EIM (Empirical Interpolation Method)   COLLECTION_SOLUTION_CAS, VECTOR_OF_UNKNOWNS             DECOMPOSITION_OF_OPERATORS
+EQM (Empirical Quadrature Method)      COLLECTION_SOLUTION_CAS                                 REDUCED_DOMAIN
+PROJECTION                             MATRIX, VECTOR_OF_UNKNOWNS (full size)                  MATRIX, VECTOR_OF_UNKNOWNS (reduced size)
+HYPER_REDUCTION                        COLLECTION_SOLUTION_CAS                                 REDUCED_DOMAIN
+ECSW                                   COLLECTION_SOLUTION_CAS                                 REDUCED_DOMAIN, VECTOR_OF_UNKNOWNS
+=====================================  ======================================================  =========================================
+
+Decomposition of operators
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Among those types, the **DECOMPOSITION_OF_OPERATORS** data type deserves some attention. It describes an operator expansion that splits variables, as:
+
+.. math::
+
+   A(x, \mu) \approx A_1 (x) f_1 (\mu) + A_2 (x) f_2 (\mu) + ... + A_n (x) f_n (\mu)`
+
+Of course affine decomposition of the operators falls into that case. Notably, this kind of data structure is produced by an EIM. 
+
+It consists of an ordered list of:
+   * first, *resolution_data*, representing the :math:`A_i` terms in the expansion
+    
+   * and *functions of parameter*, representing the :math:`f_i (\mu)` terms in the expansion
+     
+A **FUNCTION_OF_PARAMETER** is a means to compute :math:`f_i (\mu)` as a subclass of *STANDARD_FUNCTION_INVOKATION* where functions arguments are all parameters idenfified by their names.
+
+It is worth pointing that *COMPRESSION_OF_OPERATORS*, as well as *DECOMPOSITION_OF_OPERATORS*, may be provided with *means* to build the *resolution data* (instead of *resolution data* itself), with possible invokation of FEM or FV asemblers. In such cases, a *RESOLUTION_PROCEDURE* is given as argument, as the *build_HD_resolution_data* attribute of *COMPRESSION_OF_OPERATORS* shows.
+
+.. todo::
+    Enrich the datamodel to such such feature for *DECOMPOSITION_OF_OPERATORS* as well. The expected return type (among *resolution data*) is also to be added in the data model.
+
+Online treatments
+-----------------
+
+Once the compression phases of offline_treatments_ are achieved, the *offline* part of Mordicus should act as a "generator of reduced case". In other words, it should put together all useful data to the online phase, in a formalized data structure **CAS_REDUIT_A_RESOUDRE**.
+
+Functional requirement on *CAS_REDUIT_A_RESOUDRE*: it should be self-contained, in order to be transfered and deployed on another architecture than Mordicus. In concrete terms, the *CAS_REDUIT_A_RESOUDRE* should have access to all necessary information for the completion of the *online* phase. It's somehow the "root" object of the *online* part of the *domain model*.
+
+The data model for the *online* part has been designed according to the following principles:
+
+    * as far as possible, data takes the same arrangement as the corresponding high-dimensional data. This mirroring structure has several advantages:
+
+        - clarify the meaning of the objects and the reading of the data model,
+
+        - enable a natural reconstruction of full-field solutions from their representation in reduced coordinates,
+
+        - easy implementation of procedures equally applicable to full-size and reduced data
+
+    * the *online* / *offline* distinction of the operations is made in terms of their complexity: an operation is prone to online treatment if the original size :math:`N` of the case does **not** appear in its complexity. As for the distinction on the data, a piece of data is said to belong to the *online* part if :math:`N` does not appear in its size. Note that this excludes the reduced-order basis. Data not fulfilling this condition should be avoided in *CAS_REDUIT_A_RESOUDRE*, however this is not always possible especially if autonomous reconstruction of full fields is desired.
+
+.. todo::
+    Move *BASE_ORDRE_REDUIT* on the *offline* side ?
 
 
-Fonction du domaine de définition (paramètres x temps), qui donne en retourne une quantité d'intérêt pouvant être un champ. Tous les champs produits au final doivent se rapporter à un unique support discret « de référence » :math:`Omega_0`. La transformation avec d’éventuels supports discrets intermédiaires est masquée à l’intérieur de la fonction en quelque sorte.
+Links of the reduced case with the resolution part
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-A model is a function of the parameters x time domain, that returns a *field*. Whereas it can call on variable meshes :math:`\Omega_X` internally (according to a parameter or time value), all finally produced fields must relate to a single "reference" mesh :math:`\Omega_0`. The transformation between the two is hidden inside the function.
+Among this information is the reduced solver *REDUCED_RESOLUTION_PROCEDURE* accompanied by the case-specific *REDUCED_RESOLUTION_DATA* that complement it (see compression_), both of which are gathered by the **REDUCED_SOLVER_DATASET** object, through its attributes, itself referenced by *CAS_REDUIT_A_RESOUDRE*. 
 
-Each *DOF* is associated with a entity of the discrete support but it is not necessarily the value *at* this entity.
+In accordance with the above, it can be easily seen that data is thus arranged as *SOLVER_DATASET* was around *INTERNAL_REDUCTION_PROCEDURE*. *REDUCED_SOLVER_DATASET* inherits *INTERNAL_SOLVER_DATASET* in order to include support for base *RESOLUTION_DATA_OBJECTS* (which the have reduced size) and *STANDARD_FUNCTION_IMPLEMENTATION*. 
 
-Question: does the model return a *field* or a *vector of unknowns*? A snapshot is which of the two?
+.. note::
+    For now, *REDUCED_RESOLUTION_DATA* does not inherit *RESOLUTION_DATA_OBJECT* so that types only reduced in the reduced case are clearly separated.
 
- INDEXATION, COLLECTION_SOLUTION_CAS
+Links of the reduced case with the input/output definition
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+The mechanism for qualifying the user inputs and outputs of the reduced-order model (*CAS_REDUIT_A_RESOUDRE*) take a cue on the full-size counterpart (*CASE_DATA*), see io_indexing_. Indeed, variable input parameters are specified by *VARIABLE_PARAMETER* objects, referencing their *domain of definition* through an *INDEXING_SUPPORT*. Fixed parameters are now hidden, or available for consultation only. Outputs are qualified by a reference to *OUTPUT_DESCRIPTION* objects.
+
+The indexing mechanism for classifying evaluations of the reduced-order model follow the very same rules as in io_indexing_: a *CAS_REDUIT_A_RESOUDRE* contains its evaluation through a **SOLUTION_REDUITE_CAS**, a class that inherits *INDEXED_SOLUTION* and its indexing mechanism.
+
+.. note::
+    For now, *CAS_REDUIT_A_RESOUDRE* does not inherit *CASE_DATA*, so that it can "hide" or "filter" information from the full size model. To be discussed. Add at least a possible reference to the original case?
+   
+    Attributes *case_reference* and *case_documentation* are nevertheless kept for obvious indicative purposes.
+
+The reduced basis and representation in reduced coordinates
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+So that the solution can be easily reconstructed, *SOLUTION_REDUITE_CAS* is based on restricted structures (*RESTRICTION_FIELD_STRUCTURE* and *RESTRICTION_UNKNOWNS_STRUCTURE*), the underlying columns being nothing but the vectors of the reduced basis, see types_of_result_. Two cases can be indentified here:
+
+   * the case when reconstruction is preferred, the whole *field structure* and *discrete support* are then embarked when the reduced-order model is exported and deployed;
+
+   * the case when performance is preferred. Then, when exported or deployed, the reduced-order model keeps only meta data of the *field structure* object (including a checksum), but does not embark futher information. Reconstruction of a field is then no longer possible, except if that information is provided by some other means on the deployement side. Metadata then ensures some verifications.
+
+The reduced basis is represented by **BASE_ORDRE_REDUIT** object that aggregates *VECTEUR_BASE_ORDRE_REDUIT* and owns qualifying attributes:
+
+  -nb_dofs                   the size :math:`N` of each vector in the basis
+  -dof_weights               (optional) in the case of a diagonal scalar product matrix,
+                             the corresponding coefficient of each dof
+  -is_orthogonal             True if the basis is orthogonal
+  -role                      role of the basis in the *reduction of operators* mechanism
+                             among "Galerkin", "Petrov-Galerkin left", "Petrov-Galerkin right"...
+  -singular_values           the ordered list of singular values for each empirical mode
+
+.. note::
+    *BASE_ORDRE_REDUIT* does not inherit *COLLECTION_SOLUTION_CAS* for new, for clarity and because the attribute they own are quite different. Inheritance happens between the objects they aggregates
+
+The **VECTEUR_BASE_ORDRE_REDUIT** object basically inherits the *INDEXED_SOLUTION* case, the indexation happening by *ordinal_number* attribute: the first (higher singular value) mode is indexed 1, the next 2 and so on.
+
+
+The reduced domain object
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Many reduction methods (Hyper-reduction, EQM, ECSW...) appeal to a selection of a few entities in the original *DISCRETE_SUPPORT* to compute relevant approximations of the integrals and operators. Therefore, a **REDUCED_DOMAIN** class is introduced to represent this notion.
+
+The *REDUCED_DOMAIN* references its original *DISCRETE_SUPPORT*. However, this "filter" has to be a self-contained *DISCRETE_SUPPORT*, because it should be possible to export the reduced-order model without embarking the whole original *support* for performance purposes. In this case, only metadata about the original support are kept when exporting.
+
+According to the method, the *REDUCED_DOMAIN* can be a subdomain with the same kind of entities as the original support: in other words, it's a true FEM mesh, as in the *HYPER_REDUCTION* method for instance. In other cases, it is merely a cloud of *POINTS* defining a global quadrature scheme, the associated weights being then borne by a *quadrature_weights* attributes.
 
 
