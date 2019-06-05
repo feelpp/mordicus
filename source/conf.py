@@ -34,6 +34,8 @@ extensions = [
     'sphinx.ext.mathjax',
 ]
 
+numfig = True
+
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
 
@@ -47,8 +49,8 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'Rom File Format'
-copyright = u'2018, Mines ParisTech/EDF R&D/Safran Tech'
+project = u'Mordicus specification'
+copyright = u'2019, Mordicus consortium'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -203,8 +205,8 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-  ('index', 'RoFiFo.tex', u'Rom File Format',
-   u'Mines ParisTech/EDF R\&D/Safran Tech', 'manual'),
+  ('index', 'Datamodel.tex', u'Mordicus Specification',
+   u'Mordicus consortium', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
