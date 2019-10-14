@@ -1,2 +1,4 @@
 # Ignoring build directory
 build/
+.metadata/
+RemoteSystemsTempFiles/.project

@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Xdmf xmlns:xi="http://www.w3.org/2001/XInclude" Version="2.92">
+<Domain>
+<Grid Name="Grid_P" GridType="Collection" CollectionType="None" >
+    <Grid Name="Grid_P0">
+    <Information Name="Dims" Value="1" /> 
+    <Information Name="Dim0" Value="t" /> 
+    <Geometry Type="XYZ">
+ <DataItem Format="Binary" NumberType="Float" Dimensions="10 3"  Seek="0"  Endian="Native"  Precision="8"  Compression="Raw" >TP_compressed0.bin</DataItem>
+    </Geometry>
+    <Topology TopologyType="Polyline" NumberOfElements="9" NodesPerElement="2"   >
+ <DataItem Format="Binary" NumberType="Int" Dimensions="18"  Seek="240"  Endian="Native"  Precision="8"  Compression="Raw" >TP_compressed0.bin</DataItem>
+    </Topology> 
+    <Attribute Center="Cell" Name="1D" Type="Scalar">
+ <DataItem Format="Binary" NumberType="Char" Dimensions="9"  Seek="384"  Endian="Native"  Precision="1"  Compression="Raw" >TP_compressed0.bin</DataItem>
+    </Attribute>
+    <Attribute Center="Node" Name="TP_compressed_0" Type="Scalar">
+ <DataItem Format="Binary" NumberType="Float" Dimensions="10"  Seek="393"  Endian="Native"  Precision="4"  Compression="Raw" >TP_compressed0.bin</DataItem>
+    </Attribute>
+    <Attribute Center="Node" Name="TP_compressed_1" Type="Scalar">
+ <DataItem Format="Binary" NumberType="Float" Dimensions="10"  Seek="433"  Endian="Native"  Precision="4"  Compression="Raw" >TP_compressed0.bin</DataItem>
+    </Attribute>
+    <Attribute Center="Node" Name="TP_compressed_2" Type="Scalar">
+ <DataItem Format="Binary" NumberType="Float" Dimensions="10"  Seek="473"  Endian="Native"  Precision="4"  Compression="Raw" >TP_compressed0.bin</DataItem>
+    </Attribute>
+    <Attribute Center="Node" Name="TP_compressed_3" Type="Scalar">
+ <DataItem Format="Binary" NumberType="Float" Dimensions="10"  Seek="513"  Endian="Native"  Precision="4"  Compression="Raw" >TP_compressed0.bin</DataItem>
+    </Attribute>
+    <Attribute Center="Node" Name="TP_compressed_4" Type="Scalar">
+ <DataItem Format="Binary" NumberType="Float" Dimensions="10"  Seek="553"  Endian="Native"  Precision="4"  Compression="Raw" >TP_compressed0.bin</DataItem>
+    </Attribute>
+    <Attribute Center="Node" Name="TP_compressed_5" Type="Scalar">
+ <DataItem Format="Binary" NumberType="Float" Dimensions="10"  Seek="593"  Endian="Native"  Precision="4"  Compression="Raw" >TP_compressed0.bin</DataItem>
+    </Attribute>
+    </Grid>
+    <Grid Name="Grid_P1">
+    <Information Name="Dims" Value="2" /> 
+    <Information Name="Dim0" Value="x" /> 
+    <Information Name="Dim1" Value="y" /> 
+    <Geometry Type="XYZ">
+ <DataItem Format="Binary" NumberType="Float" Dimensions="676 3"  Seek="633"  Endian="Native"  Precision="8"  Compression="Raw" >TP_compressed0.bin</DataItem>
+    </Geometry>
+    <Topology TopologyType="Mixed" NumberOfElements="725">
+ <DataItem Format="Binary" NumberType="Int" Dimensions="3525"  Seek="16857"  Endian="Native"  Precision="8"  Compression="Raw" >TP_compressed0.bin</DataItem>
+    </Topology> 
+    <Attribute Center="Node" Name="x0" Type="Scalar">
+ <DataItem Format="Binary" NumberType="Char" Dimensions="676"  Seek="45057"  Endian="Native"  Precision="1"  Compression="Raw" >TP_compressed0.bin</DataItem>
+    </Attribute>
+    <Attribute Center="Node" Name="x1" Type="Scalar">
+ <DataItem Format="Binary" NumberType="Char" Dimensions="676"  Seek="45733"  Endian="Native"  Precision="1"  Compression="Raw" >TP_compressed0.bin</DataItem>
+    </Attribute>
+    <Attribute Center="Node" Name="y0" Type="Scalar">
+ <DataItem Format="Binary" NumberType="Char" Dimensions="676"  Seek="46409"  Endian="Native"  Precision="1"  Compression="Raw" >TP_compressed0.bin</DataItem>
+    </Attribute>
+    <Attribute Center="Node" Name="y1" Type="Scalar">
+ <DataItem Format="Binary" NumberType="Char" Dimensions="676"  Seek="47085"  Endian="Native"  Precision="1"  Compression="Raw" >TP_compressed0.bin</DataItem>
+    </Attribute>
+    <Attribute Center="Cell" Name="ALLBOUNDARY" Type="Scalar">
+ <DataItem Format="Binary" NumberType="Char" Dimensions="725"  Seek="47761"  Endian="Native"  Precision="1"  Compression="Raw" >TP_compressed0.bin</DataItem>
+    </Attribute>
+    <Attribute Center="Node" Name="TP_compressed_0" Type="Scalar">
+ <DataItem Format="Binary" NumberType="Float" Dimensions="676"  Seek="48486"  Endian="Native"  Precision="4"  Compression="Raw" >TP_compressed0.bin</DataItem>
+    </Attribute>
+    <Attribute Center="Node" Name="TP_compressed_1" Type="Scalar">
+ <DataItem Format="Binary" NumberType="Float" Dimensions="676"  Seek="51190"  Endian="Native"  Precision="4"  Compression="Raw" >TP_compressed0.bin</DataItem>
+    </Attribute>
+    <Attribute Center="Node" Name="TP_compressed_2" Type="Scalar">
+ <DataItem Format="Binary" NumberType="Float" Dimensions="676"  Seek="53894"  Endian="Native"  Precision="4"  Compression="Raw" >TP_compressed0.bin</DataItem>
+    </Attribute>
+    <Attribute Center="Node" Name="TP_compressed_3" Type="Scalar">
+ <DataItem Format="Binary" NumberType="Float" Dimensions="676"  Seek="56598"  Endian="Native"  Precision="4"  Compression="Raw" >TP_compressed0.bin</DataItem>
+    </Attribute>
+    <Attribute Center="Node" Name="TP_compressed_4" Type="Scalar">
+ <DataItem Format="Binary" NumberType="Float" Dimensions="676"  Seek="59302"  Endian="Native"  Precision="4"  Compression="Raw" >TP_compressed0.bin</DataItem>
+    </Attribute>
+    <Attribute Center="Node" Name="TP_compressed_5" Type="Scalar">
+ <DataItem Format="Binary" NumberType="Float" Dimensions="676"  Seek="62006"  Endian="Native"  Precision="4"  Compression="Raw" >TP_compressed0.bin</DataItem>
+    </Attribute>
+    </Grid>
+</Grid> <!-- Parafac grid -->
+  </Domain>
+</Xdmf>

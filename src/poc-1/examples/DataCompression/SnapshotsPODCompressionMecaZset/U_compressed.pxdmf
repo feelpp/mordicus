@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Xdmf xmlns:xi="http://www.w3.org/2001/XInclude" Version="2.92">
+<Domain>
+<Grid Name="Grid_P" GridType="Collection" CollectionType="None" >
+    <Grid Name="Grid_P0">
+    <Information Name="Dims" Value="1" /> 
+    <Information Name="Dim0" Value="t" /> 
+    <Geometry Type="XYZ">
+ <DataItem Format="Binary" NumberType="Float" Dimensions="10 3"  Seek="0"  Endian="Native"  Precision="8"  Compression="Raw" >U_compressed0.bin</DataItem>
+    </Geometry>
+    <Topology TopologyType="Polyline" NumberOfElements="9" NodesPerElement="2"   >
+ <DataItem Format="Binary" NumberType="Int" Dimensions="18"  Seek="240"  Endian="Native"  Precision="8"  Compression="Raw" >U_compressed0.bin</DataItem>
+    </Topology> 
+    <Attribute Center="Cell" Name="1D" Type="Scalar">
+ <DataItem Format="Binary" NumberType="Char" Dimensions="9"  Seek="384"  Endian="Native"  Precision="1"  Compression="Raw" >U_compressed0.bin</DataItem>
+    </Attribute>
+    <Attribute Center="Node" Name="U_compressed_0" Type="Vector">
+ <DataItem Format="Binary" NumberType="Float" Dimensions="30"  Seek="393"  Endian="Native"  Precision="4"  Compression="Raw" >U_compressed0.bin</DataItem>
+    </Attribute>
+    <Attribute Center="Node" Name="U_compressed_1" Type="Vector">
+ <DataItem Format="Binary" NumberType="Float" Dimensions="30"  Seek="513"  Endian="Native"  Precision="4"  Compression="Raw" >U_compressed0.bin</DataItem>
+    </Attribute>
+    <Attribute Center="Node" Name="U_compressed_2" Type="Vector">
+ <DataItem Format="Binary" NumberType="Float" Dimensions="30"  Seek="633"  Endian="Native"  Precision="4"  Compression="Raw" >U_compressed0.bin</DataItem>
+    </Attribute>
+    </Grid>
+    <Grid Name="Grid_P1">
+    <Information Name="Dims" Value="3" /> 
+    <Information Name="Dim0" Value="x" /> 
+    <Information Name="Dim1" Value="y" /> 
+    <Information Name="Dim2" Value="z" /> 
+    <Geometry Type="XYZ">
+ <DataItem Format="Binary" NumberType="Float" Dimensions="343 3"  Seek="753"  Endian="Native"  Precision="8"  Compression="Raw" >U_compressed0.bin</DataItem>
+    </Geometry>
+    <Topology TopologyType="Mixed" NumberOfElements="304">
+ <DataItem Format="Binary" NumberType="Int" Dimensions="2384"  Seek="8985"  Endian="Native"  Precision="8"  Compression="Raw" >U_compressed0.bin</DataItem>
+    </Topology> 
+    <Attribute Center="Node" Name="z0" Type="Scalar">
+ <DataItem Format="Binary" NumberType="Char" Dimensions="343"  Seek="28057"  Endian="Native"  Precision="1"  Compression="Raw" >U_compressed0.bin</DataItem>
+    </Attribute>
+    <Attribute Center="Node" Name="pz0" Type="Scalar">
+ <DataItem Format="Binary" NumberType="Char" Dimensions="343"  Seek="28400"  Endian="Native"  Precision="1"  Compression="Raw" >U_compressed0.bin</DataItem>
+    </Attribute>
+    <Attribute Center="Node" Name="z1" Type="Scalar">
+ <DataItem Format="Binary" NumberType="Char" Dimensions="343"  Seek="28743"  Endian="Native"  Precision="1"  Compression="Raw" >U_compressed0.bin</DataItem>
+    </Attribute>
+    <Attribute Center="Node" Name="pz1" Type="Scalar">
+ <DataItem Format="Binary" NumberType="Char" Dimensions="343"  Seek="29086"  Endian="Native"  Precision="1"  Compression="Raw" >U_compressed0.bin</DataItem>
+    </Attribute>
+    <Attribute Center="Node" Name="x0" Type="Scalar">
+ <DataItem Format="Binary" NumberType="Char" Dimensions="343"  Seek="29429"  Endian="Native"  Precision="1"  Compression="Raw" >U_compressed0.bin</DataItem>
+    </Attribute>
+    <Attribute Center="Node" Name="px0" Type="Scalar">
+ <DataItem Format="Binary" NumberType="Char" Dimensions="343"  Seek="29772"  Endian="Native"  Precision="1"  Compression="Raw" >U_compressed0.bin</DataItem>
+    </Attribute>
+    <Attribute Center="Node" Name="x1" Type="Scalar">
+ <DataItem Format="Binary" NumberType="Char" Dimensions="343"  Seek="30115"  Endian="Native"  Precision="1"  Compression="Raw" >U_compressed0.bin</DataItem>
+    </Attribute>
+    <Attribute Center="Node" Name="px1" Type="Scalar">
+ <DataItem Format="Binary" NumberType="Char" Dimensions="343"  Seek="30458"  Endian="Native"  Precision="1"  Compression="Raw" >U_compressed0.bin</DataItem>
+    </Attribute>
+    <Attribute Center="Node" Name="y0" Type="Scalar">
+ <DataItem Format="Binary" NumberType="Char" Dimensions="343"  Seek="30801"  Endian="Native"  Precision="1"  Compression="Raw" >U_compressed0.bin</DataItem>
+    </Attribute>
+    <Attribute Center="Node" Name="py0" Type="Scalar">
+ <DataItem Format="Binary" NumberType="Char" Dimensions="343"  Seek="31144"  Endian="Native"  Precision="1"  Compression="Raw" >U_compressed0.bin</DataItem>
+    </Attribute>
+    <Attribute Center="Node" Name="y1" Type="Scalar">
+ <DataItem Format="Binary" NumberType="Char" Dimensions="343"  Seek="31487"  Endian="Native"  Precision="1"  Compression="Raw" >U_compressed0.bin</DataItem>
+    </Attribute>
+    <Attribute Center="Node" Name="py1" Type="Scalar">
+ <DataItem Format="Binary" NumberType="Char" Dimensions="343"  Seek="31830"  Endian="Native"  Precision="1"  Compression="Raw" >U_compressed0.bin</DataItem>
+    </Attribute>
+    <Attribute Center="Node" Name="x0y0z0" Type="Scalar">
+ <DataItem Format="Binary" NumberType="Char" Dimensions="343"  Seek="32173"  Endian="Native"  Precision="1"  Compression="Raw" >U_compressed0.bin</DataItem>
+    </Attribute>
+    <Attribute Center="Node" Name="x0y0z1" Type="Scalar">
+ <DataItem Format="Binary" NumberType="Char" Dimensions="343"  Seek="32516"  Endian="Native"  Precision="1"  Compression="Raw" >U_compressed0.bin</DataItem>
+    </Attribute>
+    <Attribute Center="Node" Name="x0y1z0" Type="Scalar">
+ <DataItem Format="Binary" NumberType="Char" Dimensions="343"  Seek="32859"  Endian="Native"  Precision="1"  Compression="Raw" >U_compressed0.bin</DataItem>
+    </Attribute>
+    <Attribute Center="Node" Name="x0y1z1" Type="Scalar">
+ <DataItem Format="Binary" NumberType="Char" Dimensions="343"  Seek="33202"  Endian="Native"  Precision="1"  Compression="Raw" >U_compressed0.bin</DataItem>
+    </Attribute>
+    <Attribute Center="Node" Name="x1y0z0" Type="Scalar">
+ <DataItem Format="Binary" NumberType="Char" Dimensions="343"  Seek="33545"  Endian="Native"  Precision="1"  Compression="Raw" >U_compressed0.bin</DataItem>
+    </Attribute>
+    <Attribute Center="Node" Name="x1y0z1" Type="Scalar">
+ <DataItem Format="Binary" NumberType="Char" Dimensions="343"  Seek="33888"  Endian="Native"  Precision="1"  Compression="Raw" >U_compressed0.bin</DataItem>
+    </Attribute>
+    <Attribute Center="Node" Name="x1y1z0" Type="Scalar">
+ <DataItem Format="Binary" NumberType="Char" Dimensions="343"  Seek="34231"  Endian="Native"  Precision="1"  Compression="Raw" >U_compressed0.bin</DataItem>
+    </Attribute>
+    <Attribute Center="Node" Name="x1y1z1" Type="Scalar">
+ <DataItem Format="Binary" NumberType="Char" Dimensions="343"  Seek="34574"  Endian="Native"  Precision="1"  Compression="Raw" >U_compressed0.bin</DataItem>
+    </Attribute>
+    <Attribute Center="Node" Name="x0y0" Type="Scalar">
+ <DataItem Format="Binary" NumberType="Char" Dimensions="343"  Seek="34917"  Endian="Native"  Precision="1"  Compression="Raw" >U_compressed0.bin</DataItem>
+    </Attribute>
+    <Attribute Center="Node" Name="px0y0" Type="Scalar">
+ <DataItem Format="Binary" NumberType="Char" Dimensions="343"  Seek="35260"  Endian="Native"  Precision="1"  Compression="Raw" >U_compressed0.bin</DataItem>
+    </Attribute>
+    <Attribute Center="Node" Name="x0y1" Type="Scalar">
+ <DataItem Format="Binary" NumberType="Char" Dimensions="343"  Seek="35603"  Endian="Native"  Precision="1"  Compression="Raw" >U_compressed0.bin</DataItem>
+    </Attribute>
+    <Attribute Center="Node" Name="px0y1" Type="Scalar">
+ <DataItem Format="Binary" NumberType="Char" Dimensions="343"  Seek="35946"  Endian="Native"  Precision="1"  Compression="Raw" >U_compressed0.bin</DataItem>
+    </Attribute>
+    <Attribute Center="Node" Name="x1y0" Type="Scalar">
+ <DataItem Format="Binary" NumberType="Char" Dimensions="343"  Seek="36289"  Endian="Native"  Precision="1"  Compression="Raw" >U_compressed0.bin</DataItem>
+    </Attribute>
+    <Attribute Center="Node" Name="px1y0" Type="Scalar">
+ <DataItem Format="Binary" NumberType="Char" Dimensions="343"  Seek="36632"  Endian="Native"  Precision="1"  Compression="Raw" >U_compressed0.bin</DataItem>
+    </Attribute>
+    <Attribute Center="Node" Name="x1y1" Type="Scalar">
+ <DataItem Format="Binary" NumberType="Char" Dimensions="343"  Seek="36975"  Endian="Native"  Precision="1"  Compression="Raw" >U_compressed0.bin</DataItem>
+    </Attribute>
+    <Attribute Center="Node" Name="px1y1" Type="Scalar">
+ <DataItem Format="Binary" NumberType="Char" Dimensions="343"  Seek="37318"  Endian="Native"  Precision="1"  Compression="Raw" >U_compressed0.bin</DataItem>
+    </Attribute>
+    <Attribute Center="Node" Name="x0z0" Type="Scalar">
+ <DataItem Format="Binary" NumberType="Char" Dimensions="343"  Seek="37661"  Endian="Native"  Precision="1"  Compression="Raw" >U_compressed0.bin</DataItem>
+    </Attribute>
+    <Attribute Center="Node" Name="px0z0" Type="Scalar">
+ <DataItem Format="Binary" NumberType="Char" Dimensions="343"  Seek="38004"  Endian="Native"  Precision="1"  Compression="Raw" >U_compressed0.bin</DataItem>
+    </Attribute>
+    <Attribute Center="Node" Name="x0z1" Type="Scalar">
+ <DataItem Format="Binary" NumberType="Char" Dimensions="343"  Seek="38347"  Endian="Native"  Precision="1"  Compression="Raw" >U_compressed0.bin</DataItem>
+    </Attribute>
+    <Attribute Center="Node" Name="px0z1" Type="Scalar">
+ <DataItem Format="Binary" NumberType="Char" Dimensions="343"  Seek="38690"  Endian="Native"  Precision="1"  Compression="Raw" >U_compressed0.bin</DataItem>
+    </Attribute>
+    <Attribute Center="Node" Name="x1z0" Type="Scalar">
+ <DataItem Format="Binary" NumberType="Char" Dimensions="343"  Seek="39033"  Endian="Native"  Precision="1"  Compression="Raw" >U_compressed0.bin</DataItem>
+    </Attribute>
+    <Attribute Center="Node" Name="px1z0" Type="Scalar">
+ <DataItem Format="Binary" NumberType="Char" Dimensions="343"  Seek="39376"  Endian="Native"  Precision="1"  Compression="Raw" >U_compressed0.bin</DataItem>
+    </Attribute>
+    <Attribute Center="Node" Name="x1z1" Type="Scalar">
+ <DataItem Format="Binary" NumberType="Char" Dimensions="343"  Seek="39719"  Endian="Native"  Precision="1"  Compression="Raw" >U_compressed0.bin</DataItem>
+    </Attribute>
+    <Attribute Center="Node" Name="px1z1" Type="Scalar">
+ <DataItem Format="Binary" NumberType="Char" Dimensions="343"  Seek="40062"  Endian="Native"  Precision="1"  Compression="Raw" >U_compressed0.bin</DataItem>
+    </Attribute>
+    <Attribute Center="Node" Name="y0z0" Type="Scalar">
+ <DataItem Format="Binary" NumberType="Char" Dimensions="343"  Seek="40405"  Endian="Native"  Precision="1"  Compression="Raw" >U_compressed0.bin</DataItem>
+    </Attribute>
+    <Attribute Center="Node" Name="py0z0" Type="Scalar">
+ <DataItem Format="Binary" NumberType="Char" Dimensions="343"  Seek="40748"  Endian="Native"  Precision="1"  Compression="Raw" >U_compressed0.bin</DataItem>
+    </Attribute>
+    <Attribute Center="Node" Name="y0z1" Type="Scalar">
+ <DataItem Format="Binary" NumberType="Char" Dimensions="343"  Seek="41091"  Endian="Native"  Precision="1"  Compression="Raw" >U_compressed0.bin</DataItem>
+    </Attribute>
+    <Attribute Center="Node" Name="py0z1" Type="Scalar">
+ <DataItem Format="Binary" NumberType="Char" Dimensions="343"  Seek="41434"  Endian="Native"  Precision="1"  Compression="Raw" >U_compressed0.bin</DataItem>
+    </Attribute>
+    <Attribute Center="Node" Name="y1z0" Type="Scalar">
+ <DataItem Format="Binary" NumberType="Char" Dimensions="343"  Seek="41777"  Endian="Native"  Precision="1"  Compression="Raw" >U_compressed0.bin</DataItem>
+    </Attribute>
+    <Attribute Center="Node" Name="py1z0" Type="Scalar">
+ <DataItem Format="Binary" NumberType="Char" Dimensions="343"  Seek="42120"  Endian="Native"  Precision="1"  Compression="Raw" >U_compressed0.bin</DataItem>
+    </Attribute>
+    <Attribute Center="Node" Name="y1z1" Type="Scalar">
+ <DataItem Format="Binary" NumberType="Char" Dimensions="343"  Seek="42463"  Endian="Native"  Precision="1"  Compression="Raw" >U_compressed0.bin</DataItem>
+    </Attribute>
+    <Attribute Center="Node" Name="py1z1" Type="Scalar">
+ <DataItem Format="Binary" NumberType="Char" Dimensions="343"  Seek="42806"  Endian="Native"  Precision="1"  Compression="Raw" >U_compressed0.bin</DataItem>
+    </Attribute>
+    <Attribute Center="Node" Name="center" Type="Scalar">
+ <DataItem Format="Binary" NumberType="Char" Dimensions="343"  Seek="43149"  Endian="Native"  Precision="1"  Compression="Raw" >U_compressed0.bin</DataItem>
+    </Attribute>
+    <Attribute Center="Cell" Name="x1" Type="Scalar">
+ <DataItem Format="Binary" NumberType="Char" Dimensions="304"  Seek="43492"  Endian="Native"  Precision="1"  Compression="Raw" >U_compressed0.bin</DataItem>
+    </Attribute>
+    <Attribute Center="Cell" Name="x0" Type="Scalar">
+ <DataItem Format="Binary" NumberType="Char" Dimensions="304"  Seek="43796"  Endian="Native"  Precision="1"  Compression="Raw" >U_compressed0.bin</DataItem>
+    </Attribute>
+    <Attribute Center="Cell" Name="px0" Type="Scalar">
+ <DataItem Format="Binary" NumberType="Char" Dimensions="304"  Seek="44100"  Endian="Native"  Precision="1"  Compression="Raw" >U_compressed0.bin</DataItem>
+    </Attribute>
+    <Attribute Center="Node" Name="U_compressed_0" Type="Vector">
+ <DataItem Format="Binary" NumberType="Float" Dimensions="1029"  Seek="44404"  Endian="Native"  Precision="4"  Compression="Raw" >U_compressed0.bin</DataItem>
+    </Attribute>
+    <Attribute Center="Node" Name="U_compressed_1" Type="Vector">
+ <DataItem Format="Binary" NumberType="Float" Dimensions="1029"  Seek="48520"  Endian="Native"  Precision="4"  Compression="Raw" >U_compressed0.bin</DataItem>
+    </Attribute>
+    <Attribute Center="Node" Name="U_compressed_2" Type="Vector">
+ <DataItem Format="Binary" NumberType="Float" Dimensions="1029"  Seek="52636"  Endian="Native"  Precision="4"  Compression="Raw" >U_compressed0.bin</DataItem>
+    </Attribute>
+    </Grid>
+</Grid> <!-- Parafac grid -->
+  </Domain>
+</Xdmf>

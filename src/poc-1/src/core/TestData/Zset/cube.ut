@@ -1,0 +1,8 @@
+**meshfile cube.geof
+**node U1 U2 U3 RU1 RU2 RU3
+**integ sig11 sig22 sig33 sig12 sig23 sig31 eto11 eto22 eto33 eto12 eto23 eto31
+**element
+1 1 1 0 0.000000000000000e+00
+2 1 1 1 1.000000000000000e-01
+3 1 2 1 1.500000000000000e-01
+4 1 2 2 2.000000000000000e-01
