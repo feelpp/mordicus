@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import numpy as np
-from genericROM.Containers.BaseObject import BaseObject
+from core.Containers.BaseObject import BaseObject
 
 
 
@@ -41,7 +41,7 @@ class WriterBase(BaseObject):
         
  
     def __str__(self):       
-        from genericROM import IO
+        from .. import IO
         allIO = IO.__all__
         allReaders = [a for a in allIO if ("Writer" in a and "Base" not in a)]
         res = "I am a WriterBase, try instanciating a particular reader "+str(allReaders)+" instead"

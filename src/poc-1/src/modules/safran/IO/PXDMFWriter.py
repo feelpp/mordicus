@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 import numpy as np
 
-from genericROM.IO.WriterBase import WriterBase
-from genericROM.Containers.CompressedFormats import CompressedFormatsBase
+from core.IO.WriterBase import WriterBase
+from core.Containers.CompressedFormats import CompressedFormatsBase
 from BasicTools.IO import XdmfWriter as XW
-from genericROM.Containers.Meshes import BasicToolsUnstructuredMesh as BTUM
-from genericROM.Containers.Meshes import MeshTools as MT
+from ..Containers.Meshes import BasicToolsUnstructuredMesh as BTUM
+from ..Containers.Meshes import MeshTools as MT
 
 
 
@@ -131,7 +131,7 @@ def CheckIntegrity():
     times = np.arange(7)
     coefficients = np.ones((7,3))
     
-    from genericROM.Containers.CompressedFormats import ModesAndCoefficients as MAC
+    from core.Containers.CompressedFormats import ModesAndCoefficients as MAC
     compressedSnapshots = MAC.ModesAndCoefficients("U", times, 1, True) 
     compressedSnapshots.SetModes(modes) 
     compressedSnapshots.SetCoefficients(coefficients) 

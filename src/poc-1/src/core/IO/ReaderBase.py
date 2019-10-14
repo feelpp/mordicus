@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import numpy as np
-from genericROM.Containers.BaseObject import BaseObject
+from core.Containers.BaseObject import BaseObject
 
 
 class ReaderBase(BaseObject):
@@ -88,7 +88,7 @@ class ReaderBase(BaseObject):
 
 
     def __str__(self):
-        from genericROM import IO
+        from .. import IO
         allIO = IO.__all__
         allReaders = [a for a in allIO if ("Reader" in a and "Base" not in a)]
         res = "I am a ReaderBase, try instanciating a particular reader "+str(allReaders)+" instead"

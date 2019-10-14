@@ -2,9 +2,9 @@
 
 import numpy as np
 
-from genericROM.Containers import Solution
-from genericROM.Containers.Loadings import LoadingBase
-from genericROM.Containers.BaseObject import BaseObject
+from core.Containers import Solution
+from core.Containers.Loadings import LoadingBase
+from core.Containers.BaseObject import BaseObject
 import collections
 
 class ProblemData(BaseObject):
@@ -117,7 +117,7 @@ class ProblemData(BaseObject):
         np.ndarray
             parameter
         """
-        from genericROM.BasicAlgorithms import TimeInterpolation as TI
+        from ..BasicAlgorithms import TimeInterpolation as TI
         return TI.TimeInterpolation(time, list(self.parameters.keys()), list(self.parameters.values()))
     
 
@@ -152,7 +152,6 @@ class ProblemData(BaseObject):
 
 
     def  __str__(self):
-        res = "ProblemData\n"
         res = "Solutions:"+str(list(self.solutions.keys()))
         return res
     

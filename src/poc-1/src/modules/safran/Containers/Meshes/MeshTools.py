@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-from genericROM.Containers.Meshes import MeshBase as MB
-from genericROM.Containers.Meshes import BasicToolsUnstructuredMesh as BTUM
+from core.Containers.Meshes import MeshBase as MB
+from . import BasicToolsUnstructuredMesh as BTUM
 from BasicTools.FE import FETools as FT
 
 

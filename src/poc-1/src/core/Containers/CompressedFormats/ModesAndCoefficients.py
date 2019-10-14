@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from genericROM.Containers.CompressedFormats.CompressedFormatsBase import CompressedFormatsBase
+from core.Containers.CompressedFormats.CompressedFormatsBase import CompressedFormatsBase
 
 import numpy as np
 

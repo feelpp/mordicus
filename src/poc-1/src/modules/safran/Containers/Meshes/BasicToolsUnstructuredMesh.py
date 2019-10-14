@@ -1,6 +1,6 @@
  # -*- coding: utf-8 -*-
 
-from genericROM.Containers.Meshes.MeshBase import MeshBase
+from core.Containers.Meshes.MeshBase import MeshBase
 import numpy as np
 
 class BasicToolsUnstructuredMesh(MeshBase):
@@ -34,11 +34,11 @@ class BasicToolsUnstructuredMesh(MeshBase):
 
     def AllElementsIterator(self):
         class iterator():
-            def __init__(selfII, elements):
-                selfII.elements = elements
+            def __init__(self, elements):
+                self.elements = elements
 
-            def __iter__(selfII):
-                for _,data in selfII.elements.items():
+            def __iter__(self):
+                for _,data in self.elements.items():
                     for i in range(data.GetNumberOfElements()):
                         yield data.connectivity[i,:]
                 
@@ -56,7 +56,7 @@ def CheckIntegrity():
     
 
     from BasicTools.Containers.UnstructuredMeshTools import CreateCube
-    from genericROM.Containers.Meshes import MeshTools as MT
+    from . import MeshTools as MT
     
     mesh = BasicToolsUnstructuredMesh(CreateCube(dimensions=[3,4,3],spacing=[2.,2.,2.],ofTetras=True))    
     

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from genericROM.Containers.Loadings.LoadingBase import LoadingBase
+from core.Containers.Loadings.LoadingBase import LoadingBase
 import numpy as np
 import collections
 
@@ -93,7 +93,7 @@ class PressureBC(LoadingBase):
         # assert type of time
         assert isinstance(time, (float, np.float64))
 
-        from genericROM.BasicAlgorithms import TimeInterpolation as TI
+        from core.BasicAlgorithms import TimeInterpolation as TI
         
         # compute coefficient at time
         coefficient = TI.TimeInterpolation(time, list(self.coefficients.keys()), list(self.coefficients.values()))

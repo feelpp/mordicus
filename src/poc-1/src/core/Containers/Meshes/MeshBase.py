@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from genericROM.Containers.BaseObject import BaseObject
+from core.Containers.BaseObject import BaseObject
 
 class MeshBase(BaseObject):
     """
@@ -58,7 +58,7 @@ class MeshBase(BaseObject):
 
 
     def __str__(self):
-        from genericROM.Containers import Meshes
+        from .. import Meshes
         allMeshes = [l for l in Meshes.__all__ if "Base" not in str(l)]
         res = "I am a MeshBase, try instanciating a particular mesh among "+str(allMeshes)+" instead"
         return res

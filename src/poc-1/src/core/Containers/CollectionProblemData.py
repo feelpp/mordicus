@@ -2,9 +2,9 @@
 
 import numpy as np
 from scipy import sparse
-from genericROM.Containers import ProblemData
-from genericROM.Containers import Solution
-from genericROM.Containers.BaseObject import BaseObject
+from core.Containers import ProblemData
+from core.Containers import Solution
+from core.Containers.BaseObject import BaseObject
 
 class CollectionProblemData(BaseObject):
     """
@@ -258,15 +258,16 @@ class CollectionProblemData(BaseObject):
         -------
         iterator
             an iterator over snapshots of solutions of name "solutionName" in all problemDatas
-        """        
+        """
+        this = self
         class iterator():
-            def __init__(selfII, solutionName):
-                selfII.solutionName = solutionName
-                selfII.problemDatas = self.problemDatas
+            def __init__(self, solutionName):
+                self.solutionName = solutionName
+                self.problemDatas = this.problemDatas
                 
-            def __iter__(selfII):
-                for _, problemData in selfII.problemDatas.items():
-                    for _, snapshot in problemData.solutions[selfII.solutionName].snapshots.items():
+            def __iter__(self):
+                for _, problemData in self.problemDatas.items():
+                    for _, snapshot in problemData.solutions[self.solutionName].snapshots.items():
                         yield snapshot
                 
         res = iterator(solutionName)

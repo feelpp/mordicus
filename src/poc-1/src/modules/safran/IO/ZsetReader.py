@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import numpy as np
 
-from genericROM.IO.ReaderBase import ReaderBase
+from core.IO.ReaderBase import ReaderBase
 from BasicTools.IO import ZebulonIO as ZIO
 
     
@@ -187,7 +187,7 @@ class ZsetReader(ReaderBase):
         else: #pragma: no cover
             raise("FileName error!")
             
-        from genericROM.Containers.Meshes import BasicToolsUnstructuredMesh as BTUM
+        from ..Containers.Meshes import BasicToolsUnstructuredMesh as BTUM
         mesh = BTUM.BasicToolsUnstructuredMesh(data)
 
         return mesh
@@ -249,7 +249,7 @@ class ZsetReader(ReaderBase):
         import os
             
         if key == "pressure":
-            from genericROM.Containers.Loadings import PressureBC
+            from ..Containers.Loadings import PressureBC
 
             loading = PressureBC.PressureBC()
             
@@ -278,7 +278,7 @@ class ZsetReader(ReaderBase):
 
 def CheckIntegrity():
 
-    import genericROM.TestData as genericROMToolsTestData
+    import core.TestData as genericROMToolsTestData
 
     folder = genericROMToolsTestData.GetTestDataPath()+"Zset/"
     

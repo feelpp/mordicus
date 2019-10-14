@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from genericROM.Containers.BaseObject import BaseObject
+from ..BaseObject import BaseObject
 
 class CompressedFormatsBase(BaseObject):
     """
@@ -35,7 +35,7 @@ class CompressedFormatsBase(BaseObject):
         
         
     def __str__(self):
-        from genericROM.Containers import CompressedFormats
+        from .. import CompressedFormats
         res = "I am a CompressedFormatsBase, try instanciating a compressed format among "+str(CompressedFormats.__all__)+" instead"
         return res
 

@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
-from genericROM.BasicAlgorithms import TimeInterpolation as TI
-from genericROM.Containers.CompressedFormats import CompressedFormatsBase
-from genericROM.Containers.BaseObject import BaseObject
+from core.BasicAlgorithms import TimeInterpolation as TI
+from core.Containers.CompressedFormats import CompressedFormatsBase
+from core.Containers.BaseObject import BaseObject
 import collections
 
 class Solution(BaseObject):

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import numpy as np
-from genericROM.Containers.CompressedFormats import ModesAndCoefficients as MAC
+import scikit-learn as sklearn
+from core.Containers.CompressedFormats import ModesAndCoefficients as MAC
 
 def OnlineComputeRegression(onlineProblemData, operatorCompressionOutputData, compressedSnapshots):
     """
@@ -105,11 +106,11 @@ def CheckIntegrity():
     
     
     from BasicTools.Containers.UnstructuredMeshTools import CreateCube
-    from genericROM.Containers.Meshes import BasicToolsUnstructuredMesh as BTUM
-    from genericROM.Containers import ProblemData
-    from genericROM.Containers import CollectionProblemData
-    from genericROM.Containers import Solution
-    from genericROM.DataCompressors import SnapshotPOD as SP
+    from modules.safran.Containers.Meshes import BasicToolsUnstructuredMesh as BTUM
+    from core.Containers import ProblemData
+    from core.Containers import CollectionProblemData
+    from core.Containers import Solution
+    from core.DataCompressors import SnapshotPOD as SP
     
     mesh = BTUM.BasicToolsUnstructuredMesh(CreateCube(dimensions=[3,4,3],spacing=[2.,2.,2.],ofTetras=True))
     

@@ -59,7 +59,7 @@ def ComputeReducedOrderBasis(snapshotsIterator, l2ScalarProducMatrix, tolerance)
             if i>=j:
                 correlationMatrix[i,j] = np.dot(matVecProduct,snapshot2)
     
-    from genericROM.BasicAlgorithms import SVD as SVD    
+    from ..BasicAlgorithms import SVD as SVD    
     eigenValuesRed, eigenVectorsRed = SVD.TruncatedSVDSymLower(correlationMatrix, tolerance)
     
     nbePODModes = eigenValuesRed.shape[0]
@@ -86,7 +86,7 @@ def CompressSolutionsOfCollectionProblemData(collectionProblemData, solutionName
     """
     assert isinstance(solutionName,str)
     
-    from genericROM.Containers.CompressedFormats import ModesAndCoefficients as MAC
+    from ..Containers.CompressedFormats import ModesAndCoefficients as MAC
     
     l2ScalarProducMatrix = collectionProblemData.GetL2ScalarProducMatrix(solutionName)
     reducedOrderBasis    = collectionProblemData.GetReducedOrderBasis(solutionName)
@@ -144,7 +144,7 @@ def CompressSolutions(solution, l2ScalarProducMatrix, reducedOrderBasis):
         index += 1
      
     solutionName = solution.GetSolutionName()
-    from genericROM.Containers.CompressedFormats import ModesAndCoefficients as MAC    
+    from ..Containers.CompressedFormats import ModesAndCoefficients as MAC    
     compressedSnapshotsMAC = MAC.ModesAndCoefficients(solutionName, times, solution.GetNbeOfComponents(), solution.GetPrimality())
     compressedSnapshotsMAC.SetModes(reducedOrderBasis)
     compressedSnapshotsMAC.SetCoefficients(coefficients)
@@ -157,10 +157,10 @@ def CheckIntegrity():
     
     
     from BasicTools.Containers.UnstructuredMeshTools import CreateCube
-    from genericROM.Containers.Meshes import BasicToolsUnstructuredMesh as BTUM
-    from genericROM.Containers import ProblemData
-    from genericROM.Containers import CollectionProblemData
-    from genericROM.Containers import Solution
+    from modules.safran.Containers.Meshes import BasicToolsUnstructuredMesh as BTUM
+    from core.Containers import ProblemData
+    from core.Containers import CollectionProblemData
+    from core.Containers import Solution
     
     mesh = BTUM.BasicToolsUnstructuredMesh(CreateCube(dimensions=[3,4,3],spacing=[2.,2.,2.],ofTetras=True))
     
