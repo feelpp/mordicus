@@ -1,4 +1,4 @@
-from safran.IO import ZsetReader as ZR
+from modules.safran.IO import ZsetReader as ZR
 from core.Containers import ProblemData as PD
 from core.Containers import CollectionProblemData as CPD
 from core.Containers.CompressedFormats import ModesAndCoefficients as MAC
