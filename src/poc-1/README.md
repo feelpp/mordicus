@@ -38,8 +38,8 @@
     The testing and coverage are done using BasicTools testing infrastructure
     with respectively:
 
-	python3 BasicTools/Helpers/Tests.py -e genericROM -f
-    	python3 BasicTools/Helpers/Tests.py -e genericROM -c
+	python3 BasicTools/Helpers/Tests.py -e core
+    	python3 BasicTools/Helpers/Tests.py -e modules
     	
     	
 4) **EXAMPLES**
