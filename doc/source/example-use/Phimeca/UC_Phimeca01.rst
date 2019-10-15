@@ -3,7 +3,13 @@
 Phimeca Use Case
 ----------------
 
-*Contexte à ajouter*
+The broader context of this use-case is the analysis of temporal stochastic processes.
+We consider as data N realizations of the process X(w,t) where the time index t
+is discretized on a an interval of R, w is a realization of a multivariate random vector,
+and X is also possibly multivariate.
+Here the process is univariate and each realization consists of a
+trajectory (t, Z_t) when t varies in an interval. Each trajectory depends
+on one realization of the multivariate joint distribution of some physical parameters.
 
 .. .. tabularcolumns:: |L|L|L|L|
 
