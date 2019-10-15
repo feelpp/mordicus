@@ -44,7 +44,7 @@ compressedSnapshots.CheckDimensionsConsistence()
 
 
 
-from genericROM.IO import PXDMFWriter as PW
+from safran.IO import PXDMFWriter as PW
 mesh = ZR.ReadMesh("cube.geof")
 
 PW.WritePXDMF(mesh, compressedSnapshots)
