@@ -59,7 +59,7 @@ def ComputeReducedOrderBasis(snapshotsIterator, l2ScalarProducMatrix, tolerance)
             if i>=j:
                 correlationMatrix[i,j] = np.dot(matVecProduct,snapshot2)
     
-    from ..BasicAlgorithms import SVD as SVD    
+    from core.BasicAlgorithms import SVD as SVD    
     eigenValuesRed, eigenVectorsRed = SVD.TruncatedSVDSymLower(correlationMatrix, tolerance)
     
     nbePODModes = eigenValuesRed.shape[0]
@@ -86,7 +86,7 @@ def CompressSolutionsOfCollectionProblemData(collectionProblemData, solutionName
     """
     assert isinstance(solutionName,str)
     
-    from ..Containers.CompressedFormats import ModesAndCoefficients as MAC
+    from core.Containers.CompressedFormats import ModesAndCoefficients as MAC
     
     l2ScalarProducMatrix = collectionProblemData.GetL2ScalarProducMatrix(solutionName)
     reducedOrderBasis    = collectionProblemData.GetReducedOrderBasis(solutionName)
@@ -144,7 +144,7 @@ def CompressSolutions(solution, l2ScalarProducMatrix, reducedOrderBasis):
         index += 1
      
     solutionName = solution.GetSolutionName()
-    from ..Containers.CompressedFormats import ModesAndCoefficients as MAC    
+    from core.Containers.CompressedFormats import ModesAndCoefficients as MAC    
     compressedSnapshotsMAC = MAC.ModesAndCoefficients(solutionName, times, solution.GetNbeOfComponents(), solution.GetPrimality())
     compressedSnapshotsMAC.SetModes(reducedOrderBasis)
     compressedSnapshotsMAC.SetCoefficients(coefficients)
