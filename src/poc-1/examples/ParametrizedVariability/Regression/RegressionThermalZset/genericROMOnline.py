@@ -1,7 +1,7 @@
-from genericROM.IO import ZsetReader as ZR
-from genericROM.Containers import ProblemData as PD
-from genericROM.Containers.CompressedFormats import ModesAndCoefficients as MAC
-from genericROM.OperatorCompressors import Regression
+from safran.IO import ZsetReader as ZR
+from core.Containers import ProblemData as PD
+from core.Containers.CompressedFormats import ModesAndCoefficients as MAC
+from core.OperatorCompressors import Regression
 import numpy as np
 
 
