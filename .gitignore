@@ -2,3 +2,6 @@
 build/
 .metadata/
 RemoteSystemsTempFiles/.project
+*~
+*.DS_Store
+*.pyc
