@@ -1,9 +1,9 @@
-from genericROM.IO import ZsetReader as ZR
-from genericROM.Containers import ProblemData as PD
-from genericROM.Containers import CollectionProblemData as CPD
-from genericROM.Containers import Solution as S
-from genericROM.Containers.Meshes import MeshTools as MT
-from genericROM.DataCompressors import SnapshotPOD
+from safran.IO import ZsetReader as ZR
+from core.Containers import ProblemData as PD
+from core.Containers import CollectionProblemData as CPD
+from core.Containers import Solution as S
+from safran.Containers.Meshes import MeshTools as MT
+from core.DataCompressors import SnapshotPOD
 import numpy as np
 
 folder = "Computation1/"
@@ -51,7 +51,7 @@ print("A reduced order basis has been computed has been constructed using Snapsh
 SnapshotPOD.CompressSolutionsOfCollectionProblemData(collectionProblemData, "U")
 print("The solution has been compressed")
 
-from genericROM.IO import PXDMFWriter as PW
+from safran.IO import PXDMFWriter as PW
 PW.WritePXDMF(mesh, solution.GetCompressedSnapshots())
 print("The compressed solution has been written in PXDMF Format")
 
