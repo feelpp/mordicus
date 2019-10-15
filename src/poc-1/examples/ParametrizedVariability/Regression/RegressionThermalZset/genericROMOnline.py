@@ -1,7 +1,8 @@
-from genericROM.IO import ZsetReader as ZR
-from genericROM.Containers import ProblemData as PD
-from genericROM.Containers.CompressedFormats import ModesAndCoefficients as MAC
-from genericROM.OperatorCompressors import Regression
+from modules.safran.IO import ZsetReader as ZR
+from modules.safran.IO import PXDMFWriter as PW
+from core.Containers import ProblemData as PD
+from core.Containers.CompressedFormats import ModesAndCoefficients as MAC
+from core.OperatorCompressors import Regression
 import numpy as np
 
 
@@ -44,7 +45,6 @@ compressedSnapshots.CheckDimensionsConsistence()
 
 
 
-from genericROM.IO import PXDMFWriter as PW
 mesh = ZR.ReadMesh("cube.geof")
 
 PW.WritePXDMF(mesh, compressedSnapshots)

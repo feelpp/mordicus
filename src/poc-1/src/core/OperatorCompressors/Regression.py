@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import numpy as np
-import scikit-learn as sklearn
+import sklearn
 from core.Containers.CompressedFormats import ModesAndCoefficients as MAC
 
 def OnlineComputeRegression(onlineProblemData, operatorCompressionOutputData, compressedSnapshots):

@@ -117,7 +117,7 @@ class ProblemData(BaseObject):
         np.ndarray
             parameter
         """
-        from ..BasicAlgorithms import TimeInterpolation as TI
+        from core.BasicAlgorithms import TimeInterpolation as TI
         return TI.TimeInterpolation(time, list(self.parameters.keys()), list(self.parameters.values()))
     
 
