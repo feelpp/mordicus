@@ -7,5 +7,5 @@ Class diagrams
     :maxdepth: 1
 
     class_diagram
-    class_diagram_hackathons
-    glossary
+.. i    class_diagram_hackathons
+.. i    glossary

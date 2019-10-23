@@ -6,28 +6,28 @@
 Welcome to Mordicus's documentation!
 ====================================
 
-Contents:
-
-**Génération de cette page**
-
-.. toctree::
-   :maxdepth: 2
-
-   sphinx-instructions
-
-**Exemples d'utilisation**
-
-.. toctree::
-   :maxdepth: 2
-
-   example-use/index
-
-**Fonctionnalités et acteurs**
-
-.. toctree::
-   :maxdepth: 2
-
-   features-description/index
+.. iContents:
+.. i
+.. i**Génération de cette page**
+.. i
+.. i.. toctree::
+.. i   :maxdepth: 2
+.. i
+.. i   sphinx-instructions
+.. i
+.. i**Exemples d'utilisation**
+.. i
+.. i.. toctree::
+.. i   :maxdepth: 2
+.. i
+.. i   example-use/index
+.. i
+.. i**Fonctionnalités et acteurs**
+.. i
+.. i.. toctree::
+.. i   :maxdepth: 2
+.. i
+.. i   features-description/index
 
 **Modèle de données et glossaire**
 
@@ -37,20 +37,20 @@ Contents:
    datamodel/index
 
 
-**CR des séances de travail**
-
-.. toctree::
-   :maxdepth: 2
-
-   meetings/2018_04_19.rst
-   meetings/2018_05_31.rst
-   meetings/2018_06_28.rst
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+.. i**CR des séances de travail**
+.. i
+.. i.. toctree::
+.. i   :maxdepth: 2
+.. i
+.. i   meetings/2018_04_19.rst
+.. i   meetings/2018_05_31.rst
+.. i   meetings/2018_06_28.rst
+.. i
+.. i
+.. iIndices and tables
+.. i==================
+.. i
+.. i* :ref:`genindex`
+.. i* :ref:`modindex`
+.. i* :ref:`search`
 

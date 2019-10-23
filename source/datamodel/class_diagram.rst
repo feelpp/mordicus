@@ -16,7 +16,7 @@ Overview of the model
 The full *domain model* is presented under the form of a class diagram on :numref:`full_model`. In hard to read in this state, so we'll go into details in the coming paragraphs, and the data model is available for interactive consultation on the open software Modelio, with the zip file at this link :download:`zip <data/Mordicus_Datamodel.zip>`.
 
 .. _full_model:
-.. figure:: images/REFERENCE_CLASS_DIAGRAM.png
+.. figure:: images/REFERENCE_CLASS_DIAGRAM.pdf
 
    Full representation of the data model
 
@@ -35,7 +35,7 @@ Making use of this techniques, the first step consists in specifying the paramet
 This is achieved by means of **CASE_DATA**, which is the "root" class of the data model, see :numref:`v0_zoom1`. It gathers the numerical description of the physical problem to solve. It defines as attributes the *inputs* and *outputs* that will be made public to the black-box user of the reduced-order model, as well as the available *computed_solutions*, either pre-computed or computed as part of the offline procedure. These will be detailed in io_indexing_.
 
 .. _v0_zoom1:
-.. figure:: images/v0_zoom1.png
+.. figure:: images/v0_zoom1.pdf
 
     Zoom on the case definition
 
@@ -82,7 +82,7 @@ Among the objects assembled by *CASE_DATA*, one deserves special attention: the 
 The *DISCRETE_SUPPORT* is a common data type to specify *definition domains* in space, time or parameter. *Definition domains* may also be defined by a cartesian product of discrete supports implicitely: the result *discrete support* of the cartesian product is not computed, it would be too heavy in memory.
 
 .. _v0_zoom2:
-.. figure:: images/v0_zoom2.png
+.. figure:: images/v0_zoom2.pdf
 
    Zoom on the notion of discrete support
 
@@ -134,7 +134,7 @@ The specified *outputs* to *CASE_DATA* may be of 3 kinds, see :numref:`v0_zoom3`
     * vector of unknowns.
 
 .. _v0_zoom3:
-.. figure:: images/v0_zoom3.png
+.. figure:: images/v0_zoom3.pdf
 
    Zoom on the 3 kinds of results, and their structure in relation to the discrete support
 
@@ -263,7 +263,7 @@ Description of inputs and outputs, indexing mechanism
 As was said in case_data_, the *CASE_DATA* object includes information about the *model* to be reduced. In other words, it has to describe the input/output of the transfer function, a reduced representation of which which be built by a "model reduction user", see :numref:`v0_zoom4`.
 
 .. _v0_zoom4:
-.. figure:: images/v0_zoom4.png
+.. figure:: images/v0_zoom4.pdf
 
     Zoom on the input, outputs and indexing mechanism of the case
 
@@ -321,7 +321,7 @@ In the data model in its current state, the high-dimensional problem is solved b
 So besides the *EXTERNAL_SOLVING_PROCEDURE*, we introduce an *INTERNAL_SOLVING_PROCEDURE*, each of which is derived from an abstract **SOLVING_PROCEDURE**, see :numref:`v0_zoom5`.
 
 .. _v0_zoom5:
-.. figure:: images/v0_zoom5.png
+.. figure:: images/v0_zoom5.pdf
 
    Offline treatments: zoom on custom procedures and functions
 
@@ -422,7 +422,7 @@ A reduction procedure is often made of two steps, see :numref:`v0_zoom6`:
    * an *operator compression* phase, which relies on these bases to build reduced-order *resolution data*, to be employed in a reduced-order resolution procedure
 
 .. _v0_zoom6:
-.. figure:: images/v0_zoom6.png
+.. figure:: images/v0_zoom6.pdf
 
     Offline treatments: zoom on the reduction methods
 
@@ -515,7 +515,7 @@ The data model for the *online* part has been designed according to the followin
 The online data structures are summarized on :numref:`v0_zoom7`
 
 .. _v0_zoom7:
-.. figure:: images/v0_zoom7.png
+.. figure:: images/v0_zoom7.pdf
 
     Zoom on the online treatments
 
