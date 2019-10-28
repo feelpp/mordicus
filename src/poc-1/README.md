@@ -1,5 +1,3 @@
-[![pipeline status](https://gitlab.safrantech.safran/d582428/genericROM/badges/master/pipeline.svg)](https://gitlab.safrantech.safran/d582428/genericROM/commits/master)   [![Coverage report](https://gitlab.safrantech.safran/d582428/genericROM/badges/master/coverage.svg?job=coverage)](https://d582428.gitlab.safrantech.safran/genericROM/coverage/)
-
 
         Reduced Order Modelling library of the FUI project "MOR_DICUS".
 
