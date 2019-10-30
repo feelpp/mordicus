@@ -4,6 +4,7 @@ variables:
 
 stages:
     - test
+    - deploy
 
 
 coverage:
@@ -22,7 +23,7 @@ coverage:
 pages:
     stage: deploy
     tags:
-        - genericROM
+        - mordicus
     script:
         - pwd
     artifacts:
