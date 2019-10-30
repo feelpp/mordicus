@@ -1,6 +1,3 @@
-[![pipeline status](https://gitlab.safrantech.safran/d582428/genericROM/badges/master/pipeline.svg)](https://gitlab.safrantech.safran/d582428/genericROM/commits/master)   [![Coverage report](https://gitlab.safrantech.safran/d582428/genericROM/badges/master/coverage.svg?job=coverage)](https://d582428.gitlab.safrantech.safran/genericROM/coverage/)
-
-
         Reduced Order Modelling library of the FUI project "MOR_DICUS".
 
 
@@ -38,8 +35,13 @@
     The testing and coverage are done using BasicTools testing infrastructure
     with respectively:
 
-	python3 BasicTools/Helpers/Tests.py -e core
-    	python3 BasicTools/Helpers/Tests.py -e modules
+    Testing:
+	python3 BasicTools/Helpers/Tests.py -e core -f
+    python3 BasicTools/Helpers/Tests.py -e modules -f
+
+    Coverage:
+	python3 BasicTools/Helpers/Tests.py -e core -cl
+    python3 BasicTools/Helpers/Tests.py -e modules -cl
     	
     	
 4) **EXAMPLES**
