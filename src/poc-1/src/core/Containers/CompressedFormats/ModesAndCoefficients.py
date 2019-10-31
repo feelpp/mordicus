@@ -210,6 +210,7 @@ def CheckIntegrity():
     compressedSnapshots.GetPrimality()
     compressedSnapshots.GetNumberOfDOFs()
     compressedSnapshots.GetNumberOfModes()
+    compressedSnapshots.GetNumberOfNodes()
     print(compressedSnapshots)
     return "ok"
 

@@ -163,6 +163,7 @@ def CheckIntegrity():
     from core.Containers import Solution
     
     mesh = BTUM.BasicToolsUnstructuredMesh(CreateCube(dimensions=[3,4,3],spacing=[2.,2.,2.],ofTetras=True))
+    mesh.GetDimensionality()
     
     nbeOfComponents = 3
     
