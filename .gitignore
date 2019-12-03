@@ -11,3 +11,7 @@ RemoteSystemsTempFiles/.project
 *.kdev4
 src/coverage_report/*
 *.coverage*
+
+#autodoc generated files
+*doc/_build*
+*doc/_source*
