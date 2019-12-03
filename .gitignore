@@ -13,5 +13,5 @@ src/coverage_report/*
 *.coverage*
 
 #autodoc generated files
-*doc/_build*
-*doc/_source*
+*_build*
+*_source*
