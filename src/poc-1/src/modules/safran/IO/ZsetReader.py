@@ -187,7 +187,7 @@ class ZsetReader(ReaderBase):
         else: #pragma: no cover
             raise("FileName error!")
             
-        from ..Containers.Meshes import BasicToolsUnstructuredMesh as BTUM
+        from modules.safran.Containers.Meshes import BasicToolsUnstructuredMesh as BTUM
         mesh = BTUM.BasicToolsUnstructuredMesh(data)
 
         return mesh
@@ -249,7 +249,7 @@ class ZsetReader(ReaderBase):
         import os
             
         if key == "pressure":
-            from ..Containers.Loadings import PressureBC
+            from modules.safran.Containers.Loadings import PressureBC
 
             loading = PressureBC.PressureBC()
             

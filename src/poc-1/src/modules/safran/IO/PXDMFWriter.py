@@ -4,8 +4,8 @@ import numpy as np
 from core.IO.WriterBase import WriterBase
 from core.Containers.CompressedFormats import CompressedFormatsBase
 from BasicTools.IO import XdmfWriter as XW
-from ..Containers.Meshes import BasicToolsUnstructuredMesh as BTUM
-from ..Containers.Meshes import MeshTools as MT
+from modules.safran.Containers.Meshes import BasicToolsUnstructuredMesh as BTUM
+from modules.safran.Containers.Meshes import MeshTools as MT
 
 
 
@@ -139,7 +139,7 @@ def CheckIntegrity():
     writer = WritePXDMF(mesh, compressedSnapshots)
     
     import os
-    os.system("rm -rf U_compressed0.bin U_compressed0.pxdmf")
+    os.system("rm -rf U_compressed0.bin U_compressed.pxdmf")
     
     return "ok"
 

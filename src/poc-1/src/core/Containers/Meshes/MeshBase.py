@@ -58,7 +58,7 @@ class MeshBase(BaseObject):
 
 
     def __str__(self):
-        from .. import Meshes
+        from core.Containers import Meshes
         allMeshes = [l for l in Meshes.__all__ if "Base" not in str(l)]
         res = "I am a MeshBase, try instanciating a particular mesh among "+str(allMeshes)+" instead"
         return res

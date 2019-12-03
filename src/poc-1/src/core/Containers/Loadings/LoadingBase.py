@@ -38,7 +38,7 @@ class LoadingBase(object):
         
 
     def __str__(self):
-        from .. import Loadings
+        from core.Containers import Loadings
         allLoadings = [l for l in Loadings.__all__ if "Base" not in str(l)]
         res = "I am a LoadingBase, try instanciating a physical loading among "+str(allLoadings)+" instead"
         return res

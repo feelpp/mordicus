@@ -88,7 +88,7 @@ class ReaderBase(BaseObject):
 
 
     def __str__(self):
-        from .. import IO
+        from core import IO
         allIO = IO.__all__
         allReaders = [a for a in allIO if ("Reader" in a and "Base" not in a)]
         res = "I am a ReaderBase, try instanciating a particular reader "+str(allReaders)+" instead"

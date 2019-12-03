@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from ..BaseObject import BaseObject
+from core.Containers.BaseObject import BaseObject
 
 class CompressedFormatsBase(BaseObject):
     """
@@ -35,7 +35,7 @@ class CompressedFormatsBase(BaseObject):
         
         
     def __str__(self):
-        from .. import CompressedFormats
+        from core.Containers import CompressedFormats
         res = "I am a CompressedFormatsBase, try instanciating a compressed format among "+str(CompressedFormats.__all__)+" instead"
         return res
 
