@@ -12,8 +12,12 @@
 
 1) **DEPENDENCIES**
 
-    PYTHON OPEN-SOURCE DEPENDENCIES
-    BasicTools (and its dependencies)
+    python minversion  3.6
+    Dependencies :
+      - pytest, pytest-cov
+      - BasicTools, and its dependencies : numpy scipy scikit-sparse matplotlib vtk sympy pyamg h5py pyparsing Cython sphinx pytest pytest-cov setuptools
+
+    recommandation: create a dedictated conda environment from the channel conda-forge
 
 
 2) **DOCUMENTATION**
@@ -32,16 +36,22 @@
     The __init__.py must have a variable named __all__ listing all submodules
     so that the test infrastructure works as intended.
 
-    The testing and coverage are done using BasicTools testing infrastructure
+    The testing and coverage can be done using BasicTools testing infrastructure
     with respectively:
 
     Testing:
 	python3 BasicTools/Helpers/Tests.py -e core -f
-    python3 BasicTools/Helpers/Tests.py -e modules -f
+	python3 BasicTools/Helpers/Tests.py -e modules -f
 
     Coverage:
 	python3 BasicTools/Helpers/Tests.py -e core -cl
-    python3 BasicTools/Helpers/Tests.py -e modules -cl
+	python3 BasicTools/Helpers/Tests.py -e modules -cl
+
+
+    or using pytest:
+	go to the src/poc-1/src/ folder and type
+	pytest --cov=. --cov-report=html:../../coverage_report
+	a html report is generated in the src/coverage_report folder
     	
     	
 4) **EXAMPLES**
