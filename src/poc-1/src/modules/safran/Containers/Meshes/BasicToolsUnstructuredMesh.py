@@ -56,9 +56,10 @@ def CheckIntegrity():
     
 
     from BasicTools.Containers.UnstructuredMeshTools import CreateCube
-    from . import MeshTools as MT
+    from modules.safran.Containers.Meshes import MeshTools as MT
+    from modules.safran.Containers.Meshes import BasicToolsUnstructuredMesh as BTUM
     
-    mesh = BasicToolsUnstructuredMesh(CreateCube(dimensions=[3,4,3],spacing=[2.,2.,2.],ofTetras=True))    
+    mesh = BTUM.BasicToolsUnstructuredMesh(CreateCube(dimensions=[3,4,3],spacing=[2.,2.,2.],ofTetras=True))    
     
     mesh.GetNumberOfNodes()
     mesh.GetDimensionality()

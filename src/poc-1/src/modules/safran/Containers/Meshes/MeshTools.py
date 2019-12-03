@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from core.Containers.Meshes import MeshBase as MB
-from . import BasicToolsUnstructuredMesh as BTUM
 from BasicTools.FE import FETools as FT
+from modules.safran.Containers.Meshes import BasicToolsUnstructuredMesh as BTUM
 
 
 def ComputeL2ScalarProducMatrix(mesh, numberOfComponents):
