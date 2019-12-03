@@ -172,7 +172,7 @@ texinfo_documents = [
 ]
 
 # -- Options for napoleon extension
-autosummary_generate = False
+autosummary_generate = []
 
 # -- Options for napoleon extension
 pass
