@@ -50,7 +50,7 @@
 
 
     or using pytest:
-	go to the src/poc-1/src/ folder and type
+	go to the src/poc-1/tests/ folder and type
 	pytest --cov=. --cov-report=html:../coverage_report
 	a html report is generated in the src/coverage_report folder
 
