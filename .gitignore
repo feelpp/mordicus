@@ -9,7 +9,7 @@ RemoteSystemsTempFiles/.project
 *.bin
 *.pxdmf
 *.kdev4
-src/coverage_report/*
+src/poc-1/coverage_report/*
 *.coverage*
 
 #autodoc generated files
