@@ -8,6 +8,7 @@ def test():
     loading = LB.LoadingBase()
     loading.SetSet("toto")
     loading.GetSet()
+    print(loading)
     return "ok"
 
 

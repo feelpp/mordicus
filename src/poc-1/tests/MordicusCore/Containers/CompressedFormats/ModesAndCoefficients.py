@@ -22,6 +22,7 @@ def test():
     compressedSnapshots.GetNumberOfDOFs()
     compressedSnapshots.GetNumberOfModes()
     compressedSnapshots.GetNumberOfNodes()
+    print(compressedSnapshots)
     return "ok"
 
 
