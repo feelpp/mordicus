@@ -15,19 +15,20 @@ Welcome to Mordicus's documentation!
 .. i
 .. i   sphinx-instructions
 .. i
-.. i**Exemples d'utilisation**
-.. i
-.. i.. toctree::
-.. i   :maxdepth: 2
-.. i
-.. i   example-use/index
-.. i
-.. i**Fonctionnalités et acteurs**
-.. i
-.. i.. toctree::
-.. i   :maxdepth: 2
-.. i
-.. i   features-description/index
+
+**Exemples d'utilisation**
+
+.. toctree::
+   :maxdepth: 2
+
+   example-use/index
+
+.. **Fonctionnalités et acteurs**
+
+.. .. toctree::
+..   :maxdepth: 2
+
+..   features-description/index
 
 **Modèle de données et glossaire**
 
