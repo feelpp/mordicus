@@ -1,23 +1,20 @@
 # -*- coding: utf-8 -*-
 import numpy as np
-from BasicTools.Containers.UnstructuredMeshTools import CreateCube
-from MordicusModules.safran.Containers.Meshes import BasicToolsUnstructuredMesh as BTUM
 from MordicusCore.Containers import ProblemData
 from MordicusCore.Containers import CollectionProblemData
 from MordicusCore.Containers import Solution
 from MordicusCore.DataCompressors import SnapshotPOD
 
 
+
 def test():
     
-    mesh = BTUM.BasicToolsUnstructuredMesh(CreateCube(dimensions=[3,4,3],spacing=[2.,2.,2.],ofTetras=True))
-    mesh.GetDimensionality()
-    
+    numberOfNodes = 20
     nbeOfComponents = 3
     
-    solution = Solution.Solution("U", nbeOfComponents, mesh.GetNumberOfNodes(), True)
-    snapshot = np.ones(nbeOfComponents*mesh.GetNumberOfNodes())
-    snapshot2 = np.ones(nbeOfComponents*mesh.GetNumberOfNodes())
+    solution = Solution.Solution("U", nbeOfComponents, numberOfNodes, True)
+    snapshot = np.ones(nbeOfComponents*numberOfNodes)
+    snapshot2 = np.ones(nbeOfComponents*numberOfNodes)
     solution.AddSnapshot(0., snapshot)
     solution.AddSnapshot(1., snapshot2)
     

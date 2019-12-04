@@ -2,8 +2,6 @@
 import numpy as np
 from MordicusCore.Containers.CompressedFormats import ModesAndCoefficients as MAC
 from MordicusCore.OperatorCompressors import Regression
-from BasicTools.Containers.UnstructuredMeshTools import CreateCube
-from MordicusModules.safran.Containers.Meshes import BasicToolsUnstructuredMesh as BTUM
 from MordicusCore.Containers import ProblemData
 from MordicusCore.Containers import CollectionProblemData
 from MordicusCore.Containers import Solution
@@ -13,14 +11,12 @@ from MordicusCore.DataCompressors import SnapshotPOD as SP
 
 def test():
     
-    
-    mesh = BTUM.BasicToolsUnstructuredMesh(CreateCube(dimensions=[3,4,3],spacing=[2.,2.,2.],ofTetras=True))
-    
+    numberOfNodes = 20
     nbeOfComponents = 3
     
-    solution  = Solution.Solution("U", nbeOfComponents, mesh.GetNumberOfNodes(), True)
-    snapshot  = np.ones(nbeOfComponents*mesh.GetNumberOfNodes())
-    snapshot2 = np.random.rand(nbeOfComponents*mesh.GetNumberOfNodes())
+    solution  = Solution.Solution("U", nbeOfComponents, numberOfNodes, True)
+    snapshot  = np.ones(nbeOfComponents*numberOfNodes)
+    snapshot2 = np.random.rand(nbeOfComponents*numberOfNodes)
     solution.AddSnapshot(0., snapshot)
     solution.AddSnapshot(1., snapshot2)
     solution.AddSnapshot(2., snapshot2)
