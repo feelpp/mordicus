@@ -31,42 +31,31 @@
 
 3) **TESTING INFRASTRUCTURE**
 
-    Every module must have a function called "CheckIntegrity" that takes no
-    argument and returns the string "ok" if and only if the test was successful.
+    Every file from the src folder must have a file of the same name in the tests folder,
+    the contains a function called "test" that takes no
+    argument and returns the string "ok" if and only if the test was successful. This function
+    is meant to test the code in the corresponding file from the src folder
 
     The __init__.py must have a variable named __all__ listing all submodules
     so that the test infrastructure works as intended.
 
-    The testing and coverage can be done using BasicTools testing infrastructure
-    with respectively:
+    The testing and coverage are done using pytest:
 
-    Testing:
-	python3 BasicTools/Helpers/Tests.py -e core -f
-	python3 BasicTools/Helpers/Tests.py -e modules -f
-
-    Coverage:
-	python3 BasicTools/Helpers/Tests.py -e core -cl
-	python3 BasicTools/Helpers/Tests.py -e modules -cl
-
-
-    or using pytest:
 	go to the src/poc-1/tests/ folder and type
 	pytest --cov=. --cov-report=html:../coverage_report
-	a html report is generated in the src/coverage_report folder
-
-        (running pytest from any folder tests all the CheckIntegrity functions
-	from all the python files in the folder and subfolders)
+	a html report is generated in the src/coverage_report folder;
+        running pytest from any folder tests all the CheckIntegrity functions from all the python files in the folder and subfolders
     	
     	
 4) **EXAMPLES**
 
     Examples are available in the folder examples/
-    They can all be executed by the command "python3 genericROMscript.py"
+    They can all be executed by the command "python mordicusScript.py"
     
 
 5) **CONTRIBUTION**
 
-    see [CONTRIBUTING.md](https://gitlab.safrantech.safran/d582428/genericROM/blob/master/CONTRIBUTING.md)
+    see [CONTRIBUTING.md](https://gitlab.pam-retd.fr/mordicus/mordicus/blob/safran/src/poc-1/CONTRIBUTING.md)
 
 
 6) **Used conda environment for dev**
