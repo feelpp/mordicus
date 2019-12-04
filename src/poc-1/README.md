@@ -42,7 +42,7 @@
     The testing and coverage are done using pytest:
 
 	go to the src/poc-1/tests/ folder and type
-	pytest --cov=. --cov-report=html:../coverage_report
+	pytest --cov=../src --cov-report=html:../coverage_report
 	a html report is generated in the src/coverage_report folder;
         running pytest from any folder tests all the CheckIntegrity functions from all the python files in the folder and subfolders
     	
