@@ -9,8 +9,6 @@ def test():
     
     mesh = BTUM.BasicToolsUnstructuredMesh(CreateCube(dimensions=[3,4,3],spacing=[2.,2.,2.],ofTetras=True))    
     
-    mesh.GetNumberOfNodes()
-    mesh.GetDimensionality()
     mesh.GetNodes()
     MT.ComputeL2ScalarProducMatrix(mesh, 1)
     MT.ComputeH10ScalarProductMatrix(mesh, 1)
