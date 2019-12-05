@@ -7,6 +7,10 @@ Exemples d'utilisation
    :maxdepth: 1
 
    Sorbonne <Sorbonne/UC_Sorbonne01>
+   Safran   <Safran/UC_Safran01>
+   Phimeca  <Phimeca/UC_Phimeca01>
+   Mines    <Mines/UC_Mines01>
+   CADLM    <CADLM/UC_CADLM01>
 
 ..   EDF <EDF/index>
 ..   MORDICUS <MORDICUS/index>
