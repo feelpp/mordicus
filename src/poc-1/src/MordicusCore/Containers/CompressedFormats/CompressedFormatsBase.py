@@ -36,5 +36,5 @@ class CompressedFormatsBase(BaseObject):
         
     def __str__(self):
         from MordicusCore.Containers import CompressedFormats
-        res = "I am a CompressedFormatsBase, try instanciating a compressed format among "+str(CompressedFormats.__all__)+" instead"
+        res = "I am a CompressedFormatsBase, try instanciating a particular compressed format instead"
         return res

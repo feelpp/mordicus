@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from MordicusCore.Containers.BaseObject import BaseObject
+import numpy as np
 
 class MeshBase(BaseObject):
     """
@@ -18,8 +19,8 @@ class MeshBase(BaseObject):
         np.ndarray
             nodes of the mesh, of size (numberOfNodes,dimensionality)
         """
-        raise("Not implemented in MeshBase")  #pragma: no cover   
-    
+        print("WARNING: I am a MeshBase! Try instanciating a particular mesh instead. Returning an empty np.ndarray")
+        return np.empty((0,0))
     
     
     def AllElementsIterator(self):
@@ -58,7 +59,5 @@ class MeshBase(BaseObject):
 
 
     def __str__(self):
-        from MordicusCore.Containers import Meshes
-        allMeshes = [l for l in Meshes.__all__ if "Base" not in str(l)]
-        res = "I am a MeshBase, try instanciating a particular mesh among "+str(allMeshes)+" instead"
+        res = "I am a MeshBase, try instanciating a particular mesh instead"
         return res

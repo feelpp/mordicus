@@ -38,7 +38,5 @@ class LoadingBase(object):
         
 
     def __str__(self):
-        from MordicusCore.Containers import Loadings
-        allLoadings = [l for l in Loadings.__all__ if "Base" not in str(l)]
-        res = "I am a LoadingBase, try instanciating a physical loading among "+str(allLoadings)+" instead"
+        res = "I am a LoadingBase, try instanciating a particular physical loading among instead"
         return res
