@@ -45,6 +45,11 @@
 	pytest --cov=../src --cov-report=html:../coverage_report
 	a html report is generated in the src/coverage_report folder;
         running pytest from any folder tests all the CheckIntegrity functions from all the python files in the folder and subfolders
+      
+    The Core and all modules must keep 100% coverage:
+    Exemple for testing an individual folder with the Core:
+    go to tests/MordicusCore and run
+    pytest --cov=../../src/MordicusCore --cov-report=html:../../coverage_report
     	
     	
 4) **EXAMPLES**
