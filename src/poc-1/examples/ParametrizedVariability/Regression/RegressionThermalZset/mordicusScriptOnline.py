@@ -1,4 +1,4 @@
-from MordicusModules.safran.IO import ZsetReader as ZR
+from MordicusModules.safran.IO import ZsetMeshReader as ZMR
 from MordicusModules.safran.IO import PXDMFWriter as PW
 from MordicusCore.Containers import ProblemData as PD
 from MordicusCore.Containers.CompressedFormats import ModesAndCoefficients as MAC
@@ -44,7 +44,7 @@ compressedSnapshots.CheckDimensionsConsistence()
 
 
 
-mesh = ZR.ReadMesh("cube.geof")
+mesh = ZMR.ReadMesh("cube.geof")
 
 PW.WritePXDMF(mesh, compressedSnapshots)
 print("The compressed solution has been written in PXDMF Format")

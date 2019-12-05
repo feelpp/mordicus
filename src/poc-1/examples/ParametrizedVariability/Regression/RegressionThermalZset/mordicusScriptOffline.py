@@ -1,4 +1,5 @@
-from MordicusModules.safran.IO import ZsetReader as ZR
+from MordicusModules.safran.IO import ZsetMeshReader as ZMR
+from MordicusModules.safran.IO import ZsetSolutionReader as ZSR
 from MordicusCore.Containers import ProblemData as PD
 from MordicusCore.Containers import CollectionProblemData as CPD
 from MordicusCore.Containers.CompressedFormats import ModesAndCoefficients as MAC
@@ -10,7 +11,7 @@ import numpy as np
 
 
     
-mesh = ZR.ReadMesh("cube.geof")
+mesh = ZMR.ReadMesh("cube.geof")
 numberOfNodes = mesh.GetNumberOfNodes()
 solutionName = "TP"
 nbeOfComponents = 1
@@ -23,9 +24,9 @@ parameters = [[100., 1000.], [50., 3000.], [150., 300.], [130., 2000.]]
 for i in range(4):
     folder = "Computation"+str(i+1)+"/"
     solutionFileName = folder + "cube.ut"
-    reader = ZR.ZsetReader(solutionFileName = solutionFileName)
+    solutionReader = ZSR.ZsetSolutionReader(solutionFileName = solutionFileName)
 
-    outputTimeSequence = reader.ReadTimeSequenceFromSolutionFile()
+    outputTimeSequence = solutionReader.ReadTimeSequenceFromSolutionFile()
 
     solution = S.Solution(solutionName = solutionName, nbeOfComponents = nbeOfComponents, numberOfNodes = numberOfNodes, primality = primality)
 
@@ -34,7 +35,7 @@ for i in range(4):
 
     parameter = parameters[i]
     for t in outputTimeSequence:
-        snapshot = reader.ReadSnapshot(solution.GetSolutionName(), t, solution.GetPrimality())
+        snapshot = solutionReader.ReadSnapshot(solution.GetSolutionName(), t, solution.GetPrimality())
         solution.AddSnapshot(t, snapshot)
         problemData.AddParameter(np.array(parameters[i] + [t]), t)
 

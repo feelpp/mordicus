@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
 import numpy as np
-from MordicusCore.IO import ReaderBase as RB
+from MordicusCore.IO import SolutionReaderBase as SRB
 
 def test():
 
-    readerBase = RB.ReaderBase()
-    print(readerBase)
+    solutionReaderBase = SRB.SolutionReaderBase()
+    print(solutionReaderBase)
     return "ok"
-
 
 
 if __name__ == '__main__':

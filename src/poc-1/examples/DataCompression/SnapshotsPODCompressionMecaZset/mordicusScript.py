@@ -1,4 +1,6 @@
-from MordicusModules.safran.IO import ZsetReader as ZR
+from MordicusModules.safran.IO import ZsetInputReader as ZIR
+from MordicusModules.safran.IO import ZsetMeshReader as ZMR
+from MordicusModules.safran.IO import ZsetSolutionReader as ZSR
 from MordicusCore.Containers import ProblemData as PD
 from MordicusCore.Containers import CollectionProblemData as CPD
 from MordicusCore.Containers import Solution as S
@@ -14,12 +16,14 @@ inputFileName = folder + "cube.inp"
 meshFileName = folder + "cube.geof"
 solutionFileName = folder + "cube.ut"
 
-reader = ZR.ZsetReader(inputFileName, meshFileName, solutionFileName)
+meshReader = ZMR.ZsetMeshReader(meshFileName)
+inputReader = ZIR.ZsetInputReader(inputFileName)
+solutionReader = ZSR.ZsetSolutionReader(solutionFileName)
 
-mesh = reader.ReadMesh()
+mesh = meshReader.ReadMesh()
 print("Mesh defined in "+meshFileName+" has been read")
 
-outputTimeSequence = reader.ReadTimeSequenceFromSolutionFile()
+outputTimeSequence = solutionReader.ReadTimeSequenceFromSolutionFile()
 solution = S.Solution(solutionName = "U", nbeOfComponents = mesh.GetDimensionality(), numberOfNodes = mesh.GetNumberOfNodes(), primality = True)
 print("Solutions "+solution.GetSolutionName()+" defined in "+solutionFileName+" has been read")
 
@@ -27,7 +31,7 @@ print("Solutions "+solution.GetSolutionName()+" defined in "+solutionFileName+" 
 for i in range(outputTimeSequence.shape[0]-1):
     snapshot = np.empty(mesh.GetDimensionality()*mesh.GetNumberOfNodes())
     for j in range(solution.GetNbeOfComponents()):
-        snapshot[j*mesh.GetNumberOfNodes():(j+1)*mesh.GetNumberOfNodes()] = reader.ReadSnapshot(solution.GetSolutionName()+str(j+1), outputTimeSequence[i], solution.GetPrimality())
+        snapshot[j*mesh.GetNumberOfNodes():(j+1)*mesh.GetNumberOfNodes()] = solutionReader.ReadSnapshot(solution.GetSolutionName()+str(j+1), outputTimeSequence[i], solution.GetPrimality())
     solution.AddSnapshot(time = outputTimeSequence[i], snapshot = snapshot)
 
 problemData = PD.ProblemData()
