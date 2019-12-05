@@ -4,8 +4,9 @@ from MordicusCore.Containers.Meshes import MeshBase as MB
 
 
 def test():
-    # GetNumberOfNodes and GetDimensionality not tested here
     meshBase = MB.MeshBase()
+    meshBase.GetNumberOfNodes()
+    meshBase.GetDimensionality()
     print(meshBase)
     return "ok"
 
