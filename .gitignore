@@ -11,6 +11,8 @@ RemoteSystemsTempFiles/.project
 *.kdev4
 src/poc-1/coverage_report/*
 *.coverage*
+*.pyf
+*.so
 
 #autodoc generated files
 *_build*

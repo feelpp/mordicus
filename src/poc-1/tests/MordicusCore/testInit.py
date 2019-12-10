@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 
-from MordicusCore import GetTestDataPath
+from MordicusCore import GetTestDataPath, GetTestPath
 
 
 def test():
 
     GetTestDataPath()
+    GetTestPath()
     return "ok"
 
 
