@@ -18,7 +18,7 @@
     python minversion  3.6
     Dependencies :
       - pytest, pytest-cov
-      - BasicTools, and its dependencies : numpy scipy scikit-sparse matplotlib vtk sympy pyamg h5py pyparsing Cython sphinx pytest pytest-cov setuptools
+      - BasicTools, and its dependencies : numpy scipy scikit-learn matplotlib vtk sympy pyamg h5py pyparsing Cython sphinx pytest pytest-cov setuptools
         (code available at https://gitlab.com/drti/basic-tools)
 
     recommandation: create a dedictated conda environment from the channel conda-forge
