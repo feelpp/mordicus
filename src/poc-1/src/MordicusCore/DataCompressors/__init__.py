@@ -33,5 +33,4 @@ All files in this folder must implement two functions:
         name of the solutions to compress        
 """
 
-__all__ = ['SnapshotPOD']
-
+__all__ = ["SnapshotPOD"]

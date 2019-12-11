@@ -38,5 +38,4 @@ All files in this folder must implement two functions:
         precomputation made by the offline stage
 """
 
-__all__ = ['Regression']
-
+__all__ = ["Regression"]

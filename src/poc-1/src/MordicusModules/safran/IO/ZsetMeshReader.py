@@ -3,7 +3,6 @@ import numpy as np
 
 from MordicusCore.IO.MeshReaderBase import MeshReaderBase
 
-    
 
 def ReadMesh(meshFileName):
     """
@@ -21,9 +20,8 @@ def ReadMesh(meshFileName):
     BasicToolsUnstructuredMesh
         mesh of the HF computation
     """
-    reader = ZsetMeshReader(meshFileName = meshFileName)
+    reader = ZsetMeshReader(meshFileName=meshFileName)
     return reader.ReadMesh()
-
 
 
 class ZsetMeshReader(MeshReaderBase):
@@ -35,19 +33,18 @@ class ZsetMeshReader(MeshReaderBase):
     meshFileName : str
         name of the Z-set mesh file (.geof or .geo)
     """
-    
-    def __init__(self, meshFileName = None):
+
+    def __init__(self, meshFileName=None):
         """
         Parameters
         ----------
         meshFileName : str, optional
         """
-        super(ZsetMeshReader,self).__init__()
-        
-        assert isinstance(meshFileName,str) or meshFileName is None
-        
-        self.meshFileName     = meshFileName
+        super(ZsetMeshReader, self).__init__()
 
+        assert isinstance(meshFileName, str) or meshFileName is None
+
+        self.meshFileName = meshFileName
 
     def ReadMesh(self):
         """
@@ -60,14 +57,19 @@ class ZsetMeshReader(MeshReaderBase):
         """
         if self.meshFileName[-5:] == ".geof":
             from BasicTools.IO import GeofReader as GR
+
             data = GR.ReadGeof(self.meshFileName)
-        elif self.meshFileName[-4:] == ".geo": #pragma: no cover
+        elif self.meshFileName[-4:] == ".geo":  # pragma: no cover
             from BasicTools.IO import GeoReader as GR
+
             data = GR.ReadGeo(self.meshFileName)
-        else: #pragma: no cover
-            raise("FileName error!")
-            
-        from MordicusModules.safran.Containers.Meshes import BasicToolsUnstructuredMesh as BTUM
+        else:  # pragma: no cover
+            raise ("FileName error!")
+
+        from MordicusModules.safran.Containers.Meshes import (
+            BasicToolsUnstructuredMesh as BTUM,
+        )
+
         mesh = BTUM.BasicToolsUnstructuredMesh(data)
 
         return mesh

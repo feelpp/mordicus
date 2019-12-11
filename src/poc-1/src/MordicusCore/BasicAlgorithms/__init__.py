@@ -1,3 +1,2 @@
 # -*- coding: utf-8 -*-
-__all__ = ['SVD', 'TimeInterpolation']
-
+__all__ = ["SVD", "TimeInterpolation"]

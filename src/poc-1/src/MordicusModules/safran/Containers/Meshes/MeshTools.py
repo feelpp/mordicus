@@ -26,9 +26,8 @@ def ComputeL2ScalarProducMatrix(mesh, numberOfComponents):
         the sparse matrix of the L2 scalar product
     """
     unstructuredMesh = ConvertMeshToUnstructuredMesh(mesh)
-    
+
     return FT.ComputeL2ScalarProducMatrix(unstructuredMesh, numberOfComponents)
-    
 
 
 def ComputeH10ScalarProductMatrix(mesh, numberOfComponents):
@@ -48,16 +47,16 @@ def ComputeH10ScalarProductMatrix(mesh, numberOfComponents):
         the sparse matrix of the H10 scalar product
     """
     unstructuredMesh = ConvertMeshToUnstructuredMesh(mesh)
-    
+
     return FT.ComputeH10ScalarProductMatrix(unstructuredMesh, numberOfComponents)
 
 
-
-
 def ConvertMeshToUnstructuredMesh(mesh):
-    
-    assert (isinstance(mesh, MB.MeshBase)), "mesh must be an instance of an object inheriting from Containers.Meshes.MeshBase"
-    
+
+    assert isinstance(
+        mesh, MB.MeshBase
+    ), "mesh must be an instance of an object inheriting from Containers.Meshes.MeshBase"
+
     if isinstance(mesh, BTUM.BasicToolsUnstructuredMesh) == False:
         """from BasicTools.Containers import UnstructuredMesh as UM
         unstructuredMesh = UM.UnstructuredMesh()
@@ -68,8 +67,8 @@ def ConvertMeshToUnstructuredMesh(mesh):
             eledata.AddElementUsingOriginalId(coon,cpt)
             cpt += 1
         unstructuredMesh.PrepareForOutput()"""
-        pass #pragma: no cover  
+        pass  # pragma: no cover
     else:
         unstructuredMesh = mesh.GetInternalStorage()
-        
+
     return unstructuredMesh

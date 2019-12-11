@@ -3,7 +3,6 @@ import numpy as np
 from MordicusCore.Containers.BaseObject import BaseObject
 
 
-
 class WriterBase(BaseObject):
     """
     Class containing the WriterBase
@@ -13,18 +12,17 @@ class WriterBase(BaseObject):
     outputName : str, optional
         name of the file on disk where the solution is written
     """
-    
-    def __init__(self, outputName = None):
+
+    def __init__(self, outputName=None):
         """
         Parameters
         ----------
         outputName : str, optional
-        """        
-        super(WriterBase,self).__init__()
-  
+        """
+        super(WriterBase, self).__init__()
+
         assert outputName == None or isinstance(outputName, str)
         self.outputName = outputName
-
 
     def Write(self, mesh, solution):
         """
@@ -37,12 +35,16 @@ class WriterBase(BaseObject):
         solution : Solution or CompressedFormatsBase
             object to write on disk
         """
-        raise("Not implemented in WriterBase")  #pragma: no cover 
-        
- 
-    def __str__(self):       
+        raise ("Not implemented in WriterBase")  # pragma: no cover
+
+    def __str__(self):
         from MordicusCore import IO
+
         allIO = IO.__all__
         allReaders = [a for a in allIO if ("Writer" in a and "Base" not in a)]
-        res = "I am a WriterBase, try instanciating a particular reader "+str(allReaders)+" instead"
+        res = (
+            "I am a WriterBase, try instanciating a particular reader "
+            + str(allReaders)
+            + " instead"
+        )
         return res

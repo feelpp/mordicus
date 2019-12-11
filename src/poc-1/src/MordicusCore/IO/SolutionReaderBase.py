@@ -7,11 +7,9 @@ class SolutionReaderBase(BaseObject):
     """
     Class containing the SolutionReaderBase associated to a HF solution file
     """
-    
+
     def __init__(self):
-        super(SolutionReaderBase,self).__init__()
-
-
+        super(SolutionReaderBase, self).__init__()
 
     def ReadSnapshot(self, fieldName, time, primality):
         """
@@ -31,10 +29,8 @@ class SolutionReaderBase(BaseObject):
         np.ndarray
             of size (numberOfDofs,)
         """
-        raise("Not implemented in ReaderBase")  #pragma: no cover 
+        raise ("Not implemented in ReaderBase")  # pragma: no cover
 
-
-        
     def ReadTimeSequenceFromSolutionFile(self):
         """
         Reads the time sequence from the solution file of the HF computation (may be different from the ones defined in the input data file if the solver chose to solve at additional time steps)
@@ -44,9 +40,7 @@ class SolutionReaderBase(BaseObject):
         np.ndarray
             of size (numberOfSnapshots,)
         """
-        raise("Not implemented in ReaderBase")  #pragma: no cover  
-
-
+        raise ("Not implemented in ReaderBase")  # pragma: no cover
 
     def __str__(self):
         res = "I am a SolutionReaderBase, try instanciating a particular reader instead"

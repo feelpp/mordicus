@@ -7,11 +7,10 @@ class InputReaderBase(BaseObject):
     """
     Class containing the InputReaderBase associated to a input data file
     """
-    
-    def __init__(self):
-        super(InputReaderBase,self).__init__()
 
-        
+    def __init__(self):
+        super(InputReaderBase, self).__init__()
+
     def ReadInputTimeSequence(self):
         """
         Reads the time sequence from the input data file of the HF computation (may be different from the ones defined in the solution file if the solver chose to solve at additional time steps)
@@ -21,10 +20,8 @@ class InputReaderBase(BaseObject):
         np.ndarray
             of size (numberOfSnapshots,)
         """
-        raise("Not implemented in ReaderBase")  #pragma: no cover  
+        raise ("Not implemented in ReaderBase")  # pragma: no cover
 
-
-        
     def ConstructLoadingsList(self):
         """
         Constructs the loadings defined in the input data file of the HF computation
@@ -34,9 +31,7 @@ class InputReaderBase(BaseObject):
         list
             list of loadings, each one having one of the formats defined in Containers.Loadings
         """
-        raise("Not implemented in ReaderBase")  #pragma: no cover  
-
-
+        raise ("Not implemented in ReaderBase")  # pragma: no cover
 
     def __str__(self):
         res = "I am an InputReaderBase, try instanciating a particular reader instead"

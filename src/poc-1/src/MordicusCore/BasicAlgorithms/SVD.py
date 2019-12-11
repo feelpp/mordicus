@@ -21,26 +21,26 @@ def TruncatedSVDSymLower(matrix, epsilon):
         kept eigenvalues, of size (numberOfEigenvalues)
     np.ndarray
         kept eigenvectors, of size (numberOfEigenvalues, numberOfSnapshots)
-    """    
-    
-    eigenValues, eigenVectors = np.linalg.eigh(matrix,UPLO='L')
+    """
+
+    eigenValues, eigenVectors = np.linalg.eigh(matrix, UPLO="L")
 
     idx = eigenValues.argsort()[::-1]
     eigenValues = eigenValues[idx]
-    eigenVectors = eigenVectors[:,idx]
+    eigenVectors = eigenVectors[:, idx]
 
     id_max = 0
-    bound = (epsilon**2)*eigenValues[0]
+    bound = (epsilon ** 2) * eigenValues[0]
     for e in eigenValues:
-      if e > bound:
-        id_max += 1
+        if e > bound:
+            id_max += 1
     id_max2 = 0
-    bound = (1-epsilon**2)*np.sum(eigenValues)
+    bound = (1 - epsilon ** 2) * np.sum(eigenValues)
     temp = 0
     for e in eigenValues:
-      temp += e
-      if temp < bound:
-        id_max2 += 1 #pragma: no cover
+        temp += e
+        if temp < bound:
+            id_max2 += 1  # pragma: no cover
     id_max = max(id_max, id_max2)
 
-    return eigenValues[0:id_max], eigenVectors[:,0:id_max]    
+    return eigenValues[0:id_max], eigenVectors[:, 0:id_max]

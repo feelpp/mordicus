@@ -1,5 +1,11 @@
 # -*- coding: utf-8 -*-
-__all__ = ['Containers', 'IO', 'DataCompressors', 'BasicAlgorithms', 'OperatorCompressors']
+__all__ = [
+    "Containers",
+    "IO",
+    "DataCompressors",
+    "BasicAlgorithms",
+    "OperatorCompressors",
+]
 
 
 def GetTestDataPath():
@@ -9,8 +15,14 @@ def GetTestDataPath():
     import os
     from pathlib import Path
 
-    return str(Path(__file__).parents[2])+os.sep+'tests'+os.sep+'testsData'+os.sep
-
+    return (
+        str(Path(__file__).parents[2])
+        + os.sep
+        + "tests"
+        + os.sep
+        + "testsData"
+        + os.sep
+    )
 
 
 def GetTestPath():
@@ -20,4 +32,4 @@ def GetTestPath():
     import os
     from pathlib import Path
 
-    return str(Path(__file__).parents[2])+os.sep+'tests'+os.sep
+    return str(Path(__file__).parents[2]) + os.sep + "tests" + os.sep

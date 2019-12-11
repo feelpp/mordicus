@@ -19,14 +19,13 @@ class PressureBC(LoadingBase):
     fields       : dict
         dictionary with pressure vectors tags (str) keys and pressure vectors (np.ndarray of size (numberOfElementsInSet,)) as values
     """
-    
-    def __init__(self):
-        super(PressureBC,self).__init__()
-        
-        self.coefficients = collections.OrderedDict
-        self.fieldsMap    = collections.OrderedDict
-        self.fields       = {}
 
+    def __init__(self):
+        super(PressureBC, self).__init__()
+
+        self.coefficients = collections.OrderedDict
+        self.fieldsMap = collections.OrderedDict
+        self.fields = {}
 
     def SetCoefficients(self, coefficients):
         """
@@ -38,12 +37,18 @@ class PressureBC(LoadingBase):
         """
         # assert type of coefficients
         assert isinstance(coefficients, collections.OrderedDict)
-        assert np.all([isinstance(key, (float, np.float64)) for key in list(coefficients.keys())])
-        assert np.all([isinstance(key, (float, np.float64)) for key in list(coefficients.values())])
+        assert np.all(
+            [isinstance(key, (float, np.float64)) for key in list(coefficients.keys())]
+        )
+        assert np.all(
+            [
+                isinstance(key, (float, np.float64))
+                for key in list(coefficients.values())
+            ]
+        )
 
         self.coefficients = coefficients
 
- 
     def SetFieldsMap(self, fieldsMap):
         """
         Sets the fieldsMap attribute of the class
@@ -54,12 +59,13 @@ class PressureBC(LoadingBase):
         """
         # assert type of fieldsMap
         assert isinstance(fieldsMap, collections.OrderedDict)
-        assert np.all([isinstance(key, (float, np.float64)) for key in list(fieldsMap.keys())])
+        assert np.all(
+            [isinstance(key, (float, np.float64)) for key in list(fieldsMap.keys())]
+        )
         assert np.all([isinstance(key, str) for key in list(fieldsMap.values())])
 
         self.fieldsMap = fieldsMap
 
-        
     def SetFields(self, fields):
         """
         Sets the fields attribute of the class
@@ -71,10 +77,11 @@ class PressureBC(LoadingBase):
         # assert type of fields
         assert isinstance(fields, dict)
         assert np.all([isinstance(key, str) for key in list(fields.keys())])
-        assert np.all([isinstance(value, np.ndarray) for value in list(fields.values())])
-        
-        self.fields = fields
+        assert np.all(
+            [isinstance(value, np.ndarray) for value in list(fields.values())]
+        )
 
+        self.fields = fields
 
     def ComputePressureFieldAtTime(self, time):
         """
@@ -89,22 +96,28 @@ class PressureBC(LoadingBase):
         np.ndarray
             pressure vector at time
         """
-        
+
         # assert type of time
         assert isinstance(time, (float, np.float64))
 
         from MordicusCore.BasicAlgorithms import TimeInterpolation as TI
-        
+
         # compute coefficient at time
-        coefficient = TI.TimeInterpolation(time, list(self.coefficients.keys()), list(self.coefficients.values()))
+        coefficient = TI.TimeInterpolation(
+            time, list(self.coefficients.keys()), list(self.coefficients.values())
+        )
 
         # compute vector field at time
-        vectorField = TI.TimeInterpolation(time, list(self.fieldsMap.keys()), self.fields, list(self.fieldsMap.values()))
+        vectorField = TI.TimeInterpolation(
+            time,
+            list(self.fieldsMap.keys()),
+            self.fields,
+            list(self.fieldsMap.values()),
+        )
 
-        return coefficient*vectorField
+        return coefficient * vectorField
 
-
-    def  __str__(self):
+    def __str__(self):
         res = "Loading \n"
-        res += "Set : "+self.set
+        res += "Set : " + self.set
         return res

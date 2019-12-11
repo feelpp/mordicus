@@ -1,3 +1,2 @@
 # -*- coding: utf-8 -*-
-__all__ = ['InputReaderBase', 'MeshReaderBase', 'SolutionReaderBase', 'WriterBase']
-
+__all__ = ["InputReaderBase", "MeshReaderBase", "SolutionReaderBase", "WriterBase"]

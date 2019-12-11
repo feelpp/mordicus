@@ -1,9 +1,8 @@
- # -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 import numpy as np
 
 
-
-def TimeInterpolation(time, timeIndices, vectors, vectorsMap = None):
+def TimeInterpolation(time, timeIndices, vectors, vectorsMap=None):
     """
     Computes a time interpolation for temporal vectors defined either by
         - timeIndices  and vectors at these indices
@@ -25,27 +24,31 @@ def TimeInterpolation(time, timeIndices, vectors, vectorsMap = None):
     -------
     np.ndarray
         interpolated vector, of size (numberOfDofs)
-    """  
-    
+    """
+
     timeIndices = np.array(timeIndices)
 
     if vectorsMap == None:
         vectorsMap = range(timeIndices.flatten().shape[0])
-    
+
     if time <= timeIndices[0]:
         return vectors[vectorsMap[0]]
     if time >= timeIndices[-1]:
         return vectors[vectorsMap[-1]]
-    
-    
-    previousTimeStep = np.where(timeIndices == timeIndices[timeIndices <= time].max())[0][0]
+
+    previousTimeStep = np.where(timeIndices == timeIndices[timeIndices <= time].max())[
+        0
+    ][0]
     nextTimeStep = np.where(timeIndices == timeIndices[timeIndices >= time].min())[0][0]
-    
+
     if previousTimeStep == nextTimeStep:
         return vectors[vectorsMap[previousTimeStep]]
     else:
         previousTime = timeIndices[previousTimeStep]
         nextTime = timeIndices[nextTimeStep]
-        coef = (time - previousTime)/(nextTime - previousTime)
+        coef = (time - previousTime) / (nextTime - previousTime)
 
-        return coef*vectors[vectorsMap[nextTimeStep]] + (1-coef)*vectors[vectorsMap[previousTimeStep]]
+        return (
+            coef * vectors[vectorsMap[nextTimeStep]]
+            + (1 - coef) * vectors[vectorsMap[previousTimeStep]]
+        )

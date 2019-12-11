@@ -6,6 +6,7 @@ from MordicusCore.Containers import ProblemData
 from MordicusCore.Containers import Solution
 from MordicusCore.Containers.BaseObject import BaseObject
 
+
 class CollectionProblemData(BaseObject):
     """
     Class containing a set of collection of problemData
@@ -19,16 +20,14 @@ class CollectionProblemData(BaseObject):
     l2ScalarProducMatrix : dict
         dictionary with solutionNames (str) as keys and matrices (scipy.sparse.csr) as values
     """
-    
+
     def __init__(self):
-        super(CollectionProblemData,self).__init__()
-        
-        self.problemDatas           = {}
-        self.reducedOrderBases      = {}
+        super(CollectionProblemData, self).__init__()
+
+        self.problemDatas = {}
+        self.reducedOrderBases = {}
         self.l2ScalarProducMatrices = {}
-        
-        
-        
+
     def AddReducedOrderBasis(self, solutionName, reducedOrderBasis):
         """
         Adds a reducedOrderBasis corresponding to solution solutionName
@@ -39,19 +38,25 @@ class CollectionProblemData(BaseObject):
             name of the solution for which reducedOrderBasis is a reduced order basis
         reducedOrderBasis : np.ndarray
             of size (numberOfModes, numberOfDOFs)
-        """   
+        """
         assert isinstance(solutionName, str), "solutionName must be of type string"
-        assert (isinstance(reducedOrderBasis, np.ndarray) and len(reducedOrderBasis.shape) == 2), "reducedOrderBasis must be a 2D np.ndarray"
-        
-        #assert that all solutions have same size and that the secnd dimension of reducedOrderBasis has this dimension
-        listNumberOfDofs = [problemData1.solutions[solutionName].numberOfDOFs for _, problemData1 in self.problemDatas.items()]
-        assert listNumberOfDofs.count(listNumberOfDofs[0]) == len(listNumberOfDofs)        
-        assert reducedOrderBasis.shape[1] == listNumberOfDofs[0], "inconsistence dimension between reducedOrderBasis and solutions from problemDatas"
-        
+        assert (
+            isinstance(reducedOrderBasis, np.ndarray)
+            and len(reducedOrderBasis.shape) == 2
+        ), "reducedOrderBasis must be a 2D np.ndarray"
+
+        # assert that all solutions have same size and that the secnd dimension of reducedOrderBasis has this dimension
+        listNumberOfDofs = [
+            problemData1.solutions[solutionName].numberOfDOFs
+            for _, problemData1 in self.problemDatas.items()
+        ]
+        assert listNumberOfDofs.count(listNumberOfDofs[0]) == len(listNumberOfDofs)
+        assert (
+            reducedOrderBasis.shape[1] == listNumberOfDofs[0]
+        ), "inconsistence dimension between reducedOrderBasis and solutions from problemDatas"
+
         self.reducedOrderBases[solutionName] = reducedOrderBasis
 
-
-        
     def GetReducedOrderBasis(self, solutionName):
         """
         Get a precomputed reducedOrderBases for solution solutionName
@@ -68,11 +73,13 @@ class CollectionProblemData(BaseObject):
         """
         assert isinstance(solutionName, str), "name must be of type string"
         if solutionName not in self.reducedOrderBases:
-            raise("You must compute a reducedOrderBasis for solution named "+solutionName+" before trying to retrieve it") #pragma: no cover
+            raise (
+                "You must compute a reducedOrderBasis for solution named "
+                + solutionName
+                + " before trying to retrieve it"
+            )  # pragma: no cover
 
         return self.reducedOrderBases[solutionName]
-    
-    
 
     def GetReducedOrderBasisNumberOfModes(self, solutionName):
         """
@@ -90,12 +97,14 @@ class CollectionProblemData(BaseObject):
         """
         assert isinstance(solutionName, str), "name must be of type string"
         if solutionName not in self.reducedOrderBases:
-            raise("You must compute a reducedOrderBasis for solution named "+solutionName+" before trying to retrieve it") #pragma: no cover
+            raise (
+                "You must compute a reducedOrderBasis for solution named "
+                + solutionName
+                + " before trying to retrieve it"
+            )  # pragma: no cover
 
         return self.GetReducedOrderBasis(solutionName).shape[0]
-        
 
-        
     def AddProblemData(self, tag, problemData):
         """
         Adds a problemData of tag "tag"
@@ -106,17 +115,20 @@ class CollectionProblemData(BaseObject):
             tag given to the problemData
         problemData : ProblemData
             to add to the problemDatas dictionary
-        """  
-        assert isinstance(problemData, ProblemData.ProblemData), "wrong type for problemData"
+        """
+        assert isinstance(
+            problemData, ProblemData.ProblemData
+        ), "wrong type for problemData"
         if tag in self.problemDatas:
-            print("ProblemData "+tag+" already in CollectionProblemData. Replacing it anyways.") #pragma: no cover
-        
+            print(
+                "ProblemData "
+                + tag
+                + " already in CollectionProblemData. Replacing it anyways."
+            )  # pragma: no cover
+
         self.problemDatas[tag] = problemData
         return
-    
 
-        
-        
     def GetProblemData(self, tag):
         """
         Parameters
@@ -131,12 +143,14 @@ class CollectionProblemData(BaseObject):
         """
         assert isinstance(tag, str), "name must be of type string"
         if tag not in self.problemDatas:
-            raise("You must add a problemData with tag "+tag+" before trying to retrieve it") #pragma: no cover
+            raise (
+                "You must add a problemData with tag "
+                + tag
+                + " before trying to retrieve it"
+            )  # pragma: no cover
 
         return self.problemDatas[tag]
-    
-    
-    
+
     def GetNumberOfProblemDatas(self):
         """
         Returns
@@ -145,9 +159,7 @@ class CollectionProblemData(BaseObject):
             the number of problemDatas
         """
         return len(self.problemDatas.keys())
-    
-    
-    
+
     def GetSolutionsNumberOfDofs(self, solutionName):
         """
         Assert that the solutions of all problemDatas have the same numberOfDOFs
@@ -158,12 +170,13 @@ class CollectionProblemData(BaseObject):
         int
             numberOfDOFs of solutions solutionName
         """
-        listNumberOfDofs = [problemData.solutions[solutionName].GetNumberOfDofs() for _, problemData in self.GetProblemDatas().items()]
-        assert listNumberOfDofs.count(listNumberOfDofs[0]) == len(listNumberOfDofs)        
+        listNumberOfDofs = [
+            problemData.solutions[solutionName].GetNumberOfDofs()
+            for _, problemData in self.GetProblemDatas().items()
+        ]
+        assert listNumberOfDofs.count(listNumberOfDofs[0]) == len(listNumberOfDofs)
         return listNumberOfDofs[0]
-    
-    
-    
+
     def GetParameterDimension(self):
         """
         Assert that the parameters of all problemDatas have the same parameterDimension
@@ -174,11 +187,14 @@ class CollectionProblemData(BaseObject):
         int
             parameterDimension of problemDatas
         """
-        listParameterDimension = [problemData.GetParameterDimension() for _, problemData in self.GetProblemDatas().items()]
-        assert listParameterDimension.count(listParameterDimension[0]) == len(listParameterDimension)        
+        listParameterDimension = [
+            problemData.GetParameterDimension()
+            for _, problemData in self.GetProblemDatas().items()
+        ]
+        assert listParameterDimension.count(listParameterDimension[0]) == len(
+            listParameterDimension
+        )
         return listParameterDimension[0]
-    
-
 
     def GetProblemDatas(self):
         """
@@ -188,8 +204,6 @@ class CollectionProblemData(BaseObject):
             problemDatas of the collectionProblemData
         """
         return self.problemDatas
-    
-
 
     def GetProblemDatasTags(self):
         """
@@ -199,8 +213,6 @@ class CollectionProblemData(BaseObject):
             list containing the tags of the available problemDatas
         """
         return list(self.GetProblemDatas().keys())
-
-
 
     def GetGlobalNumberOfSnapshots(self, solutionName):
         """
@@ -221,8 +233,6 @@ class CollectionProblemData(BaseObject):
             number += problemData.solutions[solutionName].GetNumberOfSnapshots()
         return number
 
-
-
     def GetSolutionsNumberOfComponents(self, solutionName):
         """
         Asserts that the solutions of name "solutionName" in all problemDatas have same nbeOfComponents
@@ -238,13 +248,14 @@ class CollectionProblemData(BaseObject):
         int
             nbeOfComponents of solutions of name "solutionName"
         """
-        nbeOfComponents = [problemData.solutions[solutionName].GetNbeOfComponents() for _, problemData in self.GetProblemDatas().items()]
-        assert nbeOfComponents.count(nbeOfComponents[0]) == len(nbeOfComponents)    
-        
-        return nbeOfComponents[0]    
-        
-        
-        
+        nbeOfComponents = [
+            problemData.solutions[solutionName].GetNbeOfComponents()
+            for _, problemData in self.GetProblemDatas().items()
+        ]
+        assert nbeOfComponents.count(nbeOfComponents[0]) == len(nbeOfComponents)
+
+        return nbeOfComponents[0]
+
     def SnapshotsIterator(self, solutionName):
         """
         Constructs an iterator over snapshots of solutions of name "solutionName" in all problemDatas.
@@ -260,22 +271,22 @@ class CollectionProblemData(BaseObject):
             an iterator over snapshots of solutions of name "solutionName" in all problemDatas
         """
         this = self
-        class iterator():
+
+        class iterator:
             def __init__(self, solutionName):
                 self.solutionName = solutionName
                 self.problemDatas = this.problemDatas
-                
+
             def __iter__(self):
                 for _, problemData in self.problemDatas.items():
-                    for _, snapshot in problemData.solutions[self.solutionName].snapshots.items():
+                    for _, snapshot in problemData.solutions[
+                        self.solutionName
+                    ].snapshots.items():
                         yield snapshot
-                
-        res = iterator(solutionName)
-        return res        
-        
 
-    
-        
+        res = iterator(solutionName)
+        return res
+
     def SetL2ScalarProducMatrix(self, solutionName, l2ScalarProducMatrix):
         """
         Sets the l2ScalarProducMatrix for solution of name solutionName
@@ -287,8 +298,6 @@ class CollectionProblemData(BaseObject):
         """
         self.l2ScalarProducMatrices[solutionName] = l2ScalarProducMatrix
 
-        
-        
     def GetL2ScalarProducMatrix(self, solutionName):
         """
         Get the l2ScalarProducMatrix for solution of name solutionName. If the corresponding l2ScalarProducMatrix has not been computed, the function returns the identity matrix of correct size.
@@ -310,10 +319,8 @@ class CollectionProblemData(BaseObject):
             numberOfDOFs = self.GetSolutionsNumberOfDofs(solutionName)
             return sparse.eye(numberOfDOFs)
 
-
-    
-    def  __str__(self):
+    def __str__(self):
         res = "CollectionProblemData\n"
-        res += "number of problemDatas: "+str(self.GetNumberOfProblemDatas())+"\n"
-        res += "problemDatas: "+str(list(self.problemDatas.keys()))
+        res += "number of problemDatas: " + str(self.GetNumberOfProblemDatas()) + "\n"
+        res += "problemDatas: " + str(list(self.problemDatas.keys()))
         return res

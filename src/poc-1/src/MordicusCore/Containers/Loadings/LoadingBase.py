@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+
 class LoadingBase(object):
     """
     Class containing a LoadingBase
@@ -9,10 +10,9 @@ class LoadingBase(object):
     set : str
         the elements tag on which the loading is applied
     """
-        
+
     def __init__(self):
-        self.set  = ""
-    
+        self.set = ""
 
     def SetSet(self, set):
         """
@@ -22,10 +22,8 @@ class LoadingBase(object):
             the elements tag on which the loading is applied
         """
         assert isinstance(set, str)
-        
-        self.set = set
-        
 
+        self.set = set
 
     def GetSet(self):
         """
@@ -35,7 +33,6 @@ class LoadingBase(object):
             the elements tag on which the loading is applied
         """
         return self.set
-        
 
     def __str__(self):
         res = "I am a LoadingBase, try instanciating a particular physical loading among instead"

@@ -6,6 +6,7 @@ from MordicusCore.Containers.CompressedFormats import CompressedFormatsBase
 from MordicusCore.Containers.BaseObject import BaseObject
 import collections
 
+
 class Solution(BaseObject):
     """
     Class containing a solution
@@ -27,7 +28,7 @@ class Solution(BaseObject):
     compressedSnapshots : CompressedFormats
         a compressed representation in one of the formats defined in Containers.CompressedFormats
     """
-    
+
     def __init__(self, solutionName, nbeOfComponents, numberOfNodes, primality):
         """
         Parameters
@@ -37,8 +38,8 @@ class Solution(BaseObject):
         numberOfNodes : int
         primality : np.bool
         """
-        super(Solution,self).__init__()
-        
+        super(Solution, self).__init__()
+
         assert isinstance(solutionName, str)
         assert isinstance(nbeOfComponents, int)
         assert isinstance(numberOfNodes, int)
@@ -46,13 +47,11 @@ class Solution(BaseObject):
         self.solutionName = solutionName
         self.nbeOfComponents = nbeOfComponents
         self.numberOfNodes = numberOfNodes
-        self.numberOfDOFs = nbeOfComponents*numberOfNodes
+        self.numberOfDOFs = nbeOfComponents * numberOfNodes
         self.primality = primality
         self.snapshots = collections.OrderedDict()
         self.compressedSnapshots = None
 
-        
-        
     def AddSnapshot(self, time, snapshot):
         """
         Adds a snapshot at time "time"
@@ -63,17 +62,19 @@ class Solution(BaseObject):
             time of the snapshot
         snapshot : np.ndarray
             of size (numberOfDOFs,)
-        """   
-        
+        """
+
         assert isinstance(time, (float, np.float64))
-        assert (len(snapshot.shape) == 1 and snapshot.shape[0] == self.numberOfDOFs)
-        
+        assert len(snapshot.shape) == 1 and snapshot.shape[0] == self.numberOfDOFs
+
         if time in self.snapshots:
-            print("Snapshot at time "+time+" already in snapshots. Replacing it anyways.") #pragma: no cover
+            print(
+                "Snapshot at time "
+                + time
+                + " already in snapshots. Replacing it anyways."
+            )  # pragma: no cover
         self.snapshots[time] = snapshot
-        return 
-    
-    
+        return
 
     def GetSnapshot(self, time):
         """
@@ -88,9 +89,7 @@ class Solution(BaseObject):
             snapshot
         """
         return self.snapshots[time]
-        
-        
-        
+
     def GetTimeSequence(self):
         """
         Returns
@@ -99,10 +98,7 @@ class Solution(BaseObject):
             list containing the time indices of the solution
         """
         return list(self.snapshots.keys())
-    
-    
-    
-        
+
     def GetSnapshotsList(self):
         """
         Returns
@@ -111,8 +107,7 @@ class Solution(BaseObject):
             list containing the snapshots of the solution
         """
         return list(self.snapshots.values())
-    
-        
+
     def GetSolutionName(self):
         """
         Returns
@@ -121,8 +116,7 @@ class Solution(BaseObject):
             the name of the solution field
         """
         return self.solutionName
-    
-        
+
     def GetNbeOfComponents(self):
         """
         Returns
@@ -131,9 +125,7 @@ class Solution(BaseObject):
             the number of components of the solution
         """
         return self.nbeOfComponents
-    
-    
-        
+
     def GetNumberOfDofs(self):
         """
         Returns
@@ -141,10 +133,8 @@ class Solution(BaseObject):
         int
             the number of degrees of freedom of the solution
         """
-        return self.numberOfDOFs  
-    
-    
-        
+        return self.numberOfDOFs
+
     def GetPrimality(self):
         """
         Returns
@@ -152,9 +142,8 @@ class Solution(BaseObject):
         bool
             the primality of the solution
         """
-        return self.primality  
-    
-        
+        return self.primality
+
     def GetCompressedSnapshots(self):
         """
         Returns
@@ -162,9 +151,8 @@ class Solution(BaseObject):
         CompressedFormats
             the compressed representation of the solution
         """
-        return self.compressedSnapshots  
-    
-        
+        return self.compressedSnapshots
+
     def GetNumberOfSnapshots(self):
         """
         Returns
@@ -174,8 +162,6 @@ class Solution(BaseObject):
         """
         return len(list(self.snapshots.keys()))
 
-
-
     def GetSolutionAtTime(self, time):
         """
         Returns
@@ -184,11 +170,11 @@ class Solution(BaseObject):
             solution value at time, of size (numberOfDOFs), using TimeInterpolation
         """
         # assert type of time
-        assert isinstance(time,(np.float64,float))
-        
-        return TI.TimeInterpolation(time, self.GetTimeSequence(), self.GetSnapshotsList())
+        assert isinstance(time, (np.float64, float))
 
-
+        return TI.TimeInterpolation(
+            time, self.GetTimeSequence(), self.GetSnapshotsList()
+        )
 
     def SetCompressedSnapshots(self, compressedSnapshots):
         """
@@ -198,19 +184,20 @@ class Solution(BaseObject):
         ----------
         compressedSnapshots : CompressedFormats
         """
-        assert (isinstance(compressedSnapshots, CompressedFormatsBase.CompressedFormatsBase)), "compressedSnapshots must be an instance of an object inheriting from Containers.CompressedFormatsBase"
-        
+        assert isinstance(
+            compressedSnapshots, CompressedFormatsBase.CompressedFormatsBase
+        ), "compressedSnapshots must be an instance of an object inheriting from Containers.CompressedFormatsBase"
+
         self.compressedSnapshots = compressedSnapshots
         return
 
-    
-    def  __str__(self):
+    def __str__(self):
         res = "Solution \n"
-        res += "Name           : "+self.solutionName+"\n"
-        res += "Dimensionality : "+str(self.nbeOfComponents)+"\n"
-        res += "times          : "+str(self.GetTimeSequence())+"\n"
+        res += "Name           : " + self.solutionName + "\n"
+        res += "Dimensionality : " + str(self.nbeOfComponents) + "\n"
+        res += "times          : " + str(self.GetTimeSequence()) + "\n"
         if self.compressedSnapshots == None:
-            res += "Not compressed" #pragma: no cover
+            res += "Not compressed"  # pragma: no cover
         else:
-            res += "Compressed" #pragma: no cover
+            res += "Compressed"  # pragma: no cover
         return res

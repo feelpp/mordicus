@@ -4,8 +4,6 @@ import numpy as np
 from MordicusCore.IO.InputReaderBase import InputReaderBase
 from BasicTools.IO import ZebulonIO as ZIO
 
-    
-
 
 def ReadInputTimeSequence(inputFileName):
     """
@@ -23,7 +21,7 @@ def ReadInputTimeSequence(inputFileName):
     np.ndarray
         of size (numberOfSnapshots,)
     """
-    reader = ZsetInputReader(inputFileName = inputFileName)
+    reader = ZsetInputReader(inputFileName=inputFileName)
     return reader.ReadInputTimeSequence()
 
 
@@ -40,10 +38,9 @@ def ConstructLoadingsList(inputFileName):
     -------
     list
         list of loadings, each one having one of the formats defined in Containers.Loadings
-    """    
-    reader = ZsetInputReader(inputFileName = inputFileName)
+    """
+    reader = ZsetInputReader(inputFileName=inputFileName)
     return reader.ConstructLoadingsList()
-
 
 
 class ZsetInputReader(InputReaderBase):
@@ -59,24 +56,22 @@ class ZsetInputReader(InputReaderBase):
     knownLoadingTags : list
         list of loadings tags in the Z-set input file that have been implemented in the current version of the library
     """
-    
-    def __init__(self, inputFileName = None):
+
+    def __init__(self, inputFileName=None):
         """
         Parameters
         ----------
         inputFileName : str, optional
         """
-        super(ZsetInputReader,self).__init__()
-        
-        assert isinstance(inputFileName,str) or inputFileName is None
-        
-        self.inputFileName    = inputFileName     
-        self.inputFile        = None
+        super(ZsetInputReader, self).__init__()
 
-        self.knownLoadingTags  = ["pressure"]
-        
-        
-        
+        assert isinstance(inputFileName, str) or inputFileName is None
+
+        self.inputFileName = inputFileName
+        self.inputFile = None
+
+        self.knownLoadingTags = ["pressure"]
+
     def SetInputFile(self):
         """
         Sets the inputFile using the parser in BasicTools.IO.ZebulonIO
@@ -86,16 +81,12 @@ class ZsetInputReader(InputReaderBase):
         else:
             return
 
-
-
     def ReadInputTimeSequence(self):
         """
         Reads the time sequence form the inputFile using the parser in BasicTools.IO.ZebulonIO
         """
         self.SetInputFile()
         return ZIO.GetInputTimeSequence(self.inputFile)
-
-                
 
     def ReadMaterialFiles(self):
         """
@@ -104,11 +95,9 @@ class ZsetInputReader(InputReaderBase):
         self.SetInputFile()
         return ZIO.GetMaterialFiles(self.inputFile)
 
-                
-        
     def ConstructLoadingsList(self):
         import os
-        
+
         self.SetInputFile()
         tables = ZIO.GetTables(self.inputFile)
         bcs = ZIO.GetBoundaryConditions(self.inputFile)
@@ -119,11 +108,14 @@ class ZsetInputReader(InputReaderBase):
                 for bc in bcs[key]:
                     loadings.append(self.ConstructOneLoading(key, bc, tables))
             else:
-                print("Boundary Condition '"+key+"' not among knownBCs: "+str([key for key in self.knownLoadingTags]))
-                
-        return loadings
+                print(
+                    "Boundary Condition '"
+                    + key
+                    + "' not among knownBCs: "
+                    + str([key for key in self.knownLoadingTags])
+                )
 
-        
+        return loadings
 
     def ConstructOneLoading(self, key, bc, tables):
         """
@@ -143,31 +135,31 @@ class ZsetInputReader(InputReaderBase):
         LoadingBase
             the constructed loading in one of the formats defined in Containers.Loadings
         """
-        
+
         import collections
         import os
-            
+
         if key == "pressure":
             from MordicusModules.safran.Containers.Loadings import PressureBC
 
             loading = PressureBC.PressureBC()
-            
+
             loading.SetSet(bc[0][0])
-            
+
             sequence = tables[bc[0][3]]
-            name = os.path.dirname(self.inputFileName)+os.sep+bc[0][2]
-            
+            name = os.path.dirname(self.inputFileName) + os.sep + bc[0][2]
+
             coefficients = collections.OrderedDict()
             fieldsMap = collections.OrderedDict()
             for i, time in enumerate(sequence["time"]):
                 coefficients[float(time)] = sequence["value"][i]
                 fieldsMap[float(time)] = name
-                
+
             loading.SetCoefficients(coefficients)
             loading.SetFieldsMap(fieldsMap)
-                
-            fields = {name:ZIO.ReadBinaryFile(name)}
-                        
+
+            fields = {name: ZIO.ReadBinaryFile(name)}
+
             loading.SetFields(fields)
-            
+
             return loading

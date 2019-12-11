@@ -2,7 +2,10 @@
 import numpy as np
 from MordicusCore.Containers.CompressedFormats import ModesAndCoefficients as MAC
 
-def OnlineComputeRegression(onlineProblemData, operatorCompressionOutputData, compressedSnapshots):
+
+def OnlineComputeRegression(
+    onlineProblemData, operatorCompressionOutputData, compressedSnapshots
+):
     """
     Compute the online stage using the method of POD on the snapshots and a regression on the coefficients
     
@@ -19,23 +22,26 @@ def OnlineComputeRegression(onlineProblemData, operatorCompressionOutputData, co
     compressedSnapshots : ModesAndCoefficients
         compressed solution whose attribute "coefficients" is set
     """
-    regressor          = operatorCompressionOutputData[0]
-    scalerParameter    = operatorCompressionOutputData[1]
+    regressor = operatorCompressionOutputData[0]
+    scalerParameter = operatorCompressionOutputData[1]
     scalerCoefficients = operatorCompressionOutputData[2]
-    
+
     timeSequence = compressedSnapshots.GetTimes()
 
-    onlineParameters = np.array([onlineProblemData.GetParameterAtTime(t) for t in timeSequence])
-    
-    onlineParameters   = scalerParameter.transform(onlineParameters)
+    onlineParameters = np.array(
+        [onlineProblemData.GetParameterAtTime(t) for t in timeSequence]
+    )
+
+    onlineParameters = scalerParameter.transform(onlineParameters)
     onlineCoefficients = regressor.predict(onlineParameters)
     onlineCoefficients = scalerCoefficients.inverse_transform(onlineCoefficients)
-    
+
     compressedSnapshots.SetCoefficients(onlineCoefficients)
 
 
-
-def OperatorCompressionOffline(collectionProblemData, solutionName, operatorCompressionInputData):
+def OperatorCompressionOffline(
+    collectionProblemData, solutionName, operatorCompressionInputData
+):
     """
     Computes the offline operator compression stage using the method of POD on the snapshots and a regression on the coefficients
     
@@ -52,41 +58,50 @@ def OperatorCompressionOffline(collectionProblemData, solutionName, operatorComp
     -------
     operatorCompressionOutputData : (regressor, scaler, scaler)
         (fitted regressor, fitted scaler on the coefficients, fitted scaler on the parameters)
-    """    
-    assert isinstance(solutionName,str)
-    
+    """
+    assert isinstance(solutionName, str)
+
     regressor = operatorCompressionInputData
-    
-    numberOfModes      = collectionProblemData.GetReducedOrderBasisNumberOfModes(solutionName)
-    numberOfSnapshots  = collectionProblemData.GetGlobalNumberOfSnapshots(solutionName)
+
+    numberOfModes = collectionProblemData.GetReducedOrderBasisNumberOfModes(
+        solutionName
+    )
+    numberOfSnapshots = collectionProblemData.GetGlobalNumberOfSnapshots(solutionName)
     parameterDimension = collectionProblemData.GetParameterDimension()
-    
-    #print("numberOfModes      =", numberOfModes)
-    #print("numberOfSnapshots  =", numberOfSnapshots)
-    #print("parameterDimension =", parameterDimension)
-    
+
+    # print("numberOfModes      =", numberOfModes)
+    # print("numberOfSnapshots  =", numberOfSnapshots)
+    # print("parameterDimension =", parameterDimension)
+
     coefficients = np.zeros((numberOfSnapshots, numberOfModes))
-    parameters   = np.zeros((numberOfSnapshots, parameterDimension))
-    
+    parameters = np.zeros((numberOfSnapshots, parameterDimension))
+
     count = 0
     for key, problemData in collectionProblemData.GetProblemDatas().items():
 
-        localNumberOfSnapshots = problemData.GetSolution(solutionName).GetNumberOfSnapshots()
-        times = problemData.GetSolution(solutionName).GetCompressedSnapshots().GetTimes()
-        
-        coefficients[count:count+localNumberOfSnapshots,:] = problemData.GetSolution(solutionName).GetCompressedSnapshots().GetCoefficients()
-        
+        localNumberOfSnapshots = problemData.GetSolution(
+            solutionName
+        ).GetNumberOfSnapshots()
+        times = (
+            problemData.GetSolution(solutionName).GetCompressedSnapshots().GetTimes()
+        )
+
+        coefficients[count : count + localNumberOfSnapshots, :] = (
+            problemData.GetSolution(solutionName)
+            .GetCompressedSnapshots()
+            .GetCoefficients()
+        )
+
         localParameters = np.array([problemData.GetParameterAtTime(t) for t in times])
-        parameters[count:count+localNumberOfSnapshots,:] = localParameters
-        
+        parameters[count : count + localNumberOfSnapshots, :] = localParameters
+
         count += localNumberOfSnapshots
 
-    
     from sklearn.preprocessing import MinMaxScaler
 
-    scalerParameter    = MinMaxScaler()
+    scalerParameter = MinMaxScaler()
     scalerCoefficients = MinMaxScaler()
-    
+
     scalerParameter.fit(parameters)
     scalerCoefficients.fit(coefficients)
 

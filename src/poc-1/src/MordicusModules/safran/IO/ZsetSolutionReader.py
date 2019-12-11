@@ -3,9 +3,8 @@ import numpy as np
 
 from MordicusCore.IO.SolutionReaderBase import SolutionReaderBase
 
-    
 
-def ReadSnapshot(solutionFileName, fieldName, time, primality = True):
+def ReadSnapshot(solutionFileName, fieldName, time, primality=True):
     """
     Functional API
     
@@ -27,7 +26,7 @@ def ReadSnapshot(solutionFileName, fieldName, time, primality = True):
     np.ndarray
         of size (numberOfDofs,)
     """
-    reader = ZsetSolutionReader(solutionFileName = solutionFileName)
+    reader = ZsetSolutionReader(solutionFileName=solutionFileName)
     return reader.ReadSnapshot(fieldName, time, primality)
 
 
@@ -45,10 +44,8 @@ def ReadTimeSequenceFromSolutionFile(solutionFileName):
     np.ndarray
         of size (numberOfSnapshots,)
     """
-    reader = ZsetSolutionReader(solutionFileName = solutionFileName)
+    reader = ZsetSolutionReader(solutionFileName=solutionFileName)
     return reader.ReadTimeSequenceFromSolutionFile()
-
-
 
 
 class ZsetSolutionReader(SolutionReaderBase):
@@ -60,33 +57,35 @@ class ZsetSolutionReader(SolutionReaderBase):
     solutionFileName : str
         name of the Z-set solution file (.ut)
     """
-    
-    def __init__(self, solutionFileName = None):
+
+    def __init__(self, solutionFileName=None):
         """
         Parameters
         ----------
         solutionFileName : str, optional
         """
-        super(ZsetSolutionReader,self).__init__()
-        
-        assert isinstance(solutionFileName,str) or solutionFileName is None
-        
-        self.solutionFileName = solutionFileName        
-        
-        
-        
-    def ReadSnapshot(self, fieldName, time, primality= True):
+        super(ZsetSolutionReader, self).__init__()
+
+        assert isinstance(solutionFileName, str) or solutionFileName is None
+
+        self.solutionFileName = solutionFileName
+
+    def ReadSnapshot(self, fieldName, time, primality=True):
         from BasicTools.IO import UtReader as UR
+
         if primality == True:
             atIntegrationPoints = False
         else:
-            atIntegrationPoints = True#pragma: no cover
-        return UR.ReadFieldFromUt(self.solutionFileName, fieldName, time, atIntegrationPoints = atIntegrationPoints)        
+            atIntegrationPoints = True  # pragma: no cover
+        return UR.ReadFieldFromUt(
+            self.solutionFileName,
+            fieldName,
+            time,
+            atIntegrationPoints=atIntegrationPoints,
+        )
 
-    
     def ReadTimeSequenceFromSolutionFile(self):
         from BasicTools.IO import UtReader as UR
+
         UTMetaData = UR.ReadUTMetaData(self.solutionFileName)
-        return UTMetaData["time"][:,4]
-    
-        
+        return UTMetaData["time"][:, 4]

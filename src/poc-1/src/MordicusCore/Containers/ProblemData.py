@@ -7,6 +7,7 @@ from MordicusCore.Containers.Loadings import LoadingBase
 from MordicusCore.Containers.BaseObject import BaseObject
 import collections
 
+
 class ProblemData(BaseObject):
     """
     Class containing a problemData
@@ -29,13 +30,11 @@ class ProblemData(BaseObject):
         loadings : list
         parameters : collections.OrderedDict()
         """
-        super(ProblemData,self).__init__()
-        
-        self.solutions  = {}
-        self.loadings   = []
+        super(ProblemData, self).__init__()
+
+        self.solutions = {}
+        self.loadings = []
         self.parameters = collections.OrderedDict()
-        
-        
 
     def AddSolution(self, solution):
         """
@@ -45,17 +44,21 @@ class ProblemData(BaseObject):
         ----------
         solution : Solution
             the solution of the problem for a given field
-        """   
-        assert (isinstance(solution, Solution.Solution)), "solution must be an instance of an object inheriting from Containers.Solution"
-        
+        """
+        assert isinstance(
+            solution, Solution.Solution
+        ), "solution must be an instance of an object inheriting from Containers.Solution"
+
         if solution.GetSolutionName() in self.solutions:
-            print("Solution "+solution.solutionName+" already in problemData.solutions. Replacing it anyway.")  #pragma: no cover
+            print(
+                "Solution "
+                + solution.solutionName
+                + " already in problemData.solutions. Replacing it anyway."
+            )  # pragma: no cover
 
-        self.solutions[solution.GetSolutionName()] = solution  
-        
+        self.solutions[solution.GetSolutionName()] = solution
 
-
-    def AddParameter(self, parameter, time = 0.):
+    def AddParameter(self, parameter, time=0.0):
         """
         Adds a parameter at time "time"
         
@@ -65,18 +68,20 @@ class ProblemData(BaseObject):
             time of the snapshot, default: 0.
         parameter : np.ndarray
             of size (parameterDimension,)
-        """   
-        
+        """
+
         assert isinstance(time, (float, np.float64))
-        assert (type(parameter) == np.ndarray and len(parameter.shape) == 1)
-        
+        assert type(parameter) == np.ndarray and len(parameter.shape) == 1
+
         if time in self.parameters:
-            print("Parameter at time "+time+" already in parameters. Replacing it anyways.") #pragma: no cover
+            print(
+                "Parameter at time "
+                + time
+                + " already in parameters. Replacing it anyways."
+            )  # pragma: no cover
         self.parameters[time] = parameter
-        return 
-    
-    
-    
+        return
+
     def GetParameters(self):
         """
         Returns
@@ -85,10 +90,10 @@ class ProblemData(BaseObject):
             parameters
         """
         if self.parameters == False:
-            raise("Please initialize parameters before trying to retrieve them.") #pragma: no cover
+            raise (
+                "Please initialize parameters before trying to retrieve them."
+            )  # pragma: no cover
         return self.parameters
-    
-    
 
     def GetParameterDimension(self):
         """
@@ -99,11 +104,13 @@ class ProblemData(BaseObject):
         int
             common parameterDimension
         """
-        listParameterDimension = [parameter.shape[0] for _, parameter in self.GetParameters().items()]
-        assert listParameterDimension.count(listParameterDimension[0]) == len(listParameterDimension) 
-        return listParameterDimension[0]   
-    
-
+        listParameterDimension = [
+            parameter.shape[0] for _, parameter in self.GetParameters().items()
+        ]
+        assert listParameterDimension.count(listParameterDimension[0]) == len(
+            listParameterDimension
+        )
+        return listParameterDimension[0]
 
     def GetParameterAtTime(self, time):
         """
@@ -118,9 +125,10 @@ class ProblemData(BaseObject):
             parameter
         """
         from MordicusCore.BasicAlgorithms import TimeInterpolation as TI
-        return TI.TimeInterpolation(time, list(self.parameters.keys()), list(self.parameters.values()))
-    
 
+        return TI.TimeInterpolation(
+            time, list(self.parameters.keys()), list(self.parameters.values())
+        )
 
     def SetLoadings(self, loadings):
         """
@@ -129,12 +137,12 @@ class ProblemData(BaseObject):
         Parameters
         ----------
         loadings : list
-        """        
+        """
         for loading in loadings:
-            assert (isinstance(loading, LoadingBase.LoadingBase)), "all loadings must be instances of objects inheriting from Containers.LoadingBase"
+            assert isinstance(
+                loading, LoadingBase.LoadingBase
+            ), "all loadings must be instances of objects inheriting from Containers.LoadingBase"
         self.loadings = loadings
-    
-
 
     def GetSolution(self, solutionName):
         """        
@@ -149,8 +157,6 @@ class ProblemData(BaseObject):
         """
         return self.solutions[solutionName]
 
-
-
-    def  __str__(self):
-        res = "Solutions:"+str(list(self.solutions.keys()))
+    def __str__(self):
+        res = "Solutions:" + str(list(self.solutions.keys()))
         return res

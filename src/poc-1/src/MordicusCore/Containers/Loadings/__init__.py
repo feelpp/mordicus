@@ -1,3 +1,2 @@
 # -*- coding: utf-8 -*-
-__all__ = ['LoadingBase']
-
+__all__ = ["LoadingBase"]
