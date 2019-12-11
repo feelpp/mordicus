@@ -6,7 +6,6 @@ from MordicusCore.OperatorCompressors import Regression
 import numpy as np
 
 
-
 solutionName = "TP"
 nbeOfComponents = 1
 primality = True
@@ -18,8 +17,8 @@ primality = True
 
 import pickle
 
-operatorCompressionData = pickle.load(open('operatorCompressionData.pkl', 'rb'))
-reducedOrderBasis = pickle.load(open('reducedOrderBasis.pkl', 'rb'))
+operatorCompressionData = pickle.load(open("operatorCompressionData.pkl", "rb"))
+reducedOrderBasis = pickle.load(open("reducedOrderBasis.pkl", "rb"))
 
 
 ##################################################
@@ -28,24 +27,26 @@ reducedOrderBasis = pickle.load(open('reducedOrderBasis.pkl', 'rb'))
 
 onlineProblemData = PD.ProblemData()
 
-OnlineTimeSequence = np.array(np.arange(0,1001,50), dtype = float)
+OnlineTimeSequence = np.array(np.arange(0, 1001, 50), dtype=float)
 
 for t in OnlineTimeSequence:
-    onlineProblemData.AddParameter(np.array([75., 2500.] + [t]), t)
+    onlineProblemData.AddParameter(np.array([75.0, 2500.0] + [t]), t)
 
 
-compressedSnapshots = MAC.ModesAndCoefficients(solutionName, OnlineTimeSequence, nbeOfComponents, primality)
+compressedSnapshots = MAC.ModesAndCoefficients(
+    solutionName, OnlineTimeSequence, nbeOfComponents, primality
+)
 
 
-Regression.OnlineComputeRegression(onlineProblemData, operatorCompressionData, compressedSnapshots)
+Regression.OnlineComputeRegression(
+    onlineProblemData, operatorCompressionData, compressedSnapshots
+)
 compressedSnapshots.SetModes(reducedOrderBasis)
 
 compressedSnapshots.CheckDimensionsConsistence()
-
 
 
 mesh = ZMR.ReadMesh("cube.geof")
 
 PW.WritePXDMF(mesh, compressedSnapshots)
 print("The compressed solution has been written in PXDMF Format")
-

@@ -1,11 +1,10 @@
-
 import numpy as np
 from BasicTools.IO import GeofReader as GR
 
 
 mesh = GR.ReadGeof("cube.geof")
 
-lenX0 = len(mesh.elements['quad4'].tags['x0'])
+lenX0 = len(mesh.elements["quad4"].tags["x0"])
 print("nbe of elements in tag X0 :", lenX0)
 
 
