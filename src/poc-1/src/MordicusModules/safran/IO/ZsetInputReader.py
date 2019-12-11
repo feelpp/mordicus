@@ -76,6 +76,7 @@ class ZsetInputReader(InputReaderBase):
         self.knownLoadingTags  = ["pressure"]
         
         
+        
     def SetInputFile(self):
         """
         Sets the inputFile using the parser in BasicTools.IO.ZebulonIO
@@ -88,8 +89,20 @@ class ZsetInputReader(InputReaderBase):
 
 
     def ReadInputTimeSequence(self):
+        """
+        Reads the time sequence form the inputFile using the parser in BasicTools.IO.ZebulonIO
+        """
         self.SetInputFile()
         return ZIO.GetInputTimeSequence(self.inputFile)
+
+                
+
+    def ReadMaterialFiles(self):
+        """
+        Reads the material files form the inputFile using the parser in BasicTools.IO.ZebulonIO
+        """
+        self.SetInputFile()
+        return ZIO.GetMaterialFiles(self.inputFile)
 
                 
         

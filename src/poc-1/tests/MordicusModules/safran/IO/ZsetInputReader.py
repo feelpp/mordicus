@@ -19,6 +19,8 @@ def test():
     loadings = reader.ConstructLoadingsList()
     loadings = ZIR.ConstructLoadingsList(inputFileName)
     
+    matFiles = reader.ReadMaterialFiles()
+    
     return "ok"
 
 
