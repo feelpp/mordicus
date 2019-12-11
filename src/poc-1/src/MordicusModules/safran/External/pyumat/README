@@ -69,7 +69,7 @@ D KINC(1) :  Increment number
 use the makefile for up to date conpilation recepies
 
 
-You need a python, a compiler and a version of Zset (tested with 8.6.9) to compile and use !
+You need a python, a compiler and a version of Zset (tested with intel-16.0.0, and zset/8.6.9 and zset/9.0.1) to compile and use !
 
 python3 :
 f2py3 umat.f -m py3umat -h umat3.pyf --overwrite-signature
