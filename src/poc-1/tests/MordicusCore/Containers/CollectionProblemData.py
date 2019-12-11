@@ -12,9 +12,9 @@ def test():
     solution = Solution.Solution("U", 2, 10, True)
     snapshot = np.ones(20)
     snapshot2 = np.ones(20)
-    solution.AddSnapshot(0., snapshot)
-    solution.AddSnapshot(1., snapshot2)
-    
+    solution.AddSnapshot(0.0, snapshot)
+    solution.AddSnapshot(1.0, snapshot2)
+
     problemData = ProblemData.ProblemData()
     problemData.AddSolution(solution)
 
@@ -36,14 +36,14 @@ def test():
     collectionProblemData.GetL2ScalarProducMatrix("U")
     collectionProblemData.SetL2ScalarProducMatrix("U", sparse.eye(20))
     collectionProblemData.GetL2ScalarProducMatrix("U")
-    
-    problemData.AddParameter(np.zeros(2), 0.)
+    collectionProblemData.GetNumberOfDomains()
+
+    problemData.AddParameter(np.zeros(2), 0.0)
     collectionProblemData.GetParameterDimension()
     print(collectionProblemData)
 
     return "ok"
 
 
-
-if __name__ == '__main__':
-    print(test()) #pragma: no cover
+if __name__ == "__main__":
+    print(test())  # pragma: no cover

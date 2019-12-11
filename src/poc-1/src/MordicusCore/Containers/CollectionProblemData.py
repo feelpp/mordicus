@@ -5,7 +5,7 @@ from scipy import sparse
 from MordicusCore.Containers import ProblemData
 from MordicusCore.Containers import Solution
 from MordicusCore.Containers.BaseObject import BaseObject
-
+from mpi4py import MPI
 
 class CollectionProblemData(BaseObject):
     """
@@ -19,6 +19,8 @@ class CollectionProblemData(BaseObject):
         dictionary with solutionNames (str) as keys and solutions (Solution) as values
     l2ScalarProducMatrix : dict
         dictionary with solutionNames (str) as keys and matrices (scipy.sparse.csr) as values
+    numberOfDomains : int
+        number of subdomains in case of distributed data
     """
 
     def __init__(self):
@@ -27,6 +29,8 @@ class CollectionProblemData(BaseObject):
         self.problemDatas = {}
         self.reducedOrderBases = {}
         self.l2ScalarProducMatrices = {}
+        self.numberOfDomains = MPI.COMM_WORLD.Get_size()
+        
 
     def AddReducedOrderBasis(self, solutionName, reducedOrderBasis):
         """
@@ -159,6 +163,15 @@ class CollectionProblemData(BaseObject):
             the number of problemDatas
         """
         return len(self.problemDatas.keys())
+
+    def GetNumberOfDomains(self):
+        """
+        Returns
+        -------
+        int
+            the number of domains
+        """
+        return self.numberOfDomains
 
     def GetSolutionsNumberOfDofs(self, solutionName):
         """
