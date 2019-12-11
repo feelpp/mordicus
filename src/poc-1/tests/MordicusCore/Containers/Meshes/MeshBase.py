@@ -2,7 +2,6 @@
 from MordicusCore.Containers.Meshes import MeshBase as MB
 
 
-
 def test():
     meshBase = MB.MeshBase()
     meshBase.GetNumberOfNodes()
@@ -11,5 +10,5 @@ def test():
     return "ok"
 
 
-if __name__ == '__main__':
-    print(test()) #pragma: no cover
+if __name__ == "__main__":
+    print(test())  # pragma: no cover

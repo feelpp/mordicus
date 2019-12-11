@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from MordicusCore.Containers.BaseObject import BaseObject
 from MordicusCore.Containers.CompressedFormats import CompressedFormatsBase as CFB
-        
+
 
 def test():
 
@@ -11,5 +11,5 @@ def test():
     return "ok"
 
 
-if __name__ == '__main__':
-    print(test()) #pragma: no cover
+if __name__ == "__main__":
+    print(test())  # pragma: no cover

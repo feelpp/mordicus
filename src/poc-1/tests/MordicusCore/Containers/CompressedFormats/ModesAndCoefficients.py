@@ -2,12 +2,12 @@
 from MordicusCore.Containers.CompressedFormats import ModesAndCoefficients as MAC
 import numpy as np
 
+
 def test():
 
-
-    modes = np.zeros((3,12))
+    modes = np.zeros((3, 12))
     times = np.zeros(7)
-    coefficients = np.zeros((7,3))
+    coefficients = np.zeros((7, 3))
     compressedSnapshots = MAC.ModesAndCoefficients("toto", times, 1, True)
     compressedSnapshots.SetModes(modes)
     compressedSnapshots.SetCoefficients(coefficients)
@@ -26,5 +26,5 @@ def test():
     return "ok"
 
 
-if __name__ == '__main__':
-    print(test()) #pragma: no cover
+if __name__ == "__main__":
+    print(test())  # pragma: no cover

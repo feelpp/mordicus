@@ -2,6 +2,7 @@
 import numpy as np
 from MordicusCore.IO import InputReaderBase as IRB
 
+
 def test():
 
     inputReaderBase = IRB.InputReaderBase()
@@ -9,5 +10,5 @@ def test():
     return "ok"
 
 
-if __name__ == '__main__':
-    print(test()) #pragma: no cover
+if __name__ == "__main__":
+    print(test())  # pragma: no cover

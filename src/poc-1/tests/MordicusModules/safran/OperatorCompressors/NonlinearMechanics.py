@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import numpy as np
+from MordicusModules.safran.OperatorCompressors import NonlinearMechanics as NLM
 from MordicusCore.Containers.CompressedFormats import ModesAndCoefficients as MAC
-from MordicusCore.OperatorCompressors import Regression
 from MordicusCore.Containers import ProblemData
 from MordicusCore.Containers import CollectionProblemData
 from MordicusCore.Containers import Solution
@@ -42,7 +42,7 @@ def test():
     ) + WhiteKernel(noise_level=1, noise_level_bounds=(1e-10, 1e1))
     gpr = GaussianProcessRegressor(kernel=kernel, alpha=0.0)
 
-    operatorCompressionData = Regression.OperatorCompressionOffline(
+    operatorCompressionData = NLM.OperatorCompressionOffline(
         collectionProblemData, "U", gpr
     )
 
@@ -59,7 +59,7 @@ def test():
         solution.GetPrimality(),
     )
 
-    Regression.OnlineComputeRegression(
+    NLM.OnlineComputeRegression(
         onlineProblemData, operatorCompressionData, compressedSnapshots
     )
 
