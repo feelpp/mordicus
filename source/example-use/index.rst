@@ -11,6 +11,8 @@ Exemples d'utilisation
    Phimeca  <Phimeca/UC_Phimeca01>
    Mines    <Mines/UC_Mines01>
    CADLM    <CADLM/UC_CADLM01>
+   Cemosis  <Cemosis/UC_Cemosis01>
+   CT       <CT/UC_CT01>
 
 ..   EDF <EDF/index>
 ..   MORDICUS <MORDICUS/index>
