@@ -1,13 +1,13 @@
 .. master file
 
-Features
-========
+Architecture
+============
+
 
 .. toctree::
    :maxdepth: 1
 
-   mordicus_features
-..   Mines <Mines/index>
+   Components <components/index>
 
 
 Indices and tables

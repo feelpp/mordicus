@@ -23,12 +23,12 @@ Welcome to Mordicus's documentation!
 
    example-use/index
 
-.. **Fonctionnalités et acteurs**
+**Fonctionnalités et acteurs**
 
-.. .. toctree::
-..   :maxdepth: 2
+.. toctree::
+   :maxdepth: 2
 
-..   features-description/index
+   features-description/index
 
 **Modèle de données et glossaire**
 

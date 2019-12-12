@@ -306,7 +306,8 @@ Non-intrusive process
 - Adaptive enrichment
 
 Intrusive process
------------------------------
+-----------------
+
 **To be defined**
 
 This is the biggest unknown of the project at this stage. Should be discussed in order to ensure standard relevance for Hyper Reduction method.

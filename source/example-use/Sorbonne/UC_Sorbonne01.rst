@@ -5,7 +5,7 @@ Sorbonne Use Case
 
 .. .. tabularcolumns:: |L|L|L|L|
 
-.. table:: Sorbone use case
+.. table:: Sorbonne use case
   :class: longtable
   
   +---------------------+----------+------------------------+-------------------------------------------------+
