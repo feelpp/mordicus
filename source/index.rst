@@ -37,6 +37,12 @@ Welcome to Mordicus's documentation!
 
    datamodel/index
 
+**Architecture**
+
+.. toctree::
+   :maxdepth: 2
+
+   architecture/index
 
 .. i**CR des séances de travail**
 .. i

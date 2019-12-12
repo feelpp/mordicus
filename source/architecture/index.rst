@@ -7,7 +7,7 @@ Architecture
 .. toctree::
    :maxdepth: 1
 
-   Components <components/index>
+   Components <components/mordicus_components>
 
 
 Indices and tables
