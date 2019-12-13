@@ -1,2 +1,20 @@
 # Ignoring build directory
 build/
+.metadata/
+RemoteSystemsTempFiles/.project
+*~
+*.DS_Store
+*.pyc
+*.pkl
+*.bin
+*.pxdmf
+*.kdev4
+src/poc-1/coverage_report/*
+*.coverage*
+*.pyf
+*.so
+*.kate-swp
+
+#autodoc generated files
+*_build*
+*_source*
