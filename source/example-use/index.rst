@@ -18,6 +18,17 @@ Exemples d'utilisation
 ..   MORDICUS <MORDICUS/index>
 ..   viscous_fall <viscous_fall>
 
+Pistes pour de futurs exemples d'utilisation:
+
+    * réduction d'un modèle aérothermique (Cemosis)
+
+    * optimisation de forme d'un aimant à haut champs (Cemosis)
+
+    * Optimiser la consommation énergétique par un gestionnaire de bâtiment (Cemosis)
+      
+    * Voir en temps réel l’impact du design d’un aimant (Cemosis)
+
+    * Réduction d'un modèle aérothermique 3D avec assimilation de données (Cemosis)
 
 Indices and tables
 ==================

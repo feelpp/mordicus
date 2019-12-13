@@ -46,6 +46,7 @@ Usage d'un modèle réduit en plan d'expérience
     - **Objet :** effectuer des analyses en plans d'expériences
     - **Utilisateurs :** Boite Noire
     - **Exigences :** rapidité du modèle réduit, fidélité du modèle réduit au modèle haute fidélité
+    - **Notes :** même cas d'usage a priori que celui appelé par Phiméca "échantilloner le modèle réduit" et celui que CT a appelé "balayage paramétrique"
 
 Création d'un modèle réduit pour effectuer un plan d'expérience
 ---------------------------------------------------------------
@@ -193,6 +194,7 @@ Couplage spatial entre un modèle réduit et un modèle haute fidélité
     - **Objet :** en disposant d'un modèle haute fidélité sur un domaine complet, on veut utiliser le modèle réduit sur un sous-domaine spatial pour remplacer le modèle haute fidélité en le couplant. Ce cas peut être relié à l'exemple d'utilisation multi-échelles.
     - **Utilisateurs :** Boite Noire
     - **Exigences :** un modèle réduit, un ou des indicateurs de fiabilité, des moyens de couplage spatial entre le modèle réduit et le modèle haute fidélité
+    - **Notes :** même cas d'usage que celui appelé par CT "couplage fort avec solveur autre"
 
 Utilisation de tous les calculs intermédiaires existants pour effectuer la réduction
 ------------------------------------------------------------------------------------
@@ -307,5 +309,74 @@ Tableau d'utilisation des cas d'usage par entité
 | effectuer la réduction                |        |         |       |    |        |        |          |     |         |     |       | 
 +---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
 
+Nouveaux cas d'usage potentiels
+-------------------------------
+
+Les nouveaux cas d'usage potentiels suivants sont apparus dans les questionnaires.
+
+Pour l'utilisateur boîte noire:
+
+    * utiliser la réduction de modèle dans les problèmes d'optimisation (CADLM, CT)
+
+    * utiliser la réduction de modèle dans une boucle de calcul d'incertitudes (CT)
+
+    * calculer des quantités mécaniques d'intérêt macroscopiques, par post-traitement (par ex durée de vie) (Mines)
+
+    * charger/ouvrir un modèle réduit (Phiméca). A mettre en lien avec le cas d'usage "Archiver une liste de modèles réduits"
+
+    * utiliser un modèle réduit dans une modélisation système (MBSE, Modelica) (CT)
+
+    * optimiser le placement des capteurs dans un bâtiment (Cemosis)
+
+Pour l'utilisateur connaissant le modèle complet et/ou la physique:
+
+    * valider la représentativité du modèle (Phiméca): peut-on considérer que c'est le même cas d'usage que "comparer un modèle réduit 1 avec un modèle HF 2" ?
+
+    * accélérer la convergence pour un modèle turbulent de Navier-Stokes (utilisation in-situ) (Sorbonne)
+
+    * calcul de l'erreur entre la solution HF et modèle réduit (Sorbonne) -> de nombreux cas d'usage mentionnent le calcul d'un indicateur de fiabilité, peut-on considérer que celui-ci est un cas d'usage de plus bas niveau que ceux-là ?
+
+Pour l'utilisateur sachant établir le modèle réduit;
+
+    * création d'un modèle réduit à partir d'un DoE déjà disponible (et sans possibilité de faire de nouveaux calculs HF) (CADLM)
+
+    * archiver / sérialiser le modèle pour le transmettre (Phiméca). A mettre en lien avec le cas d'usage "Archiver une liste de modèles réduits"
+
+    * développer dans Mordicus une nouvelle méthodologie de réduction de modèle (Safran) ou apporter des améliorations à une méthode existante
+
+    * créer un modèle réduit à partir d'un nouveau cas métier, et une méthode de réduction existante (Safran, Sorbonne)
+
+    * évaluer le modèle réduit en un point -> cas d'usage de plus bas niveau que certains
+
+Exigences
+---------
+
+Les exigences suivantes sont apparues dans les questionnaires.
+
+Exigence pour certaines méthodes: communiquer directement avec les codes de simulation par API (exemple NIRB).
+
+Pour l'utilisateur boîte noire:
+
+    * pouvoir utiliser un ordinateur de bureau plutôt qu'un cluster
+
+Pour l'utilisateur connaissant le modèle complet et/ou la physique:
+
+    * calcul des champs mécaniques pour un grand nombre de cycles de chargement;
+
+    * pouvoir faire un post-processing complexe
+
+    * le modèle réduit doit alléger le temps de calcul en conservant au mieux les propriétés non-linéaires
+
+    * Mordicus doit supporter les structures de données distribuées (HPC)
+
+Pour l'utilisateur sachant construire un modèle réduit:
+
+    * pouvoir changer rapidement les options de constructions du modèle réduit (exigence ou cas d'usage ?);
+
+    * que le système suggère des alternatives / autres méthodes;
+
+    * la réduction d'un modèle doit être facile et procurer un estimateur d'erreur;
+
+    * l'archivage d'un modèle réduit doit être autonome et documenté.
 
 
