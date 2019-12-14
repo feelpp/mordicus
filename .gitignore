@@ -9,7 +9,7 @@ RemoteSystemsTempFiles/.project
 *.bin
 *.pxdmf
 *.kdev4
-src/poc-1/coverage_report/*
+src/poc-1/coverageReports/*
 *.coverage*
 *.pyf
 *.so

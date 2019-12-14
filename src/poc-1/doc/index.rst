@@ -9,12 +9,8 @@ Contents:
 .. toctree::
    :maxdepth: 4
 
-   _source/MordicusCore.rst
-
-.. toctree::
-   :maxdepth: 4
-
-   _source/MordicusModules.rst
+   _source/modules.rst
+   
 
 
 
