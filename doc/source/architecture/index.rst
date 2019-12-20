@@ -7,11 +7,6 @@ Architecture
 .. toctree::
    :maxdepth: 1
 
-   Components <components/mordicus_components>
+   Methods <components/mordicus_methods>
+..   Components <components/mordicus_components>
 
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`search`

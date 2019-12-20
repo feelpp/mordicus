@@ -3,6 +3,8 @@
 Phimeca Use Case
 ----------------
 
+*Contexte à ajouter*
+
 .. .. tabularcolumns:: |L|L|L|L|
 
 .. table:: Phimeca use case

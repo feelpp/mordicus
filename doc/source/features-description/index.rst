@@ -1,7 +1,7 @@
 .. master file
 
-Features
-========
+Elementary use cases and actors
+===============================
 
 .. toctree::
    :maxdepth: 1
@@ -10,8 +10,8 @@ Features
 ..   Mines <Mines/index>
 
 
-Indices and tables
-==================
+.. Indices and tables
+.. ==================
 
-* :ref:`genindex`
-* :ref:`search`
+.. * :ref:`genindex`
+.. * :ref:`search`

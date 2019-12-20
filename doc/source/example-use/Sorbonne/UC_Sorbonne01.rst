@@ -3,6 +3,8 @@
 Sorbonne Use Case
 -----------------
 
+*Contexte à ajouter*
+
 .. .. tabularcolumns:: |L|L|L|L|
 
 .. table:: Sorbonne use case
@@ -89,5 +91,3 @@ Sorbonne Use Case
   |                     | 7a       | Invalid path : put the solution in the current folder                    |
   +---------------------+----------+------------------------+-------------------------------------------------+
 
-
-This is a test

@@ -3,6 +3,8 @@
 Mines Use Case
 --------------
 
+*Contexte à ajouter*
+
 .. .. tabularcolumns:: |L|L|L|L|
 
 .. table:: Mines use case

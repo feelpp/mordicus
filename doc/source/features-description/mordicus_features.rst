@@ -215,55 +215,55 @@ Tableau d'utilisation des cas d'usage par entité
 +---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
 | Utilisateur boîte noire                                                                                                          |
 +---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
-| Usage d’un modèle réduit en plan      |   5    |   X     |  X    | X  |        |        |          |     |   X     |     |  X    |
+| Usage d’un modèle réduit en plan      |   6    |   X     |  X    | X  |        |        |          |  X  |   X     |     |  X    |
 | d’expérience                          |        |         |       |    |        |        |          |     |         |     |       |
 +---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
 | Utilisation d’un modèle réduit avec   |        |         |       |    |        |        |          |     |         |     |       |
-| des mesures in-situ (en laboratoire,  |   3    |         |  X    |    |        |        |          |     |   X     |     |  X    | 
+| des mesures in-situ (en laboratoire,  |   3    |         |  X    |    |        |        |          |     |   X     |     |  X    |
 | sur site de production...)            |        |         |       |    |        |        |          |     |         |     |       |
 +---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
 | Disposer d’un clone digital basé sur  |        |         |       |    |        |        |          |     |         |     |       |
-| un modèle réduit                      |   1    |         |       |    |        |        |          |     |   X     |     |       | 
+| un modèle réduit                      |   1    |         |       |    |        |        |          |     |   X     |     |       |
 +---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
-| Générer un champ complet à partir     |        |         |       |    |        |        |          |     |         |     |       | 
-| d’un modèle réduit                    |   3    |         |       |    |        |        |    X     |     |   X     |     |  X    | 
+| Générer un champ complet à partir     |        |         |       |    |        |        |          |     |         |     |       |
+| d’un modèle réduit                    |   4    |         |       |    |        |        |    X     |  X  |   X     |     |  X    |
 +---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
-| Permettre la visualisation des        |        |         |       |    |        |        |          |     |         |     |       | 
-| résultats du modèle réduit            |   5    |         |  X    | X  |        |        |    X     |     |   X     |     |  X    | 
+| Permettre la visualisation des        |        |         |       |    |        |        |          |     |         |     |       |
+| résultats du modèle réduit            |   5    |         |  X    | X  |        |        |    X     |     |   X     |     |  X    |
 +---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
-| Archiver une liste de modèles réduits |   1    |         |       |    |        |        |          |     |   X     |     |       | 
+| Archiver une liste de modèles réduits |   1    |         |       |    |        |        |          |     |   X     |     |       |
 +---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
-| Gérer une taille mémoire prescrite    |   1    |         |       |    |        |        |          |     |         |     |  X    | 
-| pour l’élaboration d’un modèle réduit |        |         |       |    |        |        |          |     |         |     |       | 
+| Gérer une taille mémoire prescrite    |   1    |         |       |    |        |        |          |     |         |     |  X    |
+| pour l’élaboration d’un modèle réduit |        |         |       |    |        |        |          |     |         |     |       |
 +---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
-| Couvrir avec un modèle réduit un      |        |         |       |    |        |        |          |     |         |     |       | 
-| sous-domaine d’usage du modèle        |   2    |         |       | X  |        |        |          |     |   X     |     |       | 
-| haute fidélité                        |        |         |       |    |        |        |          |     |         |     |       | 
+| Couvrir avec un modèle réduit un      |        |         |       |    |        |        |          |     |         |     |       |
+| sous-domaine d’usage du modèle        |   3    |         |       | X  |        |        |          | X   |   X     |     |       |
+| haute fidélité                        |        |         |       |    |        |        |          |     |         |     |       |
 +---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
-| Garantir qu’un modèle réduit          |        |         |       |    |        |        |          |     |         |     |       | 
-| fonctionne de la même manière que le  |        |         |       |    |        |        |          |     |         |     |       | 
-| modèle haute fidélité sur un          |   2    |   X     |       |    |        |        |          |     |   X     |     |       | 
-| sous-domaine                          |        |         |       |    |        |        |          |     |         |     |       | 
+| Garantir qu’un modèle réduit          |        |         |       |    |        |        |          |     |         |     |       |
+| fonctionne de la même manière que le  |        |         |       |    |        |        |          |     |         |     |       |
+| modèle haute fidélité sur un          |   3    |   X     |       |    |        |        |          | X   |   X     |     |       |
+| sous-domaine                          |        |         |       |    |        |        |          |     |         |     |       |
 +---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
-| Couplage spatial entre un modèle      |        |         |       |    |        |        |          |     |         |     |       | 
-| réduit et un modèle haute fidélité    |   2    |         |       | X  |        |        |          |     |   X     |     |       | 
+| Couplage spatial entre un modèle      |        |         |       |    |        |        |          |     |         |     |       |
+| réduit et un modèle haute fidélité    |   2    |         |       | X  |        |        |          |     |   X     |     |       |
 +---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
 | Utilisateur connaissant le modèle complet et/ou la physique                                                                      |
 +---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
-| Création d’un modèle réduit pour      |        |         |       |    |        |        |          |     |         |     |       | 
-| effectuer un plan d’expérience (sans  |        |         |       |    |        |        |          |     |         |     |       | 
-| exigence de méthode particulière de   |   2    |         |       | X  |        |        |          |     |   X     |     |       | 
-| réduction, mais avec un contrôle de   |        |         |       |    |        |        |          |     |         |     |       | 
-| sa fiabilité)                         |        |         |       |    |        |        |          |     |         |     |       | 
+| Création d’un modèle réduit pour      |        |         |       |    |        |        |          |     |         |     |       |
+| effectuer un plan d’expérience (sans  |        |         |       |    |        |        |          |     |         |     |       |
+| exigence de méthode particulière de   |   3    |         |       | X  |        |        |          | X   |   X     |     |       |
+| réduction, mais avec un contrôle de   |        |         |       |    |        |        |          |     |         |     |       |
+| sa fiabilité)                         |        |         |       |    |        |        |          |     |         |     |       |
 +---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
-| Comparer un modèle réduit 1 avec un   |        |         |       |    |        |        |          |     |         |     |       | 
-| modèle haute fidélité 2               |   4    |         |       | X  |        |        |    X     |     |   X     |     |  x    | 
+| Comparer un modèle réduit 1 avec un   |        |         |       |    |        |        |          |     |         |     |       |
+| modèle haute fidélité 2               |   5    |         |       | X  |        |        |    X     | X   |   X     |     |  x    |
 +---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
-| Optimisation de loi(s) de comportement|        |         |       |    |        |        |          |     |         |     |       | 
-| sur structure complexe                |   2    |         |       |    |        |        |          |     |   X     |     |  X    | 
+| Optimisation de loi(s) de comportement|        |         |       |    |        |        |          |     |         |     |       |
+| sur structure complexe                |   3    |         |       |    |        |        |          | X   |   X     |     |  X    |
 +---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
-| Faire interagir un modèle réduit et   |        |         |       |    |        |        |          |     |         |     |       | 
-| des opérations de Data Science        |   2    |         |       | X  |        |        |          |     |   X     |     |       | 
+| Faire interagir un modèle réduit et   |        |         |       |    |        |        |          |     |         |     |       |
+| des opérations de Data Science        |   3    |         |       | X  |        |        |          | X   |   X     |     |       |
 +---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
 
 .. raw:: latex
@@ -279,34 +279,34 @@ Tableau d'utilisation des cas d'usage par entité
 +---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
 | Utilisateur sachant établir le modèle réduit                                                                                     |
 +---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
-| Création d’un modèle réduit avec des  |   1    |         |       |    |        |        |          |     |   X     |     |       | 
-| informations provenant de mesures     |        |         |       |    |        |        |          |     |         |     |       | 
+| Création d’un modèle réduit avec des  |   1    |         |       |    |        |        |          | X   |   X     |     |       |
+| informations provenant de mesures     |        |         |       |    |        |        |          |     |         |     |       |
 +---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
-| Déduire un modèle réduit 2 à partir   |        |         |       |    |        |        |          |     |         |     |       | 
-| d’un modèle réduit 1                  |   1    |         |       |    |        |        |          |     |         |     |  X    | 
+| Déduire un modèle réduit 2 à partir   |        |         |       |    |        |        |          |     |         |     |       |
+| d’un modèle réduit 1                  |   1    |         |       |    |        |        |          |     |         |     |  X    |
 +---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
-| Permettre le calcul multi-échelles ou |        |         |       |    |        |        |          |     |         |     |       | 
-| multi-physiques de systèmes           |   1    |         |       |    |        |        |          |     |   X     |     |       | 
-| représentés par des modèles réduits   |        |         |       |    |        |        |          |     |         |     |       | 
+| Permettre le calcul multi-échelles ou |        |         |       |    |        |        |          |     |         |     |       |
+| multi-physiques de systèmes           |   1    |         |       |    |        |        |          |     |   X     |     |       |
+| représentés par des modèles réduits   |        |         |       |    |        |        |          |     |         |     |       |
 +---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
-| Permettre la visualisation du modèle  |        |         |       |    |        |        |          |     |         |     |       | 
-| réduit lui-même                       |   4    |         |       |    |        |   X    |    X     |     |   x     |     |  X    | 
+| Permettre la visualisation du modèle  |        |         |       |    |        |        |          |     |         |     |       |
+| réduit lui-même                       |   4    |         |       |    |        |   X    |    X     |     |   x     |     |  X    |
 +---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
-| Construire un modèle réduit 3 en      |        |         |       |    |        |        |          |     |         |     |       | 
-| combinant deux modèles réduits 1 et 2 |   0    |         |       |    |        |        |          |     |         |     |       | 
+| Construire un modèle réduit 3 en      |        |         |       |    |        |        |          |     |         |     |       |
+| combinant deux modèles réduits 1 et 2 |   1    |         |       |    |        |        |          | X   |         |     |       |
 +---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
-| Évaluer l’intérêt de la démarche      |        |         |       |    |        |        |          |     |         |     |       | 
-| “Offline+Modèle réduit” par rapport à |        |         |       |    |        |        |          |     |         |     |       | 
-| l’utilisation directe du modèle haute |   5    |   X     |       |    |        |   X    |    X     |     |   x     |     |  X    | 
-| fidélité                              |        |         |       |    |        |        |          |     |         |     |       | 
+| Évaluer l’intérêt de la démarche      |        |         |       |    |        |        |          |     |         |     |       |
+| “Offline+Modèle réduit” par rapport à |        |         |       |    |        |        |          |     |         |     |       |
+| l’utilisation directe du modèle haute |   5    |   X     |       |    |        |   X    |    X     |     |   x     |     |  X    |
+| fidélité                              |        |         |       |    |        |        |          |     |         |     |       |
 +---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
-| Construire un modèle réduit lorsque   |        |         |       |    |        |        |          |     |         |     |       | 
-| le maillage (voire la géométrie)      |   1    |         |       |    |        |        |    X     |     |         |     |       | 
-| change entre les différents snapshots |        |         |       |    |        |        |          |     |         |     |       | 
+| Construire un modèle réduit lorsque   |        |         |       |    |        |        |          |     |         |     |       |
+| le maillage (voire la géométrie)      |   1    |         |       |    |        |        |    X     |     |         |     |       |
+| change entre les différents snapshots |        |         |       |    |        |        |          |     |         |     |       |
 +---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
-| Utilisation de tous les calculs       |        |         |       |    |        |        |          |     |         |     |       | 
-| intermédiaires existants pour         |   1    |         |       |    |        |   X    |          |     |         |     |       | 
-| effectuer la réduction                |        |         |       |    |        |        |          |     |         |     |       | 
+| Utilisation de tous les calculs       |        |         |       |    |        |        |          |     |         |     |       |
+| intermédiaires existants pour         |   2    |         |       |    |        |   X    |          | X   |         |     |       |
+| effectuer la réduction                |        |         |       |    |        |        |          |     |         |     |       |
 +---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
 
 Nouveaux cas d'usage potentiels
@@ -316,7 +316,7 @@ Les nouveaux cas d'usage potentiels suivants sont apparus dans les questionnaire
 
 Pour l'utilisateur boîte noire:
 
-    * utiliser la réduction de modèle dans les problèmes d'optimisation (CADLM, CT)
+    * utiliser la réduction de modèle dans les problèmes d'optimisation (CADLM, CT, EDF)
 
     * utiliser la réduction de modèle dans une boucle de calcul d'incertitudes (CT)
 
@@ -324,7 +324,7 @@ Pour l'utilisateur boîte noire:
 
     * charger/ouvrir un modèle réduit (Phiméca). A mettre en lien avec le cas d'usage "Archiver une liste de modèles réduits"
 
-    * utiliser un modèle réduit dans une modélisation système (MBSE, Modelica) (CT)
+    * utiliser un modèle réduit dans une modélisation système (MBSE, Modelica) (CT, EDF)
 
     * optimiser le placement des capteurs dans un bâtiment (Cemosis)
 
@@ -348,8 +348,8 @@ Pour l'utilisateur sachant établir le modèle réduit;
 
     * évaluer le modèle réduit en un point -> cas d'usage de plus bas niveau que certains
 
-Exigences
----------
+Exigences supplémentaires potentielles
+--------------------------------------
 
 Les exigences suivantes sont apparues dans les questionnaires.
 

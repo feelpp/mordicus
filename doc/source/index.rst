@@ -16,26 +16,26 @@ Welcome to Mordicus's documentation!
 .. i   sphinx-instructions
 .. i
 
-**Exemples d'utilisation**
+**High-level use cases**
 
 .. toctree::
    :maxdepth: 2
 
    example-use/index
 
-**Fonctionnalités et acteurs**
+**Elementary use cases and actors**
 
 .. toctree::
    :maxdepth: 2
 
    features-description/index
 
-**Modèle de données et glossaire**
+.. **Modèle de données et glossaire**
 
-.. toctree::
-   :maxdepth: 2
+.. .. toctree::
+..   :maxdepth: 2
 
-   datamodel/index
+..   datamodel/index
 
 **Architecture**
 
