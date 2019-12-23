@@ -57,6 +57,13 @@ def ComputeFEInterpMatAtGaussPoint(mesh):
     return FT.ComputeFEInterpMatAtGaussPoint(unstructuredMesh)
 
 
+def ComputeFEInterpGradMatAtGaussPoint(mesh):
+
+    unstructuredMesh = ConvertMeshToUnstructuredMesh(mesh)
+
+    return FT.ComputeFEInterpGradMatAtGaussPoint(unstructuredMesh)
+
+
 def ComputeMecaIntegrator(mesh, elementSet = "ALLELEMENT"):
 
     unstructuredMesh = ConvertMeshToUnstructuredMesh(mesh)
@@ -72,8 +79,32 @@ def ComputeNumberOfIntegrationPoints(mesh):
     return numberOfIntegrationPoints
 
 
-def ConvertMeshToUnstructuredMesh(mesh):
+def IntegrateVectorNormalComponentOnSurface(mesh, set, vector):
 
+    unstructuredMesh = ConvertMeshToUnstructuredMesh(mesh)
+
+    assembledVector = FT.IntegrateVectorNormalComponentOnSurface(unstructuredMesh, set, vector)
+
+    return assembledVector
+
+
+def ComputeIntegrationPointsTags(mesh, dimension):
+
+    unstructuredMesh = ConvertMeshToUnstructuredMesh(mesh)
+    
+    return FT.ComputeIntegrationPointsTags(unstructuredMesh, dimension)
+
+
+def IntegrateCentrifugalEffect(mesh, density, direction, center):
+
+    unstructuredMesh = ConvertMeshToUnstructuredMesh(mesh)
+    
+    return FT.IntegrateCentrifugalEffect(unstructuredMesh, density, direction, center)
+
+
+
+def ConvertMeshToUnstructuredMesh(mesh):
+    
     if isinstance(mesh, BTUM.BasicToolsUnstructuredMesh) == False:
         """from BasicTools.Containers import UnstructuredMesh as UM
         unstructuredMesh = UM.UnstructuredMesh()

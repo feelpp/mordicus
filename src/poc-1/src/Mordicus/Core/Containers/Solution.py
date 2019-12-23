@@ -48,7 +48,8 @@ class Solution(object):
         self.snapshots = collections.OrderedDict()
         self.compressedSnapshots = collections.OrderedDict()
 
-    def AddSnapshot(self, time, snapshot):
+
+    def AddSnapshot(self, snapshot, time):
         """
         Adds a snapshot at time "time"
         
@@ -59,18 +60,17 @@ class Solution(object):
         snapshot : np.ndarray
             of size (numberOfDOFs,)
         """
-
         assert isinstance(time, (float, np.float64))
         assert len(snapshot.shape) == 1 and snapshot.shape[0] == self.numberOfDOFs
 
         if time in self.snapshots:
             print(
                 "Snapshot at time "
-                + time
+                + str(time)
                 + " already in snapshots. Replacing it anyways."
             )  # pragma: no cover
         self.snapshots[time] = snapshot
-        return
+            
 
     def GetSnapshot(self, time):
         """
@@ -103,6 +103,7 @@ class Solution(object):
             list containing the time indices of the compressed snapshots
         """
         return list(self.compressedSnapshots.keys())
+
 
     def GetSnapshotsList(self):
         """
@@ -139,6 +140,15 @@ class Solution(object):
             the number of degrees of freedom of the solution
         """
         return self.numberOfDOFs
+
+    def GetNumberOfNodes(self):
+        """
+        Returns
+        -------
+        int
+            the number of degrees of nodes of the solution
+        """
+        return self.numberOfNodes
 
     def GetPrimality(self):
         """

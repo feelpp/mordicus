@@ -43,4 +43,6 @@ def TruncatedSVDSymLower(matrix, epsilon):
             id_max2 += 1  # pragma: no cover
     id_max = max(id_max, id_max2)
 
+    #print(eigenValues, eigenVectors)
+    #1./0.
     return eigenValues[0:id_max], eigenVectors[:, 0:id_max]

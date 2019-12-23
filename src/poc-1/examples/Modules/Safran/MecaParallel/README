@@ -1,0 +1,9 @@
+parallel test case not compatbile with pytest yet
+
+launch with 
+
+mpirun -n 2 python mordicusPODECMMecaZsetOffline.py
+
+and
+
+mpirun -n 2 python mordicusPODECMMecaZsetOnline.py

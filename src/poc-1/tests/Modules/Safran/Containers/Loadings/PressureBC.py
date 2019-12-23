@@ -26,7 +26,8 @@ def test():
     loading.SetCoefficients(coefficients)
     loading.SetFieldsMap(fieldsMap)
     loading.SetFields(fields)
-    loading.ComputePressureFieldAtTime(0.5)
+    
+    reducedOrderBasis = np.random.rand(3,10)
     
     loading.DeleteHeavyData()
 

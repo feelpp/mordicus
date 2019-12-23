@@ -3,11 +3,11 @@
 
 from Mordicus.Modules.Safran.IO import ZsetInputReader as ZIR
 from Mordicus.Core import GetTestDataPath
-
+import os
 
 def test():
 
-    folder = GetTestDataPath() + "Zset/"
+    folder = GetTestDataPath() + "Zset/MecaSequential/"
 
     inputFileName = folder + "cube.inp"
 
@@ -15,11 +15,12 @@ def test():
 
     inputTimeSequence = reader.ReadInputTimeSequence()
     inputTimeSequence = ZIR.ReadInputTimeSequence(inputFileName)
-
+    
     loadings = reader.ConstructLoadingsList()
     loadings = ZIR.ConstructLoadingsList(inputFileName)
-
-    matFiles = reader.ReadMaterialFiles()
+    
+    constitutiveLaws = reader.ConstructConstitutiveLawsList()
+    constitutiveLaws = ZIR.ConstructConstitutiveLawsList(inputFileName)
 
     return "ok"
 

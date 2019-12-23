@@ -7,7 +7,13 @@ from pathlib import Path
 import os
 
 
-def ReadSnapshot(solutionFileName, fieldName, time, primality=True):
+primalSolutionComponents = {1:[""], 2:["1", "2"], 3:["1", "2", "3"]}
+#niROM solution:
+#dualSolutionComponents = {1:["11"], 3:["11", "22", "12"], 6:["11", "22", "33", "12", "23", "31"]}
+dualSolutionComponents = {1:["11"], 3:["11", "22", "12"], 6:["11", "22", "33", "12", "31", "23"]}
+
+
+def ReadSnapshotComponent(solutionFileName, fieldName, time, primality=True):
     """
     Functional API
     
@@ -30,7 +36,7 @@ def ReadSnapshot(solutionFileName, fieldName, time, primality=True):
         of size (numberOfDofs,)
     """
     reader = ZsetSolutionReader(solutionFileName=solutionFileName)
-    return reader.ReadSnapshot(fieldName, time, primality)
+    return reader.ReadSnapshotComponent(fieldName, time, primality)
 
 
 def ReadTimeSequenceFromSolutionFile(solutionFileName):
@@ -81,7 +87,7 @@ class ZsetSolutionReader(SolutionReaderBase):
             self.solutionFileName = solutionFileName        
         
 
-    def ReadSnapshot(self, fieldName, time, primality=True):
+    def ReadSnapshotComponent(self, fieldName, time, primality=True):
         from BasicTools.IO import UtReader as UR
 
         if primality == True:
@@ -94,6 +100,40 @@ class ZsetSolutionReader(SolutionReaderBase):
             time,
             atIntegrationPoints=atIntegrationPoints,
         )
+    
+
+    def ReadSnapshot(self, fieldName, time, numberOfComponents, primality=True):
+        from BasicTools.IO import UtReader as UR
+
+        solutionComponentNames = []
+        if primality == True:
+            atIntegrationPoints = False
+            for suffix in primalSolutionComponents[numberOfComponents]:
+                solutionComponentNames.append(fieldName+suffix)
+        else:
+            atIntegrationPoints = True  # pragma: no cover
+            for suffix in dualSolutionComponents[numberOfComponents]:
+                solutionComponentNames.append(fieldName+suffix)
+
+        res = []
+        for name in solutionComponentNames:
+            res.append(UR.ReadFieldFromUt(
+            self.solutionFileName,
+            name,
+            time,
+            atIntegrationPoints=atIntegrationPoints))
+
+        return np.concatenate(res)
+    
+    
+    """def ReadSnapshotTimeSequenceAndAddToSolution(self, solution, timeSequence, fieldName):
+        
+        primality = solution.GetPrimality()
+        numberOfComponents = solution.GetNbeOfComponents()
+        
+        for t in timeSequence:
+            solution.AddSnapshot(self.ReadSnapshot(fieldName, t, numberOfComponents, primality), t)"""
+            
 
     def ReadTimeSequenceFromSolutionFile(self):
         from BasicTools.IO import UtReader as UR

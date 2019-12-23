@@ -25,7 +25,11 @@
 
     during developement, pylint and black where used
 
-    recommandation: create a dedictated conda environment from the channel conda-forge
+    recommandation: create a compatible conda environment by typing:
+    
+    conda create --name mordicus python=3.8
+    
+    conda install -c conda-forge pytest pytest-cov mpi4py appdirs scikit-learn scikit-sparse numpy scipy vtk sympy pyamg h5py pyparsing Cython sphinx setuptools pylint black
 
 
 

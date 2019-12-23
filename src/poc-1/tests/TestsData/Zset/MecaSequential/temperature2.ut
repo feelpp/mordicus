@@ -1,0 +1,5 @@
+**meshfile cube.geof
+**node temperature
+**element
+1 1 1 0 0.000000000000000e+00
+

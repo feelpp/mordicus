@@ -1,0 +1,8 @@
+****mesher
+ ***mesh cube.geof
+  **open cube.geof
+  **metis_split % decoupage du maillage avec Metis
+   *ascii
+   *domains 2
+   *force_contiguous
+****return

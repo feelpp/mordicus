@@ -10,7 +10,7 @@ class SolutionReaderBase(object):
     def __init__(self):
         pass
 
-    def ReadSnapshot(self, fieldName, time, primality):
+    def ReadSnapshotComponent(self, fieldName, time, primality):
         """
         Reads a snapshots from the solutions of name "fieldName", at time "time" and of primality "primality", from the HF computation
     

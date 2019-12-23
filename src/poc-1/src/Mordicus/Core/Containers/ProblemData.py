@@ -13,39 +13,42 @@ class ProblemData(object):
 
     Attributes
     ----------
-    problemDataName : str
-        name of the problem, a unique  (o good practice can be the folder containing the solutions, relative to the mordicus client script)
+    dataFolder : str
+        name of the folder containing the data of the problemData, relative to the mordicus client script
     solutions : dict
         dictionary with solutionNames (str) as keys and solution (Solution) as values
     loadings : list
         dictionary with identifier (str) as keys and loading (LoadingBase) as values
+    constitutiveLaws : dict
+        dictionary with identifier (str) as keys and constitutive law (ConstitutiveLawBase) as values
     parameters : collections.OrderedDict
         dictionary with time indices as keys and a np.ndarray of size (parameterDimension,) containing the parameters
     """
 
-    def __init__(self, problemDataName):
+    def __init__(self, dataFolder):
         """
         Parameters
         ----------
-        problemDataName : str
+        dataFolder : str
         solutions : dict
         loadings : list
         parameters : collections.OrderedDict
         """
-        self.problemDataName = problemDataName
+        self.dataFolder = dataFolder
         self.solutions = {}
         self.loadings = {}
+        self.constitutiveLaws = {}
         self.parameters = collections.OrderedDict()
 
 
-    def GetProblemDataName(self):
+    def GetDataFolder(self):
         """
         Returns
         -------
         str
-            problemDataName
+            dataFolder
         """
-        return self.problemDataName 
+        return self.dataFolder 
         
 
     def AddSolution(self, solution):
@@ -66,11 +69,12 @@ class ProblemData(object):
                 "Solution "
                 + solution.solutionName
                 + " already in problemData.solutions. Replacing it anyway."
-            )  # pragma: no cover
+            )
 
         self.solutions[solution.GetSolutionName()] = solution
+        
 
-    def AddParameter(self, parameter, time=0.0):
+    def AddParameter(self, parameter, time = None):
         """
         Adds a parameter at time "time"
         
@@ -82,39 +86,70 @@ class ProblemData(object):
             of size (parameterDimension,)
         """
 
-        assert isinstance(time, (float, np.float64))
+        assert isinstance(time, (float, np.float64, type(None)))
         assert type(parameter) == np.ndarray and len(parameter.shape) == 1
+
+        if time == None:
+            time = 0.
 
         if time in self.parameters:
             print(
                 "Parameter at time "
-                + time
+                + str(time)
                 + " already in parameters. Replacing it anyways."
-            )  # pragma: no cover
-        self.parameters[time] = parameter
-        return
+            )
+        else:
+            self.parameters[time] = parameter
+
+    
+    """def AddParametersList(self, parameterList, timeSequence=None):
+        
+        if timeSequence is None:
+            timeSequence = len(parameterList)*[None]
+            
+        for parameter, time in zip(parameterList, timeSequence):
+            self.AddParameter(parameter, time)"""
+        
+
+    def AddConstitutiveLaw(self, constitutiveLaw):
+
+        try:
+            iter(constitutiveLaw)
+        except TypeError:
+            constitutiveLaw = [constitutiveLaw]
+        for law in constitutiveLaw:
+            if law.GetIdentifier() in self.constitutiveLaws:
+                print(
+                    "Solution "
+                    + str(law.GetIdentifier())
+                    + " already in problemData.loadings. Replacing it anyway."
+                )  # pragma: no cover
+
+            self.constitutiveLaws[law.GetIdentifier()] = law          
+        
 
     def AddLoading(self, loading):
         """
-        Adds a loading to loadings
+        Adds a loading or a list of loadings to loadings
         
         Parameters
         ----------
         loading : LoadingBase
             the loading of the problem for a given set and type
         """
-        assert isinstance(
-            loading, LoadingBase.LoadingBase
-        ), "loading must be an instance of Containers.Loadings.LoadingBase"
+        try:
+            iter(loading)
+        except TypeError:
+            loading = [loading]
+        for load in loading:
+            if load.GetIdentifier() in self.loadings:
+                print(
+                    "Solution "
+                    + str(load.GetIdentifier())
+                    + " already in problemData.loadings. Replacing it anyway."
+                )
 
-        if loading.GetIdentifier() in self.solutions:
-            print(
-                "Solution "
-                + loading.solutionName
-                + " already in problemData.loadings. Replacing it anyway."
-            )  # pragma: no cover
-
-        self.solutions[loading.GetIdentifier()] = loading      
+            self.loadings[load.GetIdentifier()] = load      
 
 
     def GetParameters(self):
@@ -194,6 +229,16 @@ class ProblemData(object):
         list
         """
         return self.loadings
+    
+        
+
+    def GetConstitutiveLaws(self):
+        """
+        Returns
+        -------
+        list
+        """
+        return self.constitutiveLaws
         
 
     def GetSolution(self, solutionName):
@@ -208,7 +253,8 @@ class ProblemData(object):
         Solution
         """
         return self.solutions[solutionName]
-    
+
+
     
     def DeleteHeavyData(self):
         """        

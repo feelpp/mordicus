@@ -18,6 +18,8 @@ class PressureBC(LoadingBase):
         dictionary with time indices (float) as keys and pressure vectors tags (str) as values
     fields       : dict
         dictionary with pressure vectors tags (str) keys and pressure vectors (np.ndarray of size (numberOfElementsInSet,)) as values
+    assembledReducedFields : dict
+        dictionary with pressure vectors tags (str) keys and compressed pressure vectors (np.ndarray of size (numberOfModes,)) as values
     """
 
     def __init__(self, set):
@@ -26,8 +28,10 @@ class PressureBC(LoadingBase):
         super(PressureBC, self).__init__(set, "pressure")
 
         self.coefficients = collections.OrderedDict
-        self.fieldsMap = {}
+        self.fieldsMap = collections.OrderedDict
         self.fields = {}
+        self.assembledReducedFields = {}
+
 
     def SetCoefficients(self, coefficients):
         """
@@ -85,7 +89,14 @@ class PressureBC(LoadingBase):
 
         self.fields = fields
 
-    def ComputePressureFieldAtTime(self, time):
+
+
+    def GetFields(self):
+        return self.fields
+
+            
+
+    def GetAssembledReducedFieldAtTime(self, time):
         """
         Computes the pressure vector at time, using TimeInterpolation
         
@@ -113,11 +124,40 @@ class PressureBC(LoadingBase):
         vectorField = TI.TimeInterpolation(
             time,
             list(self.fieldsMap.keys()),
-            self.fields,
+            self.assembledReducedFields,
             list(self.fieldsMap.values()),
         )
 
         return coefficient * vectorField
+    
+    
+           
+
+    def ReduceLoading(self, mesh, problemData, reducedOrderBasis, snapshotCorrelationOperator, operatorCompressionData):
+
+        assert isinstance(reducedOrderBasis, np.ndarray)
+        
+        
+        self.assembledReducedFields = {}
+        #AssembleLoadingAgainstReducedBasis
+        from Mordicus.Modules.Safran.FE import FETools as FT
+        for key, field in self.GetFields().items():
+            assembledField = FT.IntegrateVectorNormalComponentOnSurface(mesh, self.GetSet(), field)
+            self.assembledReducedFields[key] = np.dot(reducedOrderBasis, assembledField)    
+    
+    
+    
+    def ComputeContributionToReducedExternalForces(self, time):
+        """
+        1.
+        """
+
+        # assert type of time
+        assert isinstance(time, (float, np.float64))
+        
+        return self.GetAssembledReducedFieldAtTime(time)
+
+
     
     
     def DeleteHeavyData(self):
@@ -129,6 +169,5 @@ class PressureBC(LoadingBase):
 
 
     def __str__(self):
-        res = "Loading \n"
-        res += "Set : " + self.GetSet()
+        res = "Pressure Loading with set "+self.GetSet()
         return res

@@ -29,41 +29,18 @@ def test():
     inputReader = ZIR.ZsetInputReader(inputFileName)
     solutionReader = ZSR.ZsetSolutionReader(solutionFileName)
 
-    matFiles = inputReader.ReadMaterialFiles()
-    print("matFiles =", matFiles)
-
     mesh = meshReader.ReadMesh()
     print("Mesh defined in " + meshFileName + " has been read")
 
     outputTimeSequence = solutionReader.ReadTimeSequenceFromSolutionFile()
-    solution = S.Solution(
-        solutionName="U",
-        nbeOfComponents=mesh.GetDimensionality(),
-        numberOfNodes=mesh.GetNumberOfNodes(),
-        primality=True,
-    )
-    print(
-        "Solutions "
-        + solution.GetSolutionName()
-        + " defined in "
-        + solutionFileName
-        + " has been read"
-    )
+    
 
-
-    for i in range(outputTimeSequence.shape[0] - 1):
-        snapshot = np.empty(mesh.GetDimensionality() * mesh.GetNumberOfNodes())
-        for j in range(solution.GetNbeOfComponents()):
-            snapshot[
-                j * mesh.GetNumberOfNodes() : (j + 1) * mesh.GetNumberOfNodes()
-            ] = solutionReader.ReadSnapshot(
-                solution.GetSolutionName() + str(j + 1),
-                outputTimeSequence[i],
-                solution.GetPrimality(),
-            )
-        solution.AddSnapshot(time=outputTimeSequence[i], snapshot=snapshot)
-
-    problemData = PD.ProblemData("myComputation")
+    solution = S.Solution("U", mesh.GetDimensionality(), mesh.GetNumberOfNodes(), primality = True)
+    for time in outputTimeSequence[:-1]:
+        U = solutionReader.ReadSnapshot("U", time, mesh.GetDimensionality(), primality=True)
+        solution.AddSnapshot(U, time)
+    
+    problemData = PD.ProblemData(folder)
 
     problemData.AddSolution(solution)
 
@@ -72,7 +49,7 @@ def test():
     collectionProblemData.AddProblemData(problemData)
     print(
         "A collectionProblemData with problemDatas "
-        + str(collectionProblemData.GetProblemDatasTags())
+        + str(collectionProblemData.GetProblemDatasFolders())
         + " has been constructed"
     )
 
@@ -83,7 +60,7 @@ def test():
     ##################################################
 
     reducedOrderBasis = SnapshotPOD.ComputeReducedOrderBasisFromCollectionProblemData(
-        collectionProblemData, "U", 1.0e-4
+        collectionProblemData, "U", 1.e-4
     )
     collectionProblemData.AddReducedOrderBasis("U", reducedOrderBasis)
     print("A reduced order basis has been computed has been constructed using SnapshotPOD")

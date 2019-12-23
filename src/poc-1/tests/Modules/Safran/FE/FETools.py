@@ -6,7 +6,7 @@ from Mordicus.Core import GetTestDataPath
 
 def test():
     
-    folder = GetTestDataPath() + "Zset/"
+    folder = GetTestDataPath() + "Zset/MecaSequential/"
 
     meshFileName = folder + "cube.geof"
 
@@ -20,6 +20,11 @@ def test():
     FT.ComputeFEInterpMatAtGaussPoint(mesh)
     FT.ComputeMecaIntegrator(mesh)
     FT.ComputeNumberOfIntegrationPoints(mesh)
+    FT.ComputeIntegrationPointsTags(mesh, 3)
+    
+    import numpy as np
+    length = len(mesh.GetInternalStorage().elements["quad4"].tags["x0"].GetIds())
+    FT.IntegrateVectorNormalComponentOnSurface(mesh, "x0", np.ones(length))
     
     return "ok"
 

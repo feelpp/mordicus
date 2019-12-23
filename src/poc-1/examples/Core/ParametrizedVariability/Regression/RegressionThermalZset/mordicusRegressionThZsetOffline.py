@@ -17,8 +17,6 @@ def test():
     os.chdir(currentFolder)
 
 
-
-
     mesh = ZMR.ReadMesh("cube.geof")
     numberOfNodes = mesh.GetNumberOfNodes()
     solutionName = "TP"
@@ -46,12 +44,17 @@ def test():
         problemData = PD.ProblemData(folder)
         problemData.AddSolution(solution)
 
-        parameter = parameters[i]
+        """parameterList = [np.array(parameters[i] + [t]) for t in outputTimeSequence]
+        
+        solution.ReadAndAddSnapshots(solutionReader, outputTimeSequence)
+        
+        problemData.AddParametersList(parameterList, outputTimeSequence)"""
+
         for t in outputTimeSequence:
             snapshot = solutionReader.ReadSnapshot(
                 solution.GetSolutionName(), t, solution.GetPrimality()
             )
-            solution.AddSnapshot(t, snapshot)
+            solution.AddSnapshot(snapshot, t)
             problemData.AddParameter(np.array(parameters[i] + [t]), t)
 
         collectionProblemData.AddProblemData(problemData)

@@ -2,7 +2,7 @@
 import numpy as np
 
 
-def TimeInterpolation(time, timeIndices, vectors, vectorsMap=None):
+def TimeInterpolation(time, timeIndices, vectors, vectorsMap = None):
     """
     Computes a time interpolation for temporal vectors defined either by
         - timeIndices  and vectors at these indices
@@ -25,7 +25,7 @@ def TimeInterpolation(time, timeIndices, vectors, vectorsMap=None):
     np.ndarray
         interpolated vector, of size (numberOfDofs)
     """
-
+    
     timeIndices = np.array(timeIndices)
 
     if vectorsMap == None:

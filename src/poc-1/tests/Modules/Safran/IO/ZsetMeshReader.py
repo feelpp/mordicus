@@ -7,7 +7,7 @@ from Mordicus.Core import GetTestDataPath
 
 def test():
 
-    folder = GetTestDataPath() + "Zset/"
+    folder = GetTestDataPath() + "Zset/MecaSequential/"
 
     meshFileName = folder + "cube.geof"
 

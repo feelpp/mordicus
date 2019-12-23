@@ -9,6 +9,8 @@ class LoadingBase(object):
     ----------
     set : str
         the elements tag on which the loading is applied
+    type : str
+        the type of loading (e.g pressure, etc... )
     """
 
     def __init__(self, set, type):
@@ -43,10 +45,18 @@ class LoadingBase(object):
         """
         Returns
         -------
-        str
+        couple of strings (set, type)
             the identifier of loading
         """
-        return self.set+"|"+self.type
+        return (self.type,self.set)
+    
+    
+    def ComputeContributionToReducedExternalForces(self, time):
+        raise ("Not implemented in LoadingBase")  # pragma: no cover    
+    
+
+    def ReduceLoading(self, mesh, problemData, reducedOrderBasis, snapshotCorrelationOperator, operatorCompressionData):
+        raise ("Not implemented in LoadingBase")  # pragma: no cover
     
 
     def DeleteHeavyData(self):
@@ -57,5 +67,5 @@ class LoadingBase(object):
 
 
     def __str__(self):
-        res = "I am a LoadingBase, try instanciating a particular physical loading among instead"
+        res = "I am a LoadingBase, try instanciating a particular physical loading instead"
         return res

@@ -28,35 +28,17 @@ def test():
     inputReader = ZIR.ZsetInputReader(inputFileName)
     solutionReader = ZSR.ZsetSolutionReader(solutionFileName)
 
-    matFiles = inputReader.ReadMaterialFiles()
-    print("matFiles =", matFiles)
-
     mesh = meshReader.ReadMesh()
     print("Mesh defined in " + meshFileName + " has been read")
 
     outputTimeSequence = solutionReader.ReadTimeSequenceFromSolutionFile()
-    solution = S.Solution(
-        solutionName="TP",
-        nbeOfComponents=1,
-        numberOfNodes=mesh.GetNumberOfNodes(),
-        primality=True,
-    )
-    print(
-        "Solutions "
-        + solution.GetSolutionName()
-        + " defined in "
-        + solutionFileName
-        + " has been read"
-    )
 
+    solution = S.Solution("TP", 1, mesh.GetNumberOfNodes(), primality = True)
+    for time in outputTimeSequence[:-1]:
+        TP = solutionReader.ReadSnapshot("TP", time, 1, primality=True)
+        solution.AddSnapshot(TP, time)
 
-    for i in range(outputTimeSequence.shape[0] - 1):
-        snapshot = solutionReader.ReadSnapshot(
-            solution.GetSolutionName(), outputTimeSequence[i], solution.GetPrimality()
-        )
-        solution.AddSnapshot(time=outputTimeSequence[i], snapshot=snapshot)
-
-    problemData = PD.ProblemData("myComputation")
+    problemData = PD.ProblemData(folder)
 
     problemData.AddSolution(solution)
 
@@ -65,7 +47,7 @@ def test():
     collectionProblemData.AddProblemData(problemData)
     print(
         "A collectionProblemData with problemDatas "
-        + str(collectionProblemData.GetProblemDatasTags())
+        + str(collectionProblemData.GetProblemDatasFolders())
         + " has been constructed"
     )
 

@@ -19,6 +19,9 @@ def test():
     TI.TimeInterpolation(0.4, timeIndices, vectors)
     TI.TimeInterpolation(0.6, timeIndices, vectorsDic, vectorsMap)
     
+    coefficients = [1., 2., 0.5]
+    TI.TimeInterpolation(0.6, timeIndices, coefficients)
+    
     return "ok"
 
 

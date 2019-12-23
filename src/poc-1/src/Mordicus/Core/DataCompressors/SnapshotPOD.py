@@ -61,15 +61,19 @@ def ComputeReducedOrderBasis(snapshotsIterator, snapshotCorrelationOperator, tol
         for j, snapshot2 in enumerate(snapshotsIterator):
             if i >= j:
                 correlationMatrix[i, j] = np.dot(matVecProduct, snapshot2)
+                            
                 
     mpiReducedCorrelationMatrix = np.zeros((numberOfSnapshots, numberOfSnapshots))
     MPI.COMM_WORLD.Allreduce([correlationMatrix,  MPI.DOUBLE], [mpiReducedCorrelationMatrix,  MPI.DOUBLE])                
 
     from Mordicus.Core.BasicAlgorithms import SVD as SVD
 
+
     eigenValuesRed, eigenVectorsRed = SVD.TruncatedSVDSymLower(mpiReducedCorrelationMatrix, tolerance)
     
     nbePODModes = eigenValuesRed.shape[0]
+    
+    print("nbePODModes =", nbePODModes)
         
     reducedOrderBasis = np.zeros((nbePODModes, numberOfDOFs))
     for i in range(nbePODModes):
@@ -94,7 +98,7 @@ def CompressSolutionsOfCollectionProblemData(collectionProblemData, solutionName
 
     snapshotCorrelationOperator = collectionProblemData.GetSnapshotCorrelationOperator(solutionName)
     reducedOrderBasis = collectionProblemData.GetReducedOrderBasis(solutionName)
-
+        
     for _, problemData in collectionProblemData.problemDatas.items():
 
         if solutionName not in problemData.solutions:
@@ -107,8 +111,7 @@ def CompressSolutionsOfCollectionProblemData(collectionProblemData, solutionName
         solution = problemData.solutions[solutionName]
 
         compressedSnapshots = CompressSolutions(
-            solution, snapshotCorrelationOperator, reducedOrderBasis
-        )
+            solution, snapshotCorrelationOperator, reducedOrderBasis)
 
         solution.SetCompressedSnapshots(compressedSnapshots)
 
@@ -139,8 +142,10 @@ def CompressSolutions(solution, snapshotCorrelationOperator, reducedOrderBasis):
     compressedSnapshots = collections.OrderedDict()
     
     numberOfModes = reducedOrderBasis.shape[0]
-    
+    nNodes = solution.numberOfNodes 
+
     for time, snapshot in solution.snapshots.items():
+        
         matVecProduct = snapshotCorrelationOperator.dot(snapshot)
 
         localScalarProduct = np.dot(reducedOrderBasis, matVecProduct)

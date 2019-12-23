@@ -20,7 +20,7 @@ def test():
     # LOAD DATA FOR ONLINE
     ##################################################
 
-    collectionProblemData = CPD.Load("mordicusState.pkl")
+    collectionProblemData = CPD.Load("mordicusState")
     operatorCompressionData = collectionProblemData.GetOperatorCompressionData()
     reducedOrderBasis = collectionProblemData.reducedOrderBases["TP"]
 

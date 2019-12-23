@@ -14,8 +14,8 @@ def test():
     solution = Solution.Solution("U", nbeOfComponents, numberOfNodes, True)
     snapshot = np.ones(nbeOfComponents * numberOfNodes)
     snapshot2 = np.random.rand(nbeOfComponents * numberOfNodes)
-    solution.AddSnapshot(0.0, snapshot)
-    solution.AddSnapshot(1.0, snapshot2)
+    solution.AddSnapshot(snapshot, 0.0)
+    solution.AddSnapshot(snapshot2, 1.0)
 
     problemData = ProblemData.ProblemData("computation1")
     problemData.AddSolution(solution)

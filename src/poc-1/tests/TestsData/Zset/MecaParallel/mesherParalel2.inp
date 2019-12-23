@@ -1,0 +1,10 @@
+****mesher
+ ***mesh cube.geof
+  **open cube.geof
+  **build_parallel_boundary_files
+   *file pressure.node
+   *bset x1
+  **build_parallel_param_files
+   *file temperature1.node temperature2.node
+   *card 1 1
+****return
