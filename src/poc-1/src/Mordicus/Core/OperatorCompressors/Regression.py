@@ -12,10 +12,10 @@ def ComputeApproximation(
     
     Parameters
     ----------
-    operatorCompressionOutputData : (regressor, scaler, scaler)
-        (fitted regressor, fitted scaler on the coefficients, fitted scaler on the parameters)
     onlineProblemData : ProblemData
         definition of the testing configuration data in a CollectionProblemData object 
+    operatorCompressionOutputData : (regressor, scaler, scaler)
+        (fitted regressor, fitted scaler on the coefficients, fitted scaler on the parameters)
         
     Returns
     -------

@@ -190,6 +190,11 @@ class Solution(object):
 
     def GetSnapshotAtTime(self, time):
         """
+        Parameters
+        ----------
+        time : float
+            time at which the snapshot is retrieved
+            
         Returns
         -------
         np.ndarray
@@ -220,6 +225,11 @@ class Solution(object):
 
     def GetCompressedSnapshotsAtTime(self, time):
         """
+        Parameters
+        ----------
+        time : float
+            time at which the snapshot is retrieved
+            
         Returns
         -------
         np.ndarray

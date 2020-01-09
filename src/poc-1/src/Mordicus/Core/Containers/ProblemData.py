@@ -31,7 +31,8 @@ class ProblemData(object):
         ----------
         dataFolder : str
         solutions : dict
-        loadings : list
+        loadings : dict
+        constitutiveLaws : dict
         parameters : collections.OrderedDict
         """
         self.dataFolder = dataFolder
@@ -101,18 +102,16 @@ class ProblemData(object):
         else:
             self.parameters[time] = parameter
 
-    
-    """def AddParametersList(self, parameterList, timeSequence=None):
-        
-        if timeSequence is None:
-            timeSequence = len(parameterList)*[None]
-            
-        for parameter, time in zip(parameterList, timeSequence):
-            self.AddParameter(parameter, time)"""
-        
 
     def AddConstitutiveLaw(self, constitutiveLaw):
-
+        """
+        Adds a constitutive law or a list of constitutive laws to constitutiveLaws
+        
+        Parameters
+        ----------
+        constitutiveLaw : ConstitutiveLawBase
+            the constitutive law of the problem for a given set and type
+        """
         try:
             iter(constitutiveLaw)
         except TypeError:
@@ -226,7 +225,8 @@ class ProblemData(object):
         """
         Returns
         -------
-        list
+        dict
+            loadings of the problem
         """
         return self.loadings
     
@@ -236,7 +236,8 @@ class ProblemData(object):
         """
         Returns
         -------
-        list
+        dict
+            constitutive laws of the problem
         """
         return self.constitutiveLaws
         

@@ -52,10 +52,16 @@ class LoadingBase(object):
     
     
     def ComputeContributionToReducedExternalForces(self, time):
+        """
+        Computes the contribution of the loading to the reduced external forces vector
+        """
         raise ("Not implemented in LoadingBase")  # pragma: no cover    
     
 
     def ReduceLoading(self, mesh, problemData, reducedOrderBasis, snapshotCorrelationOperator, operatorCompressionData):
+        """
+        Carries out the operations needed to reduced the loading, depending on the type of loading (e.g. precomputations)
+        """
         raise ("Not implemented in LoadingBase")  # pragma: no cover
     
 
