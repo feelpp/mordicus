@@ -1,4 +1,3 @@
-
 .. _UC_CT01:
 
 CT Use Case : aérodynamique externe de lanceur spatial
@@ -22,7 +21,7 @@ Pour mieux prendre en compte les conditions réelles où évolue le lanceur au c
    -
 
 
-``.. image:: maillage_lanceur.png``
+``.. image:: maillageaero_lanceur.png``
 ``.. image:: resuaero_lanceur.png``
 
 
