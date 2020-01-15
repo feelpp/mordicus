@@ -59,7 +59,7 @@ def test():
     #solutionReader.ReadSnapshotTimeSequenceAndAddToSolution(solutionSigma, outputTimeSequence, "sig")
 
 
-    problemData = PD.ProblemData("myComputation")
+    problemData = PD.ProblemData(folder)
     problemData.AddSolution(solutionU)
     problemData.AddSolution(solutionSigma)
 
