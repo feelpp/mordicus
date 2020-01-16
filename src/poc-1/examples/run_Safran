@@ -1,0 +1,14 @@
+#!/bin/bash
+
+cd Modules/Safran/MecaParallel/
+mpirun -n 2 python3 mordicusPODECMMecaZsetOffline.py
+mpirun -n 2 python3 mordicusPODECMMecaZsetOnline.py
+
+cd ../MecaSequential/
+python3 mordicusPODECMMecaZsetOffline.py
+python3 mordicusPODECMMecaZsetOnline.py
+
+cd ../MecaSequentialNoZset/
+python3 mordicusPODECMMecaZsetOffline.py
+python3 mordicusPODECMMecaZsetOnline.py
+
