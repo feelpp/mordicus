@@ -10,7 +10,7 @@ Pour mieux prendre en compte les conditions réelles où évolue le lanceur au c
 * Prenant en entrée des valeurs données de
    - Géométrie du lanceur (longueur, diamètre)
    - Mach : condition de vitesse, 
-   - Incidence :effet sur le maillage
+   - Incidence : effet sur le maillage
    - Altitude : 4 à 5 paramètres atmosphériques statiques comme Rho, P, T ; le modèle de calcul est valable sur une gamme d’altitude de 0 à 60 km
 
 * Fournissant les sorties d’intérêt
@@ -21,8 +21,8 @@ Pour mieux prendre en compte les conditions réelles où évolue le lanceur au c
    -
 
 
-``.. image:: maillageaero_lanceur.png``
-``.. image:: resuaero_lanceur.png``
+.. image:: maillageaero_lanceur.png
+.. image:: resuaero_lanceur.png
 
 
 .. .. tabularcolumns:: |L|L|L|L|
