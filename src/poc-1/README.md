@@ -66,7 +66,6 @@
     pytest --cov=../../../src/Mordicus/Modules/Safran --cov-report=html:../../../coverageReports/coverageReportModuleSafran
     
     
-    	
 4) **EXAMPLES**
 
     Examples are available in the folder examples/
