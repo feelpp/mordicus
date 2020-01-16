@@ -30,6 +30,9 @@
     conda create --name mordicus python=3.8
     
     conda install -c conda-forge pytest pytest-cov mpi4py appdirs scikit-learn scikit-sparse numpy scipy vtk sympy pyamg h5py pyparsing Cython sphinx setuptools pylint black
+    
+    REMARK for windows:
+        mpi4py does not work on its own, requires MPICH https://docs.microsoft.com/en-us/message-passing-interface/microsoft-mpi?redirectedfrom=MSDN
 
 
 
