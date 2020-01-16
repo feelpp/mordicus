@@ -132,7 +132,6 @@ class PressureBC(LoadingBase):
     
     
            
-
     def ReduceLoading(self, mesh, problemData, reducedOrderBasis, snapshotCorrelationOperator, operatorCompressionData):
 
         assert isinstance(reducedOrderBasis, np.ndarray)
@@ -158,14 +157,22 @@ class PressureBC(LoadingBase):
         return self.GetAssembledReducedFieldAtTime(time)
 
 
-    
-    
-    def DeleteHeavyData(self):
-        """        
-        Deletes Heavy Data from PressureBC structure
-        """
+
+    def __getstate__(self):
+        
+        state = {}
+        state["set"] = self.set
+        state["type"] = self.type
+        state["coefficients"] = self.coefficients
+        state["fieldsMap"] = self.fieldsMap
+        state["assembledReducedFields"] = self.assembledReducedFields
+        state["fields"] = {}
         for f in self.fields.keys():
-            self.fields[f] = None
+            state["fields"][f] = None        
+            
+        return state
+
+
 
 
     def __str__(self):

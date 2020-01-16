@@ -256,18 +256,6 @@ class ProblemData(object):
         return self.solutions[solutionName]
 
 
-    
-    def DeleteHeavyData(self):
-        """        
-        Deletes Heavy Data from problemData structure
-        """
-        for s in self.solutions.values():
-            s.DeleteHeavyData()
-
-        for l in self.loadings.values():
-            l.DeleteHeavyData() # pragma: no cover
-
-
     def __str__(self):
         res = "Solutions:" + str(list(self.solutions.keys()))
         return res

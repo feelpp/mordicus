@@ -47,8 +47,8 @@ def test():
 
     problemData.AddParameter(np.zeros(2), 0.0)
     collectionProblemData.GetParameterDimension()
-    collectionProblemData.Save("temp")
-    CPD.Load("temp")
+    collectionProblemData.SaveState("temp")
+    CPD.LoadState("temp")
     os.system("rm -rf temp.pkl")
 
     print(collectionProblemData)

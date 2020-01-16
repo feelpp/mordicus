@@ -243,12 +243,20 @@ class Solution(object):
         )    
 
 
-    def DeleteHeavyData(self):
-        """        
-        Deletes Heavy Data from solution structure
-        """
+    def __getstate__(self):
+        
+        state = {}
+        state["solutionName"] = self.solutionName
+        state["nbeOfComponents"] = self.nbeOfComponents
+        state["numberOfNodes"] = self.numberOfNodes
+        state["numberOfDOFs"] = self.numberOfDOFs
+        state["primality"] = self.primality
+        state["compressedSnapshots"] = self.compressedSnapshots
+        state["snapshots"] = collections.OrderedDict()
         for time in self.GetTimeSequenceFromSnapshots():
-            self.snapshots[time] = None
+            state["snapshots"][time] = None
+            
+        return state
     
 
     def __str__(self):

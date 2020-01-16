@@ -89,7 +89,7 @@ def test():
         collectionProblemData, solutionName, gpr
     )
 
-    collectionProblemData.Save("mordicusState")
+    collectionProblemData.SaveState("mordicusState")
 
 
     os.chdir(initFolder)    

@@ -96,7 +96,7 @@ Meca.CompressMecaOperator(
 
 print("CompressMecaOperator done")
 
-collectionProblemData.Save("mordicusState")
+collectionProblemData.SaveState("mordicusState")
 
 os.chdir(initFolder)    
 

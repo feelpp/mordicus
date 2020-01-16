@@ -120,13 +120,20 @@ class Temperature(LoadingBase):
         
         return 0.
 
-    
-    def DeleteHeavyData(self):
-        """        
-        Deletes Heavy Data from Temperature structure
-        """
+
+    def __getstate__(self):
+        
+        state = {}
+        state["set"] = self.set
+        state["type"] = self.type
+        state["fieldsAtReducedIntegrationPoints"] = self.fieldsAtReducedIntegrationPoints
+        state["fieldsMap"] = self.fieldsMap
+        state["fields"] = {}
         for f in self.fields.keys():
-            self.fields[f] = None
+            state["fields"][f] = None        
+            
+        return state
+
 
 
     def __str__(self):

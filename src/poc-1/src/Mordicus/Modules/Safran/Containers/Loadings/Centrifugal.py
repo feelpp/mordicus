@@ -134,12 +134,6 @@ class Centrifugal(LoadingBase):
         return (self.coefficient*rotationVelocity)**2*self.reducedUnitCentrifugalVector
 
 
-    
-    def DeleteHeavyData(self):
-        """        
-        Deletes Heavy Data from structure: here no heavy data
-        """
-        return
 
 
     def __str__(self):

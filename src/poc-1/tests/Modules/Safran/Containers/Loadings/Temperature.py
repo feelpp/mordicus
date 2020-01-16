@@ -20,10 +20,11 @@ def test():
     loading = T.Temperature("set1")
     loading.SetFieldsMap(fieldsMap)
     loading.SetFields(fields)
-    
-    loading.DeleteHeavyData()
+
+    loading.__getstate__()
 
     print(loading)
+
     return "ok"
 
 

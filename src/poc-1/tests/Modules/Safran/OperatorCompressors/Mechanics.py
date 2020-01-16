@@ -86,7 +86,7 @@ def test():
     
     print("CompressMecaOperator done")
 
-    collectionProblemData.Save("mordicusState")
+    collectionProblemData.SaveState("mordicusState")
     
     
     
@@ -94,7 +94,7 @@ def test():
     ### ONLINE
     #################################################################    
     
-    collectionProblemData = CollectionProblemData.Load("mordicusState")
+    collectionProblemData = CollectionProblemData.LoadState("mordicusState")
     
     operatorCompressionData = collectionProblemData.GetOperatorCompressionData()
     snapshotCorrelationOperator = collectionProblemData.GetSnapshotCorrelationOperator("U")

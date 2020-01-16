@@ -10,8 +10,7 @@ def test():
 
     loading = IC.InitialCondition("set1")
     loading.SetType("vector")
-    
-    loading.DeleteHeavyData()
+    loading.__getstate__()
 
     print(loading)
     return "ok"

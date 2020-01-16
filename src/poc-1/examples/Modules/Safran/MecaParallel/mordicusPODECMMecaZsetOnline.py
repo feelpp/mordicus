@@ -23,7 +23,7 @@ os.chdir(currentFolder)
 # LOAD DATA FOR ONLINE
 ##################################################
 
-collectionProblemData = CPD.Load("mordicusState")
+collectionProblemData = CPD.LoadState("mordicusState")
 
 operatorCompressionData = collectionProblemData.GetOperatorCompressionData()
 snapshotCorrelationOperator = collectionProblemData.GetSnapshotCorrelationOperator("U")

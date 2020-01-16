@@ -70,14 +70,19 @@ class InitialCondition(LoadingBase):
         assert isinstance(time, (float, np.float64))
         
         return 0.
-
     
-    def DeleteHeavyData(self):
-        """        
-        Deletes Heavy Data from Temperature structure
-        """
-        if self.type == "vector":
-            self.SetData(None)
+
+ 
+    def __getstate__(self):
+        
+        state = {}
+        state["set"] = self.set
+        state["type"] = self.type
+        state["reducedInitialCondition"] = self.reducedInitialCondition
+        state["data"] = None
+
+        return state
+
 
 
     def __str__(self):

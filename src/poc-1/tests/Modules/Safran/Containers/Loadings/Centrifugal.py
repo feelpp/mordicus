@@ -8,7 +8,6 @@ from Mordicus.Modules.Safran.Containers.Loadings import Centrifugal as C
 def test():
 
     loading = C.Centrifugal("set1")
-    loading.DeleteHeavyData()
 
     print(loading)
     return "ok"

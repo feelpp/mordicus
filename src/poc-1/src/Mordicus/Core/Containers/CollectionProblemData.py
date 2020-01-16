@@ -368,7 +368,7 @@ class CollectionProblemData(object):
         return self.operatorCompressionData
 
 
-    def Save(self, fileName):
+    def SaveState(self, fileName):
         """
         Saves the data structure on disk
 
@@ -378,11 +378,6 @@ class CollectionProblemData(object):
             name of the file to write on disk
         """
         import pickle
-
-        print("WARNING: snapshots and large data in loadings are suppressed from current data structure before save. If you need them later, you will have to read them again")
-        
-        for pd in self.problemDatas.values():
-            pd.DeleteHeavyData()
         
         if MPI.COMM_WORLD.Get_size() > 1: # pragma: no cover 
             outputName = fileName + "-" + str(MPI.COMM_WORLD.Get_rank()+1).zfill(3) + ".pkl"
@@ -394,6 +389,7 @@ class CollectionProblemData(object):
         output.close()
 
 
+
     def __str__(self):
         res = "CollectionProblemData\n"
         res += "number of problemDatas: " + str(self.GetNumberOfProblemDatas()) + "\n"
@@ -401,7 +397,7 @@ class CollectionProblemData(object):
         return res
 
 
-def Load(fileName):
+def LoadState(fileName):
     """
     Read the data structure from disk
 

@@ -27,9 +27,7 @@ def test():
     loading.SetFieldsMap(fieldsMap)
     loading.SetFields(fields)
     
-    reducedOrderBasis = np.random.rand(3,10)
-    
-    loading.DeleteHeavyData()
+    loading.__getstate__()
 
     print(loading)
     return "ok"
