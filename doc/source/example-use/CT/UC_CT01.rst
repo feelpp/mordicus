@@ -20,9 +20,15 @@ Pour mieux prendre en compte les conditions réelles où évolue le lanceur au c
 * Intégrant un critère d’arrêt automatisé, qui converge en quelques dizaines de mn à quelques h sur 24 cœurs 
    -
 
+.. _CT_img1:
+.. figure:: maillageaero_lanceur.png
 
-.. image:: maillageaero_lanceur.png
-.. image:: resuaero_lanceur.png
+    Maillage externe de lanceur
+
+.. _CT_img2:
+.. figure:: resuaero_lanceur.png
+
+    Calcul aérodynamique externe autour du lanceur
 
 
 .. .. tabularcolumns:: |L|L|L|L|
