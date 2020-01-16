@@ -72,7 +72,7 @@ def test():
     collectionProblemData.AddReducedOrderBasis(solutionName, reducedOrderBasis)
     print("A reduced order basis has been computed has been constructed using SnapshotPOD")
 
-    SnapshotPOD.CompressSolutionsOfCollectionProblemData(collectionProblemData, "TP")
+    collectionProblemData.CompressSolutions("TP")
     print("The solution has been compressed")
 
 

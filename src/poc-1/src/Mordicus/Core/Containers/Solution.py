@@ -3,6 +3,7 @@
 import numpy as np
 from Mordicus.Core.BasicAlgorithms import TimeInterpolation as TI
 import collections
+from mpi4py import MPI
 
 
 class Solution(object):
@@ -221,6 +222,40 @@ class Solution(object):
 
         self.compressedSnapshots = compressedSnapshots
         return
+    
+    
+    def CompressSnapshots(self, snapshotCorrelationOperator, reducedOrderBasis):
+        """
+        Compress solution using the correlation operator between the snapshots defined by the matrix snapshotCorrelationOperator and "reducedOrderBasis"
+            
+        Parameters
+        ----------
+        snapshotCorrelationOperator : scipy.sparse.csr
+            correlation operator between the snapshots
+        reducedOrderBasis : np.ndarray
+            of size (numberOfModes, numberOfDOFs)
+        """
+
+        if self.compressedSnapshots == False:
+            print("Solution already compressed. Replacing it anyway")  # pragma: no cover
+            
+        import collections
+        compressedSnapshots = collections.OrderedDict()
+        
+        numberOfModes = reducedOrderBasis.shape[0]
+        nNodes = self.GetNumberOfNodes()
+
+        for time, snapshot in self.snapshots.items():
+            
+            matVecProduct = snapshotCorrelationOperator.dot(snapshot)
+
+            localScalarProduct = np.dot(reducedOrderBasis, matVecProduct)
+            globalScalarProduct = np.zeros(numberOfModes)
+            MPI.COMM_WORLD.Allreduce([localScalarProduct, MPI.DOUBLE], [globalScalarProduct, MPI.DOUBLE])
+            
+            compressedSnapshots[time] = globalScalarProduct
+            
+        self.SetCompressedSnapshots(compressedSnapshots)
     
 
     def GetCompressedSnapshotsAtTime(self, time):

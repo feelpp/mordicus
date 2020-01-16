@@ -74,7 +74,7 @@ def test():
             collectionProblemData, "U", 1.e-4
     )
     collectionProblemData.AddReducedOrderBasis("U", reducedOrderBasisU)
-    SP.CompressSolutionsOfCollectionProblemData(collectionProblemData, "U")
+    collectionProblemData.CompressSolutions("U")
 
 
     CompressedSolutionU = solutionU.GetCompressedSnapshots()
