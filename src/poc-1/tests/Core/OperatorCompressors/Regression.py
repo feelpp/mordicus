@@ -31,7 +31,7 @@ def test():
         collectionProblemData, "U", 1.0e-8
     )
     collectionProblemData.AddReducedOrderBasis("U", reducedOrdrBasis)
-    SP.CompressSolutionsOfCollectionProblemData(collectionProblemData, "U")
+    collectionProblemData.CompressSolutions("U")
 
     from sklearn.gaussian_process.kernels import WhiteKernel, RBF
     from sklearn.gaussian_process import GaussianProcessRegressor

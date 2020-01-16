@@ -65,7 +65,8 @@ def test():
     collectionProblemData.AddReducedOrderBasis("TP", reducedOrderBasis)
     print("A reduced order basis has been computed has been constructed using SnapshotPOD")
 
-    SnapshotPOD.CompressSolutionsOfCollectionProblemData(collectionProblemData, "TP")
+    collectionProblemData.CompressSolutions("TP")
+
     print("The solution has been compressed")
 
     from Mordicus.Modules.Safran.IO import PXDMFWriter as PW

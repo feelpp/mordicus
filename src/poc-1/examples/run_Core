@@ -1,0 +1,13 @@
+#!/bin/bash
+
+cd Core/DataCompression/SnapshotsPODCompressionMecaZset/
+python3 mordicusPODComMecaZset.py
+
+cd ../SnapshotsPODCompressionThermalZset/
+python3 mordicusPODComThZset.py 
+
+cd ../../ParametrizedVariability/Regression/RegressionThermalZset/
+python3 mordicusRegressionThZsetOffline.py
+python3 mordicusRegressionThZsetOnline.py
+
+

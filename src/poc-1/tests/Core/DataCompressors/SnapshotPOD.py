@@ -27,7 +27,7 @@ def test():
         collectionProblemData, "U", 1.e-8
     )
     collectionProblemData.AddReducedOrderBasis("U", reducedOrdrBasis)
-    SnapshotPOD.CompressSolutionsOfCollectionProblemData(collectionProblemData, "U")
+    collectionProblemData.CompressSolutions("U")
 
     return "ok"
 

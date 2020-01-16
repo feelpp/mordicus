@@ -346,6 +346,7 @@ class CollectionProblemData(object):
             print("snapshotCorrelationOperator not set, returning an identify matrix")
             return sparse.eye(self.GetSolutionsNumberOfDofs(solutionName))
 
+
     def SetOperatorCompressionData(self, operatorCompressionData):
         """
         Sets the OperatorCompressionData
@@ -355,6 +356,7 @@ class CollectionProblemData(object):
         operatorCompressionData : custom data structure
         """
         self.operatorCompressionData = operatorCompressionData
+
 
     def GetOperatorCompressionData(self):
         """
@@ -367,6 +369,33 @@ class CollectionProblemData(object):
         """
         return self.operatorCompressionData
 
+
+    def CompressSolutions(self, solutionName):
+        """
+        Compress solutions of name "solutionName" from all ProblemDatas in collectionProblemData, and update to corresponding solution.compressedSnapshots in the format ModesAndCoefficients.
+            
+        Parameters
+        ----------
+        solutionName : str
+            name of the solutions to compress
+        """
+        assert isinstance(solutionName, str)
+        
+        snapshotCorrelationOperator = self.GetSnapshotCorrelationOperator(solutionName)
+        reducedOrderBasis = self.GetReducedOrderBasis(solutionName)
+        
+        for _, problemData in self.problemDatas.items():
+
+            if solutionName not in problemData.solutions:
+                raise (
+                    "You must provide solutions "
+                    + solutionName
+                    + "before trying to compress them"
+                )  # pragma: no cover
+
+            solution = problemData.solutions[solutionName]
+            solution.CompressSnapshots(snapshotCorrelationOperator, reducedOrderBasis)
+        
 
     def SaveState(self, fileName):
         """
@@ -413,4 +442,6 @@ def LoadState(fileName):
         inputName = fileName + ".pkl"
 
     return pickle.load(open(inputName, "rb"))
+
+
         
