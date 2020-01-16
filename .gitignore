@@ -9,11 +9,14 @@ RemoteSystemsTempFiles/.project
 *.bin
 *.pxdmf
 *.kdev4
-src/poc-1/coverage_report/*
+src/poc-1/coverageReports/*
 *.coverage*
 *.pyf
 *.so
 *.kate-swp
+*.msg
+*.sh
+*.rst
 
 #autodoc generated files
 *_build*

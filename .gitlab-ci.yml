@@ -1,0 +1,60 @@
+variables:
+    GIT_SSL_NO_VERIFY: "1"
+    MYPROJECT : 'mordicus'
+
+stages:
+    - doc
+    - testAndCoverageCore
+    - deploy
+
+
+
+doc:
+    stage: doc
+    tags:
+       - mordicus
+    script:
+        - source /home/A34370/.venv/all-dev/bin/activate
+        - export PYTHONPATH=$PWD/src/poc-1/src:$PYTHONPATH
+        - export PYTHONPATH=$PWD/../basic-tools/src:$PYTHONPATH
+        - mkdir -p public
+        - cd src/poc-1/doc
+        - make html
+        - mv _build/html ../../../public/doc
+    artifacts:
+        name: "Documentation"
+        paths:
+            - public/doc
+
+
+testAndCoverageCore:
+    stage: testAndCoverageCore
+    tags:
+       - mordicus
+    script:
+        - source /home/A34370/.venv/all-dev/bin/activate
+        - export PYTHONPATH=$PWD/src/poc-1/src:$PYTHONPATH
+        - export PYTHONPATH=$PWD/../basic-tools/src:$PYTHONPATH
+        - mkdir -p public/coverageReportCore
+        - cd src/poc-1/tests/Core
+        - pytest --cov=../../src/Mordicus/Core --cov-report=html:../../../../public/coverageReportCore
+        - cd ../../../../public/coverageReportCore
+        - grep pc_cov index.html
+    coverage: '/pc_cov">([0-9]+\.?[0-9]+?%)/'
+    artifacts:
+        name: "CoverageCore"
+        paths:
+            - public/coverageReportCore
+
+
+pages:
+    stage: deploy
+    tags:
+        - mordicus
+    script:
+        - pwd
+    artifacts:
+        name: "WebSite"
+        paths:
+            - public
+

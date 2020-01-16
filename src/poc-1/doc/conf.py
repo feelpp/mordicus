@@ -19,7 +19,7 @@ import sys, os
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
-sys.path.insert(0,os.path.abspath('../src'))
+sys.path.insert(0,os.path.abspath('../src/Mordicus'))
 
 
 
@@ -173,7 +173,7 @@ def run_apidoc(_):
     #sys.path.append(os.path.join(os.path.dirname(__file__), '../src'))
     cur_dir = os.path.abspath(os.path.dirname(__file__))
     target_dir = os.path.join(cur_dir, '_source')
-    module = os.path.join(cur_dir, '../src')
+    module = os.path.join(cur_dir, '../src/Mordicus')
     #main([None, '-T', '-M', '-e', '-f', '-o', target_dir, module])
     main(['-o', target_dir, module])
 
