@@ -35,7 +35,6 @@
         mpi4py does not work on its own, requires MPICH https://docs.microsoft.com/en-us/message-passing-interface/microsoft-mpi?redirectedfrom=MSDN
 
 
-
 2) **DOCUMENTATION**
 
     Documentation is generated using sphinx in the form of a website by executing the following command in the doc folder
