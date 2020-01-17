@@ -90,11 +90,11 @@ for t in outputTimeSequence:
 
 print("compressionErrors =", compressionErrors)
 
-Meca.CompressMecaOperator(
+Meca.CompressOperator(
         collectionProblemData, mesh, 1.e-3
 )
 
-print("CompressMecaOperator done")
+print("CompressOperator done")
 
 collectionProblemData.SaveState("mordicusState")
 

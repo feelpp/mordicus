@@ -82,9 +82,9 @@ def test():
     collectionProblemData.AddReducedOrderBasis("evrcum", reducedOrderBasisEvrcum)
 
 
-    Meca.CompressMecaOperator(collectionProblemData, mesh, 1.e-2, listNameDualVarOutput = ["evrcum"], listNameDualVarGappyIndicesforECM = ["evrcum"])
+    Meca.CompressOperator(collectionProblemData, mesh, 1.e-2, listNameDualVarOutput = ["evrcum"], listNameDualVarGappyIndicesforECM = ["evrcum"])
     
-    print("CompressMecaOperator done")
+    print("CompressOperator done")
 
     collectionProblemData.SaveState("mordicusState")
     

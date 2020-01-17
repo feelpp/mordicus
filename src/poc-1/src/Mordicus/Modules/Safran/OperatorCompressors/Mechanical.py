@@ -273,7 +273,7 @@ def ComputeReducedInternalForcesAndTangentMatrix(onlineProblemData, opCompDat, b
 
 
 
-def CompressMecaOperator(
+def CompressOperator(
     collectionProblemData, mesh, tolerance, listNameDualVarOutput = [], listNameDualVarGappyIndicesforECM = []
 ):
     """
