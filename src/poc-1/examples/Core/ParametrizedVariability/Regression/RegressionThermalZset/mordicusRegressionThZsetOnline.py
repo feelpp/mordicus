@@ -37,7 +37,7 @@ def test():
         onlineProblemData.AddParameter(np.array([75.0, 2500.0] + [t]), t)
 
 
-    compressedSnapshots = Regression.ComputeApproximation(
+    compressedSnapshots = Regression.ComputeOnline(
         onlineProblemData, operatorCompressionData
     )
 
@@ -46,10 +46,10 @@ def test():
 
     PW.WritePXDMF(mesh, compressedSnapshots, reducedOrderBasis, "TP")
     print("The compressed solution has been written in PXDMF Format")
-    
 
 
-    os.chdir(initFolder)    
+
+    os.chdir(initFolder)
 
     return "ok"
 

@@ -2,25 +2,25 @@
 import numpy as np
 
 
-def ComputeApproximation(
+def ComputeOnline(
     onlineProblemData, operatorCompressionOutputData
 ):
     """
     Compute the online stage using the method of POD on the snapshots and a regression on the coefficients
-    
+
     The parameters must have been initialized in onlineProblemData
-    
+
     Parameters
     ----------
     onlineProblemData : ProblemData
-        definition of the testing configuration data in a CollectionProblemData object 
+        definition of the testing configuration data in a CollectionProblemData object
     operatorCompressionOutputData : (regressor, scaler, scaler)
         (fitted regressor, fitted scaler on the coefficients, fitted scaler on the parameters)
-        
+
     Returns
     -------
     collections.OrderedDict
-        onlineCompressedSolution; dictionary with time indices as keys and a np.ndarray of size (numberOfModes,) containing the coefficients of the reduced solution
+        onlineCompressedSnapshots; dictionary with time indices as keys and a np.ndarray of size (numberOfModes,) containing the coefficients of the reduced solution
     """
     regressor = operatorCompressionOutputData[0]
     scalerParameter = operatorCompressionOutputData[1]
@@ -35,12 +35,12 @@ def ComputeApproximation(
     onlineCoefficients = scalerCoefficients.inverse_transform(onlineCoefficients)
 
     import collections
-    onlineCompressedSolution = collections.OrderedDict()
+    onlineCompressedSnapshots = collections.OrderedDict()
 
     for i, time in enumerate(timeSequence):
-        onlineCompressedSolution[time] = onlineCoefficients[i,:]
-        
-    return onlineCompressedSolution
+        onlineCompressedSnapshots[time] = onlineCoefficients[i,:]
+
+    return onlineCompressedSnapshots
 
 
 def CompressOperator(
@@ -48,11 +48,11 @@ def CompressOperator(
 ):
     """
     Computes the offline operator compression stage using the method of POD on the snapshots and a regression on the coefficients
-    
+
     Parameters
     ----------
     collectionProblemData : CollectionProblemData
-        definition of the training data in a CollectionProblemData object 
+        definition of the training data in a CollectionProblemData object
     solutionName : str
         name of the solution to be treated
     operatorCompressionInputData : class satisfying the scikit-learn regressors API
@@ -81,7 +81,7 @@ def CompressOperator(
         localNumberOfSnapshots = problemData.GetSolution(
             solutionName
         ).GetNumberOfSnapshots()
-        
+
         times = problemData.GetSolution(solutionName).GetTimeSequenceFromCompressedSnapshots()
 
         coefficients[count : count + localNumberOfSnapshots, :] = (

@@ -51,7 +51,7 @@ def test():
 
     operatorCompressionData = collectionProblemData.GetOperatorCompressionData()
 
-    Regression.ComputeApproximation(
+    Regression.ComputeOnline(
         onlineProblemData, operatorCompressionData
     )
 
