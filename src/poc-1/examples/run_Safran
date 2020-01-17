@@ -12,3 +12,7 @@ cd ../MecaSequentialNoZset/
 python3 mordicusPODECMMecaZsetOffline.py
 python3 mordicusPODECMMecaZsetOnline.py
 
+cd ../ThermalSequential/
+python3 mordicusPODECMThermalZsetOffline.py
+python3 mordicusPODECMThermalZsetOnline.py
+
