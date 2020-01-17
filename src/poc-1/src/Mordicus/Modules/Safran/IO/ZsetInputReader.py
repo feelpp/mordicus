@@ -1,28 +1,28 @@
 # -*- coding: utf-8 -*-
 import numpy as np
 import os
-from mpi4py import MPI        
-from pathlib import Path        
+from mpi4py import MPI
+from pathlib import Path
 
 from Mordicus.Core.IO.InputReaderBase import InputReaderBase
 from BasicTools.IO import ZebulonIO as ZIO
 
 
 knownLoadingTags = ["pressure", "centrifugal", "temperature", "initialCondition"]
-knownProblemTypes = ["mechanical"]
+knownProblemTypes = ["mechanical", "thermal_transient"]
 
 
 def ReadInputTimeSequence(inputFileName):
     """
     Functional API
-    
+
     Reads the time sequence from the Z-set input file "inputFileName" (.inp) (may be different from the ones defined in the solution file if the solver chose to solve at additional time steps)
-            
+
     Parameters
     ----------
     inputFileName : str
-        Z-set input file 
-                
+        Z-set input file
+
     Returns
     -------
     np.ndarray
@@ -35,12 +35,12 @@ def ReadInputTimeSequence(inputFileName):
 def ConstructLoadingsList(inputFileName):
     """
     Constructs the loadings defined in the Z-set input file "inputFileName" (.inp)
-            
+
     Parameters
     ----------
     inputFileName : str
-        Z-set input file 
-    
+        Z-set input file
+
     Returns
     -------
     list
@@ -83,7 +83,7 @@ class ZsetInputReader(InputReaderBase):
         self.inputFileName = inputFileName
         self.inputFile = None
 
-        
+
 
     def SetInputFile(self):
         """
@@ -94,7 +94,7 @@ class ZsetInputReader(InputReaderBase):
             self.problemType = None
         else:
             return
-        
+
 
     def ReadInputTimeSequence(self):
         """
@@ -102,14 +102,14 @@ class ZsetInputReader(InputReaderBase):
         """
         self.SetInputFile()
         return ZIO.GetInputTimeSequence(self.inputFile)
-    
+
 
     def ConstructLoadingsList(self):
 
         self.SetInputFile()
         tables = ZIO.GetTables(self.inputFile)
         zSetLoadings = ZIO.GetLoadings(self.inputFile)
-        
+
         loadings = []
         for key, value in zSetLoadings.items():
             if key in knownLoadingTags:
@@ -126,7 +126,7 @@ class ZsetInputReader(InputReaderBase):
 
 
         return loadings
-    
+
 
     def ConstructOneLoading(self, key, load, tables):
         """
@@ -140,7 +140,7 @@ class ZsetInputReader(InputReaderBase):
             list containing the boundary condition data as defined in BasicTools.IO.ZebulonIO
         tables : dict
             list containing the tables data as defined in BasicTools.IO.ZebulonIO
-            
+
         Returns
         -------
         LoadingBase
@@ -148,7 +148,7 @@ class ZsetInputReader(InputReaderBase):
         """
 
         import collections
-        
+
         set = load[0]
 
         if key == "pressure":
@@ -169,25 +169,25 @@ class ZsetInputReader(InputReaderBase):
             loading.SetFieldsMap(fieldsMap)
 
             folder = os.path.dirname(self.inputFileName) + os.sep
-            if MPI.COMM_WORLD.Get_size() > 1: # pragma: no cover 
+            if MPI.COMM_WORLD.Get_size() > 1: # pragma: no cover
                 stem = str(Path(name).stem)
-                suffix = str(Path(name).suffix)        
+                suffix = str(Path(name).suffix)
                 fileName = stem + "-" + str(MPI.COMM_WORLD.Get_rank()+1).zfill(3) + suffix
             else:
                 fileName = name
 
             fields = {name: ZIO.ReadBinaryFile(folder + fileName)}
-                        
+
             loading.SetFields(fields)
 
             return loading
-        
+
         if key == "centrifugal":
-            
+
             from Mordicus.Modules.Safran.Containers.Loadings import Centrifugal
-            
+
             loading = Centrifugal.Centrifugal(set)
-            
+
             center = [float(load[1][1:])]
             count = 2
             for string in load[2:]:
@@ -203,32 +203,32 @@ class ZsetInputReader(InputReaderBase):
             centrifugalCoefficient = float(load[count])
             count += 1
             sequence = tables[load[count]]
-            
+
             rotationVelocity = collections.OrderedDict()
             for i, time in enumerate(sequence["time"]):
                 rotationVelocity[float(time)] = sequence["value"][i]
-            
+
             centrifugalDirection = np.array([1.,0.,0.]*(indexRotationAxis==1)+[0.,1.,0.]*(indexRotationAxis==2)+[0.,0.,1.]*(indexRotationAxis==3))
-            
+
             loading.SetCenter(center)
             loading.SetDirection(centrifugalDirection)
             loading.SetCoefficient(centrifugalCoefficient)
             loading.SetRotationVelocity(rotationVelocity)
 
             return loading
-        
-        
+
+
         if key == "temperature":
-            
+
             from Mordicus.Modules.Safran.Containers.Loadings import Temperature
-            
+
             loading = Temperature.Temperature(set)
-            
+
             for info in load[1].values():
                 if isinstance(info, dict):
                     timeTable = info['timeTable']
                     fileTable = info['fileTable']
-            
+
 
             fieldsMap = collections.OrderedDict()
             for time, file in zip(timeTable, fileTable):
@@ -239,79 +239,79 @@ class ZsetInputReader(InputReaderBase):
             fields = {}
             for file in fileTable:
                 if file not in fields:
-                    if MPI.COMM_WORLD.Get_size() > 1: # pragma: no cover 
+                    if MPI.COMM_WORLD.Get_size() > 1: # pragma: no cover
                         stem = str(Path(file).stem)
-                        suffix = str(Path(file).suffix)        
+                        suffix = str(Path(file).suffix)
                         fileName = stem + "-" + str(MPI.COMM_WORLD.Get_rank()+1).zfill(3) + suffix
                     else:
-                        fileName = file                    
+                        fileName = file
                     fields[file] = ZIO.ReadBinaryFile(folder+fileName)
 
             loading.SetFieldsMap(fieldsMap)
             loading.SetFields(fields)
-            
+
             return loading
-        
-        
+
+
         if key == "initialCondition":
-            
+
             from Mordicus.Modules.Safran.Containers.Loadings import InitialCondition
-                        
+
             loading = InitialCondition.InitialCondition(set)
-            
+
             initDofValues = load[1]
-        
+
             if initDofValues[0] == 'uniform':
                 type = "scalar"
-                data = initDofValues[1]
-                
+                data = float(initDofValues[1])
+
             elif initDofValues[0] == 'file':  # pragma: no cover
                 type = "vector"
-                data = ZIO.ReadBinaryFile(os.path.dirname(self.inputFileName) + os.sep + initDofValues[1]) 
-                
+                data = ZIO.ReadBinaryFile(os.path.dirname(self.inputFileName) + os.sep + initDofValues[1])
+
             loading.SetType(type)
             loading.SetData(data)
-            
-            
-            return loading           
-                
-        
-        
+
+
+            return loading
+
+
+
     def ConstructConstitutiveLawsList(self):
-        
+
         self.SetInputFile()
-        
+
         problemType = ZIO.GetProblemType(self.inputFile)
-        
+
         assert problemType in  knownProblemTypes, "problemType "+problemType+" must refer be among "+str(knownProblemTypes)
-        
+
 
         materialFiles = ZIO.GetMaterialFiles(self.inputFile)
 
         constitutiveLawsList = []
-        
+
         for set, matFile in materialFiles.items():
             constitutiveLawsList.append(self.ConstructOneConstitutiveLaw(matFile, set, problemType))
-            
+
         return constitutiveLawsList
-        
-        
-        
+
+
+
     def ConstructOneConstitutiveLaw(self, materialFileName, set, problemType):
         """
         1
         """
-        
+
         import os, sys
-        
-        
+
+
         if problemType == "mechanical":
-        
+
             from Mordicus.Modules.Safran.External.pyumat import py3umat as pyumat
             from Mordicus.Modules.Safran.Containers.ConstitutiveLaws import ZmatConstitutiveLaw as ZCL
 
             constitutiveLaw = ZCL.ZmatConstitutiveLaw(set)
-            
+
             folder = os.path.dirname(self.inputFileName) + os.sep
 
             density = ZIO.GetDensity(folder + materialFileName)
@@ -321,7 +321,7 @@ class ZsetInputReader(InputReaderBase):
             constitutiveLaw.SetBehavior(behavior)
 
             constitutiveLawVariables = {}
-            
+
             curFolder = os.getcwd()
             os.chdir(folder)
 
@@ -396,7 +396,7 @@ ddsddeNew = pyumat.umat(stress=stress,statev=statev,ddsdde=ddsdde,sse=sse,spd=sp
             import sys
             import subprocess
             out = subprocess.run([sys.executable, "materialtest"+suffix+".py"], stdout=subprocess.PIPE).stdout.decode("utf-8")
-            
+
 
             outlines = out.split(u"\n")
 
@@ -443,10 +443,10 @@ ddsddeNew = pyumat.umat(stress=stress,statev=statev,ddsdde=ddsdde,sse=sse,spd=sp
             #print("constitutiveLawVariables['var_aux']   =", constitutiveLawVariables['var_aux'])
             #print("constitutiveLawVariables['var_extra'] =", constitutiveLawVariables['var_extra'])
             os.system("rm -rf materialtest"+suffix+".py")
-            
+
             constitutiveLawVariables['var'] = constitutiveLawVariables['grad'] + constitutiveLawVariables['flux'] + constitutiveLawVariables['var_int'] + constitutiveLawVariables['var_aux'] + constitutiveLawVariables['var_extra']
 
-            #Initialize Zmat quantities 
+            #Initialize Zmat quantities
             constitutiveLawVariables['cmname']      = materialFileName
             constitutiveLawVariables['nstatv']      = len(constitutiveLawVariables['var_int']) + len(constitutiveLawVariables['var_aux']) +  len(constitutiveLawVariables['var_extra'])
             constitutiveLawVariables['ndi']         = 3
@@ -484,10 +484,10 @@ ddsddeNew = pyumat.umat(stress=stress,statev=statev,ddsdde=ddsdde,sse=sse,spd=sp
             constitutiveLawVariables['kspt']        = 1
             constitutiveLawVariables['kstep']       = np.array([1,1,0,0], dtype=int)
             constitutiveLawVariables['kinc']        = 1
-            
+
             constitutiveLaw.SetConstitutiveLawVariables(constitutiveLawVariables)
-            
+
             os.chdir(curFolder)
 
-            
+
             return constitutiveLaw
