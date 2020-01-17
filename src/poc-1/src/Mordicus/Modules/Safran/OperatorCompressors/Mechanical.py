@@ -96,21 +96,9 @@ def PrepareOnline(onlineProblemData, timeSequence, reducedOrderBasis, operatorCo
 
 def ComputeOnline(onlineProblemData, timeSequence, reducedOrderBasis, operatorCompressionData, tolerance):
     """
-    Compute the online stage using the method of POD on the snapshots and a regression on the coefficients
+    Compute the online stage using the method POD and ECM for a mechanical problem
     
     The parameters must have been initialized in onlineProblemData
-    
-    Parameters
-    ----------
-    operatorCompressionData : (regressor, scaler, scaler)
-        (fitted regressor, fitted scaler on the coefficients, fitted scaler on the parameters)
-    onlineProblemData : ProblemData
-        definition of the testing configuration data in a CollectionProblemData object 
-        
-    Returns
-    -------
-    collections.OrderedDict
-        onlineCompressedSolution; dictionary with time indices as keys and a np.ndarray of size (numberOfModes,) containing the coefficients of the reduced solution
     """
     
     
@@ -277,7 +265,7 @@ def CompressOperator(
     collectionProblemData, mesh, tolerance, listNameDualVarOutput = [], listNameDualVarGappyIndicesforECM = []
 ):
     """
-    Computes the offline operator compression stage using the method of POD on the snapshots and a regression on the coefficients
+    Operator Compression for the POD and ECM for a mechanical problem
     
     Parameters
     ----------
