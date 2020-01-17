@@ -1,0 +1,41 @@
+****calcul thermal_transient
+
+  ***init_dof_value TP uniform 1000.
+
+  ***mesh
+    **file cube.geof
+
+  ***resolution
+    **sequence 1
+      *ratio
+       0.0001
+      *time
+       1000.
+      *increment 
+       10
+      *iteration 
+       10
+      *algorithm p1p2p3
+    ***bc
+     **radiation
+  ALLBOUNDARY   3.9683e-8 1.  ptab    %(5.669E-8*0.7)
+     **convection_heat_flux
+  ALLBOUNDARY    h     1000.	Te     1.    ptab
+
+
+  ***material
+      *file mat
+
+  ***table
+   **name ptab
+
+    *time
+      0.  200. 400. 600. 800. 1000.
+
+    *value
+      1000.  100. 1000. 100. 1000. 100.
+
+***output
+**output_first
+
+****return
