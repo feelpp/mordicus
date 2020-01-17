@@ -4,11 +4,6 @@ Safran Use Case
 ---------------
 
 
-
-Contexte
---------
-
-
 The use case has been published:
 Casenave, F., Akkari N., Bordeu F., Rey C., Ryckelynck D. (2020). A Nonintrusive Distributed Reduced Order Modeling Framework for nonlinear structural mechanics -- application to elastoviscoplastic computations, International Journal for Numerical Methods in Engineering 121, 32-53, https://doi.org/10.1002/nme.6187, `available on arxiv <https://arxiv.org/abs/1812.07228>`_.
 
