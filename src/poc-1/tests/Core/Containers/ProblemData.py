@@ -32,6 +32,16 @@ def test():
     problemData.GetParameterDimension()
     problemData.GetParametersTimeSequence()
     problemData.GetParametersList()
+
+    import collections
+    compressedSnapshots = collections.OrderedDict()
+    compressedSnapshots[0.] = np.random.rand(3)
+    compressedSnapshots[1.] = np.random.rand(3)
+    compressedSnapshots[2.] = np.random.rand(3)
+    solution.SetCompressedSnapshots(compressedSnapshots)
+    reducedOrderBasis = np.random.rand(3,20)
+    problemData.UncompressSolution("U", reducedOrderBasis)
+
     print(problemData)
     return "ok"
 

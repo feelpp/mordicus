@@ -41,13 +41,13 @@ def test():
     nbeOfComponentsPrimal = 3
     nbeOfComponentsDual = 6
 
-        
+
     outputTimeSequence = solutionReader.ReadTimeSequenceFromSolutionFile()
-        
+
 
     solutionU = S.Solution("U", nbeOfComponentsPrimal, numberOfNodes, primality = True)
     solutionSigma = S.Solution("sigma", nbeOfComponentsDual, numberOfIntegrationPoints, primality = False)
-    
+
     for time in outputTimeSequence:
         U = solutionReader.ReadSnapshot("U", time, nbeOfComponentsPrimal, primality=True)
         solutionU.AddSnapshot(U, time)
@@ -65,11 +65,11 @@ def test():
 
     collectionProblemData = CPD.CollectionProblemData()
     collectionProblemData.AddProblemData(problemData)
-        
+
     print("ComputeL2ScalarProducMatrix...")
     l2ScalarProducMatrix = FT.ComputeL2ScalarProducMatrix(mesh, 3)
     collectionProblemData.SetSnapshotCorrelationOperator("U", l2ScalarProducMatrix)
-        
+
     reducedOrderBasisU = SP.ComputeReducedOrderBasisFromCollectionProblemData(
             collectionProblemData, "U", 1.e-4
     )
@@ -82,6 +82,7 @@ def test():
     compressionErrors = []
 
     for t in outputTimeSequence:
+
         reconstructedCompressedSolution = np.dot(CompressedSolutionU[t], reducedOrderBasisU)
         exactSolution = solutionU.GetSnapshot(t)
         norml2ExactSolution = np.linalg.norm(exactSolution)
@@ -96,12 +97,12 @@ def test():
     Meca.CompressOperator(
             collectionProblemData, mesh, 1.e-3
     )
-    
+
     print("CompressOperator done")
 
     collectionProblemData.SaveState("mordicusState")
-    
-    os.chdir(initFolder)    
+
+    os.chdir(initFolder)
 
     return "ok"
 

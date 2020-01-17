@@ -49,13 +49,13 @@ class ProblemData(object):
         str
             dataFolder
         """
-        return self.dataFolder 
-        
+        return self.dataFolder
+
 
     def AddSolution(self, solution):
         """
         Adds a solution to solutions
-        
+
         Parameters
         ----------
         solution : Solution
@@ -73,12 +73,12 @@ class ProblemData(object):
             )
 
         self.solutions[solution.GetSolutionName()] = solution
-        
+
 
     def AddParameter(self, parameter, time = None):
         """
         Adds a parameter at time "time"
-        
+
         Parameters
         ----------
         time : float, optional
@@ -106,7 +106,7 @@ class ProblemData(object):
     def AddConstitutiveLaw(self, constitutiveLaw):
         """
         Adds a constitutive law or a list of constitutive laws to constitutiveLaws
-        
+
         Parameters
         ----------
         constitutiveLaw : ConstitutiveLawBase
@@ -124,13 +124,13 @@ class ProblemData(object):
                     + " already in problemData.loadings. Replacing it anyway."
                 )  # pragma: no cover
 
-            self.constitutiveLaws[law.GetIdentifier()] = law          
-        
+            self.constitutiveLaws[law.GetIdentifier()] = law
+
 
     def AddLoading(self, loading):
         """
         Adds a loading or a list of loadings to loadings
-        
+
         Parameters
         ----------
         loading : LoadingBase
@@ -148,7 +148,7 @@ class ProblemData(object):
                     + " already in problemData.loadings. Replacing it anyway."
                 )
 
-            self.loadings[load.GetIdentifier()] = load      
+            self.loadings[load.GetIdentifier()] = load
 
 
     def GetParameters(self):
@@ -163,7 +163,7 @@ class ProblemData(object):
                 "Please initialize parameters before trying to retrieve them."
             )  # pragma: no cover
         return self.parameters
-    
+
 
     def GetParametersTimeSequence(self):
         """
@@ -173,8 +173,8 @@ class ProblemData(object):
             list containing the time indices of the parameters
         """
         return list(self.parameters.keys())
-        
-        
+
+
     def GetParametersList(self):
         """
         Returns
@@ -183,12 +183,12 @@ class ProblemData(object):
             list containing the parameters
         """
         return list(self.parameters.values())
-    
+
 
     def GetParameterDimension(self):
         """
         Assert that the parameters have the same parameterDimension and return this size
-        
+
         Returns
         -------
         int
@@ -202,13 +202,14 @@ class ProblemData(object):
         )
         return listParameterDimension[0]
 
+
     def GetParameterAtTime(self, time):
         """
         Parameters
         ----------
         time : float
             time at which the parameter is retrieved
-        
+
         Returns
         -------
         np.ndarray
@@ -219,7 +220,7 @@ class ProblemData(object):
         return TI.TimeInterpolation(
             time, list(self.parameters.keys()), list(self.parameters.values())
         )
-        
+
 
     def GetLoadings(self):
         """
@@ -229,8 +230,8 @@ class ProblemData(object):
             loadings of the problem
         """
         return self.loadings
-    
-        
+
+
 
     def GetConstitutiveLaws(self):
         """
@@ -240,10 +241,10 @@ class ProblemData(object):
             constitutive laws of the problem
         """
         return self.constitutiveLaws
-        
+
 
     def GetSolution(self, solutionName):
-        """        
+        """
         Parameters
         ----------
         solutionName : str
@@ -254,6 +255,58 @@ class ProblemData(object):
         Solution
         """
         return self.solutions[solutionName]
+
+
+    def CompressSolution(self, solutionName, snapshotCorrelationOperator, reducedOrderBasis):
+        """
+        Compress solutions of name "solutionName".
+
+        Parameters
+        ----------
+        solutionName : str
+            name of the solutions to compress
+        snapshotCorrelationOperator : scipy.sparse.csr
+            correlation operator between the snapshots
+        reducedOrderBasis : np.ndarray
+            of size (numberOfModes, numberOfDOFs)
+        """
+        assert isinstance(solutionName, str)
+
+        if solutionName not in self.solutions:
+            raise (
+                "You must provide solutions "
+                + solutionName
+                + "before trying to compress them"
+            )  # pragma: no cover
+
+        solution = self.GetSolution(solutionName)
+        solution.CompressSnapshots(snapshotCorrelationOperator, reducedOrderBasis)
+
+
+
+    def UncompressSolution(self, solutionName, reducedOrderBasis):
+        """
+        Uncompress solutions of name "solutionName".
+
+        Parameters
+        ----------
+        solutionName : str
+            name of the solutions to uncompress
+        reducedOrderBasis : np.ndarray
+            of size (numberOfModes, numberOfDOFs)
+        """
+        assert isinstance(solutionName, str)
+
+        if solutionName not in self.solutions:
+            raise (
+                "You must provide solutions "
+                + solutionName
+                + "before trying to compress them"
+            )  # pragma: no cover
+
+        solution = self.GetSolution(solutionName)
+        solution.UncompressSnapshots(reducedOrderBasis)
+
 
 
     def __str__(self):

@@ -6,12 +6,12 @@ from scipy import sparse
 from Mordicus.Core.Containers import ProblemData
 from Mordicus.Core.Containers import Solution
 from mpi4py import MPI
-        
+
 
 class CollectionProblemData(object):
     """
     Class containing a set of collection of problemData
-    
+
     Attributes
     ----------
     problemDatas : dict
@@ -30,12 +30,12 @@ class CollectionProblemData(object):
         self.reducedOrderBases = {}
         self.snapshotCorrelationOperators = {}
         self.operatorCompressionData = {}
-        
+
 
     def AddReducedOrderBasis(self, solutionName, reducedOrderBasis):
         """
         Adds a reducedOrderBasis corresponding to solution solutionName
-        
+
         Parameters
         ----------
         solutionName : str
@@ -54,12 +54,12 @@ class CollectionProblemData(object):
     def GetReducedOrderBasis(self, solutionName):
         """
         Get a precomputed reducedOrderBases for solution solutionName
-        
+
         Parameters
         ----------
         solutionName : str
             name of the solution for which the reducedOrderBases is retrieved
-            
+
         Returns
         -------
         np.ndarray
@@ -78,12 +78,12 @@ class CollectionProblemData(object):
     def GetReducedOrderBasisNumberOfModes(self, solutionName):
         """
         Get the number of modes of a precomputed reducedOrderBases for solution solutionName
-        
+
         Parameters
         ----------
         solutionName : str
             name of the solution for which the reducedOrderBases is retrieved
-            
+
         Returns
         -------
         int
@@ -102,7 +102,7 @@ class CollectionProblemData(object):
     def AddProblemData(self, problemData):
         """
         Adds a problemData to the structure
-        
+
         Parameters
         ----------
         problemData : ProblemData
@@ -127,7 +127,7 @@ class CollectionProblemData(object):
         ----------
         dataFolder : str
             name of the folder containing the data of the problemData, relative to the mordicus client script
-            
+
         Returns
         -------
         ProblemData
@@ -158,7 +158,7 @@ class CollectionProblemData(object):
         """
         Assert that the parameters of all problemDatas have the same parameterDimension
         and return this size
-        
+
         Returns
         -------
         int
@@ -194,12 +194,12 @@ class CollectionProblemData(object):
     def GetGlobalNumberOfSnapshots(self, solutionName):
         """
         Iterates over problemDatas to return the complete number of snpashots for solutions of name "solutionName"
-        
+
         Parameters
         ----------
         solutionName : str
             name of the solutions for which we want to compute the total number of snapshots
-            
+
         Returns
         -------
         int
@@ -214,12 +214,12 @@ class CollectionProblemData(object):
         """
         Asserts that the solutions of name "solutionName" in all problemDatas have same nbeOfComponents
         and return this size
-        
+
         Parameters
         ----------
         solutionName : str
             name of the solutions for which we want to return the nbeOfComponents
-            
+
         Returns
         -------
         int
@@ -237,12 +237,12 @@ class CollectionProblemData(object):
         """
         Asserts that the solutions of name "solutionName" in all problemDatas have same nbeOfDofs
         and return this size
-        
+
         Parameters
         ----------
         solutionName : str
             name of the solutions for which we want to return the nbeOfDofs
-            
+
         Returns
         -------
         int
@@ -260,12 +260,12 @@ class CollectionProblemData(object):
         """
         Asserts that the solutions of name "solutionName" in all problemDatas have same nbeOfNodes
         and return this size
-        
+
         Parameters
         ----------
         solutionName : str
             name of the solutions for which we want to return the nbeOfNodes
-            
+
         Returns
         -------
         int
@@ -278,17 +278,17 @@ class CollectionProblemData(object):
         assert nbeOfNodes.count(nbeOfNodes[0]) == len(nbeOfNodes)
 
         return nbeOfNodes[0]
-    
+
 
     def SnapshotsIterator(self, solutionName, skipFirst = False):
         """
         Constructs an iterator over snapshots of solutions of name "solutionName" in all problemDatas.
-        
+
         Parameters
         ----------
         solutionName : str
             name of the solutions on which we want to iterate over snapshots
-        
+
         Returns
         -------
         iterator
@@ -318,7 +318,7 @@ class CollectionProblemData(object):
     def SetSnapshotCorrelationOperator(self, solutionName, snapshotCorrelationOperator):
         """
         Sets the snapshotCorrelationOperator for solution of name solutionName
-        
+
         Parameters
         ----------
         solutionName : str
@@ -329,12 +329,12 @@ class CollectionProblemData(object):
     def GetSnapshotCorrelationOperator(self, solutionName):
         """
         Get the snapshotCorrelationOperator for solution of name solutionName. If the corresponding snapshotCorrelationOperator has not been computed, the function returns the identity matrix of correct size.
-        
+
         Parameters
         ----------
         solutionName : str
             name of the solutions for which we want to return the l2ScalarProducMatrix
-            
+
         Returns
         -------
         scipy.sparse.csr
@@ -350,7 +350,7 @@ class CollectionProblemData(object):
     def SetOperatorCompressionData(self, operatorCompressionData):
         """
         Sets the OperatorCompressionData
-        
+
         Parameters
         ----------
         operatorCompressionData : custom data structure
@@ -361,7 +361,7 @@ class CollectionProblemData(object):
     def GetOperatorCompressionData(self):
         """
         Get the OperatorCompressionData
-            
+
         Returns
         -------
         operatorCompressionData
@@ -372,30 +372,22 @@ class CollectionProblemData(object):
 
     def CompressSolutions(self, solutionName):
         """
-        Compress solutions of name "solutionName" from all ProblemDatas in collectionProblemData, and update to corresponding solution.compressedSnapshots in the format ModesAndCoefficients.
-            
+        Compress solutions of name "solutionName" from all ProblemDatas in collectionProblemData, and update to corresponding solution.compressedSnapshots.
+
         Parameters
         ----------
         solutionName : str
             name of the solutions to compress
         """
         assert isinstance(solutionName, str)
-        
+
         snapshotCorrelationOperator = self.GetSnapshotCorrelationOperator(solutionName)
         reducedOrderBasis = self.GetReducedOrderBasis(solutionName)
-        
-        for _, problemData in self.problemDatas.items():
 
-            if solutionName not in problemData.solutions:
-                raise (
-                    "You must provide solutions "
-                    + solutionName
-                    + "before trying to compress them"
-                )  # pragma: no cover
+        for _, problemData in self.GetProblemDatas().items():
+            problemData.CompressSolution(solutionName, snapshotCorrelationOperator, reducedOrderBasis)
 
-            solution = problemData.solutions[solutionName]
-            solution.CompressSnapshots(snapshotCorrelationOperator, reducedOrderBasis)
-        
+
 
     def SaveState(self, fileName):
         """
@@ -407,8 +399,8 @@ class CollectionProblemData(object):
             name of the file to write on disk
         """
         import pickle
-        
-        if MPI.COMM_WORLD.Get_size() > 1: # pragma: no cover 
+
+        if MPI.COMM_WORLD.Get_size() > 1: # pragma: no cover
             outputName = fileName + "-" + str(MPI.COMM_WORLD.Get_rank()+1).zfill(3) + ".pkl"
         else:
             outputName = fileName + ".pkl"
@@ -416,7 +408,6 @@ class CollectionProblemData(object):
         output = open(outputName, "wb")
         pickle.dump(self, output)
         output.close()
-
 
 
     def __str__(self):
@@ -435,8 +426,8 @@ def LoadState(fileName):
     fileName : str
         name of the file on disk
     """
-    
-    if MPI.COMM_WORLD.Get_size() > 1: # pragma: no cover 
+
+    if MPI.COMM_WORLD.Get_size() > 1: # pragma: no cover
         inputName = fileName + "-" + str(MPI.COMM_WORLD.Get_rank()+1).zfill(3) + ".pkl"
     else:
         inputName = fileName + ".pkl"
@@ -444,4 +435,4 @@ def LoadState(fileName):
     return pickle.load(open(inputName, "rb"))
 
 
-        
+

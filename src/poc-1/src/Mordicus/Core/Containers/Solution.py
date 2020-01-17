@@ -21,7 +21,7 @@ class Solution(object):
     numberOfDOFs : int
         number of degrees of freedom = numberOfNodes * nbeOfComponents
     primality : bool
-        True for a primal solution and False for a dual solution 
+        True for a primal solution and False for a dual solution
     snapshots : collections.OrderedDict
         dictionary with time indices as keys and a np.ndarray of size (numberOfDOFs,) containing the solution data
     compressedSnapshots : collections.OrderedDict
@@ -53,7 +53,7 @@ class Solution(object):
     def AddSnapshot(self, snapshot, time):
         """
         Adds a snapshot at time "time"
-        
+
         Parameters
         ----------
         time : float
@@ -71,7 +71,7 @@ class Solution(object):
                 + " already in snapshots. Replacing it anyways."
             )  # pragma: no cover
         self.snapshots[time] = snapshot
-            
+
 
     def GetSnapshot(self, time):
         """
@@ -79,7 +79,7 @@ class Solution(object):
         ----------
         time : float
             time at which the snapshot is retrieved
-        
+
         Returns
         -------
         np.ndarray
@@ -195,7 +195,7 @@ class Solution(object):
         ----------
         time : float
             time at which the snapshot is retrieved
-            
+
         Returns
         -------
         np.ndarray
@@ -212,7 +212,7 @@ class Solution(object):
     def SetCompressedSnapshots(self, compressedSnapshots):
         """
         Sets the compressed representation of the solution
-        
+
         Parameters
         ----------
         compressedSnapshots : collections.OrderedDict()
@@ -221,13 +221,26 @@ class Solution(object):
         assert isinstance(compressedSnapshots, collections.OrderedDict)
 
         self.compressedSnapshots = compressedSnapshots
-        return
-    
-    
+
+
+    def SetSnapshots(self, snapshots):
+        """
+        Sets the snapshots of the solution
+
+        Parameters
+        ----------
+        snapshots : collections.OrderedDict()
+        """
+        # assert type of snapshots
+        assert isinstance(snapshots, collections.OrderedDict)
+
+        self.snapshots = snapshots
+
+
     def CompressSnapshots(self, snapshotCorrelationOperator, reducedOrderBasis):
         """
-        Compress solution using the correlation operator between the snapshots defined by the matrix snapshotCorrelationOperator and "reducedOrderBasis"
-            
+        Compress snapshots using the correlation operator between the snapshots defined by the matrix snapshotCorrelationOperator and reducedOrderBasis
+
         Parameters
         ----------
         snapshotCorrelationOperator : scipy.sparse.csr
@@ -236,27 +249,50 @@ class Solution(object):
             of size (numberOfModes, numberOfDOFs)
         """
 
-        if self.compressedSnapshots == False:
+        if self.compressedSnapshots != False:
             print("Solution already compressed. Replacing it anyway")  # pragma: no cover
-            
+
         import collections
         compressedSnapshots = collections.OrderedDict()
-        
+
         numberOfModes = reducedOrderBasis.shape[0]
         nNodes = self.GetNumberOfNodes()
 
         for time, snapshot in self.snapshots.items():
-            
+
             matVecProduct = snapshotCorrelationOperator.dot(snapshot)
 
             localScalarProduct = np.dot(reducedOrderBasis, matVecProduct)
             globalScalarProduct = np.zeros(numberOfModes)
             MPI.COMM_WORLD.Allreduce([localScalarProduct, MPI.DOUBLE], [globalScalarProduct, MPI.DOUBLE])
-            
+
             compressedSnapshots[time] = globalScalarProduct
-            
+
         self.SetCompressedSnapshots(compressedSnapshots)
-    
+
+
+
+    def UncompressSnapshots(self, reducedOrderBasis):
+        """
+        Uncompress snapshots using reducedOrderBasis
+
+        Parameters
+        ----------
+        reducedOrderBasis : np.ndarray
+            of size (numberOfModes, numberOfDOFs)
+        """
+
+        if self.snapshots != False:
+            print("Solution already compressed. Replacing it anyway")  # pragma: no cover
+
+        import collections
+        snapshots = collections.OrderedDict()
+
+        for time, compressedSnapshot in self.compressedSnapshots.items():
+            snapshots[time] = np.dot(compressedSnapshot, reducedOrderBasis)
+
+        self.SetSnapshots(snapshots)
+
 
     def GetCompressedSnapshotsAtTime(self, time):
         """
@@ -264,7 +300,7 @@ class Solution(object):
         ----------
         time : float
             time at which the snapshot is retrieved
-            
+
         Returns
         -------
         np.ndarray
@@ -275,11 +311,11 @@ class Solution(object):
 
         return TI.TimeInterpolation(
             time, self.GetTimeSequenceFromCompressedSnapshots(), self.GetCompressedSnapshotsList()
-        )    
+        )
 
 
     def __getstate__(self):
-        
+
         state = {}
         state["solutionName"] = self.solutionName
         state["nbeOfComponents"] = self.nbeOfComponents
@@ -290,9 +326,9 @@ class Solution(object):
         state["snapshots"] = collections.OrderedDict()
         for time in self.GetTimeSequenceFromSnapshots():
             state["snapshots"][time] = None
-            
+
         return state
-    
+
 
     def __str__(self):
         res = "Solution \n"
