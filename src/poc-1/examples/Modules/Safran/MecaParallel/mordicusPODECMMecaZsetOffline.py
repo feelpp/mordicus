@@ -6,7 +6,7 @@ from Mordicus.Core.Containers import CollectionProblemData as CPD
 from Mordicus.Core.Containers import Solution as S
 from Mordicus.Modules.Safran.FE import FETools as FT
 from Mordicus.Core.DataCompressors import SnapshotPOD as SP
-from Mordicus.Modules.Safran.OperatorCompressors import Mechanics as Meca
+from Mordicus.Modules.Safran.OperatorCompressors import Mechanical as Meca
 import numpy as np
 from pathlib import Path
 import os

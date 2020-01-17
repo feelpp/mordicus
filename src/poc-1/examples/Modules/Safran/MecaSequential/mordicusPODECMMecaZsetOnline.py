@@ -8,7 +8,7 @@ from Mordicus.Modules.Safran.FE import FETools as FT
 from Mordicus.Core.DataCompressors import SnapshotPOD as SP
 from Mordicus.Modules.Safran.IO import PXDMFWriter as PW
 #from Mordicus.Modules.Safran.OperatorCompressors import ReducedGalerkine as RG
-from Mordicus.Modules.Safran.OperatorCompressors import Mechanics as Meca
+from Mordicus.Modules.Safran.OperatorCompressors import Mechanical as Meca
 import numpy as np
 from pathlib import Path
 import os

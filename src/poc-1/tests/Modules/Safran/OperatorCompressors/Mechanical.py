@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import numpy as np
 import os
-from Mordicus.Modules.Safran.OperatorCompressors import Mechanics as Meca
+from Mordicus.Modules.Safran.OperatorCompressors import Mechanical as Meca
 from Mordicus.Core.Containers import ProblemData
 from Mordicus.Core.Containers import CollectionProblemData
 from Mordicus.Core.Containers import Solution
