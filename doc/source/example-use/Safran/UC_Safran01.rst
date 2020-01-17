@@ -3,7 +3,40 @@
 Safran Use Case
 ---------------
 
-*Contexte à ajouter*
+
+
+Contexte
+--------
+
+
+The use case has been published:
+Casenave, F., Akkari N., Bordeu F., Rey C., Ryckelynck D. (2020). A Nonintrusive Distributed Reduced Order Modeling Framework for nonlinear structural mechanics -- application to elastoviscoplastic computations, International Journal for Numerical Methods in Engineering 121, 32-53, https://doi.org/10.1002/nme.6187, `available on arxiv <https://arxiv.org/abs/1812.07228>`_.
+
+A performance race is currently underway in the aircraft engine industry. The materials of some
+critical parts of the engine are pushed to the limit of their strength to increase as much as possible the
+efficiency of the propulsion. In particular, the high-pressure turbine blades, which are located directly
+downstream from the chamber of combustion, undergo extreme thermal loading. The possible causes
+of failure for these turbines include temperature creep rupture and high-cycle fatigue. Many
+efforts are spent to increase the strength of these turbines, with the use of thermal barriers, advanced superalloys and complex internal cooling channels.
+The lifetime prediction of such complex parts is a very demanding
+computational task: the meshes are very large to account for small structures such as the cooling
+channels, the constitutive laws are strongly nonlinear and involve a large number of internal variables,
+and more importantly, a large number of cycles has to be simulated. Indeed, failures come from local structural effects whose evolution cannot be predicted without computing potentially hundreds of
+cycles.
+Like the lifetime prediction of turbine blades, many industrial needs involve very intensive numerical procedures, where the approximations of partial differential equations are solved. Efforts are
+spent to mitigate the runtime issues. In the context of nonlinear structural mechanics, we consider
+the conjugation of parallel computing with distributed memory to accelerate the resolution of large
+problems with Reduced Order Modeling, which learns about the physical operators from a solution
+set computed beforehand to accelerate further computations.
+
+The use case consisite in reducing nonlinear structural mechanics problems in a nonintrusive fashion.
+The framework uses different algorithms taken from the literature and employs them to treat large
+scale problems. All the computation procedure is parallel with distributed memory: the computation
+of the high-fidelity model, the reduction routines using in-house distributed python routines, up to
+the visualization and post-treatment. The nonintrusivity feature is obtained by having coded all
+the finite-element operation needed in a posteriori reduced order modeling procedure in the library mor_dicus.
+
+
 
 .. .. tabularcolumns:: |L|L|L|L|
 
