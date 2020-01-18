@@ -15,6 +15,7 @@ doc:
     - apk add build-base
     - pip install -U sphinx
   script:
+    - pwd
     - export PYTHONPATH=$PWD/../basic-tools/src:$PYTHONPATH
     - mkdir -p public
     - cd src/poc-1/doc
@@ -29,6 +30,7 @@ doc:
   stage: test
   image: python:3.7
   before_script:
+    - pwd
     - apt-get update
     - apt-get install -y python3-venv gcc python3-dev libopenmpi-dev make
     - pip install --upgrade pip
@@ -38,6 +40,7 @@ doc:
 poc-1:
   extends: .test
   script:
+    - pwd
     - export PYTHONPATH=$PWD/src/poc-1/src:$PYTHONPATH
     - mkdir -p public/coverageReportCore
     - cd src/poc-1/tests/Core
@@ -56,7 +59,8 @@ image: alpine:latest
 pages:
   stage: deploy
   script:
-  - echo 'Nothing to do...'
+    - pwd
+    - echo 'Nothing to do...'
   artifacts:
     paths:
     - public/
