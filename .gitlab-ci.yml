@@ -50,13 +50,16 @@ poc-1:
     paths:
       - public/coverageReportCore
 
+
+image: alpine:latest
+
 pages:
   stage: deploy
-  image: alpine:latest
   script:
   - echo 'Nothing to do...'
   artifacts:
-    name: "WebSite"
     paths:
-    - ./public
+    - public/
+  only:
+  - master
 
