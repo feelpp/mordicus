@@ -10,8 +10,6 @@ stages:
 
 doc:
   stage: doc
-  tags:
-    - mordicus
   image: python:3.7-alpine
   before_script:
     - apk add build-base
@@ -29,8 +27,6 @@ doc:
 
 .test:
   stage: test
-  tags:
-    - mordicus
   image: python:3.7
   before_script:
     - apt-get update
@@ -58,8 +54,6 @@ poc-1:
 pages:
   image: alpine:latest
   stage: deploy
-  tags:
-    - mordicus
   script:
     - echo 'Nothing to do...'
   artifacts:
