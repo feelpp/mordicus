@@ -1,60 +1,61 @@
+image: python:3.7-alpine
+
 variables:
-    GIT_SSL_NO_VERIFY: "1"
-    MYPROJECT : 'mordicus'
+  MYPROJECT : 'mordicus'
 
 stages:
-    - doc
-    - testAndCoverageCore
-    - deploy
-
-
+  - doc
+  - test
+  - deploy
 
 doc:
-    stage: doc
-    tags:
-       - mordicus
-    script:
-        - source /home/A34370/.venv/all-dev/bin/activate
-        - export PYTHONPATH=$PWD/src/poc-1/src:$PYTHONPATH
-        - export PYTHONPATH=$PWD/../basic-tools/src:$PYTHONPATH
-        - mkdir -p public
-        - cd src/poc-1/doc
-        - make html
-        - mv _build/html ../../../public/doc
-    artifacts:
-        name: "Documentation"
-        paths:
-            - public/doc
+  stage: doc
+  image: python:3.7-alpine
+  before_script:
+    - apk add build-base
+    - pip install -U sphinx
+  script:
+    - export PYTHONPATH=$PWD/../basic-tools/src:$PYTHONPATH
+    - mkdir -p public
+    - cd src/poc-1/doc
+    - make html
+  artifacts:
+    name: "Documentation"
+    paths:
+      - src/poc-1/doc/_build/html
 
+.test:
+  stage: test
+  image: python:3.7
+  before_script:
+    - apt-get update
+    - apt-get install -y python3-venv gcc python3-dev libopenmpi-dev make
+    - pip install --upgrade pip
+    - pip install -r ./requirements.txt
+    - export PYTHONPATH=$PWD/../basic-tools/src:$PYTHONPATH
 
-testAndCoverageCore:
-    stage: testAndCoverageCore
-    tags:
-       - mordicus
-    script:
-        - source /home/A34370/.venv/all-dev/bin/activate
-        - export PYTHONPATH=$PWD/src/poc-1/src:$PYTHONPATH
-        - export PYTHONPATH=$PWD/../basic-tools/src:$PYTHONPATH
-        - mkdir -p public/coverageReportCore
-        - cd src/poc-1/tests/Core
-        - pytest --cov=../../src/Mordicus/Core --cov-report=html:../../../../public/coverageReportCore
-        - cd ../../../../public/coverageReportCore
-        - grep pc_cov index.html
-    coverage: '/pc_cov">([0-9]+\.?[0-9]+?%)/'
-    artifacts:
-        name: "CoverageCore"
-        paths:
-            - public/coverageReportCore
-
+poc-1:
+  extends: .test
+  script:
+    - export PYTHONPATH=$PWD/src/poc-1/src:$PYTHONPATH
+    - mkdir -p public/coverageReportCore
+    - cd src/poc-1/tests/Core
+    - pytest --cov=../../src/Mordicus/Core --cov-report=html:../../../../public/coverageReportCore
+    - cd ../../../../public/coverageReportCore
+    - grep pc_cov index.html
+  coverage: '/pc_cov">([0-9]+\.?[0-9]+?%)/'
+  artifacts:
+    name: "CoverageCore"
+    paths:
+      - public/coverageReportCore
 
 pages:
-    stage: deploy
-    tags:
-        - mordicus
-    script:
-        - pwd
-    artifacts:
-        name: "WebSite"
-        paths:
-            - public
+  stage: deploy
+  image: alpine:latest
+  script:
+  - echo 'Nothing to do...'
+  artifacts:
+    name: "WebSite"
+    paths:
+    - ./public
 
