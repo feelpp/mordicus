@@ -19,10 +19,11 @@ doc:
     - mkdir -p public
     - cd src/poc-1/doc
     - make html
+    - mv _build/html ../../../public/doc
   artifacts:
     name: "Documentation"
     paths:
-      - src/poc-1/doc/_build/html
+      - public/doc
 
 .test:
   stage: test
