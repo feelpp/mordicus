@@ -28,36 +28,31 @@
 	Advanced functions are defined in files from other folders: these files
 	do not contain more classes, but act on the classes defined in Containers.
 
-    c). All classes derive derive from a "BaseObject" class that contains a private
-	parameter named __storage and initialized to None. This is used in the
-	library to contain object for which we do not want to expose the structure in
-	the client code. It is accessible through the GetInternalStorage() function.
-
-    d). Solution, ProblemData and CollectionProblemData are the only containers that
+    c). Solution, ProblemData and CollectionProblemData are the only containers that
 	cannot be personalized in the library: other containers inherits from "Base"
 	containers, and one can implement another container inheriting from this
 	base and respecting the API.
 
-    e). Each folder contains at most one class. 
+    d). Each file contains at most one class.
 
-    f). Unitary tests are in the tests folder, which follow the same organization
+    e). Unitary tests are in the tests folder, which follow the same organization
        as the src folder, aiming to test
     only the functions defined in the corresponding file. All functions
-    in the file must be tested, if possible (for base classes, common functions 
+    in the file must be tested, if possible (for base classes, common functions
     over the children that are factorized in the "Base" and "Tools" may
     not be tested in the "Base" and "Tools" files). Please limit the use of functions
     from other file to reach that goal, and use small and simple data, otherwise
-    changes will be painful to propagate if many CheckIntegrities must be updated
+    changes will be painful to propagate if many test() must be updated
     as well.
 
-    g). Private parameters of class start with __. They are not part of the
+    f). Private parameters of class start with __. They are not part of the
 	standard API. They can be accessed using GetInternal functions, but
 	their use is not recommanded and requires advanced knowledge of the
 	underlying objects.
 
-    h). Coverage must be kept to 100%. 
-    
-    i). Favor imports at the beginning of files
-    
-    j). All customizable containers are in folders in Containers, that contain a "Base" file defining the API to satify, and a "Tools" files that are available functions on these objects. The functions are required for particular use-cases, but are not part of the obect standard API. Moreover, the functions in "Tools" can be execetued for any new introdcued format as long as the standard API defined in "Base" is respected (but are optimzed for one format only).
-    
+    g). Coverage must be kept to 100%.
+
+    h). Favor imports at the beginning of files
+
+    i). All customizable containers are in folders in Containers, that contain a "Base" file defining the API to satify, and a "Tools" files that are available functions on these objects. The functions are required for particular use-cases, but are not part of the obect standard API. Moreover, the functions in "Tools" can be execetued for any new introdcued format as long as the standard API defined in "Base" is respected (but are optimzed for one format only).
+

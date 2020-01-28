@@ -7,9 +7,9 @@
 
 **Scientific publications:**
 
-    
+
     For Safran's module:
-    
+
     article 1: A Nonintrusive Distributed Reduced Order Modeling Framework for nonlinear structural mechanics -- application to elastoviscoplastic computations [arXiv](https://arxiv.org/abs/1812.07228)
 
     article 2: An error indicator-based adaptive reduced order model for nonlinear structural mechanics -- application to fatigue computation of high-pressure turbine blades [open access](https://www.mdpi.com/2297-8747/24/2/41)
@@ -26,11 +26,11 @@
     during developement, pylint and black where used
 
     recommandation: create a compatible conda environment by typing:
-    
+
     conda create --name mordicus python=3.8
-    
+
     conda install -c conda-forge pytest pytest-cov mpi4py appdirs scikit-learn scikit-sparse numpy scipy vtk sympy pyamg h5py pyparsing Cython sphinx setuptools pylint black
-    
+
     REMARK for windows:
         mpi4py does not work on its own, requires MPICH https://docs.microsoft.com/en-us/message-passing-interface/microsoft-mpi?redirectedfrom=MSDN
 
@@ -52,14 +52,6 @@
 
     The testing and coverage are done using pytest:
 
-	go to the src/poc-1/tests/ folder and type
-	pytest --cov=../src --cov-report=html:../coverage_report
-	a html report is generated in the src/coverage_report folder;
-        running pytest from any folder tests all the CheckIntegrity functions from all the python files in the folder and subfolders
-      
-    The Core and all modules must keep 100% coverage independantly:
-    Exemples for testing an individual folder:
-
     Core:
     go to tests/Mordicus/Core and run
     pytest --cov=../../src/Mordicus/Core --cov-report=html:../../coverageReports/coverageReportCore
@@ -67,13 +59,16 @@
     Safran's module:
     go to tests/Mordicus/Modules/Safran and run
     pytest --cov=../../../src/Mordicus/Modules/Safran --cov-report=html:../../../coverageReports/coverageReportModuleSafran
-    
-    
+
+    The Core and all modules must keep 100% coverage independantly.
+
+
+
 4) **EXAMPLES**
 
     Examples are available in the folder examples/
     They can be run by excuting the "mordicusScript" files
-    
+
 
 5) **CONTRIBUTION**
 
@@ -245,7 +240,7 @@ readline                  8.0                  hf8c457e_0    conda-forge
 
 requests                  2.22.0                   py38_1    conda-forge
 
-scikit-learn              0.21.1           py38h22eb022_0  
+scikit-learn              0.21.1           py38h22eb022_0
 
 scikit-sparse             0.4.4           py38h125a7a5_1001    conda-forge
 
