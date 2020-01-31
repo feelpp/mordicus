@@ -8,7 +8,7 @@ from Mordicus.Core.IO.InputReaderBase import InputReaderBase
 from BasicTools.IO import ZebulonIO as ZIO
 
 
-knownLoadingTags = ["pressure", "centrifugal", "temperature", "initialCondition"]
+knownLoadingTags = ["pressure", "centrifugal", "temperature", "initialCondition", "radiation", "convection_heat_flux"]
 knownProblemTypes = ["mechanical", "thermal_transient"]
 
 
@@ -214,6 +214,50 @@ class ZsetInputReader(InputReaderBase):
             loading.SetDirection(centrifugalDirection)
             loading.SetCoefficient(centrifugalCoefficient)
             loading.SetRotationVelocity(rotationVelocity)
+
+            return loading
+
+
+        if key == "radiation":
+
+            from Mordicus.Modules.Safran.Containers.Loadings import Radiation
+
+            loading = Radiation.Radiation(set)
+
+            stefanBoltzmannConstant = float(load[1])
+            coefficient = float(load[2])
+            sequence = tables[load[3]]
+
+            coefficients = collections.OrderedDict()
+            for i, time in enumerate(sequence["time"]):
+                coefficients[float(time)] = coefficient*sequence["value"][i]
+
+            loading.SetStefanBoltzmannConstant(stefanBoltzmannConstant)
+            loading.SetCoefficients(coefficients)
+
+            return loading
+
+
+        if key == "convection_heat_flux":
+
+            from Mordicus.Modules.Safran.Containers.Loadings import ConvectionHeatFlux
+
+            loading = ConvectionHeatFlux.ConvectionHeatFlux(set)
+
+            coefH = float(load[2])
+            coefficient = float(load[4])
+            sequence = tables[load[5]]
+
+            h = collections.OrderedDict()
+            h[sequence["time"][0]]  = coefH
+            h[sequence["time"][-1]] = coefH
+
+            Text = collections.OrderedDict()
+            for i, time in enumerate(sequence["time"]):
+                Text[float(time)] = coefficient*sequence["value"][i]
+
+            loading.SetH(h)
+            loading.SetText(Text)
 
             return loading
 
