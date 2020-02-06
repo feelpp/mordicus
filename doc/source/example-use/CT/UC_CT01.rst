@@ -73,13 +73,14 @@ Pour mieux prendre en compte les conditions réelles où évolue le lanceur au c
   | Description         | Step     | Action                                                                   |
   +---------------------+----------+------------------------+-------------------------------------------------+
   |                     | 1        | User sets the parameters and their range + available results if any.     |
-  |                     |          | Gets a dedicated DoE table (from Mordicus guidelines on methods or other tool)|
+  |                     |          | Gets a dedicated DoE table (from Mordicus guidelines on methods or other |
+  |                     |          | tool)                                                                    |
   +---------------------+----------+------------------------+-------------------------------------------------+
   |                     | 2        | User computes (automatic computation campaign on parametrized model)     |
   |                     |          | and gathers results for quantities of interest in the table              |
   +---------------------+----------+------------------------+-------------------------------------------------+
   |                     | 3        | User creates Mordicus case and provides results of the DoE: table        |
-  |                     |          | *Mach incidence altitude* Ca Cn Xcp            |
+  |                     |          | *Mach incidence altitude* Ca Cn Xcp                                      |
   +---------------------+----------+------------------------+-------------------------------------------------+
   |                     | 4        | Mordicus builds reduced order bases, according to various methods.       |
   |                     |          | Each reduction method results in an error estimation.                    |
