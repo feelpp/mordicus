@@ -3,13 +3,21 @@ from __future__ import print_function
 from Mordicus.Modules.Phimeca.IO.OTSolutionReader import OTSolutionReader
 from Mordicus.Modules.Phimeca.IO.OTMeshReader import OTMeshReader
 
-from Mordicus.Core.Containers import ProblemData as PD
-from Mordicus.Core.Containers import CollectionProblemData as CPD
-from Mordicus.Core.Containers import Solution as S
-from Mordicus.Core.DataCompressors import SnapshotPOD
+from Mordicus.Core.Containers.ProblemData import ProblemData 
+from Mordicus.Core.Containers.CollectionProblemData import CollectionProblemData
+from Mordicus.Core.Containers.Solution import Solution
+from Mordicus.Core.DataCompressors import SnapshotPOD as SP
+from Mordicus.Core.OperatorCompressors import Regression
 
 import numpy as np
 import openturns as ot
+from sklearn.gaussian_process.kernels import WhiteKernel, RBF
+from sklearn.gaussian_process import GaussianProcessRegressor
+
+import matplotlib.pyplot as plt
+import matplotlib
+matplotlib.use('Agg')
+
 
 # Some parameters
 tmin=0.0 # start time
@@ -46,7 +54,7 @@ size = 10
 inputSample = distX.getSample(size)
 outputSample = alti(inputSample)
 
-print("Create ProblemData...")
+print("-- Create ProblemData...")
 reader = OTMeshReader(ot_mesh)
 mesh = reader.ReadMesh()
 
@@ -55,9 +63,9 @@ nbeOfComponents = outputSample.getDimension()
 primality = True
 
 dataFolder = '.'
-problemData = PD.ProblemData(dataFolder)
+problemData = ProblemData(dataFolder)
 
-solutionZ = S.Solution('Z', nbeOfComponents, numberOfNodes, primality)
+solutionZ = Solution('Z', nbeOfComponents, numberOfNodes, primality)
 problemData.AddSolution(solutionZ)
 
 for i in range(size):
@@ -77,53 +85,43 @@ for i in range(size):
 
 
 
-collectionProblemData = CPD.CollectionProblemData()
+collectionProblemData = CollectionProblemData()
 collectionProblemData.AddProblemData(problemData)
 
+print("-- Offline...")
+reducedOrderBasis = SP.ComputeReducedOrderBasisFromCollectionProblemData(collectionProblemData, "Z", 1.0e-8)
+collectionProblemData.AddReducedOrderBasis("Z", reducedOrderBasis)
+collectionProblemData.CompressSolutions("Z")
 
+kernel = 1.0 * RBF(length_scale=100.0, length_scale_bounds=(1e-2, 1e3)) + WhiteKernel(noise_level=1, noise_level_bounds=(1e-10, 1e1))
+gpr = GaussianProcessRegressor(kernel=kernel, alpha=0.0)
 
-#print("ComputeL2ScalarProducMatrix...")
-#l2ScalarProducMatrix = FT.ComputeL2ScalarProducMatrix(mesh, 3)
-#collectionProblemData.SetSnapshotCorrelationOperator("U", l2ScalarProducMatrix)
+Regression.CompressOperator(collectionProblemData, "Z", gpr)
 
-#reducedOrderBasisU = SP.ComputeReducedOrderBasisFromCollectionProblemData(
-        #collectionProblemData, "U", 1.e-4
-#)
-#collectionProblemData.AddReducedOrderBasis("U", reducedOrderBasisU)
-#collectionProblemData.CompressSolutions("U")
+print("-- Online ...")
+onlineProblemData = ProblemData("Online")
+newInputs = distX.getSample(5)
+for i in range(newInputs.getSize()):
+    onlineProblemData.AddParameter(np.array(newInputs[i]), float(i))
+onlineSolution = Solution('Z', nbeOfComponents, numberOfNodes, primality)
+onlineProblemData.AddSolution(onlineSolution)
+operatorCompressionData = collectionProblemData.GetOperatorCompressionData()
 
+onlineCompressedSnapshots = Regression.ComputeOnline(onlineProblemData, operatorCompressionData)
+onlineSolution.SetCompressedSnapshots(onlineCompressedSnapshots)
+onlineProblemData.UncompressSolution('Z', reducedOrderBasis)
+newOutputs = [onlineSolution.GetSnapshot(float(i)) for i in range(newInputs.getSize())]
 
-
-#solutionUApprox = S.Solution("U", nbeOfComponentsPrimal, numberOfNodes, primality = True)
-#solutionUApprox.SetCompressedSnapshots(solutionU.GetCompressedSnapshots())
-#solutionUApprox.UncompressSnapshots(reducedOrderBasisU)
-
-#compressionErrors = []
-
-#for t in outputTimeSequence:
-    #exactSolution = solutionU.GetSnapshotAtTime(t)
-    #approxSolution = solutionUApprox.GetSnapshotAtTime(t)
-    #norml2ExactSolution = np.linalg.norm(exactSolution)
-    #if norml2ExactSolution != 0:
-        #relError = np.linalg.norm(approxSolution-exactSolution)/norml2ExactSolution
-    #else:
-        #relError = np.linalg.norm(approxSolution-exactSolution)
-    #compressionErrors.append(relError)
-
-#print("compressionErrors =", compressionErrors)
-
-#Meca.CompressOperator(
-        #collectionProblemData, mesh, 1.e-3
-#)
-
-#print("CompressOperator done")
-
-#collectionProblemData.SaveState("mordicusState")
-
-#os.chdir(initFolder)
-
-
-
+print("-- Plot training/new trajectories ...")
+t = np.array(ot_mesh.getVertices())
+for i in range(outputSample.getSize()):
+    plt.plot(t, outputSample[i], color='blue', label='offline' if i==0 else '')
+for i in range(newInputs.getSize()):
+    plt.plot(t, newOutputs[i], color='red', label='online' if i==0 else '')
+plt.title('viscous fall')
+plt.legend()
+plt.savefig('viscous_fall.png')
+print("ok")
 
 # wget -c --no-check-certificate https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -P /tmp
 # bash /tmp/Miniconda3-latest-Linux-x86_64.sh -b -p $PWD/miniconda
