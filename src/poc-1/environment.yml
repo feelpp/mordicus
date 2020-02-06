@@ -1,0 +1,13 @@
+name: mordicus
+channels:
+  - conda-forge
+dependencies:
+  - python=3.8
+  - scikit-learn
+  - pytest-cov
+  - pylint
+  - black
+  - basictools
+  - matplotlib
+  - sphinx
+  - openturns

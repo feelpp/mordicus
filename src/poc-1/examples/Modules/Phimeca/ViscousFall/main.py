@@ -131,8 +131,7 @@ collectionProblemData.AddProblemData(problemData)
 # conda config --add channels conda-forge
 # conda config --set channel_priority strict
 # conda update conda
-# conda create --name mordicus python=3.8
-# conda install -c conda-forge pytest pytest-cov mpi4py appdirs scikit-learn scikit-sparse numpy scipy vtk sympy pyamg h5py pyparsing Cython sphinx setuptools pylint black
+# conda env create -f environment.yml 
 
 
 # cd tests/Core && PYTHONPATH=../../src pytest --cov=../../src/Mordicus/Core --cov-report=html:../../coverageReports/coverageReportCore
