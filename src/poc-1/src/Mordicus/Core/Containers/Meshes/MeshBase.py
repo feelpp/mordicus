@@ -37,7 +37,7 @@ class MeshBase(object):
             internal storage
         """
         if self.__storage is None:
-            raise ("Please set internal storage")  # pragma: no cover
+            raise AttributeError("Please set internal storage")  # pragma: no cover
         return self.__storage
     
 
@@ -64,7 +64,7 @@ class MeshBase(object):
         iterator
             an iterator over all the elements of the mesh
         """
-        raise ("Not implemented in MeshBase")  # pragma: no cover
+        raise NotImplementedError("Not implemented in MeshBase")  # pragma: no cover
 
     def GetNumberOfNodes(self):
         """

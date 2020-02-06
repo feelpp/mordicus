@@ -19,7 +19,7 @@ class MeshReaderBase(object):
         MeshBase
             mesh in one of the formats defined in Containers.Meshes
         """
-        raise ("Not implemented in ReaderBase")  # pragma: no cover
+        raise NotImplementedError("Not implemented in ReaderBase")  # pragma: no cover
 
     def __str__(self):
         res = "I am a MeshReaderBase, try instanciating a particular reader instead"

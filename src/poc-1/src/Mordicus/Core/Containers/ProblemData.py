@@ -159,7 +159,7 @@ class ProblemData(object):
             parameters
         """
         if self.parameters == False:
-            raise (
+            raise AttributeError(
                 "Please initialize parameters before trying to retrieve them."
             )  # pragma: no cover
         return self.parameters
@@ -273,7 +273,7 @@ class ProblemData(object):
         assert isinstance(solutionName, str)
 
         if solutionName not in self.solutions:
-            raise (
+            raise AttributeError(
                 "You must provide solutions "
                 + solutionName
                 + "before trying to compress them"
@@ -298,7 +298,7 @@ class ProblemData(object):
         assert isinstance(solutionName, str)
 
         if solutionName not in self.solutions:
-            raise (
+            raise AttributeError(
                 "You must provide solutions "
                 + solutionName
                 + "before trying to compress them"

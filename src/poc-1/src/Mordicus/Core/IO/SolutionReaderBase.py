@@ -28,7 +28,7 @@ class SolutionReaderBase(object):
         np.ndarray
             of size (numberOfDofs,)
         """
-        raise ("Not implemented in ReaderBase")  # pragma: no cover
+        raise NotImplementedError("Not implemented in ReaderBase")  # pragma: no cover
 
     def ReadTimeSequenceFromSolutionFile(self):
         """
@@ -39,7 +39,7 @@ class SolutionReaderBase(object):
         np.ndarray
             of size (numberOfSnapshots,)
         """
-        raise ("Not implemented in ReaderBase")  # pragma: no cover
+        raise NotImplementedError("Not implemented in ReaderBase")  # pragma: no cover
 
     def __str__(self):
         res = "I am a SolutionReaderBase, try instanciating a particular reader instead"

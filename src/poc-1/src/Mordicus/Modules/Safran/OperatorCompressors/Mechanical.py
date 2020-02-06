@@ -176,7 +176,7 @@ def ComputeOnline(onlineProblemData, timeSequence, reducedOrderBasis, operatorCo
             
             count += 1
             if count == 20:
-                raise("problem could not converge after 20 iterations") # pragma: no cover
+                raise RuntimeError("problem could not converge after 20 iterations") # pragma: no cover
         
         
         #mettre dans une fonction concludeTimeIteration ?  

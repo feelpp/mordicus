@@ -67,7 +67,7 @@ class CollectionProblemData(object):
         """
         assert isinstance(solutionName, str), "name must be of type string"
         if solutionName not in self.reducedOrderBases:
-            raise (
+            raise RuntimeError(
                 "You must compute a reducedOrderBasis for solution named "
                 + solutionName
                 + " before trying to retrieve it"
@@ -91,7 +91,7 @@ class CollectionProblemData(object):
         """
         assert isinstance(solutionName, str), "name must be of type string"
         if solutionName not in self.reducedOrderBases:
-            raise (
+            raise RuntimeError(
                 "You must compute a reducedOrderBasis for solution named "
                 + solutionName
                 + " before trying to retrieve it"
@@ -135,7 +135,7 @@ class CollectionProblemData(object):
         """
         assert isinstance(dataFolder, str), "dataFolder must be of type string"
         if dataFolder not in self.problemDatas:
-            raise (
+            raise RuntimeError(
                 "You must add a problemData with dataFolder "
                 + dataFolder
                 + " before trying to retrieve it"

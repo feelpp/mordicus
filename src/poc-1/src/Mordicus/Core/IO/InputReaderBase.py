@@ -19,7 +19,7 @@ class InputReaderBase(object):
         np.ndarray
             of size (numberOfSnapshots,)
         """
-        raise ("Not implemented in ReaderBase")  # pragma: no cover
+        raise NotImplementedError("Not implemented in ReaderBase")  # pragma: no cover
 
     def ConstructLoadingsList(self):
         """
@@ -30,13 +30,13 @@ class InputReaderBase(object):
         list
             list of loadings, each one having one of the formats defined in Containers.Loadings
         """
-        raise ("Not implemented in ReaderBase")  # pragma: no cover
+        raise NotImplementedError("Not implemented in ReaderBase")  # pragma: no cover
 
     def ConstructConstitutiveLawsVariablesList(self):
         """
         1g one of the formats defined in Containers.Loadings
         """
-        raise ("Not implemented in ReaderBase")  # pragma: no cover
+        raise NotImplementedError("Not implemented in ReaderBase")  # pragma: no cover
 
     def __str__(self):
         res = "I am an InputReaderBase, try instanciating a particular reader instead"

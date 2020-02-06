@@ -76,7 +76,7 @@ class ZsetMeshReader(MeshReaderBase):
             from BasicTools.IO.GeoReader import ReadGeo as Read
 
         else:  # pragma: no cover
-            raise ("FileName error!")
+            raise NotImplementedError("FileName error!")
                 
         data = Read(self.meshFileName)
         
