@@ -307,7 +307,7 @@ class Solution(object):
             compressedSnapshots value at time, of size (numberOfModes), using TimeInterpolation
         """
         # assert type of time
-        float(time)
+        time = float(time)
 
         return TI.TimeInterpolation(
             time, self.GetTimeSequenceFromCompressedSnapshots(), self.GetCompressedSnapshotsList()
