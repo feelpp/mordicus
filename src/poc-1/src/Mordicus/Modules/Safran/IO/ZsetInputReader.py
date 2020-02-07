@@ -124,7 +124,6 @@ class ZsetInputReader(InputReaderBase):
                     + str([key for key in knownLoadingTags])
                 )
 
-
         return loadings
 
 
@@ -348,6 +347,39 @@ class ZsetInputReader(InputReaderBase):
 
         import os, sys
 
+        folder = os.path.dirname(self.inputFileName) + os.sep
+
+        behavior = ZIO.GetBehavior(folder + materialFileName)
+
+
+        if problemType == "thermal_transient":
+
+            from Mordicus.Modules.Safran.Containers.ConstitutiveLaws import ThermalConstitutiveLaw as TCL
+
+            constitutiveLaw = TCL.ThermalConstitutiveLaw(set)
+
+            constitutiveLaw.SetBehavior(behavior)
+
+            data = ZIO.ReadInp2(folder + materialFileName, startingNstar=3)
+
+            conductivityTemp = []
+            conductivityVal = []
+            for step in ZIO.GetFromInp(data,{'3':['behavior', 'thermal'], '2':['conductivity', 'isotropic']})[0][2:]:
+                conductivityTemp.append(float(step[1]))
+                conductivityVal.append(float(step[0]))
+
+            constitutiveLaw.SetThermalConductivity(conductivityTemp, conductivityVal)
+
+            capacityTemp = []
+            capacityVal = []
+            for step in ZIO.GetFromInp(data,{'3':['behavior', 'thermal'], '2':['coefficient']})[0][2:]:
+                capacityTemp.append(float(step[1]))
+                capacityVal.append(float(step[0]))
+
+            constitutiveLaw.SetThermalCapacity(capacityTemp, capacityVal)
+
+            return constitutiveLaw
+
 
         if problemType == "mechanical":
 
@@ -356,12 +388,9 @@ class ZsetInputReader(InputReaderBase):
 
             constitutiveLaw = ZCL.ZmatConstitutiveLaw(set)
 
-            folder = os.path.dirname(self.inputFileName) + os.sep
-
             density = ZIO.GetDensity(folder + materialFileName)
             constitutiveLaw.SetDensity(density)
 
-            behavior = ZIO.GetBehavior(folder + materialFileName)
             constitutiveLaw.SetBehavior(behavior)
 
             constitutiveLawVariables = {}
