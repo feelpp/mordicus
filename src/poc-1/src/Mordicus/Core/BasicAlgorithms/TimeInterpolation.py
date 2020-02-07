@@ -25,7 +25,7 @@ def TimeInterpolation(time, timeIndices, vectors, vectorsMap = None):
     np.ndarray
         interpolated vector, of size (numberOfDofs)
     """
-    float(time)
+    time = float(time)
     timeIndices = np.array(timeIndices)
 
     if vectorsMap == None:
