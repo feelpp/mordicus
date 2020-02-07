@@ -72,10 +72,7 @@ for i in range(size):
     solutionReader = OTSolutionReader(outputSample)
     #print(outputSample[i].getValues()[:5])
 
-    # FIXME: indexing variable is not time, it is just the id of the realization, but we have to cast it to a float
-    time = float(i)
-    print('time=', time)
-    snapshot = solutionReader.ReadSnapshotComponent(solutionZ.GetSolutionName(), time, solutionZ.GetPrimality())
+    snapshot = solutionReader.ReadSnapshotComponent(solutionZ.GetSolutionName(), i, solutionZ.GetPrimality())
     #print(snapshot.shape)
 
     solutionZ.AddSnapshot(snapshot, time)
@@ -102,7 +99,7 @@ print("-- Online ...")
 onlineProblemData = ProblemData("Online")
 newInputs = distX.getSample(5)
 for i in range(newInputs.getSize()):
-    onlineProblemData.AddParameter(np.array(newInputs[i]), float(i))
+    onlineProblemData.AddParameter(np.array(newInputs[i]), i)
 onlineSolution = Solution('Z', nbeOfComponents, numberOfNodes, primality)
 onlineProblemData.AddSolution(onlineSolution)
 operatorCompressionData = collectionProblemData.GetOperatorCompressionData()
@@ -110,7 +107,7 @@ operatorCompressionData = collectionProblemData.GetOperatorCompressionData()
 onlineCompressedSnapshots = Regression.ComputeOnline(onlineProblemData, operatorCompressionData)
 onlineSolution.SetCompressedSnapshots(onlineCompressedSnapshots)
 onlineProblemData.UncompressSolution('Z', reducedOrderBasis)
-newOutputs = [onlineSolution.GetSnapshot(float(i)) for i in range(newInputs.getSize())]
+newOutputs = [onlineSolution.GetSnapshot(i) for i in range(newInputs.getSize())]
 
 print("-- Plot training/new trajectories ...")
 t = np.array(ot_mesh.getVertices())

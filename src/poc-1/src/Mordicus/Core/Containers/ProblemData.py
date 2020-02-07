@@ -75,7 +75,7 @@ class ProblemData(object):
         self.solutions[solution.GetSolutionName()] = solution
 
 
-    def AddParameter(self, parameter, time = None):
+    def AddParameter(self, parameter, time = 0.):
         """
         Adds a parameter at time "time"
 
@@ -86,12 +86,8 @@ class ProblemData(object):
         parameter : np.ndarray
             of size (parameterDimension,)
         """
-
-        assert isinstance(time, (float, np.float64, type(None)))
         assert type(parameter) == np.ndarray and len(parameter.shape) == 1
-
-        if time == None:
-            time = 0.
+        time = float(time)
 
         if time in self.parameters:
             print(

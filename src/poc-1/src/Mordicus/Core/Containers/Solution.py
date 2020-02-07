@@ -61,7 +61,7 @@ class Solution(object):
         snapshot : np.ndarray
             of size (numberOfDOFs,)
         """
-        assert isinstance(time, (float, np.float64))
+        time = float(time)
         assert len(snapshot.shape) == 1 and snapshot.shape[0] == self.numberOfDOFs
 
         if time in self.snapshots:
@@ -202,7 +202,7 @@ class Solution(object):
             snapshot at time, of size (numberOfDOFs), using TimeInterpolation
         """
         # assert type of time
-        assert isinstance(time, (np.float64, float))
+        time = float(time)
 
         return TI.TimeInterpolation(
             time, self.GetTimeSequenceFromSnapshots(), self.GetSnapshotsList()
@@ -307,7 +307,7 @@ class Solution(object):
             compressedSnapshots value at time, of size (numberOfModes), using TimeInterpolation
         """
         # assert type of time
-        assert isinstance(time, (np.float64, float))
+        float(time)
 
         return TI.TimeInterpolation(
             time, self.GetTimeSequenceFromCompressedSnapshots(), self.GetCompressedSnapshotsList()
