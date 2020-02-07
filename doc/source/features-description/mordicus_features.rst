@@ -1,4 +1,3 @@
-
 .. note:: **Cas d'usage de la bibliothèque MOR_DICUS**
 
    *Contributeurs* : participants au Hackaton Mordicus du 21/11/2018
@@ -219,11 +218,11 @@ Tableau d'utilisation des cas d'usage par entité
 | d’expérience                          |        |         |       |    |        |        |          |     |         |     |       |
 +---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
 | Utilisation d’un modèle réduit avec   |        |         |       |    |        |        |          |     |         |     |       |
-| des mesures in-situ (en laboratoire,  |   3    |         |  X    |    |        |        |          |     |   X     |     |  X    |
+| des mesures in-situ (en laboratoire,  |   4    |         |  X    | X  |        |        |          |     |   X     |     |  X    |
 | sur site de production...)            |        |         |       |    |        |        |          |     |         |     |       |
 +---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
 | Disposer d’un clone digital basé sur  |        |         |       |    |        |        |          |     |         |     |       |
-| un modèle réduit                      |   1    |         |       |    |        |        |          |     |   X     |     |       |
+| un modèle réduit                      |   2    |         |       | X  |        |        |          |     |   X     |     |       |
 +---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
 | Générer un champ complet à partir     |        |         |       |    |        |        |          |     |         |     |       |
 | d’un modèle réduit                    |   4    |         |       |    |        |        |    X     |  X  |   X     |     |  X    |
@@ -233,7 +232,7 @@ Tableau d'utilisation des cas d'usage par entité
 +---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
 | Archiver une liste de modèles réduits |   1    |         |       |    |        |        |          |     |   X     |     |       |
 +---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
-| Gérer une taille mémoire prescrite    |   1    |         |       |    |        |        |          |     |         |     |  X    |
+| Gérer une taille mémoire prescrite    |   2    |         |       | X  |        |        |          |     |         |     |  X    |
 | pour l’élaboration d’un modèle réduit |        |         |       |    |        |        |          |     |         |     |       |
 +---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
 | Couvrir avec un modèle réduit un      |        |         |       |    |        |        |          |     |         |     |       |
@@ -279,21 +278,21 @@ Tableau d'utilisation des cas d'usage par entité
 +---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
 | Utilisateur sachant établir le modèle réduit                                                                                     |
 +---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
-| Création d’un modèle réduit avec des  |   1    |         |       |    |        |        |          | X   |   X     |     |       |
+| Création d’un modèle réduit avec des  |   2    |         |       | X  |        |        |          | X   |   X     |     |       |
 | informations provenant de mesures     |        |         |       |    |        |        |          |     |         |     |       |
 +---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
 | Déduire un modèle réduit 2 à partir   |        |         |       |    |        |        |          |     |         |     |       |
 | d’un modèle réduit 1                  |   1    |         |       |    |        |        |          |     |         |     |  X    |
 +---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
 | Permettre le calcul multi-échelles ou |        |         |       |    |        |        |          |     |         |     |       |
-| multi-physiques de systèmes           |   1    |         |       |    |        |        |          |     |   X     |     |       |
+| multi-physiques de systèmes           |   2    |         |       | X  |        |        |          |     |   X     |     |       |
 | représentés par des modèles réduits   |        |         |       |    |        |        |          |     |         |     |       |
 +---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
 | Permettre la visualisation du modèle  |        |         |       |    |        |        |          |     |         |     |       |
 | réduit lui-même                       |   4    |         |       |    |        |   X    |    X     |     |   x     |     |  X    |
 +---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
 | Construire un modèle réduit 3 en      |        |         |       |    |        |        |          |     |         |     |       |
-| combinant deux modèles réduits 1 et 2 |   1    |         |       |    |        |        |          | X   |         |     |       |
+| combinant deux modèles réduits 1 et 2 |   2    |         |       | X  |        |        |          | X   |         |     |       |
 +---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
 | Évaluer l’intérêt de la démarche      |        |         |       |    |        |        |          |     |         |     |       |
 | “Offline+Modèle réduit” par rapport à |        |         |       |    |        |        |          |     |         |     |       |
@@ -301,7 +300,7 @@ Tableau d'utilisation des cas d'usage par entité
 | fidélité                              |        |         |       |    |        |        |          |     |         |     |       |
 +---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
 | Construire un modèle réduit lorsque   |        |         |       |    |        |        |          |     |         |     |       |
-| le maillage (voire la géométrie)      |   1    |         |       |    |        |        |    X     |     |         |     |       |
+| le maillage (voire la géométrie)      |   2    |         |       | X  |        |        |    X     |     |         |     |       |
 | change entre les différents snapshots |        |         |       |    |        |        |          |     |         |     |       |
 +---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
 | Utilisation de tous les calculs       |        |         |       |    |        |        |          |     |         |     |       |
