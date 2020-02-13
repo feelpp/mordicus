@@ -8,7 +8,7 @@ def ComputeReducedOrderBasisFromCollectionProblemData(
 ):
     """
     Computes a reducedOrderBasis using the SnapshotPOD algorithm, from the snapshots contained in the solutions of name "solutionName" from all problemDatas in collectionProblemData, with tolerance as target accuracy of the data compression
-    
+
     Parameters
     ----------
     collectionProblemData : CollectionProblemData
@@ -17,7 +17,7 @@ def ComputeReducedOrderBasisFromCollectionProblemData(
         name of the solutions from which snapshots are taken
     tolerance : float
         target accuracy of the data compression
-                
+
     Returns
     -------
     np.ndarray
@@ -34,7 +34,7 @@ def ComputeReducedOrderBasisFromCollectionProblemData(
 def ComputeReducedOrderBasis(snapshotsIterator, snapshotCorrelationOperator, tolerance):
     """
     Computes a reducedOrderBasis using the SnapshotPOD algorithm, from the snapshots contained in the iterator  snapshotsIterator, which a correlation operator between the snapshots defined by the matrix snapshotCorrelationOperator, with tolerance as target accuracy of the data compression
-    
+
     Parameters
     ----------
     snapshotsIterator : iterator
@@ -43,42 +43,51 @@ def ComputeReducedOrderBasis(snapshotsIterator, snapshotCorrelationOperator, tol
         correlation operator between the snapshots
     tolerance : float
         target accuracy of the data compression
-                
+
     Returns
     -------
     np.ndarray
         of size (numberOfModes, numberOfDOFs)
     """
 
-    numberOfSnapshots = 0
+    snapshots = []
+
     for s in snapshotsIterator:
-        numberOfSnapshots += 1
-    numberOfDOFs = s.shape[0]
+        snapshots.append(s)
+
+    snapshots = np.array(snapshots)
+
+    numberOfDOFs = snapshots.shape[1]
+    numberOfSnapshots = snapshots.shape[0]
+
 
     correlationMatrix = np.zeros((numberOfSnapshots, numberOfSnapshots))
-    for i, snapshot1 in enumerate(snapshotsIterator):
+    for i, snapshot1 in enumerate(snapshots):
         matVecProduct = snapshotCorrelationOperator.dot(snapshot1)
-        for j, snapshot2 in enumerate(snapshotsIterator):
+        for j, snapshot2 in enumerate(snapshots):
             if i >= j:
                 correlationMatrix[i, j] = np.dot(matVecProduct, snapshot2)
-                            
-                
+
+
     mpiReducedCorrelationMatrix = np.zeros((numberOfSnapshots, numberOfSnapshots))
-    MPI.COMM_WORLD.Allreduce([correlationMatrix,  MPI.DOUBLE], [mpiReducedCorrelationMatrix,  MPI.DOUBLE])                
+    MPI.COMM_WORLD.Allreduce([correlationMatrix,  MPI.DOUBLE], [mpiReducedCorrelationMatrix,  MPI.DOUBLE])
 
     from Mordicus.Core.BasicAlgorithms import SVD as SVD
 
 
     eigenValuesRed, eigenVectorsRed = SVD.TruncatedSVDSymLower(mpiReducedCorrelationMatrix, tolerance)
-    
+
     nbePODModes = eigenValuesRed.shape[0]
-    
+
     print("nbePODModes =", nbePODModes)
-        
-    reducedOrderBasis = np.zeros((nbePODModes, numberOfDOFs))
-    for i in range(nbePODModes):
-        for j, snapshot in enumerate(snapshotsIterator):
-            reducedOrderBasis[i, :] += (eigenVectorsRed[j, i] / np.sqrt(eigenValuesRed[i])) * snapshot 
+
+
+    changeOfBasisMatrix = np.zeros((nbePODModes,numberOfSnapshots))
+    for j in range(nbePODModes):
+        changeOfBasisMatrix[j,:] = eigenVectorsRed[:,j]/np.sqrt(eigenValuesRed[j])
+
+    reducedOrderBasis = np.dot(changeOfBasisMatrix,snapshots)
+
 
     return reducedOrderBasis
 
