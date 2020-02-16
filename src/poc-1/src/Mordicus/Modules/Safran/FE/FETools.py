@@ -9,7 +9,7 @@ def ComputeL2ScalarProducMatrix(mesh, numberOfComponents):
     between the primal solution snapshots. The numberOfComponents
     depends on the solution type: 3 for solid mechanics in 3D, or 1 for
     thermal in any dimension
-    
+
     Optimal input mesh format is BasicToolsUnstructuredMesh.
 
     Parameters
@@ -18,7 +18,7 @@ def ComputeL2ScalarProducMatrix(mesh, numberOfComponents):
             the geometric support of the solution from one of the formats defined in Containers.Meshes
     numberOfComponents : int
         the number of components of the primal variable snapshots
-        
+
     Returns
     -------
     scipy.sparse.csr
@@ -32,14 +32,14 @@ def ComputeL2ScalarProducMatrix(mesh, numberOfComponents):
 def ComputeH10ScalarProductMatrix(mesh, numberOfComponents):
     """
     Computes the H10 scalar product matrix.
-    
+
     Optimal input mesh format is BasicToolsUnstructuredMesh.
-    
+
     Parameters
     ----------
     numberOfComponents : int
         the number of components of the primal variable snapshots
-        
+
     Returns
     -------
     scipy.sparse.csr
@@ -91,20 +91,35 @@ def IntegrateVectorNormalComponentOnSurface(mesh, set, vector):
 def ComputeIntegrationPointsTags(mesh, dimension):
 
     unstructuredMesh = ConvertMeshToUnstructuredMesh(mesh)
-    
+
     return FT.ComputeIntegrationPointsTags(unstructuredMesh, dimension)
 
 
 def IntegrateCentrifugalEffect(mesh, density, direction, center):
 
     unstructuredMesh = ConvertMeshToUnstructuredMesh(mesh)
-    
+
     return FT.IntegrateCentrifugalEffect(unstructuredMesh, density, direction, center)
+
+
+def IntegrateOrderOneTensorOnSurface(mesh, set, orderOneTensor):
+
+    unstructuredMesh = ConvertMeshToUnstructuredMesh(mesh)
+
+    return FT.IntegrateOrderOneTensorOnSurface(unstructuredMesh, set, orderOneTensor)
+
+
+def IntegrateOrderTwoTensorOnSurface(mesh, set, orderTwoTensor):
+
+    unstructuredMesh = ConvertMeshToUnstructuredMesh(mesh)
+
+    return FT.IntegrateOrderTwoTensorOnSurface(unstructuredMesh, set, orderTwoTensor)
+
 
 
 
 def ConvertMeshToUnstructuredMesh(mesh):
-    
+
     if isinstance(mesh, BTUM.BasicToolsUnstructuredMesh) == False:
         """from BasicTools.Containers import UnstructuredMesh as UM
         unstructuredMesh = UM.UnstructuredMesh()

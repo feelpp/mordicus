@@ -8,6 +8,10 @@ cd ../MecaSequential/
 python3 mordicusPODECMMecaZsetOffline.py
 python3 mordicusPODECMMecaZsetOnline.py
 
+cd ../MecaSequentialLinear/
+python3 mordicusPODECMMecaZsetOffline.py
+python3 mordicusPODECMMecaZsetOnline.py
+
 cd ../MecaSequentialNoZset/
 python3 mordicusPODECMMecaZsetOffline.py
 python3 mordicusPODECMMecaZsetOnline.py

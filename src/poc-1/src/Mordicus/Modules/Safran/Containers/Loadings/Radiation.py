@@ -7,15 +7,16 @@ import collections
 
 class Radiation(LoadingBase):
     """
-    Class containing a Loading of type pressure boundary condition. A pressure vector over the elements of set at time t is given by : coefficients[ t ] * fields[ fieldsMap[ t ] ]
-
+    Class containing a Loading of type radiation
 
     Attributes
     ----------
-    coefficients : collections.OrderedDict()
-        dictionary with time indices (float) as keys and temporal coefficients (float) as values
+    Text : collections.OrderedDict()
+        dictionary with time indices (float) as keys and temporal Text (float) as values
     StefanBoltzmannConstant    : float
         the Stefan Boltzmann constant used for the boundary condition computation
+    assembledReducedOrderBasisOnSet : numpy.ndarray
+        size (numberOfModes)
     """
 
     def __init__(self, set):
@@ -24,30 +25,32 @@ class Radiation(LoadingBase):
         super(Radiation, self).__init__(set, "radiation")
 
         self.StefanBoltzmannConstant = None
-        self.coefficients = collections.OrderedDict
+        self.Text = collections.OrderedDict
+        self.assembledReducedOrderBasisOnSet = None
 
 
-    def SetCoefficients(self, coefficients):
+    def SetText(self, Text):
         """
         Sets the coeffients attribute of the class
 
         Parameters
         ----------
-        coefficients : collections.OrderedDict
+        Text : collections.OrderedDict
         """
-        # assert type of coefficients
-        assert isinstance(coefficients, collections.OrderedDict)
+        # assert type of Text
+        assert isinstance(Text, collections.OrderedDict)
         assert np.all(
-            [isinstance(key, (float, np.float64)) for key in list(coefficients.keys())]
+            [isinstance(key, (float, np.float64)) for key in list(Text.keys())]
         )
         assert np.all(
             [
                 isinstance(key, (float, np.float64))
-                for key in list(coefficients.values())
+                for key in list(Text.values())
             ]
         )
 
-        self.coefficients = coefficients
+        self.Text = Text
+
 
     def SetStefanBoltzmannConstant(self, stefanBoltzmannConstant):
         """
@@ -63,10 +66,9 @@ class Radiation(LoadingBase):
         self.stefanBoltzmannConstant = stefanBoltzmannConstant
 
 
-
-    def GetCoefficientAtTime(self, time):
+    def GetTextAtTime(self, time):
         """
-        Computes the coefficient at time, using TimeInterpolation
+        Computes Text at time, using PieceWiseLinearInterpolation
 
         Parameters
         ----------
@@ -75,25 +77,29 @@ class Radiation(LoadingBase):
         Returns
         -------
         float
-            coefficient at time
+            Text at time
         """
 
         # assert type of time
         assert isinstance(time, (float, np.float64))
 
-        from Mordicus.Core.BasicAlgorithms import TimeInterpolation as TI
+        from Mordicus.Core.BasicAlgorithms import Interpolation as TI
 
         # compute coefficient at time
-        coefficient = TI.TimeInterpolation(
-            time, list(self.coefficients.keys()), list(self.coefficients.values())
+        Text = TI.PieceWiseLinearInterpolation(
+            time, list(self.Text.keys()), list(self.Text.values())
         )
-        return coefficient
+        return Text
 
 
 
-    def ReduceLoading(self, mesh, problemData, reducedOrderBasis, snapshotCorrelationOperator, operatorCompressionData):
+    def ReduceLoading(self, mesh, problemData, reducedOrderBasis, operatorCompressionData):
 
-        return
+        assert isinstance(reducedOrderBasis, np.ndarray)
+
+        from Mordicus.Modules.Safran.FE import FETools as FT
+
+        self.assembledReducedOrderBasisOnSet = FT.IntegrateOrderOneTensorOnSurface(mesh, self.set, reducedOrderBasis)
 
 
 
@@ -101,11 +107,12 @@ class Radiation(LoadingBase):
         """
         1.
         """
-
         # assert type of time
         assert isinstance(time, (float, np.float64))
 
-        return #self.GetAssembledReducedFieldAtTime(time)
+        Text = self.GetTextAtTime(time)
+
+        return self.stefanBoltzmannConstant*(Text**4)*self.assembledReducedOrderBasisOnSet
 
 
 

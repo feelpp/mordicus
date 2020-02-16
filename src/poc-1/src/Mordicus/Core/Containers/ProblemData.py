@@ -3,7 +3,6 @@
 import numpy as np
 
 from Mordicus.Core.Containers import Solution
-from Mordicus.Core.Containers.Loadings import LoadingBase
 import collections
 
 
@@ -17,6 +16,8 @@ class ProblemData(object):
         name of the folder containing the data of the problemData, relative to the mordicus client script
     solutions : dict
         dictionary with solutionNames (str) as keys and solution (Solution) as values
+    initialCondition : InitialConditionBase
+        initial condition of the problem
     loadings : list
         dictionary with identifier (str) as keys and loading (LoadingBase) as values
     constitutiveLaws : dict
@@ -31,12 +32,14 @@ class ProblemData(object):
         ----------
         dataFolder : str
         solutions : dict
+        initialCondition : InitialConditionBase
         loadings : dict
         constitutiveLaws : dict
         parameters : collections.OrderedDict
         """
         self.dataFolder = dataFolder
         self.solutions = {}
+        self.initialCondition = None
         self.loadings = {}
         self.constitutiveLaws = {}
         self.parameters = collections.OrderedDict()
@@ -121,6 +124,27 @@ class ProblemData(object):
                 )  # pragma: no cover
 
             self.constitutiveLaws[law.GetIdentifier()] = law
+
+
+    def SetInitialCondition(self, initialCondition):
+        """
+        Parameters
+        ----------
+        initialCondition : InitialCondition
+            initial condition of the problem
+        """
+        self.initialCondition = initialCondition
+
+
+    def GetInitialCondition(self):
+        """
+        Returns
+        -------
+        initialCondition : InitialCondition
+            initial condition of the problem
+        """
+        return self.initialCondition
+
 
 
     def AddLoading(self, loading):
@@ -211,9 +235,9 @@ class ProblemData(object):
         np.ndarray
             parameter
         """
-        from Mordicus.Core.BasicAlgorithms import TimeInterpolation as TI
+        from Mordicus.Core.BasicAlgorithms import Interpolation as TI
 
-        return TI.TimeInterpolation(
+        return TI.PieceWiseLinearInterpolation(
             time, list(self.parameters.keys()), list(self.parameters.values())
         )
 
@@ -226,6 +250,21 @@ class ProblemData(object):
             loadings of the problem
         """
         return self.loadings
+
+
+
+    def GetLoadingsOfType(self, type):
+        """
+        Returns
+        -------
+        list
+            list loadings of type type
+        """
+        li = []
+        for key, value in self.GetLoadings().items():
+            if key[0] == type:
+                li.append(value)# pragma: no cover
+        return li
 
 
 
@@ -297,7 +336,7 @@ class ProblemData(object):
             raise AttributeError(
                 "You must provide solutions "
                 + solutionName
-                + "before trying to compress them"
+                + " before trying to compress them"
             )  # pragma: no cover
 
         solution = self.GetSolution(solutionName)

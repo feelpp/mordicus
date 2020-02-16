@@ -66,7 +66,6 @@ def test():
     problemData.AddSolution(solutionSigma)
     problemData.AddSolution(solutionEvrcum)
 
-
     collectionProblemData = CollectionProblemData.CollectionProblemData()
     collectionProblemData.AddProblemData(problemData)
 
@@ -120,9 +119,16 @@ def test():
     loadingList = inputReader.ConstructLoadingsList()
     onlineProblemData.AddLoading(loadingList)
     for loading in loadingList:
-        loading.ReduceLoading(mesh, onlineProblemData, reducedOrderBasisU, snapshotCorrelationOperator, operatorCompressionData)
+        loading.ReduceLoading(mesh, onlineProblemData, reducedOrderBasisU, operatorCompressionData)
 
-    onlineCompressedSolution = Meca.ComputeOnline(onlineProblemData, timeSequence, reducedOrderBasisU, operatorCompressionData, 1.e-4)
+    initialCondition = inputReader.ConstructInitialCondition()
+    onlineProblemData.SetInitialCondition(initialCondition)
+
+    initialCondition.ReduceInitialSnapshot(reducedOrderBasisU, snapshotCorrelationOperator)
+
+    initOnlineCompressedSnapshot = initialCondition.GetReducedInitialSnapshot()
+
+    onlineCompressedSolution = Meca.ComputeOnline(onlineProblemData, initOnlineCompressedSnapshot, timeSequence, reducedOrderBasisU, operatorCompressionData, 1.e-4)
 
     from Mordicus.Modules.Safran.BasicAlgorithms import GappyPOD as GP
 
@@ -166,12 +172,12 @@ def test():
     from Mordicus.Modules.Safran.Containers.ConstitutiveLaws import TestMecaConstitutiveLaw as TMCL
     elasConsitutiveLaw = TMCL.TestMecaConstitutiveLaw('ALLELEMENT')
     onlineProblemData.AddConstitutiveLaw(elasConsitutiveLaw)
-    onlineCompressedSolution = Meca.ComputeOnline(onlineProblemData, timeSequence, reducedOrderBasisU, operatorCompressionData, 1.e-4)
+    onlineCompressedSolution = Meca.ComputeOnline(onlineProblemData, initOnlineCompressedSnapshot, timeSequence, reducedOrderBasisU, operatorCompressionData, 1.e-4)
 
 
     elasConsitutiveLaw = inputReader.ConstructOneConstitutiveLaw("elas", 'ALLELEMENT', "mechanical")
     onlineProblemData.AddConstitutiveLaw(elasConsitutiveLaw)
-    onlineCompressedSolution = Meca.ComputeOnline(onlineProblemData, timeSequence, reducedOrderBasisU, operatorCompressionData, 1.e-4)
+    onlineCompressedSolution = Meca.ComputeOnline(onlineProblemData, initOnlineCompressedSnapshot, timeSequence, reducedOrderBasisU, operatorCompressionData, 1.e-4)
 
     os.system("rm -rf mordicusState.pkl")
 

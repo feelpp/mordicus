@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
-from Mordicus.Core.BasicAlgorithms import TimeInterpolation as TI
+from Mordicus.Core.BasicAlgorithms import Interpolation as TI
 import collections
 from mpi4py import MPI
 
@@ -199,12 +199,12 @@ class Solution(object):
         Returns
         -------
         np.ndarray
-            snapshot at time, of size (numberOfDOFs), using TimeInterpolation
+            snapshot at time, of size (numberOfDOFs), using PieceWiseLinearInterpolation
         """
         # assert type of time
         time = float(time)
 
-        return TI.TimeInterpolation(
+        return TI.PieceWiseLinearInterpolation(
             time, self.GetTimeSequenceFromSnapshots(), self.GetSnapshotsList()
         )
 
@@ -282,8 +282,8 @@ class Solution(object):
             of size (numberOfModes, numberOfDOFs)
         """
 
-        if self.snapshots != False:
-            print("Solution already compressed. Replacing it anyway")  # pragma: no cover
+        if bool(self.snapshots):
+            print("Solution already uncompressed. Replacing it anyway")  # pragma: no cover
 
         import collections
         snapshots = collections.OrderedDict()
@@ -304,12 +304,12 @@ class Solution(object):
         Returns
         -------
         np.ndarray
-            compressedSnapshots value at time, of size (numberOfModes), using TimeInterpolation
+            compressedSnapshots value at time, of size (numberOfModes), using PieceWiseLinearInterpolation
         """
         # assert type of time
         time = float(time)
 
-        return TI.TimeInterpolation(
+        return TI.PieceWiseLinearInterpolation(
             time, self.GetTimeSequenceFromCompressedSnapshots(), self.GetCompressedSnapshotsList()
         )
 

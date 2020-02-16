@@ -39,17 +39,17 @@ class ConstitutiveLawBase(object):
             the type of constitutive law
         """
         return self.type
-    
+
 
     def GetIdentifier(self):
         """
         Returns
         -------
-        couple of strings (set, type)
+        couple of string set
             the identifier of constitutive law
         """
-        return (self.type, self.set)
-    
+        return self.set
+
 
     def __str__(self):
         res = "I am a ConstitutiveLawBase, try instanciating a particular physical constitutive law instead"

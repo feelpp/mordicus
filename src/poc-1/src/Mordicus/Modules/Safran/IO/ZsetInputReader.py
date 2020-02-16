@@ -8,7 +8,7 @@ from Mordicus.Core.IO.InputReaderBase import InputReaderBase
 from BasicTools.IO import ZebulonIO as ZIO
 
 
-knownLoadingTags = ["pressure", "centrifugal", "temperature", "initialCondition", "radiation", "convection_heat_flux"]
+knownLoadingTags = ["pressure", "centrifugal", "temperature", "radiation", "convection_heat_flux"]
 knownProblemTypes = ["mechanical", "thermal_transient"]
 
 
@@ -102,6 +102,28 @@ class ZsetInputReader(InputReaderBase):
         """
         self.SetInputFile()
         return ZIO.GetInputTimeSequence(self.inputFile)
+
+
+    def ConstructInitialCondition(self):
+
+        zSetInitialCondition = ZIO.GetInitDofValues(self.inputFile)
+
+        from Mordicus.Modules.Safran.Containers.InitialConditions import InitialCondition
+
+        initialCondition = InitialCondition.InitialCondition()
+
+        if zSetInitialCondition[0] == 'uniform':
+            dataType = "scalar"
+            data = float(zSetInitialCondition[1])
+
+        elif zSetInitialCondition[0] == 'file':  # pragma: no cover
+            dataType = "vector"
+            data = ZIO.ReadBinaryFile(os.path.dirname(self.inputFileName) + os.sep + zSetInitialCondition[1])
+
+        initialCondition.SetDataType(dataType)
+        initialCondition.SetInitialSnapshot(data)
+
+        return initialCondition
 
 
     def ConstructLoadingsList(self):
@@ -227,12 +249,13 @@ class ZsetInputReader(InputReaderBase):
             coefficient = float(load[2])
             sequence = tables[load[3]]
 
-            coefficients = collections.OrderedDict()
+            Text = collections.OrderedDict()
             for i, time in enumerate(sequence["time"]):
-                coefficients[float(time)] = coefficient*sequence["value"][i]
+                Text[float(time)] = coefficient*sequence["value"][i]
 
             loading.SetStefanBoltzmannConstant(stefanBoltzmannConstant)
-            loading.SetCoefficients(coefficients)
+
+            loading.SetText(Text)
 
             return loading
 
@@ -296,28 +319,6 @@ class ZsetInputReader(InputReaderBase):
             return loading
 
 
-        if key == "initialCondition":
-
-            from Mordicus.Modules.Safran.Containers.Loadings import InitialCondition
-
-            loading = InitialCondition.InitialCondition(set)
-
-            initDofValues = load[1]
-
-            if initDofValues[0] == 'uniform':
-                type = "scalar"
-                data = float(initDofValues[1])
-
-            elif initDofValues[0] == 'file':  # pragma: no cover
-                type = "vector"
-                data = ZIO.ReadBinaryFile(os.path.dirname(self.inputFileName) + os.sep + initDofValues[1])
-
-            loading.SetType(type)
-            loading.SetData(data)
-
-
-            return loading
-
 
 
     def ConstructConstitutiveLawsList(self):
@@ -368,7 +369,7 @@ class ZsetInputReader(InputReaderBase):
                 conductivityTemp.append(float(step[1]))
                 conductivityVal.append(float(step[0]))
 
-            constitutiveLaw.SetThermalConductivity(conductivityTemp, conductivityVal)
+            constitutiveLaw.SetThermalConductivity(np.array(conductivityTemp), np.array(conductivityVal))
 
             capacityTemp = []
             capacityVal = []
@@ -376,7 +377,7 @@ class ZsetInputReader(InputReaderBase):
                 capacityTemp.append(float(step[1]))
                 capacityVal.append(float(step[0]))
 
-            constitutiveLaw.SetThermalCapacity(capacityTemp, capacityVal)
+            constitutiveLaw.SetThermalCapacity(np.array(capacityTemp), np.array(capacityVal))
 
             return constitutiveLaw
 

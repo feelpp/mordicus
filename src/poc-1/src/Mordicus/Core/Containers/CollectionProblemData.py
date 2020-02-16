@@ -191,7 +191,7 @@ class CollectionProblemData(object):
         """
         return list(self.GetProblemDatas().keys())
 
-    def GetGlobalNumberOfSnapshots(self, solutionName):
+    def GetGlobalNumberOfSnapshots(self, solutionName, skipFirst = False):
         """
         Iterates over problemDatas to return the complete number of snpashots for solutions of name "solutionName"
 
@@ -205,9 +205,14 @@ class CollectionProblemData(object):
         int
             number of snpashots for solutions of name "solutionName"
         """
+        if skipFirst == False:
+            offset = 0
+        else:
+            offset = -1
+
         number = 0
         for _, problemData in self.problemDatas.items():
-            number += problemData.solutions[solutionName].GetNumberOfSnapshots()
+            number += problemData.solutions[solutionName].GetNumberOfSnapshots() + offset
         return number
 
     def GetSolutionsNumberOfComponents(self, solutionName):

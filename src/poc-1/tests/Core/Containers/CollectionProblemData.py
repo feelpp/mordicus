@@ -32,6 +32,7 @@ def test():
     collectionProblemData.GetSolutionsNumberOfNodes("U")
     collectionProblemData.GetProblemDatasFolders()
     collectionProblemData.GetGlobalNumberOfSnapshots("U")
+    collectionProblemData.GetGlobalNumberOfSnapshots("U", skipFirst = True)
     collectionProblemData.GetSolutionsNumberOfComponents("U")
     #collectionProblemData.SnapshotsIterator("U")
     #collectionProblemData.SnapshotsIterator("U", skipFirst = True)

@@ -24,7 +24,7 @@ class Centrifugal(LoadingBase):
 
     def __init__(self, set):
         assert isinstance(set, str)
-        
+
         super(Centrifugal, self).__init__(set, "centrifugal")
 
         self.rotationVelocity = collections.OrderedDict
@@ -37,7 +37,7 @@ class Centrifugal(LoadingBase):
     def SetRotationVelocity(self, rotationVelocity):
         """
         Sets the coeffients attribute of the class
-        
+
         Parameters
         ----------
         rotationVelocity : collections.OrderedDict
@@ -76,16 +76,16 @@ class Centrifugal(LoadingBase):
         1.
         """
         self.coefficient = coefficient
-            
+
 
     def GetRotationVelocityAtTime(self, time):
         """
-        Computes the rotationVelocity at time, using TimeInterpolation
-        
+        Computes the rotationVelocity at time, using PieceWiseLinearInterpolation
+
         Parameters
         ----------
         time : float
-        
+
         Returns
         -------
         float
@@ -95,18 +95,18 @@ class Centrifugal(LoadingBase):
         # assert type of time
         assert isinstance(time, (float, np.float64))
 
-        from Mordicus.Core.BasicAlgorithms import TimeInterpolation as TI
+        from Mordicus.Core.BasicAlgorithms import Interpolation as TI
 
         # compute rotationVelocity at time
-        rotationVelocity = TI.TimeInterpolation(
+        rotationVelocity = TI.PieceWiseLinearInterpolation(
             time, list(self.rotationVelocity.keys()), list(self.rotationVelocity.values())
         )
         return rotationVelocity
-    
-    
-           
 
-    def ReduceLoading(self, mesh, problemData, reducedOrderBasis, snapshotCorrelationOperator, operatorCompressionData):
+
+
+
+    def ReduceLoading(self, mesh, problemData, reducedOrderBasis, operatorCompressionData):
 
         assert isinstance(reducedOrderBasis, np.ndarray)
 
@@ -117,10 +117,11 @@ class Centrifugal(LoadingBase):
             density[set] = law.GetDensity()
 
         assembledUnitCentrifugalVector = FT.IntegrateCentrifugalEffect(mesh, density, self.direction, self.center)
+
         self.reducedUnitCentrifugalVector = np.dot(reducedOrderBasis, assembledUnitCentrifugalVector)
-            
-    
-    
+
+
+
     def ComputeContributionToReducedExternalForces(self, time):
         """
         1.
@@ -130,7 +131,7 @@ class Centrifugal(LoadingBase):
         assert isinstance(time, (float, np.float64))
 
         rotationVelocity = self.GetRotationVelocityAtTime(time)
-        
+
         return (self.coefficient*rotationVelocity)**2*self.reducedUnitCentrifugalVector
 
 

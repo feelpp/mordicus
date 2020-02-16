@@ -39,7 +39,7 @@ class LoadingBase(object):
             the type of loading
         """
         return self.type
-    
+
 
     def GetIdentifier(self):
         """
@@ -49,27 +49,21 @@ class LoadingBase(object):
             the identifier of loading
         """
         return (self.type,self.set)
-    
-    
+
+
     def ComputeContributionToReducedExternalForces(self, time):
         """
         Computes the contribution of the loading to the reduced external forces vector
         """
         raise NotImplementedError("Not implemented in LoadingBase")  # pragma: no cover
-    
 
-    def ReduceLoading(self, mesh, problemData, reducedOrderBasis, snapshotCorrelationOperator, operatorCompressionData):
+
+    def ReduceLoading(self, mesh, problemData, reducedOrderBasis, operatorCompressionData):
         """
         Carries out the operations needed to reduced the loading, depending on the type of loading (e.g. precomputations)
         """
         raise NotImplementedError("Not implemented in LoadingBase")  # pragma: no cover
-    
 
-    def DeleteHeavyData(self):
-        """        
-        Deletes Heavy Data from loading structure
-        """
-        raise NotImplementedError("Not implemented in LoadingBase")  # pragma: no cover
 
 
     def __str__(self):

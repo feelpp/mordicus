@@ -52,15 +52,20 @@ onlineProblemData.AddConstitutiveLaw(constitutiveLawsList)
 
 loadingList = inputReader.ConstructLoadingsList()
 for loading in loadingList:
-    loading.ReduceLoading(mesh, onlineProblemData, reducedOrderBasisU, snapshotCorrelationOperator, operatorCompressionData)
+    loading.ReduceLoading(mesh, onlineProblemData, reducedOrderBasisU, operatorCompressionData)
 onlineProblemData.AddLoading(loadingList)
 
+initialCondition = inputReader.ConstructInitialCondition()
+initialCondition.ReduceInitialSnapshot(reducedOrderBasisU, snapshotCorrelationOperator)
 
+onlineProblemData.SetInitialCondition(initialCondition)
+
+initOnlineCompressedSnapshot = initialCondition.GetReducedInitialSnapshot()
 
 import time
 start = time.time()
-onlineCompressedSolution = Meca.ComputeOnline(onlineProblemData, timeSequence, reducedOrderBasisU, operatorCompressionData, 1.e-4)
+onlineCompressedSolution = Meca.ComputeOnline(onlineProblemData, initOnlineCompressedSnapshot, timeSequence, reducedOrderBasisU, operatorCompressionData, 1.e-4)
 print(">>>> DURATION ONLINE =", time.time() - start)
 
 
-os.chdir(initFolder)    
+os.chdir(initFolder)

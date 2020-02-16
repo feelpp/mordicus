@@ -8,7 +8,7 @@ import collections
 class PressureBC(LoadingBase):
     """
     Class containing a Loading of type pressure boundary condition. A pressure vector over the elements of set at time t is given by : coefficients[ t ] * fields[ fieldsMap[ t ] ]
-    
+
 
     Attributes
     ----------
@@ -24,7 +24,7 @@ class PressureBC(LoadingBase):
 
     def __init__(self, set):
         assert isinstance(set, str)
-        
+
         super(PressureBC, self).__init__(set, "pressure")
 
         self.coefficients = collections.OrderedDict
@@ -36,7 +36,7 @@ class PressureBC(LoadingBase):
     def SetCoefficients(self, coefficients):
         """
         Sets the coeffients attribute of the class
-        
+
         Parameters
         ----------
         coefficients : collections.OrderedDict
@@ -58,7 +58,7 @@ class PressureBC(LoadingBase):
     def SetFieldsMap(self, fieldsMap):
         """
         Sets the fieldsMap attribute of the class
-        
+
         Parameters
         ----------
         fieldsMap : collections.OrderedDict
@@ -75,7 +75,7 @@ class PressureBC(LoadingBase):
     def SetFields(self, fields):
         """
         Sets the fields attribute of the class
-        
+
         Parameters
         ----------
         fields : dict
@@ -94,16 +94,16 @@ class PressureBC(LoadingBase):
     def GetFields(self):
         return self.fields
 
-            
+
 
     def GetAssembledReducedFieldAtTime(self, time):
         """
-        Computes the pressure vector at time, using TimeInterpolation
-        
+        Computes the pressure vector at time, using PieceWiseLinearInterpolation
+
         Parameters
         ----------
         time : float
-        
+
         Returns
         -------
         np.ndarray
@@ -113,15 +113,15 @@ class PressureBC(LoadingBase):
         # assert type of time
         assert isinstance(time, (float, np.float64))
 
-        from Mordicus.Core.BasicAlgorithms import TimeInterpolation as TI
+        from Mordicus.Core.BasicAlgorithms import Interpolation as TI
 
         # compute coefficient at time
-        coefficient = TI.TimeInterpolation(
+        coefficient = TI.PieceWiseLinearInterpolation(
             time, list(self.coefficients.keys()), list(self.coefficients.values())
         )
 
         # compute vector field at time
-        vectorField = TI.TimeInterpolation(
+        vectorField = TI.PieceWiseLinearInterpolation(
             time,
             list(self.fieldsMap.keys()),
             self.assembledReducedFields,
@@ -129,23 +129,23 @@ class PressureBC(LoadingBase):
         )
 
         return coefficient * vectorField
-    
-    
-           
-    def ReduceLoading(self, mesh, problemData, reducedOrderBasis, snapshotCorrelationOperator, operatorCompressionData):
+
+
+
+    def ReduceLoading(self, mesh, problemData, reducedOrderBasis, operatorCompressionData):
 
         assert isinstance(reducedOrderBasis, np.ndarray)
-        
-        
+
+
         self.assembledReducedFields = {}
         #AssembleLoadingAgainstReducedBasis
         from Mordicus.Modules.Safran.FE import FETools as FT
         for key, field in self.GetFields().items():
             assembledField = FT.IntegrateVectorNormalComponentOnSurface(mesh, self.GetSet(), field)
-            self.assembledReducedFields[key] = np.dot(reducedOrderBasis, assembledField)    
-    
-    
-    
+            self.assembledReducedFields[key] = np.dot(reducedOrderBasis, assembledField)
+
+
+
     def ComputeContributionToReducedExternalForces(self, time):
         """
         1.
@@ -153,13 +153,13 @@ class PressureBC(LoadingBase):
 
         # assert type of time
         assert isinstance(time, (float, np.float64))
-        
+
         return self.GetAssembledReducedFieldAtTime(time)
 
 
 
     def __getstate__(self):
-        
+
         state = {}
         state["set"] = self.set
         state["type"] = self.type
@@ -168,8 +168,8 @@ class PressureBC(LoadingBase):
         state["assembledReducedFields"] = self.assembledReducedFields
         state["fields"] = {}
         for f in self.fields.keys():
-            state["fields"][f] = None        
-            
+            state["fields"][f] = None
+
         return state
 
 

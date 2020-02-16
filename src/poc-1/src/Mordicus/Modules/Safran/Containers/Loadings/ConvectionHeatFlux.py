@@ -16,6 +16,8 @@ class ConvectionHeatFlux(LoadingBase):
         dictionary with time indices (float) as keys and h (float) as values
     Text    : collections.OrderedDict()
         dictionary with time indices (float) as keys and Text (str) as values
+    assembledReducedOrderBasisOnSet : numpy.ndarray
+        size (numberOfModes)
     """
 
     def __init__(self, set):
@@ -25,7 +27,8 @@ class ConvectionHeatFlux(LoadingBase):
 
         self.h = collections.OrderedDict
         self.Text = collections.OrderedDict
-
+        self.assembledReducedOrderBasisOnSet = None
+        self.assembledReducedOrderBasisOrderTwoOnSet = None
 
     def SetH(self, h):
         """
@@ -72,9 +75,9 @@ class ConvectionHeatFlux(LoadingBase):
         self.Text = Text
 
 
-    def GetCoefficientAtTime(self, time):
+    def GetCoefficientsAtTime(self, time):
         """
-        Computes h and Text at time, using TimeInterpolation
+        Computes h and Text at time, using PieceWiseLinearInterpolation
 
         Parameters
         ----------
@@ -89,12 +92,12 @@ class ConvectionHeatFlux(LoadingBase):
         # assert type of time
         assert isinstance(time, (float, np.float64))
 
-        from Mordicus.Core.BasicAlgorithms import TimeInterpolation as TI
+        from Mordicus.Core.BasicAlgorithms import Interpolation as TI
 
-        h = TI.TimeInterpolation(
+        h = TI.PieceWiseLinearInterpolation(
             time, list(self.h.keys()), list(self.h.values())
         )
-        Text = TI.TimeInterpolation(
+        Text = TI.PieceWiseLinearInterpolation(
             time, list(self.Text.keys()), list(self.Text.values())
         )
         return h, Text
@@ -102,9 +105,17 @@ class ConvectionHeatFlux(LoadingBase):
 
 
 
-    def ReduceLoading(self, mesh, problemData, reducedOrderBasis, snapshotCorrelationOperator, operatorCompressionData):
+    def ReduceLoading(self, mesh, problemData, reducedOrderBasis, operatorCompressionData):
 
-        return
+        assert isinstance(reducedOrderBasis, np.ndarray)
+
+        from Mordicus.Modules.Safran.FE import FETools as FT
+
+        self.assembledReducedOrderBasisOnSet = FT.IntegrateOrderOneTensorOnSurface(mesh, self.set, reducedOrderBasis)
+
+        self.assembledReducedOrderBasisOrderTwoOnSet = FT.IntegrateOrderTwoTensorOnSurface(mesh, self.set, reducedOrderBasis)
+
+
 
 
 
@@ -112,13 +123,12 @@ class ConvectionHeatFlux(LoadingBase):
         """
         1.
         """
-
         # assert type of time
         assert isinstance(time, (float, np.float64))
 
-        return #self.GetAssembledReducedFieldAtTime(time)
+        h, Text = self.GetCoefficientsAtTime(time)
 
-
+        return h*Text*self.assembledReducedOrderBasisOnSet
 
 
 

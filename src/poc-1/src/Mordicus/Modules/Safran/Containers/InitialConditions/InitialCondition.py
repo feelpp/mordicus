@@ -1,0 +1,85 @@
+# -*- coding: utf-8 -*-
+
+from Mordicus.Core.Containers.InitialConditions.InitialConditionBase import InitialConditionBase
+import numpy as np
+
+
+class InitialCondition(InitialConditionBase):
+    """
+
+    Attributes
+    ----------
+    dataType : string ("scalar" or "vector")
+    initialSnapshot : float or np.ndarray of size (numberOfDofs,)
+    reducedInitialSnapshot : np.ndarray of size (numberOfModes,)
+
+    """
+
+    def __init__(self):
+
+        super(InitialCondition, self).__init__()
+
+        self.dataType = ""
+        self.initialSnapshot = None
+        self.reducedInitialSnapshot = None
+
+
+    def SetDataType(self, dataType):
+
+        self.dataType = dataType
+
+
+    def GetDataType(self):
+
+        return self.dataType
+
+
+    def SetInitialSnapshot(self, initialSnapshot):
+
+        self.initialSnapshot = initialSnapshot
+
+
+    def SetReducedInitialSnapshot(self, reducedInitialSnapshot):
+
+        self.reducedInitialSnapshot = reducedInitialSnapshot
+
+
+    def GetReducedInitialSnapshot(self):
+
+        return self.reducedInitialSnapshot
+
+
+    def ReduceInitialSnapshot(self, reducedOrderBasis, snapshotCorrelationOperator):
+
+        assert isinstance(reducedOrderBasis, np.ndarray)
+
+        from Mordicus.Modules.Safran.FE import FETools as FT
+
+        if self.dataType == "scalar":
+            if self.initialSnapshot == 0.:
+                self.SetReducedInitialSnapshot(np.zeros(reducedOrderBasis.shape[0]))
+                return
+
+            else:
+                initVector = self.initialSnapshot * np.ones(reducedOrderBasis.shape[1])
+
+        else:
+            initVector = self.initialSnapshot# pragma: no cover
+
+        self.SetReducedInitialSnapshot(np.dot(reducedOrderBasis,snapshotCorrelationOperator.dot(initVector)))# pragma: no cover
+
+
+
+    def __getstate__(self):
+
+        state = {}
+        state["initialSnapshot"] = None
+        state["reducedInitialSnapshot"] = self.reducedInitialSnapshot
+
+        return state
+
+
+
+    def __str__(self):
+        res = "Initial Condition"
+        return res

@@ -7,6 +7,7 @@ from Mordicus.Core.Containers import Solution as S
 from Mordicus.Modules.Safran.FE import FETools as FT
 from Mordicus.Core.DataCompressors import SnapshotPOD as SP
 from Mordicus.Modules.Safran.IO import PXDMFWriter as PW
+#from Mordicus.Modules.Safran.OperatorCompressors import ReducedGalerkine as RG
 from Mordicus.Modules.Safran.OperatorCompressors import Mechanical as Meca
 import numpy as np
 from pathlib import Path
@@ -28,6 +29,7 @@ def test():
 
     collectionProblemData = CPD.LoadState("mordicusState")
 
+
     operatorCompressionData = collectionProblemData.GetOperatorCompressionData()
     snapshotCorrelationOperator = collectionProblemData.GetSnapshotCorrelationOperator("U")
     reducedOrderBasisU = collectionProblemData.GetReducedOrderBasis("U")
@@ -39,7 +41,7 @@ def test():
     ##################################################
 
 
-    folder = "MecaSequential/"
+    folder = "Computation1/"
     inputFileName = folder + "cube.inp"
     inputReader = ZIR.ZsetInputReader(inputFileName)
 
@@ -50,9 +52,8 @@ def test():
 
     timeSequence = inputReader.ReadInputTimeSequence()
 
-    from Mordicus.Modules.Safran.Containers.ConstitutiveLaws import TestMecaConstitutiveLaw as TMCL
-    elasConsitutiveLaw = TMCL.TestMecaConstitutiveLaw('ALLELEMENT')
-    onlineProblemData.AddConstitutiveLaw(elasConsitutiveLaw)
+    constitutiveLawsList = inputReader.ConstructConstitutiveLawsList()
+    onlineProblemData.AddConstitutiveLaw(constitutiveLawsList)
 
     loadingList = inputReader.ConstructLoadingsList()
     for loading in loadingList:
@@ -71,6 +72,40 @@ def test():
     start = time.time()
     onlineCompressedSolution = Meca.ComputeOnline(onlineProblemData, initOnlineCompressedSnapshot, timeSequence, reducedOrderBasisU, operatorCompressionData, 1.e-4)
     print(">>>> DURATION ONLINE =", time.time() - start)
+
+
+    ## Compute Error
+    numberOfNodes = mesh.GetNumberOfNodes()
+    nbeOfComponentsPrimal = 3
+
+    solutionUApprox = S.Solution("U", nbeOfComponentsPrimal, numberOfNodes, primality = True)
+    solutionUApprox.SetCompressedSnapshots(onlineCompressedSolution)
+    solutionUApprox.UncompressSnapshots(reducedOrderBasisU)
+
+    solutionFileName = folder + "cube.ut"
+    solutionReader = ZSR.ZsetSolutionReader(solutionFileName)
+    solutionUExact = S.Solution("U", nbeOfComponentsPrimal, numberOfNodes, primality = True)
+    outputTimeSequence = solutionReader.ReadTimeSequenceFromSolutionFile()
+    for time in outputTimeSequence:
+        U = solutionReader.ReadSnapshot("U", time, nbeOfComponentsPrimal, primality=True)
+        solutionUExact.AddSnapshot(U, time)
+
+
+    ROMErrors = []
+    for t in outputTimeSequence:
+        exactSolution = solutionUExact.GetSnapshotAtTime(t)
+        approxSolution = solutionUApprox.GetSnapshotAtTime(t)
+        norml2ExactSolution = np.linalg.norm(exactSolution)
+        if norml2ExactSolution != 0:
+            relError = np.linalg.norm(approxSolution-exactSolution)/norml2ExactSolution
+        else:
+            relError = np.linalg.norm(approxSolution-exactSolution)
+        ROMErrors.append(relError)
+
+    print("ROMErrors =", ROMErrors)
+
+
+
 
     PW.WritePXDMF(mesh, onlineCompressedSolution, reducedOrderBasisU, "U")
     print("The compressed solution has been written in PXDMF Format")
