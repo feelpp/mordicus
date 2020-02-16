@@ -2,6 +2,7 @@
 import numpy as np
 import collections
 from mpi4py import MPI
+import collections
 
 from BasicTools.IO import XdmfWriter as XW
 from Mordicus.Modules.Safran.Containers.Meshes import BasicToolsUnstructuredMesh as BTUM
@@ -11,7 +12,7 @@ from Mordicus.Modules.Safran.FE import FETools as FT
 def WritePXDMF(mesh, compressedSnapshots, reducedOrderBasis, outputName):
     """
     Functional API
-    
+
     Writes a solution on disk satisfying the corresponding format
 
     Parameters
@@ -27,13 +28,43 @@ def WritePXDMF(mesh, compressedSnapshots, reducedOrderBasis, outputName):
     """
     writer = PXDMFWriter(outputName)
     writer.Write(mesh, compressedSnapshots, reducedOrderBasis)
-    
+
+
+
+
+def WriteReducedOrderBasisToPXDMF(mesh, reducedOrderBasis, outputName):
+    """
+    Functional API
+
+    Writes a solution on disk satisfying the corresponding format
+
+    Parameters
+    ----------
+    mesh : MeshBase
+        the geometric support of the solution from one of the formats defined in Containers.Meshes
+    compressedSnapshots : collections.OrderedDict
+        dictionary with time indices as keys and a np.ndarray of size (numberOfModes,) containing the coefficients of the reduced solution
+    reducedOrderBasis : np.ndarray
+            of size (numberOfModes, numberOfDOFs)
+    outputName : str, optional
+        name of the file on disk where the solution is written
+    """
+    indices = collections.OrderedDict()
+    euclideanBasis = np.eye(reducedOrderBasis.shape[0])
+
+    for i in range(reducedOrderBasis.shape[0]):
+        indices[float(i)] = euclideanBasis[i]
+
+    writer = PXDMFWriter("ReducedOrderBasis_"+outputName)
+    writer.Write(mesh, indices, reducedOrderBasis)
+
+
 
 
 def WritePXDMFFromSolution(mesh, solution, reducedOrderBasis):
     """
     Functional API
-    
+
     Writes a solution on disk satisfying the corresponding format
 
     Parameters
@@ -57,19 +88,19 @@ class PXDMFWriter(object):
     """
 
     def __init__(self, outputName):
-        
-        if MPI.COMM_WORLD.Get_size() > 1: # pragma: no cover 
+
+        if MPI.COMM_WORLD.Get_size() > 1: # pragma: no cover
             outputName += "-" + str(MPI.COMM_WORLD.Get_rank()+1).zfill(3)
-        
-        self.outputName = outputName+"_compressed"
+
+        self.outputName = outputName
 
 
     def Write(self, mesh, compressedSnapshots, reducedOrderBasis):
         """
         Writes a solution on disk in the PXDMF format.
-        
+
         Optimal input mesh format is BasicToolsUnstructuredMesh.
-        
+
         Parameters
         ----------
         mesh : MeshBase
@@ -79,12 +110,12 @@ class PXDMFWriter(object):
         reducedOrderBasis : np.ndarray
             of size (numberOfModes, numberOfDOFs)
         """
-        
+
         assert isinstance(
             compressedSnapshots, collections.OrderedDict
         )
-            
-        if MPI.COMM_WORLD.Get_size() > 1:  # pragma: no cover 
+
+        if MPI.COMM_WORLD.Get_size() > 1:  # pragma: no cover
             #ATTENTION: BasicTools Xdmf writer not supported in parallel
             import pickle
             with open(self.outputName+'.pickle', 'wb') as handle:
@@ -125,7 +156,7 @@ class PXDMFWriter(object):
 
             pointFieldsNames = []
             pointFields = []
-            
+
             coefficients = np.array(list(compressedSnapshots.values()))
 
             for i in range(numberOfModes):
@@ -163,7 +194,7 @@ class PXDMFWriter(object):
                 unstructuredMesh, PointFields=pointFields, PointFieldsNames=pointFieldsNames
             )
             writer.Close()
-        
-      
-        
-        
+
+
+
+

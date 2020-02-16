@@ -19,13 +19,14 @@ def test():
     compressedSnapshots = collections.OrderedDict()
     for t in range(7):
         compressedSnapshots[float(t)] = np.ones(3)
-        
+
     solution.SetCompressedSnapshots(compressedSnapshots)
 
     PW.WritePXDMF(mesh, compressedSnapshots, modes, "test")
     PW.WritePXDMFFromSolution(mesh, solution, modes)
+    PW.WriteReducedOrderBasisToPXDMF(mesh, modes, "test")
 
-    os.system("rm -rf test_compressed0.bin test_compressed.pxdmf")
+    os.system("rm -rf test0.bin test.pxdmf")
 
     return "ok"
 
