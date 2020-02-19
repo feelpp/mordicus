@@ -3,6 +3,7 @@
 Foreword
 ========
 
+
 On imagine un problème à résoudre dans un domaine quelconque, dont un modèle prend la forme d'une équations aux dérivées partielles, dont l'inconnue est :math:`u (x, t; \mu )`:
 
 .. math::
