@@ -7,14 +7,14 @@ def TruncatedSVDSymLower(matrix, epsilon):
     Computes a truncatd singular value decomposition of a symetric definite
     matrix in scipy.sparse.csr format. Only the lower triangular part needs
     to be defined
-    
+
     Parameters
     ----------
     matrix : scipy.sparse.csr
         the input matrix
     epsilon : float
         the truncation tolerence, determining the number of keps eigenvalues
-        
+
     Returns
     -------
     np.ndarray
@@ -41,8 +41,7 @@ def TruncatedSVDSymLower(matrix, epsilon):
         temp += e
         if temp < bound:
             id_max2 += 1  # pragma: no cover
+
     id_max = max(id_max, id_max2)
 
-    #print(eigenValues, eigenVectors)
-    #1./0.
     return eigenValues[0:id_max], eigenVectors[:, 0:id_max]
