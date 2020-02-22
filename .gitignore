@@ -16,8 +16,11 @@ src/poc-1/coverageReports/*
 *.kate-swp
 *.msg
 *.sh
+*.rst
 *.spyproject*
-.vscode
+*.png
+*.vtu
+*.vscode
 
 #autodoc generated files
 *_build*
