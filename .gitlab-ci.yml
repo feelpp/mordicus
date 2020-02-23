@@ -37,18 +37,26 @@ doc:
     - pip install --upgrade pip
     - export BASICTOOLS_BUILD_CYTHON=False
     - pip install -r ./src/poc-1/requirements.txt
-    - export PYTHONPATH=$PWD/../basic-tools/src:$PYTHONPATH
+    - export MYPATH=$PWD
+    - cd .. && rm -rf basic-tools && git clone https://gitlab.com/drti/basic-tools.git
+    - cd $MYPATH
 
 poc-1:
   extends: .test
   script:
     - export PYTHONPATH=$PWD/src/poc-1/src:$PYTHONPATH
-    - cd examples/Core
+    - export PYTHONPATH=$PWD/../basic-tools/src:$PYTHONPATH
+    - cd src/poc-1/examples/Core
+    - echo 'Starting NonRegression tests on Core...'
     - pytest
-    - cd ../..
-    - mkdir -p public/coverageReportCore
+    - echo '... NonRegression tests on Core ended'
+    - cd ../../../.. && mkdir -p public/coverageReportCore
+    - echo 'Starting coverage report on Core...'
     - cd src/poc-1/tests/Core && pytest --cov=../../src/Mordicus/Core --cov-report=html:../../../../public/coverageReportCore && cd -
+    - echo '... coverage report on Core ended'
+    - echo 'Starting Phimeca tests...'
     - cd src/poc-1/tests/Modules/Phimeca && pytest && cd -
+    - echo '... Phimeca tests ended'
     - cd pages/coverageReportCore && grep pc_cov index.html
   coverage: '/pc_cov">([0-9]+\.?[0-9]+?%)/'
   artifacts:
