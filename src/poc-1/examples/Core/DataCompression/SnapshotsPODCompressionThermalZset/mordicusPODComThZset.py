@@ -34,7 +34,7 @@ def test():
     outputTimeSequence = solutionReader.ReadTimeSequenceFromSolutionFile()
 
     solution = S.Solution("TP", 1, mesh.GetNumberOfNodes(), primality = True)
-    for time in outputTimeSequence[:-1]:
+    for time in outputTimeSequence:
         TP = solutionReader.ReadSnapshot("TP", time, 1, primality=True)
         solution.AddSnapshot(TP, time)
 
@@ -56,17 +56,16 @@ def test():
 
 
     l2ScalarProducMatrix = FT.ComputeL2ScalarProducMatrix(mesh, 1)
-    collectionProblemData.SetSnapshotCorrelationOperator("TP", l2ScalarProducMatrix)
 
     ##################################################
 
     reducedOrderBasis = SnapshotPOD.ComputeReducedOrderBasisFromCollectionProblemData(
-        collectionProblemData, "TP", 1.0e-4
+        collectionProblemData, "TP", 1.e-8, l2ScalarProducMatrix
     )
     collectionProblemData.AddReducedOrderBasis("TP", reducedOrderBasis)
     print("A reduced order basis has been computed has been constructed using SnapshotPOD")
 
-    collectionProblemData.CompressSolutions("TP")
+    collectionProblemData.CompressSolutions("TP", l2ScalarProducMatrix)
 
     print("The solution has been compressed")
 
@@ -76,9 +75,35 @@ def test():
     print("The compressed solution has been written in PXDMF Format")
 
 
-    os.chdir(initFolder)    
+    ##################################################
+    ## check accuracy compression
+    ##################################################
 
-    return "ok"
+
+    CompressedSolution = solution.GetCompressedSnapshots()
+    compressionErrors = []
+
+    for t in outputTimeSequence:
+
+        reconstructedCompressedSolution = np.dot(CompressedSolution[t], reducedOrderBasis)
+        exactSolution = solution.GetSnapshot(t)
+        norml2ExactSolution = np.linalg.norm(exactSolution)
+        if norml2ExactSolution != 0:
+            relError = np.linalg.norm(reconstructedCompressedSolution-exactSolution)/norml2ExactSolution
+        else:
+            relError = np.linalg.norm(reconstructedCompressedSolution-exactSolution)
+        compressionErrors.append(relError)
+
+
+    os.chdir(initFolder)
+
+    if np.max(compressionErrors) > 1.e-6:
+
+        return "not ok"
+
+    else:
+
+        return "ok"
 
 if __name__ == "__main__":
     print(test())  # pragma: no cover

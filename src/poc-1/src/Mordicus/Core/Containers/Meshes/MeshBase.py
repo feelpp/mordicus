@@ -8,17 +8,17 @@ class MeshBase(object):
 
     Attributes
     ----------
-    __storage : typeToDefine    
+    __storage : typeToDefine
     """
 
     def __init__(self):
         self.__storage = None
-        
+
 
     def SetInternalStorage(self, __storage):
         """
         Sets the internal storage
-        
+
         Parameters
         ----------
         __storage : typeToDefine
@@ -39,7 +39,7 @@ class MeshBase(object):
         if self.__storage is None:
             raise AttributeError("Please set internal storage")  # pragma: no cover
         return self.__storage
-    
+
 
     def GetNodes(self):
         """
@@ -58,7 +58,7 @@ class MeshBase(object):
         Constructs an iterator over all the elements of the mesh.
         An element is np.ndarray of size (numberOfNodes,dimensionality)
         containing the indices of the nodes included in this element
-        
+
         Returns
         -------
         iterator

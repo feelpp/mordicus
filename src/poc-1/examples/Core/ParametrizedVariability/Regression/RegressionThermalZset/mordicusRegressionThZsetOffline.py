@@ -5,6 +5,7 @@ from Mordicus.Core.Containers import CollectionProblemData as CPD
 from Mordicus.Core.Containers import Solution as S
 from Mordicus.Core.DataCompressors import SnapshotPOD
 from Mordicus.Core.OperatorCompressors import Regression
+from Mordicus.Core.IO import StateIO as SIO
 import numpy as np
 from pathlib import Path
 import os
@@ -30,7 +31,7 @@ def test():
                                                 ['External temperature', 'Internal Temperature'])
     collectionProblemData.defineQuantity(solutionName, "Temperature", "Celsius")
 
-    parameters = [[100.0, 1000.0], [50.0, 3000.0], [150.0, 300.0], [130.0, 2000.0]]
+    parameters = [[100.0, 1000.0], [90.0, 1100.0], [110.0, 900.0], [105.0, 1050.0]]
 
     for i in range(4):
         folder = "Computation" + str(i + 1) + "/"
@@ -49,11 +50,6 @@ def test():
         problemData = PD.ProblemData(folder)
         problemData.AddSolution(solution)
 
-        """parameterList = [np.array(parameters[i] + [t]) for t in outputTimeSequence]
-        
-        solution.ReadAndAddSnapshots(solutionReader, outputTimeSequence)
-        
-        problemData.AddParametersList(parameterList, outputTimeSequence)"""
 
         for t in outputTimeSequence:
             snapshot = solutionReader.ReadSnapshot(
@@ -72,7 +68,7 @@ def test():
     ##################################################
 
     reducedOrderBasis = SnapshotPOD.ComputeReducedOrderBasisFromCollectionProblemData(
-        collectionProblemData, solutionName, 1.0e-4
+        collectionProblemData, solutionName, 1.e-2
     )
     collectionProblemData.AddReducedOrderBasis(solutionName, reducedOrderBasis)
     print("A reduced order basis has been computed has been constructed using SnapshotPOD")
@@ -84,22 +80,50 @@ def test():
     from sklearn.gaussian_process.kernels import WhiteKernel, RBF
     from sklearn.gaussian_process import GaussianProcessRegressor
 
-    kernel = 1.0 * RBF(length_scale=100.0, length_scale_bounds=(1e-2, 1e3)) + WhiteKernel(
-        noise_level=1, noise_level_bounds=(1e-10, 1e1)
-    )
-    gpr = GaussianProcessRegressor(kernel=kernel, alpha=0.0)
+    kernel = 1.0 * RBF(length_scale=10.0, length_scale_bounds=(1e-2, 1e2)) + WhiteKernel(noise_level=1, noise_level_bounds=(1e-10, 1e0))
+
+    gpr = GaussianProcessRegressor(kernel=kernel, alpha=1.0)
 
 
     Regression.CompressOperator(
         collectionProblemData, solutionName, gpr
     )
 
-    collectionProblemData.SaveState("mordicusState")
+    SIO.SaveState("collectionProblemData", collectionProblemData)
 
 
-    os.chdir(initFolder)    
 
-    return "ok"
+    ##################################################
+    ## check accuracy compression
+    ##################################################
+
+    compressionErrors = []
+
+    for _, problemData in collectionProblemData.GetProblemDatas().items():
+        solution = problemData.GetSolution("TP")
+        CompressedSolution = solution.GetCompressedSnapshots()
+        for t in solution.GetTimeSequenceFromCompressedSnapshots():
+            reconstructedCompressedSnapshot = np.dot(CompressedSolution[t], reducedOrderBasis)
+            exactSolution = solution.GetSnapshotAtTime(t)
+            norml2ExactSolution = np.linalg.norm(exactSolution)
+            if norml2ExactSolution != 0:
+                relError = np.linalg.norm(reconstructedCompressedSnapshot-exactSolution)/norml2ExactSolution
+            else:
+                relError = np.linalg.norm(reconstructedCompressedSnapshot-exactSolution)
+            compressionErrors.append(relError)
+
+
+    os.chdir(initFolder)
+
+    if np.max(compressionErrors) > 1.e-2:
+
+        return "not ok"
+
+    else:
+
+        return "ok"
+
+
 
 if __name__ == "__main__":
     print(test())  # pragma: no cover

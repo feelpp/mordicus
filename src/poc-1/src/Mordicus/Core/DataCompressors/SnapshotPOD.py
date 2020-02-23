@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 import numpy as np
 from mpi4py import MPI
+from scipy import sparse
 
 
 def ComputeReducedOrderBasisFromCollectionProblemData(
-    collectionProblemData, solutionName, tolerance
+    collectionProblemData, solutionName, tolerance, snapshotCorrelationOperator = None
 ):
     """
     Computes a reducedOrderBasis using the SnapshotPOD algorithm, from the snapshots contained in the solutions of name "solutionName" from all problemDatas in collectionProblemData, with tolerance as target accuracy of the data compression
@@ -26,7 +27,9 @@ def ComputeReducedOrderBasisFromCollectionProblemData(
     assert isinstance(solutionName, str)
 
     snapshotsIterator = collectionProblemData.SnapshotsIterator(solutionName)
-    snapshotCorrelationOperator = collectionProblemData.GetSnapshotCorrelationOperator(solutionName)
+
+    if snapshotCorrelationOperator is None:
+        snapshotCorrelationOperator = sparse.eye(collectionProblemData.GetSolutionsNumberOfDofs(solutionName))
 
     return ComputeReducedOrderBasis(snapshotsIterator, snapshotCorrelationOperator, tolerance)
 

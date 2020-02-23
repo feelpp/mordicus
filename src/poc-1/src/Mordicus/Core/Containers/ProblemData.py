@@ -318,6 +318,20 @@ class ProblemData(object):
         solution.CompressSnapshots(snapshotCorrelationOperator, reducedOrderBasis)
 
 
+    def ConvertCompressedSnapshotReducedOrderBasis(self, solutionName, projectedReducedOrderBasis):
+        """
+        Converts the reducedSnapshot from the current reducedOrderBasis to a newReducedOrderBasis using a projectedReducedOrderBasis between the current one and a new one
+
+        Parameters
+        ----------
+        solutionName : str
+            name of the solution whose compressedSnapshot is to convert
+        projectedReducedOrderBasis : np.ndarray
+            of size (newNumberOfModes, numberOfModes)
+        """
+        solution = self.GetSolution(solutionName)
+        solution.ConvertCompressedSnapshotReducedOrderBasis(projectedReducedOrderBasis)
+
 
     def UncompressSolution(self, solutionName, reducedOrderBasis):
         """
@@ -336,7 +350,7 @@ class ProblemData(object):
             raise AttributeError(
                 "You must provide solutions "
                 + solutionName
-                + " before trying to compress them"
+                + " before trying to uncompress them"
             )  # pragma: no cover
 
         solution = self.GetSolution(solutionName)

@@ -18,7 +18,7 @@
       *algorithm p1p2p3
     ***bc
      **convection_heat_flux
-  ALLBOUNDARY    h     1050.	Te     1.    ptab
+  ALLBOUNDARY    h     950.	Te     1.    ptab
 
 
   ***material
@@ -30,7 +30,7 @@
       0.  1000.
 
     *value
-      105.  105.
+      95.  95.
 
 ***output
 **output_first

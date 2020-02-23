@@ -9,7 +9,7 @@ def ComputeReducedIntegrationScheme(diag, Phi, tolerance, imposedIndices = [], r
 
       y = np.dot(Phi, diag)
       normy = np.linalg.norm(y)
-      
+
       NGaussOrEl = Phi.shape[1]
 
       if len(reducedIntegrationPointsInitSet) == 0:
@@ -56,7 +56,7 @@ def ComputeReducedIntegrationScheme(diag, Phi, tolerance, imposedIndices = [], r
         x = xTemp
         oldErr = err
 
-        
+
         print(TFormat.InBlue("Relative error = "+str(err)+" obtained with "+str(len(s))+" integration points (corresponding to "+str(round(100*len(s)/NGaussOrEl, 5))+"% of the total) ("+str(count)+" sample(s) to decrease interpolation error)"))
 
 
@@ -69,10 +69,10 @@ def ComputeReducedIntegrationScheme(diag, Phi, tolerance, imposedIndices = [], r
       Phi_s = Phi[:,s]
       r = y - np.dot(Phi_s, x)
       err = np.linalg.norm(r)/normy
-      
+
       print(TFormat.InRed("Reduced Integration Scheme Constructed:"))
       print(TFormat.InRed("Relative error = "+str(err)+" obtained with "+str(len(s))+" integration points (corresponding to "+str(round(100*len(s)/NGaussOrEl, 5))+"% of the total)"))
-        
+
       return s, x
 
 

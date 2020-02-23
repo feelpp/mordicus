@@ -27,12 +27,14 @@ Description of operatorCompressionData: dict of keys
 - stranIntForces
 - temperatureAtReducedIntegrationPoints0
 - temperatureAtReducedIntegrationPoints
+
 #### -> étapes à ajouter pour l'output des données duales:
 # >>>>>> dualVarOutput et dualVarOutputNames : a changer !!! (dict ?)
 - dualVarOutputNames
 - dualVarOutput: collections.OrderedDict; keys:time : values: np.ndarray of size (nReducedIntegrationPoints, 2*nbeDualComponents+maxNstatv)
 - sigIntForces
 - stranIntForces
+
 """
 
 
@@ -311,7 +313,9 @@ def CompressOperator(
     indices = np.array([np.arange(sigmaNumberOfComponents*i,sigmaNumberOfComponents*(i+1)) for i in reducedIntegrationPoints]).flatten()
     reducedRedInterpolator = redIntegrator[:,indices]
 
-    etoIntForces, reducedListOTags = PrecomputeReducedMaterialVariable(collectionProblemData, mesh, reducedIntegrationPoints)
+    uNumberOfComponents = collectionProblemData.GetSolutionsNumberOfComponents("U")
+    listOfTags = FT.ComputeIntegrationPointsTags(mesh, uNumberOfComponents)
+    etoIntForces, reducedListOTags = PrecomputeReducedMaterialVariable(collectionProblemData, mesh, listOfTags, reducedIntegrationPoints)
 
     gappyModesAtRedIntegPts = {}
     for name in listNameDualVarOutput:
@@ -346,7 +350,6 @@ def ComputeSigmaEpsilon(collectionProblemData, redIntegrator):
     sigmaEpsilon = np.zeros((numberOfModes*sigmaNumberOfSnapshotsMinus1,numberOfIntegrationPoints))
     redIntegrator.shape = (numberOfModes,numberOfIntegrationPoints,sigmaNumberOfComponents)
 
-
     snapshotsIteratorSigma = collectionProblemData.SnapshotsIterator("sigma", skipFirst = True)
 
     count = 0
@@ -364,9 +367,27 @@ def ComputeSigmaEpsilon(collectionProblemData, redIntegrator):
 
 
 
+"""def ComputeIndicesOfIntegPointsPerMaterial(listOfTags, keysConstitutiveLaws):
+
+    numberOfIntegrationPoints = len(listOfTags)
+
+    localTags = []
+    for i in range(numberOfIntegrationPoints):
+        tags = set(listOfTags[i]+["ALLELEMENT"])
+        tagsIntersec = keysConstitutiveLaws & tags
+        assert len(tagsIntersec) == 1, "more than one constitutive law for a reducedIntegrationPoint"
+        localTags.append(tagsIntersec.pop())
+
+    IndicesOfIntegPointsPerMaterial = {}
+    arange = np.arange(numberOfIntegrationPoints)
+    for key in keysConstitutiveLaws:
+        IndicesOfIntegPointsPerMaterial[key] = arange[np.array(localTags) == key]
+
+    return IndicesOfIntegPointsPerMaterial"""
 
 
-def PrecomputeReducedMaterialVariable(collectionProblemData, mesh, reducedIntegrationPoints):
+
+def PrecomputeReducedMaterialVariable(collectionProblemData, mesh, listOfTags, reducedIntegrationPoints):
 
 
     uNumberOfComponents = collectionProblemData.GetSolutionsNumberOfComponents("U")
@@ -400,10 +421,8 @@ def PrecomputeReducedMaterialVariable(collectionProblemData, mesh, reducedIntegr
             count += 1
 
 
-    listOfTags = FT.ComputeIntegrationPointsTags(mesh, uNumberOfComponents)
     reducedListOTags = [listOfTags[intPoint] for intPoint in reducedIntegrationPoints]
     for i, listOfTags in enumerate(reducedListOTags):
-        #if not listOfTags:
         reducedListOTags[i].append("ALLELEMENT")
 
 

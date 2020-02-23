@@ -5,12 +5,13 @@ from Mordicus.Modules.Safran.OperatorCompressors import Mechanical as Meca
 from Mordicus.Core.Containers import ProblemData
 from Mordicus.Core.Containers import CollectionProblemData
 from Mordicus.Core.Containers import Solution
-from Mordicus.Core.DataCompressors import SnapshotPOD as SP
+from Mordicus.Modules.Safran.DataCompressors import FusedSnapshotPOD as SP
 from Mordicus.Core import GetTestDataPath
 from Mordicus.Modules.Safran.IO import ZsetInputReader as ZIR
 from Mordicus.Modules.Safran.IO import ZsetSolutionReader as ZSR
 from Mordicus.Modules.Safran.IO import ZsetMeshReader as ZMR
 from Mordicus.Modules.Safran.FE import FETools as FT
+from Mordicus.Core.IO import StateIO as SIO
 
 
 
@@ -75,32 +76,36 @@ def test():
 
 
     print("ComputeL2ScalarProducMatrix...")
-    l2ScalarProducMatrix = FT.ComputeL2ScalarProducMatrix(mesh, 3)
-    collectionProblemData.SetSnapshotCorrelationOperator("U", l2ScalarProducMatrix)
+    snapshotCorrelationOperator = FT.ComputeL2ScalarProducMatrix(mesh, 3)
 
-    reducedOrderBasisU = SP.ComputeReducedOrderBasisFromCollectionProblemData(collectionProblemData, "U", 1.e-3)
-    collectionProblemData.AddReducedOrderBasis("U", reducedOrderBasisU)
+    reducedOrderBasisU = SP.CompressData(collectionProblemData, "U", 1.e-4, snapshotCorrelationOperator)
 
-    reducedOrderBasisEvrcum = SP.ComputeReducedOrderBasisFromCollectionProblemData(collectionProblemData, "evrcum", 1.e-3)
-    collectionProblemData.AddReducedOrderBasis("evrcum", reducedOrderBasisEvrcum)
+    reducedOrderBasisEvrcum = SP.CompressData(collectionProblemData, "evrcum", 1.e-3)
 
+
+    #print("PreCompressOperator...")
+    #operatorPreCompressionData = Th.PreCompressOperator(mesh, "ALLBOUNDARY")
+    #print("...done")
 
     Meca.CompressOperator(collectionProblemData, mesh, 1.e-3, listNameDualVarOutput = ["evrcum"], listNameDualVarGappyIndicesforECM = ["evrcum"])
 
     print("CompressOperator done")
 
-    collectionProblemData.SaveState("mordicusState")
-
+    SIO.SaveState("collectionProblemData", collectionProblemData)
+    SIO.SaveState("snapshotCorrelationOperator", snapshotCorrelationOperator)
+    #SIO.SaveState("operatorPreCompressionData", operatorPreCompressionData)
 
 
     #################################################################
     ### ONLINE
     #################################################################
 
-    collectionProblemData = CollectionProblemData.LoadState("mordicusState")
-
+    collectionProblemData = SIO.LoadState("collectionProblemData")
     operatorCompressionData = collectionProblemData.GetOperatorCompressionData()
-    snapshotCorrelationOperator = collectionProblemData.GetSnapshotCorrelationOperator("U")
+
+    snapshotCorrelationOperator = SIO.LoadState("snapshotCorrelationOperator")
+    #operatorPreCompressionData = SIO.LoadState("operatorPreCompressionData")
+
     reducedOrderBasisU = collectionProblemData.GetReducedOrderBasis("U")
     reducedOrderBasisEvrcum = collectionProblemData.GetReducedOrderBasis("evrcum")
 
@@ -183,7 +188,9 @@ def test():
     onlineProblemData.AddConstitutiveLaw(elasConsitutiveLaw)
     onlineCompressedSolution = Meca.ComputeOnline(onlineProblemData, initOnlineCompressedSnapshot, timeSequence, reducedOrderBasisU, operatorCompressionData, 1.e-4)
 
-    os.system("rm -rf mordicusState.pkl")
+    os.system("rm -rf collectionProblemData.pkl")
+    os.system("rm -rf snapshotCorrelationOperator.pkl")
+    os.system("rm -rf operatorPreCompressionData.pkl")
 
     return "ok"
 

@@ -6,7 +6,7 @@ from scipy import sparse
 from Mordicus.Core.Containers import ProblemData
 from Mordicus.Core.Containers import Solution
 from Mordicus.Core.Containers import CollectionProblemData as CPD
-
+from Mordicus.Core.IO import StateIO as SIO
 def test():
 
     solution = Solution.Solution("U", 2, 10, True)
@@ -43,22 +43,24 @@ def test():
     collectionProblemData.GetGlobalNumberOfSnapshots("U")
     collectionProblemData.GetGlobalNumberOfSnapshots("U", skipFirst = True)
     collectionProblemData.GetSolutionsNumberOfComponents("U")
-    #collectionProblemData.SnapshotsIterator("U")
-    #collectionProblemData.SnapshotsIterator("U", skipFirst = True)
+    collectionProblemData.GetSnapshots("U")
     for s in collectionProblemData.SnapshotsIterator("U"):
         pass
     for s in collectionProblemData.SnapshotsIterator("U", skipFirst = True):
         pass
     collectionProblemData.GetReducedOrderBasisNumberOfModes("U")
-    collectionProblemData.GetSnapshotCorrelationOperator("U")
-    collectionProblemData.SetSnapshotCorrelationOperator("U", sparse.eye(20))
-    collectionProblemData.GetSnapshotCorrelationOperator("U")
+    collectionProblemData.SetDataCompressionData("toto", 1.)
+    collectionProblemData.GetDataCompressionData("toto")
+
+    projectedReducedOrderBasis = collectionProblemData.ComputeReducedOrderBasisProjection("U", np.ones((3, 20)))
+    collectionProblemData.ConvertCompressedSnapshotReducedOrderBasis("U", projectedReducedOrderBasis)
 
 
     problemData.AddParameter(np.zeros(2), 0.0)
     collectionProblemData.GetParameterDimension()
-    collectionProblemData.SaveState("temp")
-    CPD.LoadState("temp")
+
+    SIO.SaveState("temp", collectionProblemData)
+    SIO.LoadState("temp")
     os.system("rm -rf temp.pkl")
 
     print(collectionProblemData)

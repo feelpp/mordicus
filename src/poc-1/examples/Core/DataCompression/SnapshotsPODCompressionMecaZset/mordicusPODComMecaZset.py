@@ -32,14 +32,14 @@ def test():
     mesh = meshReader.ReadMesh()
     print("Mesh defined in " + meshFileName + " has been read")
 
-    outputTimeSequence = solutionReader.ReadTimeSequenceFromSolutionFile()
-    
+    outputTimeSequence = solutionReader.ReadTimeSequenceFromSolutionFile()[:-1]
+
 
     solution = S.Solution("U", mesh.GetDimensionality(), mesh.GetNumberOfNodes(), primality = True)
-    for time in outputTimeSequence[:-1]:
+    for time in outputTimeSequence:
         U = solutionReader.ReadSnapshot("U", time, mesh.GetDimensionality(), primality=True)
         solution.AddSnapshot(U, time)
-    
+
     problemData = PD.ProblemData(folder)
 
     problemData.AddSolution(solution)
@@ -57,29 +57,55 @@ def test():
 
 
     l2ScalarProducMatrix = FT.ComputeL2ScalarProducMatrix(mesh, 3)
-    collectionProblemData.SetSnapshotCorrelationOperator("U", l2ScalarProducMatrix)
 
     ##################################################
 
     reducedOrderBasis = SnapshotPOD.ComputeReducedOrderBasisFromCollectionProblemData(
-        collectionProblemData, "U", 1.e-4
+        collectionProblemData, "U", 1.e-8, l2ScalarProducMatrix
     )
     collectionProblemData.AddReducedOrderBasis("U", reducedOrderBasis)
     print("A reduced order basis has been computed has been constructed using SnapshotPOD")
 
-    collectionProblemData.CompressSolutions("U")
+    collectionProblemData.CompressSolutions("U", l2ScalarProducMatrix)
     print("The solution has been compressed")
 
     from Mordicus.Modules.Safran.IO import PXDMFWriter as PW
 
     PW.WritePXDMFFromSolution(mesh, solution, reducedOrderBasis)
     print("The compressed solution has been written in PXDMF Format")
-    
 
 
-    os.chdir(initFolder)    
+    ##################################################
+    ## check accuracy compression
+    ##################################################
 
-    return "ok"
+
+    CompressedSolution = solution.GetCompressedSnapshots()
+    compressionErrors = []
+
+    for t in outputTimeSequence:
+
+        reconstructedCompressedSolution = np.dot(CompressedSolution[t], reducedOrderBasis)
+        exactSolution = solution.GetSnapshot(t)
+        norml2ExactSolution = np.linalg.norm(exactSolution)
+        if norml2ExactSolution != 0:
+            relError = np.linalg.norm(reconstructedCompressedSolution-exactSolution)/norml2ExactSolution
+        else:
+            relError = np.linalg.norm(reconstructedCompressedSolution-exactSolution)
+        compressionErrors.append(relError)
+
+
+    os.chdir(initFolder)
+
+
+    if np.max(compressionErrors) > 1.e-6:
+
+        return "not ok"
+
+    else:
+
+        return "ok"
+
 
 if __name__ == "__main__":
     print(test())  # pragma: no cover

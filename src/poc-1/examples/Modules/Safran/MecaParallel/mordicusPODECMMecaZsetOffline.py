@@ -7,14 +7,10 @@ from Mordicus.Core.Containers import Solution as S
 from Mordicus.Modules.Safran.FE import FETools as FT
 from Mordicus.Core.DataCompressors import SnapshotPOD as SP
 from Mordicus.Modules.Safran.OperatorCompressors import Mechanical as Meca
+from Mordicus.Core.IO import StateIO as SIO
 import numpy as np
-from pathlib import Path
-import os
 
 
-initFolder = os.getcwd()
-currentFolder = str(Path(__file__).parents[0])
-os.chdir(currentFolder)
 
 
 folder = "MecaParallel/"
@@ -52,9 +48,6 @@ for time in outputTimeSequence:
     solutionSigma.AddSnapshot(sigma, time)
 
 
-#solutionReader.ReadSnapshotTimeSequenceAndAddToSolution(solutionU, outputTimeSequence, "U")
-#solutionReader.ReadSnapshotTimeSequenceAndAddToSolution(solutionSigma, outputTimeSequence, "sig")
-
 
 problemData = PD.ProblemData(folder)
 
@@ -70,13 +63,12 @@ collectionProblemData.AddProblemData(problemData, config="case-1")
 
 print("ComputeL2ScalarProducMatrix...")
 l2ScalarProducMatrix = FT.ComputeL2ScalarProducMatrix(mesh, 3)
-collectionProblemData.SetSnapshotCorrelationOperator("U", l2ScalarProducMatrix)
 
 reducedOrderBasisU = SP.ComputeReducedOrderBasisFromCollectionProblemData(
-        collectionProblemData, "U", 1.e-4
+        collectionProblemData, "U", 1.e-4, l2ScalarProducMatrix
 )
 collectionProblemData.AddReducedOrderBasis("U", reducedOrderBasisU)
-collectionProblemData.CompressSolutions("U")
+collectionProblemData.CompressSolutions("U", l2ScalarProducMatrix)
 
 
 
@@ -104,8 +96,8 @@ Meca.CompressOperator(
 
 print("CompressOperator done")
 
-collectionProblemData.SaveState("mordicusState")
+SIO.SaveState("collectionProblemData", collectionProblemData)
+SIO.SaveState("snapshotCorrelationOperator", l2ScalarProducMatrix)
 
-os.chdir(initFolder)
 
 

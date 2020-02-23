@@ -1,9 +1,1 @@
-***behavior thermal
-**conductivity isotropic % W.K-1.m-1
-k 7.72
-**coefficient
-capacity 2639612.5 % J.K-1
-***return
-
-
-
+../mat

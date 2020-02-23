@@ -8,76 +8,61 @@ from Mordicus.Modules.Safran.FE import FETools as FT
 from Mordicus.Core.DataCompressors import SnapshotPOD as SP
 from Mordicus.Modules.Safran.IO import PXDMFWriter as PW
 from Mordicus.Modules.Safran.OperatorCompressors import Mechanical as Meca
+from Mordicus.Core.IO import StateIO as SIO
 import numpy as np
-from pathlib import Path
-import os
-
-
-def test():
-
-
-    initFolder = os.getcwd()
-    currentFolder = str(Path(__file__).parents[0])
-    os.chdir(currentFolder)
 
 
 
-    ##################################################
-    # LOAD DATA FOR ONLINE
-    ##################################################
+##################################################
+# LOAD DATA FOR ONLINE
+##################################################
 
-    collectionProblemData = CPD.LoadState("mordicusState")
+collectionProblemData = SIO.LoadState("collectionProblemData")
+operatorCompressionData = collectionProblemData.GetOperatorCompressionData()
+snapshotCorrelationOperator = SIO.LoadState("snapshotCorrelationOperator")
 
-    operatorCompressionData = collectionProblemData.GetOperatorCompressionData()
-    snapshotCorrelationOperator = collectionProblemData.GetSnapshotCorrelationOperator("U")
-    reducedOrderBasisU = collectionProblemData.GetReducedOrderBasis("U")
-
-
-
-    ##################################################
-    # ONLINE
-    ##################################################
+operatorCompressionData = collectionProblemData.GetOperatorCompressionData()
+reducedOrderBasisU = collectionProblemData.GetReducedOrderBasis("U")
 
 
-    folder = "MecaSequential/"
-    inputFileName = folder + "cube.inp"
-    inputReader = ZIR.ZsetInputReader(inputFileName)
-
-    meshFileName = folder + "cube.geof"
-    mesh = ZMR.ReadMesh(meshFileName)
-
-    onlineProblemData = PD.ProblemData(folder)
-
-    timeSequence = inputReader.ReadInputTimeSequence()
-
-    from Mordicus.Modules.Safran.Containers.ConstitutiveLaws import TestMecaConstitutiveLaw as TMCL
-    elasConsitutiveLaw = TMCL.TestMecaConstitutiveLaw('ALLELEMENT')
-    onlineProblemData.AddConstitutiveLaw(elasConsitutiveLaw)
-
-    loadingList = inputReader.ConstructLoadingsList()
-    for loading in loadingList:
-        loading.ReduceLoading(mesh, onlineProblemData, reducedOrderBasisU, operatorCompressionData)
-    onlineProblemData.AddLoading(loadingList)
-
-    initialCondition = inputReader.ConstructInitialCondition()
-    initialCondition.ReduceInitialSnapshot(reducedOrderBasisU, snapshotCorrelationOperator)
-
-    onlineProblemData.SetInitialCondition(initialCondition)
-
-    initOnlineCompressedSnapshot = initialCondition.GetReducedInitialSnapshot()
+##################################################
+# ONLINE
+##################################################
 
 
-    import time
-    start = time.time()
-    onlineCompressedSolution = Meca.ComputeOnline(onlineProblemData, initOnlineCompressedSnapshot, timeSequence, reducedOrderBasisU, operatorCompressionData, 1.e-4)
-    print(">>>> DURATION ONLINE =", time.time() - start)
+folder = "MecaSequential/"
+inputFileName = folder + "cube.inp"
+inputReader = ZIR.ZsetInputReader(inputFileName)
 
-    PW.WritePXDMF(mesh, onlineCompressedSolution, reducedOrderBasisU, "U")
-    print("The compressed solution has been written in PXDMF Format")
+meshFileName = folder + "cube.geof"
+mesh = ZMR.ReadMesh(meshFileName)
 
-    os.chdir(initFolder)
+onlineProblemData = PD.ProblemData(folder)
 
-    return "ok"
+timeSequence = inputReader.ReadInputTimeSequence()
 
-if __name__ == "__main__":
-    print(test())  # pragma: no cover
+from Mordicus.Modules.Safran.Containers.ConstitutiveLaws import TestMecaConstitutiveLaw as TMCL
+elasConsitutiveLaw = TMCL.TestMecaConstitutiveLaw('ALLELEMENT')
+onlineProblemData.AddConstitutiveLaw(elasConsitutiveLaw)
+
+loadingList = inputReader.ConstructLoadingsList()
+for loading in loadingList:
+    loading.ReduceLoading(mesh, onlineProblemData, reducedOrderBasisU, operatorCompressionData)
+onlineProblemData.AddLoading(loadingList)
+
+initialCondition = inputReader.ConstructInitialCondition()
+initialCondition.ReduceInitialSnapshot(reducedOrderBasisU, snapshotCorrelationOperator)
+
+onlineProblemData.SetInitialCondition(initialCondition)
+
+initOnlineCompressedSnapshot = initialCondition.GetReducedInitialSnapshot()
+
+
+import time
+start = time.time()
+onlineCompressedSolution = Meca.ComputeOnline(onlineProblemData, initOnlineCompressedSnapshot, timeSequence, reducedOrderBasisU, operatorCompressionData, 1.e-4)
+print(">>>> DURATION ONLINE =", time.time() - start)
+
+PW.WritePXDMF(mesh, onlineCompressedSolution, reducedOrderBasisU, "U")
+print("The compressed solution has been written in PXDMF Format")
+

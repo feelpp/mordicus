@@ -5,6 +5,7 @@ from Mordicus.Core.Containers import CollectionProblemData as CPD
 from Mordicus.Core.Containers import Solution as S
 from Mordicus.Core.DataCompressors import SnapshotPOD
 from Mordicus.Core.OperatorCompressors import Regression
+from Mordicus.Core.IO import StateIO as SIO
 import numpy as np
 from pathlib import Path
 import os
@@ -16,7 +17,6 @@ def test():
     currentFolder = str(Path(__file__).parents[0])
     os.chdir(currentFolder)
 
-    
     print('Read mesh')
     mesh = MR.ReadMesh("meshBase.vtu")
     numberOfNodes = mesh.GetNumberOfNodes()
@@ -72,7 +72,7 @@ def test():
             count +=1
 
         collectionProblemData.AddProblemData(problemData, mu1=parameters[i][0], mu2=parameters[i][1])
-    
+
 
     print("\nSolutions have been read\n")
 
@@ -103,10 +103,10 @@ def test():
         collectionProblemData, solutionName, gpr
     )
 
-    collectionProblemData.SaveState("mordicusState")
+
+    SIO.SaveState("mordicusState", collectionProblemData)
 
 
-    os.chdir(initFolder)    
 
     ###write POD modes
     from Mordicus.Modules.CT.IO import numpyToVTKWriter as NTV
@@ -117,7 +117,10 @@ def test():
         print('CompressedSnapshots ', problemData.solutions[solutionName].GetCompressedSnapshots().get(0.0))
 
 
+    os.chdir(initFolder)
+
     return "ok"
+
 
 if __name__ == "__main__":
     print(test())  # pragma: no cover

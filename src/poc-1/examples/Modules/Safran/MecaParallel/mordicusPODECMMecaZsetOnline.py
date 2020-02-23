@@ -7,15 +7,8 @@ from Mordicus.Core.Containers import Solution as S
 from Mordicus.Modules.Safran.FE import FETools as FT
 from Mordicus.Core.DataCompressors import SnapshotPOD as SP
 from Mordicus.Modules.Safran.OperatorCompressors import Mechanical as Meca
+from Mordicus.Core.IO import StateIO as SIO
 import numpy as np
-from pathlib import Path
-import os
-
-
-
-initFolder = os.getcwd()
-currentFolder = str(Path(__file__).parents[0])
-os.chdir(currentFolder)
 
 
 
@@ -23,10 +16,11 @@ os.chdir(currentFolder)
 # LOAD DATA FOR ONLINE
 ##################################################
 
-collectionProblemData = CPD.LoadState("mordicusState")
+collectionProblemData = SIO.LoadState("collectionProblemData")
+operatorCompressionData = collectionProblemData.GetOperatorCompressionData()
+snapshotCorrelationOperator = SIO.LoadState("snapshotCorrelationOperator")
 
 operatorCompressionData = collectionProblemData.GetOperatorCompressionData()
-snapshotCorrelationOperator = collectionProblemData.GetSnapshotCorrelationOperator("U")
 reducedOrderBasisU = collectionProblemData.GetReducedOrderBasis("U")
 
 
@@ -68,4 +62,3 @@ onlineCompressedSolution = Meca.ComputeOnline(onlineProblemData, initOnlineCompr
 print(">>>> DURATION ONLINE =", time.time() - start)
 
 
-os.chdir(initFolder)

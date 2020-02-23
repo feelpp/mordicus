@@ -56,10 +56,10 @@ class Solution(object):
 
         Parameters
         ----------
-        time : float
-            time of the snapshot
         snapshot : np.ndarray
             of size (numberOfDOFs,)
+        time : float
+            time of the snapshot
         """
         time = float(time)
         assert len(snapshot.shape) == 1 and snapshot.shape[0] == self.numberOfDOFs
@@ -70,7 +70,46 @@ class Solution(object):
                 + str(time)
                 + " already in snapshots. Replacing it anyways."
             )  # pragma: no cover
+
         self.snapshots[time] = snapshot
+
+        keys = list(self.snapshots.keys())
+
+        if len(keys) > 1 and keys[-1] < keys[-2]:
+            self.snapshots = collections.OrderedDict(sorted(self.snapshots.items(), key=lambda x: x[0]))
+
+
+
+    def RemoveSnapshot(self, time):
+        """
+        Removes the snapshot at time "time"
+
+        Parameters
+        ----------
+        time : float
+            time of the snapshot
+        """
+        time = float(time)
+
+        if time in self.snapshots:
+            del self.snapshots[time]
+        else:
+            print("no snapshot at time "+str(time)+" to remove")
+
+
+
+
+    def RemoveSnapshots(self, timeSequence):
+        """
+        Removes the snapshot at times "timeSequence"
+
+        Parameters
+        ----------
+        time : list or 1d-np.ndarray of floats
+            times of the snapshot
+        """
+        for time in timeSequence:
+            self.RemoveSnapshot(time)
 
 
     def GetSnapshot(self, time):
@@ -87,6 +126,7 @@ class Solution(object):
         """
         return self.snapshots[time]
 
+
     def GetTimeSequenceFromSnapshots(self):
         """
         Returns
@@ -95,6 +135,7 @@ class Solution(object):
             list containing the time indices of the snapshots
         """
         return list(self.snapshots.keys())
+
 
     def GetTimeSequenceFromCompressedSnapshots(self):
         """
@@ -115,6 +156,7 @@ class Solution(object):
         """
         return list(self.snapshots.values())
 
+
     def GetSolutionName(self):
         """
         Returns
@@ -123,6 +165,7 @@ class Solution(object):
             the name of the solution field
         """
         return self.solutionName
+
 
     def GetNbeOfComponents(self):
         """
@@ -133,6 +176,7 @@ class Solution(object):
         """
         return self.nbeOfComponents
 
+
     def GetNumberOfDofs(self):
         """
         Returns
@@ -141,6 +185,7 @@ class Solution(object):
             the number of degrees of freedom of the solution
         """
         return self.numberOfDOFs
+
 
     def GetNumberOfNodes(self):
         """
@@ -160,6 +205,7 @@ class Solution(object):
         """
         return self.primality
 
+
     def GetCompressedSnapshots(self):
         """
         Returns
@@ -168,6 +214,7 @@ class Solution(object):
             the compressed representation of the solution
         """
         return self.compressedSnapshots
+
 
     def GetCompressedSnapshotsList(self):
         """
@@ -237,6 +284,35 @@ class Solution(object):
         self.snapshots = snapshots
 
 
+    def AddCompressedSnapshots(self, compressedSnapshot, time):
+        """
+        Adds a compressed snapshot at time "time"
+
+        Parameters
+        ----------
+        compressedSnapshot : np.ndarray
+            of size (numberOfModes,)
+        time : float
+            time of the compressedSnapshot
+        """
+        time = float(time)
+        assert len(compressedSnapshot.shape) == 1
+
+        if time in self.compressedSnapshots:
+            print(
+                "Snapshot at time "
+                + str(time)
+                + " already in compressedSnapshot. Replacing it anyways."
+            )  # pragma: no cover
+
+        self.compressedSnapshots[time] = compressedSnapshot
+
+        keys = list(self.compressedSnapshots.keys())
+
+        if len(keys) > 1 and keys[-1] < keys[-2]:
+            self.compressedSnapshots = collections.OrderedDict(sorted(self.compressedSnapshots.items(), key=lambda x: x[0]))
+
+
     def CompressSnapshots(self, snapshotCorrelationOperator, reducedOrderBasis):
         """
         Compress snapshots using the correlation operator between the snapshots defined by the matrix snapshotCorrelationOperator and reducedOrderBasis
@@ -249,12 +325,6 @@ class Solution(object):
             of size (numberOfModes, numberOfDOFs)
         """
 
-        if self.compressedSnapshots != False:
-            print("Solution already compressed. Replacing it anyway")  # pragma: no cover
-
-        import collections
-        compressedSnapshots = collections.OrderedDict()
-
         numberOfModes = reducedOrderBasis.shape[0]
         nNodes = self.GetNumberOfNodes()
 
@@ -266,9 +336,9 @@ class Solution(object):
             globalScalarProduct = np.zeros(numberOfModes)
             MPI.COMM_WORLD.Allreduce([localScalarProduct, MPI.DOUBLE], [globalScalarProduct, MPI.DOUBLE])
 
-            compressedSnapshots[time] = globalScalarProduct
+            self.compressedSnapshots[time] = globalScalarProduct
 
-        self.SetCompressedSnapshots(compressedSnapshots)
+        self.compressedSnapshots = collections.OrderedDict(sorted(self.compressedSnapshots.items(), key=lambda x: x[0]))
 
 
 
@@ -292,6 +362,35 @@ class Solution(object):
             snapshots[time] = np.dot(compressedSnapshot, reducedOrderBasis)
 
         self.SetSnapshots(snapshots)
+
+
+
+    def ConvertCompressedSnapshotReducedOrderBasis(self, projectedReducedOrderBasis):
+        """
+        Converts the reducedSnapshot from the current reducedOrderBasis to a newReducedOrderBasis using a projectedReducedOrderBasis between the current one and a new one
+
+        Parameters
+        ----------
+        projectedReducedOrderBasis : np.ndarray
+            of size (newNumberOfModes, numberOfModes)
+        """
+        for time, compressedSnapshot in self.compressedSnapshots.items():
+            self.compressedSnapshots[time] = np.dot(projectedReducedOrderBasis, compressedSnapshot)
+
+
+
+    def ConvertCompressedSnapshotReducedOrderBasisAtTime(self, projectedReducedOrderBasis, time):
+        """
+        Converts the reducedSnapshot at time from the current reducedOrderBasis to a newReducedOrderBasis using a projectedReducedOrderBasis between the current one and a new one
+
+        Parameters
+        ----------
+        projectedReducedOrderBasis : np.ndarray
+            of size (newNumberOfModes, numberOfModes)
+        time : float
+        """
+        self.compressedSnapshots[time] = np.dot(projectedReducedOrderBasis, self.compressedSnapshots[time])
+
 
 
     def GetCompressedSnapshotsAtTime(self, time):
@@ -324,8 +423,6 @@ class Solution(object):
         state["primality"] = self.primality
         state["compressedSnapshots"] = self.compressedSnapshots
         state["snapshots"] = collections.OrderedDict()
-        for time in self.GetTimeSequenceFromSnapshots():
-            state["snapshots"][time] = None
 
         return state
 
@@ -339,3 +436,4 @@ class Solution(object):
         else:
             res += "Compressed"  # pragma: no cover
         return res
+
