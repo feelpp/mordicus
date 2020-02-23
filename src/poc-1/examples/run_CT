@@ -1,0 +1,6 @@
+#!/bin/bash
+
+cd Modules/CT/PODI
+python3 mordicusRegressionOffline.py
+python3 mordicusRegressionOnline.py
+
