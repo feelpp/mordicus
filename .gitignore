@@ -21,3 +21,6 @@ src/poc-1/coverageReports/*
 #autodoc generated files
 *_build*
 *_source*
+
+#Windows
+env/
