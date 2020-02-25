@@ -384,27 +384,32 @@ class ZsetInputReader(InputReaderBase):
 
         if problemType == "mechanical":
 
-            from Mordicus.Modules.Safran.External.pyumat import py3umat as pyumat
-            from Mordicus.Modules.Safran.Containers.ConstitutiveLaws import ZmatConstitutiveLaw as ZCL
 
-            constitutiveLaw = ZCL.ZmatConstitutiveLaw(set)
-
+            behavior = ZIO.GetBehavior(folder + materialFileName)
             density = ZIO.GetDensity(folder + materialFileName)
-            constitutiveLaw.SetDensity(density)
 
-            constitutiveLaw.SetBehavior(behavior)
+            if behavior == "gen_evp":
 
-            constitutiveLawVariables = {}
+                from Mordicus.Modules.Safran.External.pyumat import py3umat as pyumat
+                from Mordicus.Modules.Safran.Containers.ConstitutiveLaws import ZmatConstitutiveLaw as ZCL
 
-            curFolder = os.getcwd()
-            os.chdir(folder)
+                constitutiveLaw = ZCL.ZmatConstitutiveLaw(set)
+
+                constitutiveLaw.SetDensity(density)
+
+                constitutiveLaw.SetBehavior(behavior)
+
+                constitutiveLawVariables = {}
+
+                curFolder = os.getcwd()
+                os.chdir(folder)
 
 
-            suffix = ""
-            if MPI.COMM_WORLD.Get_size() > 1:
-                suffix += "_"+str(MPI.COMM_WORLD.Get_rank()+1).zfill(3)# pragma: no cover
+                suffix = ""
+                if MPI.COMM_WORLD.Get_size() > 1:
+                    suffix += "_"+str(MPI.COMM_WORLD.Get_rank()+1).zfill(3)# pragma: no cover
 
-            code="""
+                code="""
 import sys
 from Mordicus.Modules.Safran.External.pyumat import py3umat as pyumat
 import numpy as np
@@ -461,107 +466,133 @@ kinc  = 1
 
 ddsddeNew = pyumat.umat(stress=stress,statev=statev,ddsdde=ddsdde,sse=sse,spd=spd,scd=scd,rpl=rpl,ddsddt=ddsddt,drplde=drplde,drpldt=drpldt,stran=stran,dstran=dstran,time=timesim,dtime=dtime,
                         temp=temperature,dtemp=dtemp,predef=predef,dpred=dpred,cmname=cmname,ndi=ndi,nshr=nshr,ntens=ntens,nstatv=nstatv,props=props,nprops=nprops,coords=coords,drot=drot,pnewdt=pnewdt,celent=celent,dfgrd0=dfgrd0,
-        dfgrd1=dfgrd1,noel=noel,npt=npt,kslay=kslay,kspt=kspt,kstep=kstep,kinc=kinc)
-    """
-            f = open("materialtest"+suffix+".py","w")
-            f.write(code)
-            f.close()
+        dfgrd1=dfgrd1,noel=noel,npt=npt,kslay=kslay,kspt=kspt,kstep=kstep,kinc=kinc)"""
+                f = open("materialtest"+suffix+".py","w")
+                f.write(code)
+                f.close()
 
-            import sys
-            import subprocess
-            out = subprocess.run([sys.executable, "materialtest"+suffix+".py"], stdout=subprocess.PIPE).stdout.decode("utf-8")
+                import sys
+                import subprocess
+                out = subprocess.run([sys.executable, "materialtest"+suffix+".py"], stdout=subprocess.PIPE).stdout.decode("utf-8")
 
 
-            outlines = out.split(u"\n")
+                outlines = out.split(u"\n")
 
-            seplines = []
-            for i in range(len(outlines)):
-                if "============================================" in outlines[i]:
-                    seplines.append(i)
-                if "done with material file reading" in outlines[i]:
-                    lastline = i
-            outlines = outlines[seplines[seplines.index(lastline-1)-1]:]
+                seplines = []
+                for i in range(len(outlines)):
+                    if "============================================" in outlines[i]:
+                        seplines.append(i)
+                    if "done with material file reading" in outlines[i]:
+                        lastline = i
+                outlines = outlines[seplines[seplines.index(lastline-1)-1]:]
 
-            names = ['Flux', 'Grad','var_int','var_aux','Extra Zmat']
+                names = ['Flux', 'Grad','var_int','var_aux','Extra Zmat']
 
-            def parser(fname, obj):
-                    cont = 1
-                    line = 0
-                    while line < len(outlines):
-                        if fname in outlines[line]:
-                            line +=1
-                            while any(word in outlines[line].strip() for word in names) == False and len(outlines[line].strip())>0  and outlines[line][0] != "=":
-                                if outlines[line][0] != " ":
-                                    break# pragma: no cover
-                                fnames = outlines[line].strip().split()
-                                for i in range(len(fnames)):
-                                    if '--' in fnames[i]:
-                                        cont = 0
-                                    if cont == 1:
-                                        obj.append(fnames[i].split("(")[0])
+                def parser(fname, obj):
+                        cont = 1
+                        line = 0
+                        while line < len(outlines):
+                            if fname in outlines[line]:
                                 line +=1
-                        else:
-                            line +=1
+                                while any(word in outlines[line].strip() for word in names) == False and len(outlines[line].strip())>0  and outlines[line][0] != "=":
+                                    if outlines[line][0] != " ":
+                                        break# pragma: no cover
+                                    fnames = outlines[line].strip().split()
+                                    for i in range(len(fnames)):
+                                        if '--' in fnames[i]:
+                                            cont = 0
+                                        if cont == 1:
+                                            obj.append(fnames[i].split("(")[0])
+                                    line +=1
+                            else:
+                                line +=1
 
-            constitutiveLawVariables['flux'] = []
-            constitutiveLawVariables['grad'] = []
-            constitutiveLawVariables['var_int'] = []
-            constitutiveLawVariables['var_aux'] = []
-            constitutiveLawVariables['var_extra'] = []
-            parser("Flux", constitutiveLawVariables['flux'])
-            parser("Grad", constitutiveLawVariables['grad'])
-            parser("var_int", constitutiveLawVariables['var_int'])
-            parser("var_aux", constitutiveLawVariables['var_aux'])
-            parser("Extra Zmat", constitutiveLawVariables['var_extra'])
-            #print("constitutiveLawVariables['var_int']   =", constitutiveLawVariables['var_int'])
-            #print("constitutiveLawVariables['var_aux']   =", constitutiveLawVariables['var_aux'])
-            #print("constitutiveLawVariables['var_extra'] =", constitutiveLawVariables['var_extra'])
-            os.system("rm -rf materialtest"+suffix+".py")
+                constitutiveLawVariables['flux'] = []
+                constitutiveLawVariables['grad'] = []
+                constitutiveLawVariables['var_int'] = []
+                constitutiveLawVariables['var_aux'] = []
+                constitutiveLawVariables['var_extra'] = []
+                parser("Flux", constitutiveLawVariables['flux'])
+                parser("Grad", constitutiveLawVariables['grad'])
+                parser("var_int", constitutiveLawVariables['var_int'])
+                parser("var_aux", constitutiveLawVariables['var_aux'])
+                parser("Extra Zmat", constitutiveLawVariables['var_extra'])
+                #print("constitutiveLawVariables['var_int']   =", constitutiveLawVariables['var_int'])
+                #print("constitutiveLawVariables['var_aux']   =", constitutiveLawVariables['var_aux'])
+                #print("constitutiveLawVariables['var_extra'] =", constitutiveLawVariables['var_extra'])
+                os.system("rm -rf materialtest"+suffix+".py")
 
-            constitutiveLawVariables['var'] = constitutiveLawVariables['grad'] + constitutiveLawVariables['flux'] + constitutiveLawVariables['var_int'] + constitutiveLawVariables['var_aux'] + constitutiveLawVariables['var_extra']
+                constitutiveLawVariables['var'] = constitutiveLawVariables['grad'] + constitutiveLawVariables['flux'] + constitutiveLawVariables['var_int'] + constitutiveLawVariables['var_aux'] + constitutiveLawVariables['var_extra']
 
-            #Initialize Zmat quantities
-            constitutiveLawVariables['cmname']      = materialFileName
-            constitutiveLawVariables['nstatv']      = len(constitutiveLawVariables['var_int']) + len(constitutiveLawVariables['var_aux']) +  len(constitutiveLawVariables['var_extra'])
-            constitutiveLawVariables['ndi']         = 3
-            constitutiveLawVariables['nshr']        = 3
-            constitutiveLawVariables['ntens']       = constitutiveLawVariables['ndi'] + constitutiveLawVariables['nshr']
-            constitutiveLawVariables['statev']      = np.zeros(constitutiveLawVariables['nstatv'])
-            constitutiveLawVariables['ddsddt']      = np.zeros(constitutiveLawVariables['ntens'])
-            constitutiveLawVariables['drplde']      = np.zeros(constitutiveLawVariables['ntens'])
-            constitutiveLawVariables['stress']      = np.zeros(6)
-            constitutiveLawVariables['ddsdde']      = np.zeros((6,6),dtype=np.float)
-            constitutiveLawVariables['sse']         = 0.
-            constitutiveLawVariables['spd']         = 0.
-            constitutiveLawVariables['scd']         = 0.
-            constitutiveLawVariables['rpl']         = 0.
-            constitutiveLawVariables['drpldt']      = 0.
-            constitutiveLawVariables['stran']       = np.zeros(6)
-            constitutiveLawVariables['dstran']      = np.zeros(6)
-            constitutiveLawVariables['timesim']     = np.array([0.,0.1])
-            constitutiveLawVariables['dtime']       = 1.
-            constitutiveLawVariables['temperature'] = 0.
-            constitutiveLawVariables['dtemp']       = 0.
-            constitutiveLawVariables['predef']      = np.zeros(1)
-            constitutiveLawVariables['dpred']       = np.zeros(1)
-            constitutiveLawVariables['nprops']      = 1
-            constitutiveLawVariables['props']       = np.zeros(constitutiveLawVariables['nprops'])
-            constitutiveLawVariables['coords']      = np.zeros(3, dtype= float)
-            constitutiveLawVariables['drot']        = np.zeros((3,3), dtype= float)
-            constitutiveLawVariables['pnewdt']      = 1.
-            constitutiveLawVariables['celent']      = 1.
-            constitutiveLawVariables['dfgrd0']      = np.zeros((3,3), dtype = float)
-            constitutiveLawVariables['dfgrd1']      = np.zeros((3,3), dtype = float)
-            constitutiveLawVariables['noel']        = 0
-            constitutiveLawVariables['npt']         = 0
-            constitutiveLawVariables['kslay']       = 1
-            constitutiveLawVariables['kspt']        = 1
-            constitutiveLawVariables['kstep']       = np.array([1,1,0,0], dtype=int)
-            constitutiveLawVariables['kinc']        = 1
+                #Initialize Zmat quantities
+                constitutiveLawVariables['cmname']      = materialFileName
+                constitutiveLawVariables['nstatv']      = len(constitutiveLawVariables['var_int']) + len(constitutiveLawVariables['var_aux']) +  len(constitutiveLawVariables['var_extra'])
+                constitutiveLawVariables['ndi']         = 3
+                constitutiveLawVariables['nshr']        = 3
+                constitutiveLawVariables['ntens']       = constitutiveLawVariables['ndi'] + constitutiveLawVariables['nshr']
+                constitutiveLawVariables['statev']      = np.zeros(constitutiveLawVariables['nstatv'])
+                constitutiveLawVariables['ddsddt']      = np.zeros(constitutiveLawVariables['ntens'])
+                constitutiveLawVariables['drplde']      = np.zeros(constitutiveLawVariables['ntens'])
+                constitutiveLawVariables['stress']      = np.zeros(6)
+                constitutiveLawVariables['ddsdde']      = np.zeros((6,6),dtype=np.float)
+                constitutiveLawVariables['sse']         = 0.
+                constitutiveLawVariables['spd']         = 0.
+                constitutiveLawVariables['scd']         = 0.
+                constitutiveLawVariables['rpl']         = 0.
+                constitutiveLawVariables['drpldt']      = 0.
+                constitutiveLawVariables['stran']       = np.zeros(6)
+                constitutiveLawVariables['dstran']      = np.zeros(6)
+                constitutiveLawVariables['timesim']     = np.array([0.,0.1])
+                constitutiveLawVariables['dtime']       = 1.
+                constitutiveLawVariables['temperature'] = 0.
+                constitutiveLawVariables['dtemp']       = 0.
+                constitutiveLawVariables['predef']      = np.zeros(1)
+                constitutiveLawVariables['dpred']       = np.zeros(1)
+                constitutiveLawVariables['nprops']      = 1
+                constitutiveLawVariables['props']       = np.zeros(constitutiveLawVariables['nprops'])
+                constitutiveLawVariables['coords']      = np.zeros(3, dtype= float)
+                constitutiveLawVariables['drot']        = np.zeros((3,3), dtype= float)
+                constitutiveLawVariables['pnewdt']      = 1.
+                constitutiveLawVariables['celent']      = 1.
+                constitutiveLawVariables['dfgrd0']      = np.zeros((3,3), dtype = float)
+                constitutiveLawVariables['dfgrd1']      = np.zeros((3,3), dtype = float)
+                constitutiveLawVariables['noel']        = 0
+                constitutiveLawVariables['npt']         = 0
+                constitutiveLawVariables['kslay']       = 1
+                constitutiveLawVariables['kspt']        = 1
+                constitutiveLawVariables['kstep']       = np.array([1,1,0,0], dtype=int)
+                constitutiveLawVariables['kinc']        = 1
 
-            constitutiveLaw.SetConstitutiveLawVariables(constitutiveLawVariables)
+                constitutiveLaw.SetConstitutiveLawVariables(constitutiveLawVariables)
 
-            os.chdir(curFolder)
+                os.chdir(curFolder)
 
 
-            return constitutiveLaw
+                return constitutiveLaw
+
+            if behavior == "linear_elastic":
+
+                from Mordicus.Modules.Safran.Containers.ConstitutiveLaws import MecaUniformLinearElasticity as MULE
+
+                data = ZIO.ReadInp2(folder + materialFileName, startingNstar=3)
+                elasticity = ZIO.GetFromInp(data,{'3':['behavior'], '2':['elasticity']})[0]
+
+                ranks = {}
+                for i in range(3):
+                    ranks[elasticity[i][0]] = i
+
+                if elasticity[ranks['elasticity']][1] != "isotropic":
+                    raise ValueError("only isotropic elasticity available for linear-elastic laws")#pragma: no cover
+
+                young = float(elasticity[ranks['young']][1])
+                if young =="temperature":
+                    raise ValueError("only uniform young available for linear-elastic laws")#pragma: no cover
+
+                poisson = float(elasticity[ranks['poisson']][1])
+
+                return MULE.TestMecaConstitutiveLaw(set, young, poisson, density)
+
+            else:
+                raise ValueError("behavior law of type "+behavior+" not known")#pragma: no cover
+
+

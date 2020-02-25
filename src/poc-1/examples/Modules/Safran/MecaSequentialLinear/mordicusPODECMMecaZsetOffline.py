@@ -89,7 +89,7 @@ for t in outputTimeSequence:
 print("compressionErrors =", compressionErrors)
 
 Meca.CompressOperator(
-        collectionProblemData, mesh, 1.e-3
+        collectionProblemData, mesh, 1.e-4
 )
 
 print("CompressOperator done")

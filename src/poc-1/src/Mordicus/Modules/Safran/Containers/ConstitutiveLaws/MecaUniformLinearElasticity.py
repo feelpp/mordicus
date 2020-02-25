@@ -10,58 +10,70 @@ class TestMecaConstitutiveLaw(ConstitutiveLawBase):
 
     Attributes
     ----------
-    constitutiveLawVariables : dict
-        dictionary with variable names (str) as keys and variables as type
+    young : float
+        young modulus of the material
+    poisson : float
+        poisson ratio of the material
     density : float
         density of the material
+    constitutiveLawVariables : dict
+        dictionary with variable names (str) as keys and variables as type
     """
 
-    def __init__(self, set):
+    def __init__(self, set, young, poisson, density):
         assert isinstance(set, str)
-        
+
         super(TestMecaConstitutiveLaw, self).__init__(set, "mechanical")
+
+        self.young = young
+        self.poisson = poisson
+        self.density = density
+
+        lambd = young*poisson/((1+poisson)*(1-2*poisson))
+        mu = young/(2*(1+poisson))
+
+        mu2 = 3.5*mu
+
 
         self.constitutiveLawVariables = {}
         self.constitutiveLawVariables['nstatv'] = 0
-        self.constitutiveLawVariables['ddsdde'] = np.array([[403846.15384615, 173076.92307692, 173076.92307692,      0.,       0.,         0.], [173076.92307692, 403846.15384615, 173076.92307692,      0.,       0.,         0.], [173076.92307692, 173076.92307692, 403846.15384615,      0.,       0.,         0.], [0.,              0.,              0.,         115384.61538462,      0.,       0.], [0.,              0.,              0.,              0.,  115384.61538462,      0.], [0.,              0.,              0.,              0.,       0.,         115384.61538462]])
-        
+        self.constitutiveLawVariables['ddsdde'] = np.array([[mu2, lambd, lambd,      0.,       0.,         0.], [lambd, mu2, lambd,      0.,       0.,         0.], [lambd, lambd, mu2,      0.,       0.,         0.], [0.,              0.,              0.,         mu,      0.,       0.], [0.,              0.,              0.,              0.,  mu,      0.], [0.,              0.,              0.,              0.,       0.,         mu]])
+
         self.constitutiveLawVariables['flux'] = ['sig11', 'sig22', 'sig33', 'sig12', 'sig23', 'sig31']
         self.constitutiveLawVariables['grad'] = ['eto11', 'eto22', 'eto33', 'eto12', 'eto23', 'eto31']
         self.constitutiveLawVariables['var_int'] = []
         self.constitutiveLawVariables['var_aux'] = []
         self.constitutiveLawVariables['var_extra'] = []
-        
-        self.constitutiveLawVariables['var'] = self.constitutiveLawVariables['grad'] + self.constitutiveLawVariables['flux']
-        
-        self.density = 8.6E-09
-        
 
-        
+        self.constitutiveLawVariables['var'] = self.constitutiveLawVariables['grad'] + self.constitutiveLawVariables['flux']
+
+
+
     def GetConstitutiveLawVariables(self):
-    
+
         return self.constitutiveLawVariables
-    
+
 
 
     def SetOneConstitutiveLawVariable(self, var, value):
-        
+
         self.constitutiveLawVariables[var] = value
-        
-        
-        
+
+
+
     def GetOneConstitutiveLawVariable(self, var):
-    
+
         return self.constitutiveLawVariables[var]
 
-    
-        
+
+
     def GetDensity(self):
-        
+
         return self.density
 
-    
+
     def ComputeConstitutiveLaw(self):
-        
+
 
         self.constitutiveLawVariables['stress'] = np.dot(self.constitutiveLawVariables['ddsdde'], self.constitutiveLawVariables['stran'])
 
@@ -75,7 +87,7 @@ class TestMecaConstitutiveLaw(ConstitutiveLawBase):
             the identifier of constitutive law
         """
         return self.set
-    
+
 
     def __str__(self):
         res = "TestMecaConstitutiveLaw on set "+self.set

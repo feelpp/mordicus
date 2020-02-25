@@ -59,7 +59,7 @@ initOnlineCompressedSnapshot = initialCondition.GetReducedInitialSnapshot()
 
 import time
 start = time.time()
-onlineCompressedSolution = Meca.ComputeOnline(onlineProblemData, initOnlineCompressedSnapshot, timeSequence, reducedOrderBasisU, operatorCompressionData, 1.e-4)
+onlineCompressedSolution = Meca.ComputeOnline(onlineProblemData, initOnlineCompressedSnapshot, timeSequence, reducedOrderBasisU, operatorCompressionData, 1.e-6)
 print(">>>> DURATION ONLINE =", time.time() - start)
 
 

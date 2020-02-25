@@ -174,12 +174,11 @@ def test():
     print("ROMErrors =", ROMErrors)
 
 
-    """from Mordicus.Modules.Safran.IO import PXDMFWriter as PW
-    reducedOrderBasisSig11 = collectionProblemData.GetReducedOrderBasis("evrcum")
-    PW.WritePXDMF(mesh, onlineEvrcumCompressedSolution, reducedOrderBasisSig11, "evrcum")"""
 
-    from Mordicus.Modules.Safran.Containers.ConstitutiveLaws import TestMecaConstitutiveLaw as TMCL
-    elasConsitutiveLaw = TMCL.TestMecaConstitutiveLaw('ALLELEMENT')
+
+    from Mordicus.Modules.Safran.Containers.ConstitutiveLaws import MecaUniformLinearElasticity as MULE
+
+    elasConsitutiveLaw = MULE.TestMecaConstitutiveLaw('ALLELEMENT', 300000., 0.3, 8.6E-09)
     onlineProblemData.AddConstitutiveLaw(elasConsitutiveLaw)
     onlineCompressedSolution = Meca.ComputeOnline(onlineProblemData, initOnlineCompressedSnapshot, timeSequence, reducedOrderBasisU, operatorCompressionData, 1.e-4)
 

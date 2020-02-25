@@ -151,6 +151,7 @@ def ComputeOnline(onlineProblemData, initOnlineCompressedSnapshot, timeSequence,
             reducedTangentMatrix = np.zeros(reducedTangentMatrixTemp.shape)
             MPI.COMM_WORLD.Allreduce([reducedTangentMatrixTemp,  MPI.DOUBLE], [reducedTangentMatrix,  MPI.DOUBLE])
 
+
             sol = np.linalg.solve(reducedTangentMatrix, reducedExternalForces-reducedInternalForces)
 
             onlineCompressedSolution[time] += sol
@@ -161,6 +162,13 @@ def ComputeOnline(onlineProblemData, initOnlineCompressedSnapshot, timeSequence,
 
             reducedInternalForces = np.zeros(reducedInternalForcesTemp.shape)
             MPI.COMM_WORLD.Allreduce([reducedInternalForcesTemp,  MPI.DOUBLE], [reducedInternalForces,  MPI.DOUBLE])
+
+            #print("reducedTangentMatrix =", reducedTangentMatrix)
+            #print("reducedInternalForces =", reducedInternalForces)
+            #print("reducedExternalForces =", reducedExternalForces)
+            #print("normExt =", normExt)
+            #print("SOLLLLL =", sol)
+            #print("===")
 
             if normExt>0:
                 normRes = np.linalg.norm(reducedExternalForces-reducedInternalForces)/normExt
@@ -235,6 +243,10 @@ def ComputeReducedInternalForcesAndTangentMatrix(onlineProblemData, opCompDat, b
         constLaws[tag].constitutiveLawVariables['statev'] = np.copy(opCompDat['statevIntForces'][k])
 
 
+        #print("stran =", constLaws[tag].constitutiveLawVariables['stran'])
+        #print("dstran =", constLaws[tag].constitutiveLawVariables['dstran'])
+
+
         constLaws[tag].ComputeConstitutiveLaw()
 
 
@@ -248,6 +260,10 @@ def ComputeReducedInternalForcesAndTangentMatrix(onlineProblemData, opCompDat, b
 
         sigmaEpsilon = np.dot(reducedRedInterpolator[:,nbOfComponents*k:nbOfComponents*(k+1)],constLaws[tag].constitutiveLawVariables['stress'])
         edsdee = np.dot(np.dot(reducedRedInterpolator[:,nbOfComponents*k:nbOfComponents*(k+1)],constLaws[tag].constitutiveLawVariables['ddsdde']),reducedRedInterpolator[:,nbOfComponents*k:nbOfComponents*(k+1)].T)
+
+        #print("stress =", constLaws[tag].constitutiveLawVariables['stress'])
+        #print("edsdee =", edsdee)
+        #print("statev =", constLaws[tag].constitutiveLawVariables['statev'])
 
         reducedInternalForces += opCompDat['reducedIntegrationWeights'][k]*sigmaEpsilon
         reducedTangentMatrix += opCompDat['reducedIntegrationWeights'][k]*edsdee

@@ -74,6 +74,10 @@ class ZmatConstitutiveLaw(ConstitutiveLawBase):
         self.constitutiveLawVariables['dstran'][4:6] = self.constitutiveLawVariables['dstran'][[5,4]]"""
 
 
+        #if self.behavior == "linear_elastic":
+        #    self.constitutiveLawVariables['dstran'] *= 2
+        #    self.constitutiveLawVariables['stran'] *= 2
+
         self.constitutiveLawVariables['ddsdde'] = pyumat.umat(stress=self.constitutiveLawVariables['stress'], statev=self.constitutiveLawVariables['statev'], ddsdde=self.constitutiveLawVariables['ddsdde'], sse=self.constitutiveLawVariables['sse'], spd=self.constitutiveLawVariables['spd'], scd=self.constitutiveLawVariables['scd'], rpl=self.constitutiveLawVariables['rpl'], ddsddt=self.constitutiveLawVariables['ddsddt'], drplde=self.constitutiveLawVariables['drplde'], drpldt=self.constitutiveLawVariables['drpldt'], stran=self.constitutiveLawVariables['stran'],  dstran=self.constitutiveLawVariables['dstran'], time=self.constitutiveLawVariables['timesim'], dtime=self.constitutiveLawVariables['dtime'], temp=self.constitutiveLawVariables['temperature'], dtemp=self.constitutiveLawVariables['dtemp'], predef=self.constitutiveLawVariables['predef'], dpred=self.constitutiveLawVariables['dpred'], cmname=self.constitutiveLawVariables['cmname'], ndi=self.constitutiveLawVariables['ndi'], nshr=self.constitutiveLawVariables['nshr'], ntens=self.constitutiveLawVariables['ntens'], nstatv=self.constitutiveLawVariables['nstatv'], props=self.constitutiveLawVariables['props'], nprops=self.constitutiveLawVariables['nprops'], coords=self.constitutiveLawVariables['coords'], drot=self.constitutiveLawVariables['drot'], pnewdt=self.constitutiveLawVariables['pnewdt'], celent=self.constitutiveLawVariables['celent'], dfgrd0=self.constitutiveLawVariables['dfgrd0'], dfgrd1=self.constitutiveLawVariables['dfgrd1'], noel=self.constitutiveLawVariables['noel'], npt=self.constitutiveLawVariables['npt'], kslay=self.constitutiveLawVariables['kslay'], kspt=self.constitutiveLawVariables['kspt'], kstep=self.constitutiveLawVariables['kstep'], kinc=self.constitutiveLawVariables['kinc'])
 
         #niROM solution:
@@ -81,8 +85,8 @@ class ZmatConstitutiveLaw(ConstitutiveLawBase):
 
         self.constitutiveLawVariables['stran'][4:6]  = self.constitutiveLawVariables['stran'][[5,4]]"""
 
-        if self.behavior == "linear_elastic":
-            self.constitutiveLawVariables['stress'] /= 2.
+        #if self.behavior == "linear_elastic":
+        #    self.constitutiveLawVariables['stress'] /= 2.
 
         """if k==1:
             print("AFTER | k =", k, self.constitutiveLawVariables)"""

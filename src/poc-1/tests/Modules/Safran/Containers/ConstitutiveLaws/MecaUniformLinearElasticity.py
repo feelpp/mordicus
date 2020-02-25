@@ -1,12 +1,15 @@
 # -*- coding: utf-8 -*-
 
-from Mordicus.Modules.Safran.Containers.ConstitutiveLaws import TestMecaConstitutiveLaw as TMCL
-import numpy as np
+from Mordicus.Modules.Safran.Containers.ConstitutiveLaws import MecaUniformLinearElasticity as MULE
 
 
 def test():
 
-    constitutiveLaw = TMCL.TestMecaConstitutiveLaw("set1")
+    young = 300000.
+    poisson = 0.3
+    density = 8.6E-09
+
+    constitutiveLaw = MULE.TestMecaConstitutiveLaw("set1", young, poisson, density)
     constitutiveLaw.GetSet()
     constitutiveLaw.GetType()
     constitutiveLaw.GetIdentifier()
