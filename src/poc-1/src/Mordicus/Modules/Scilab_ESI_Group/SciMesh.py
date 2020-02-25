@@ -27,7 +27,7 @@ class SciMesh(MeshBase):
         self.SetInternalStorage(mesh)
 
     def GetNodes(self):
-        return np.array(self.GetInternalStorage().getVertices())
+        return self.GetInternalStorage().get("nodes")
 
     def AllElementsIterator(self):
         class iterator:

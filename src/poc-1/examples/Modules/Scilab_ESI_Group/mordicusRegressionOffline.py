@@ -1,7 +1,8 @@
 from Mordicus.Modules.Scilab_ESI_Group.SciMeshReader import SciMeshReader as SciMR
-from Mordicus.Core.Containers.ProblemData import ProblemData 
-from Mordicus.Core.Containers import CollectionProblemData as CPD
-from Mordicus.Core.Containers import Solution as S
+from Mordicus.Modules.CT.IO import VTKSolutionReader as VSR
+from Mordicus.Core.Containers.ProblemData import ProblemData
+from Mordicus.Core.Containers.CollectionProblemData import CollectionProblemData
+from Mordicus.Modules.Scilab_ESI_Group.SciSolutionReader import SciSolutionReader 
 from Mordicus.Core.DataCompressors import SnapshotPOD
 from Mordicus.Core.OperatorCompressors import Regression
 import numpy as np
@@ -16,9 +17,13 @@ def test():
     print('Create mesh')
     reader2 = SciMR(currentFolder)
     mesh = reader2.ReadMesh()
-    print(mesh)
+    print(mesh.GetInternalStorage().get("nodes"))
 
     numberOfNodes = mesh.GetNumberOfNodes()
+    print(numberOfNodes)
+
+    solutionName = "Test"
+    nbeOfComponents = 1
     primality = True
 
     dataFolder = '.'
@@ -31,14 +36,14 @@ def test():
 
         outputTimeSequence = [0.]
 
-        solution = S.Solution(
+        solution = SciSolutionReader(
             solutionName=solutionName,
             nbeOfComponents=nbeOfComponents,
             numberOfNodes=numberOfNodes,
             primality=primality,
         )
 
-        problemData = PD.ProblemData(folder)
+        problemData = ProblemData(folder)
         problemData.AddSolution(solution)
 
 
@@ -58,6 +63,7 @@ def test():
             print('Parameters' , problemData.GetParameters().get(t))
             count +=1
 
+        collectionProblemData = CollectionProblemData()
         collectionProblemData.AddProblemData(problemData)
     
 
