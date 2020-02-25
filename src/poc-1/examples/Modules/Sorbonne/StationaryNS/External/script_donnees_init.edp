@@ -1,0 +1,109 @@
+//Elise Grosjean
+//NIRB methodes à deux grilles
+
+//mesh1.msh= maillage fin
+//mesh2.msh= maillage grossier
+//snapshots.txt (vitesses)
+//uH.txt vitesse a approcher
+
+
+load "lapack"
+include "getARGV.idp";
+load "iovtk"
+
+
+macro div(u,v)(dx(u)+dy(v))//
+macro grad(u)[dx(u),dy(u)]//
+
+string outputDir=getARGV("-outputDir","err.log");
+string snapFile= outputDir+"/snapshots.txt";
+string snapFileVtu= outputDir+"/snapshot";
+string solFile=outputDir+"/soluH.txt"; 
+string meshFile1=outputDir+"/mesh1.msh"; 
+string meshFile2=outputDir+"/mesh2.msh"; 
+string param=outputDir+"/param.txt"; 
+
+
+//getARGV("-outputSnap","err.log");  
+//string solFile=getARGV("-outputSol","err.log"); 
+//string meshFile1=getARGV("-outputMesh1","err.log"); 
+//string meshFile2=getARGV("-outputMesh2","err.log"); 
+
+
+
+ofstream snapshot(snapFile);
+ofstream uH(solFile);
+ofstream paramfile(param);
+
+int n=20;    // mesh refinement	
+int ns=10; // number of snapshots to use 30
+
+//fine=1 si maillage fin, 0 sinon
+NewMacro defProblem(Th,u,v,p,uu,vv,pp,up,vp,fine,file,paramfile)
+{
+	fespace Ph(Th,P0);
+	Ph h = hTriangle;
+	cout << "size of mesh "<<fine<<" = " << h[].max << endl;
+	problem NSst([u,v,p],[uu,vv,pp],solver=sparsesolver)=
+  	int2d(Th)(nu*(grad(u)'*grad(uu)+grad(v)'*grad(vv)))
+  	+int2d(Th)([up,vp]'*grad(u)*uu+[up,vp]'*grad(v)*vv)
+  	-int2d(Th)(p*div(uu,vv)+pp*div(u,v))
+  	+int2d(Th)(1.e-10*p*pp)
+  	+on(1,2,4,u=0,v=0)
+  	+on(3,u=1,v=0)
+  	;
+	for (j=0;j<ns;j++){
+ 	    for (i=0;i<10;i++){ 
+	    	NSst;
+		up[]=u[];
+	    }
+  	    if(fine==1){
+		[usnsh[j],vsnsh[j]]=[u,v];
+		file<<usnsh[j][];
+		string vtkfile=snapFileVtu + j +".vtu";
+    	int[int] order=[1];
+    	savevtk(vtkfile, Th, [usnsh[j], vsnsh[j]],order=order,dataname="u",bin=0);
+   	    }
+   	    else{
+		if(j==2){
+			[uhh,vhh]=[u,v];
+			//file<<u[];
+      			break;
+  		}
+	     }
+ 	     Re += 0.5;nu=1/Re;
+ 	     paramfile<<Re<<endl;
+	}
+}
+EndMacro
+
+mesh Th=square(n,n);
+Th=movemesh(Th,[(1-cos(pi*x))/2.,(1-cos(pi*y))/2.]);  // refine near the boundaries
+savemesh(Th,meshFile1);
+
+mesh Th2=square(sqrt(n),sqrt(n));
+Th2=movemesh(Th2,[(1-cos(pi*x))/2.,(1-cos(pi*y))/2.]);  // refine near the boundaries
+savemesh(Th2,meshFile2);
+
+fespace Mh(Th,[P2,P2,P1]);
+fespace Vh(Th,[P2,P2]);
+Mh [u,v,p],[uu,vv,pp],[up,vp,q];
+up[]=0.;
+
+int i,j,k;
+
+Vh[int] [usnsh,vsnsh](ns); //ns Vecteurs vitesse [u1,u2]
+
+fespace Vh2(Th2,[P2,P2]);
+fespace Xh2(Th2,[P2,P2,P1]);
+Vh2 [uhh,vhh];
+Xh2 [uh,vh,ph],[uuh,vvh,pph],[uph,vph,qh];
+uph[]=0.;
+
+real Re=1,nu=1/Re;
+defProblem(Th,u,v,p,uu,vv,pp,up,vp,1,snapshot,paramfile)
+Re=1;nu=1./Re;
+defProblem(Th2,uh,vh,ph,uuh,vvh,pph,uph,vph,0,uH,paramfile)
+//plot(Th2,[uhh,vhh],wait=1);
+uH<<uhh[];
+

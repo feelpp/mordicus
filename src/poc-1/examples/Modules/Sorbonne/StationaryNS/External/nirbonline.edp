@@ -1,0 +1,116 @@
+//NIRB methodes à deux grilles ONLINE STAGE
+//FreeFem++ script.edp mesh1.msh mesh2.msh base.txt uH.txt
+//mesh1.msh= maillage fin
+//mesh2.msh= maillage grossier
+//base.txt (base réduite)
+//uH.txt vitesse a approcher
+//Elise Grosjean
+
+load "lapack"
+include "getARGV.idp";
+
+//***************************LECTURE DES ENTREES*******************//
+
+string mesh1=getARGV("-m1","err.log"); //mesh1.msh 
+string mesh2=getARGV("-m2","err.log"); 
+string base=getARGV("-base","err.log");
+string vitesse=getARGV("-uH","err.log");
+string solex=getARGV("-ex","err.log");
+
+string output=getARGV("-output","err.log");
+int nev=getARGV("-n",3);
+
+int i,j,k;
+cout<<"nev (nombre fonctions de base): "<<nev<<endl; 
+cout<<"fichier maillage fin: "<<mesh1<<endl;
+cout<<"fichier maillage grossier: "<<mesh2<<endl;
+cout<<"fichier base reduite: "<<base<<endl;
+cout<<"fichier vitesses sur le maillage grossier: "<<vitesse<<endl;
+cout<<"fichier solution exacte: "<<solex<<endl;
+
+mesh Th=readmesh(mesh1);
+cout<< " Lecture premier maillage... " <<endl;
+fespace Ph(Th,P0);
+Ph h = hTriangle;
+cout << "size of mesh 1 = " << h[].max << endl;
+//plot(Th,wait=1);
+
+mesh Th2=readmesh(mesh2);
+cout << " Lecture deuxieme maillage \n";
+fespace Ph2(Th2,P0);
+Ph2 h2 = hTriangle;
+cout << "size of mesh 2 = " << h2[].max << endl;
+//plot(Th2,wait=1);
+
+fespace Vh(Th,[P2,P2]);
+fespace Vh2(Th2,[P2,P2]);
+
+Vh[int] [usnsh,vsnsh](nev); //nev Vecteurs de la base [u1,u2]
+Vh2 [uhh,vhh]; 
+
+ifstream fVel(vitesse) ; //vitesse grossiere
+assert(fVel.good());
+fVel>>uhh[];
+
+Vh [uex,vex]; //solution exacte
+if(solex!="err.log"){
+	ifstream sol(solex);
+	sol>>uex[];
+}
+
+for(int i=0;i<nev;i++){
+	string baseFile=base+i+".txt";
+	ifstream fData(baseFile) ;
+	assert(fData.good());
+	fData>>usnsh[i][];
+		//plot([usnsh[i],vsnsh[i]],wait=1);
+}
+
+NewMacro ErrRelative(errreH1,Th,uex,us){
+	 errreH1=sqrt(int2d(Th)(square(us)+square(dx(us))+square(dy(us))+square(vs)+square(dx(vs))+square(dy(vs))))/sqrt(int2d(Th)(square(uex)+square(dx(uex))+square(dy(uex))+square(vex)+square(dx(vex))+square(dy(vex))));
+}
+EndMacro
+
+NewMacro ErrAbsolue(errreH1,Th,us){
+	 errreH1=sqrt(int2d(Th)(square(us)+square(dx(us))+square(dy(us))+square(vs)+square(dx(vs))+square(dy(vs))));
+}
+EndMacro
+
+//*******************************RECTIFICATION**********************************//
+Vh [usol,vsol]=[0,0];
+for(i=0;i<nev;i++){
+	usol[]+=int2d(Th)(uhh*usnsh[i]+vhh*vsnsh[i])*usnsh[i][];
+}
+
+ofstream solution(output+"/solutionNirb.txt");
+solution<<usol[];
+//plot([uhh,vhh],value=1,wait=1,cmm="sur le maillage grossier",ps="grossier");
+//plot([usol,vsol],value=1,wait=1,cmm="sur le maillage fin avec rectification",ps="fin");
+//if(solex!="err.log")
+//	plot([uex,vex],value=1,wait=1,cmm="solution exacte",ps="solex");
+
+
+/////*********************ERREURS H1************************/////////////////////////
+	if(solex!="err.log"){
+	Vh [us,vs];
+	us[]=uex[]-usol[];
+	
+	real errH1;real errreH1;
+	ErrAbsolue(errH1,Th,us)
+	ErrRelative(errreH1,Th,uex,us)
+	
+	cout<<"ERREUR H1 ABSOLUE "<<errH1<<" -- RELATIVE "<< errreH1<<endl;
+
+	Vh [utest,vtest]; //pour l'erreur sans amélioration
+	
+	[utest,vtest]=[uhh,vhh];//interpolation sur le maillage fin
+	Vh [ut,vt];
+	ut[]=uex[]-utest[];
+	real errtestH1;real errtestH1rel;
+	ErrAbsolue(errtestH1,Th,ut)
+	ErrRelative(errtestH1rel,Th,uex,ut)
+	cout<<"ERREUR H1 SANS AMELIORATION "<< errtestH1<< "  -- RELATIVE "<<errtestH1rel<<endl;
+}
+
+
+

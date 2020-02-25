@@ -1,0 +1,32 @@
+//NIRB methodes à deux grilles plot
+//mesh1.msh= maillage fin
+//uh.txt vitesse solution
+//Elise Grosjean
+
+
+include "getARGV.idp";
+
+//***************************LECTURE DES ENTREES*******************//
+
+string mesh1=getARGV("-m1","err.log"); //mesh1.msh 
+string solex=getARGV("-uh","err.log");
+
+
+cout<<"fichier maillage fin: "<<mesh1<<endl;
+cout<<"fichier solution exacte: "<<solex<<endl;
+
+mesh Th=readmesh(mesh1);
+cout<< " Lecture premier maillage... " <<endl;
+fespace Ph(Th,P0);
+Ph h = hTriangle;
+cout << "size of mesh 1 = " << h[].max << endl;
+ 
+fespace Vh(Th,[P2,P2]);
+
+Vh [uh,vh]; 
+
+ifstream fVel(solex) ; //vitesse solution
+assert(fVel.good());
+fVel>>uh[];
+plot(Th,[uh,vh],cmm="solution",wait=1);
+
