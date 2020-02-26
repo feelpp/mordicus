@@ -21,14 +21,14 @@ class SciMeshReader(MeshReaderBase):
         self.filepath = filepath
 
         nodes = []
-        with open(os.path.join(filepath,'my2Dpoints.csv')) as csvfile:
+        with open(os.path.join(filepath,'points.csv')) as csvfile:
             reader = csv.reader(csvfile, quoting=csv.QUOTE_NONNUMERIC)
             for row in reader:
                 nodes.append(row)
         nodes = np.array(nodes)
         # Import Faces
         faces = []
-        with open(os.path.join(filepath,'my2Dfaces.csv')) as csvfile:
+        with open(os.path.join(filepath,'faces.csv')) as csvfile:
             reader = csv.reader(csvfile, quoting=csv.QUOTE_NONNUMERIC)
             for row in reader:
                 faces.append(row)

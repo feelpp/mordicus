@@ -5,7 +5,6 @@ from Mordicus.Core.Containers.CollectionProblemData import CollectionProblemData
 from Mordicus.Modules.Scilab_ESI_Group.SciSolutionReader import SciSolutionReader
 from Mordicus.Core.DataCompressors import SnapshotPOD
 from Mordicus.Core.OperatorCompressors import Regression
-import numpy as np
 from pathlib import Path
 import os
 

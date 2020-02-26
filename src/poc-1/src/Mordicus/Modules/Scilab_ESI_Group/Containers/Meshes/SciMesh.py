@@ -21,9 +21,6 @@ class SciMesh(MeshBase):
             the mesh wrapped to this library
         """
         super(SciMesh, self).__init__()
-
-        #assert isinstance(mesh, ot.Mesh)
-
         self.SetInternalStorage(mesh)
 
     def GetNodes(self):
@@ -38,9 +35,8 @@ class SciMesh(MeshBase):
                 for simplex in self.simplices:
                     yield np.array(simplex)
 
-        res = iterator(self.GetInternalStorage().getSimplices())
+        res = iterator(self.GetInternalStorage().get("nodes"))
         return res
 
     def __str__(self):
-        res = str(self.GetInternalStorage())
-        return res
+        return "Scilab mesh"
