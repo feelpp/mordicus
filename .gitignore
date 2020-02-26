@@ -17,6 +17,7 @@ src/poc-1/coverageReports/*
 *.msg
 *.sh
 *.spyproject*
+.vscode
 
 #autodoc generated files
 *_build*

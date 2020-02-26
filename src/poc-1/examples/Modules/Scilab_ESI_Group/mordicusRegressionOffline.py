@@ -1,8 +1,8 @@
-from Mordicus.Modules.Scilab_ESI_Group.SciMeshReader import SciMeshReader as SciMR
+from Mordicus.Modules.Scilab_ESI_Group.IO.SciMeshReader import SciMeshReader as SciMR
 from Mordicus.Modules.CT.IO import VTKSolutionReader as VSR
 from Mordicus.Core.Containers.ProblemData import ProblemData
 from Mordicus.Core.Containers.CollectionProblemData import CollectionProblemData
-from Mordicus.Modules.Scilab_ESI_Group.SciSolutionReader import SciSolutionReader 
+from Mordicus.Modules.Scilab_ESI_Group.SciSolutionReader import SciSolutionReader
 from Mordicus.Core.DataCompressors import SnapshotPOD
 from Mordicus.Core.OperatorCompressors import Regression
 import numpy as np
@@ -22,9 +22,7 @@ def test():
     numberOfNodes = mesh.GetNumberOfNodes()
     print(numberOfNodes)
 
-    solutionName = "Test"
-    nbeOfComponents = 1
-    primality = True
+    solutionFileName = "Test"
 
     dataFolder = '.'
     problemData = ProblemData(dataFolder)
@@ -36,12 +34,7 @@ def test():
 
         outputTimeSequence = [0.]
 
-        solution = SciSolutionReader(
-            solutionName=solutionName,
-            nbeOfComponents=nbeOfComponents,
-            numberOfNodes=numberOfNodes,
-            primality=primality,
-        )
+        solution = SciSolutionReader(solutionFileName)
 
         problemData = ProblemData(folder)
         problemData.AddSolution(solution)
@@ -65,7 +58,7 @@ def test():
 
         collectionProblemData = CollectionProblemData()
         collectionProblemData.AddProblemData(problemData)
-    
+
 
     print("\nSolutions have been read\n")
 
@@ -99,7 +92,7 @@ def test():
     collectionProblemData.SaveState("mordicusState")
 
 
-    os.chdir(initFolder)    
+    os.chdir(initFolder)
 
     ###write POD modes
     from Mordicus.Modules.CT.IO import numpyToVTKWriter as NTV
