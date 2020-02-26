@@ -1,7 +1,7 @@
 import numpy as np
 
 from Mordicus.Core.IO.MeshReaderBase import MeshReaderBase
-from Mordicus.Modules.Scilab_ESI_Group.SciMesh import SciMesh
+from Mordicus.Modules.Scilab_ESI_Group.Containers.Meshes.SciMesh import SciMesh
 import csv
 import os
 
