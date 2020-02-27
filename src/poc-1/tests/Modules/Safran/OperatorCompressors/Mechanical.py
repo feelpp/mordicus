@@ -83,11 +83,11 @@ def test():
     reducedOrderBasisEvrcum = SP.CompressData(collectionProblemData, "evrcum", 1.e-3)
 
 
-    #print("PreCompressOperator...")
-    #operatorPreCompressionData = Th.PreCompressOperator(mesh, "ALLBOUNDARY")
-    #print("...done")
+    print("PreCompressOperator...")
+    operatorPreCompressionData = Meca.PreCompressOperator(mesh)
+    print("...done")
 
-    Meca.CompressOperator(collectionProblemData, mesh, 1.e-3, listNameDualVarOutput = ["evrcum"], listNameDualVarGappyIndicesforECM = ["evrcum"])
+    Meca.CompressOperator(collectionProblemData, operatorPreCompressionData, mesh, 1.e-3, listNameDualVarOutput = ["evrcum"], listNameDualVarGappyIndicesforECM = ["evrcum"])
 
     print("CompressOperator done")
 

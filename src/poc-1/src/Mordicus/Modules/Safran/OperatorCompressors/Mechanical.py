@@ -6,12 +6,24 @@ import collections
 from Mordicus.Modules.Safran.FE import FETools as FT
 from Mordicus.Modules.Safran.BasicAlgorithms import NNOMPA
 from Mordicus.Modules.Safran.BasicAlgorithms import EIM
+from Mordicus.Modules.Safran.DataCompressors import FusedSnapshotPOD as SP
 
 
 """
-Description of operatorCompressionData: dict of keys
 
-#Offline generated:
+#### Description of operatorPreCompressionData: dict of keys
+
+
+- listOfTags
+
+- integrationWeights
+- integrator
+
+
+#### Description of operatorCompressionData: dict of keys
+
+#Compress generated:
+
 - reducedIntegrationPoints
 - reducedIntegrationWeights
 - reducedListOTags
@@ -214,6 +226,7 @@ def ComputeReducedInternalForcesAndTangentMatrix(onlineProblemData, opCompDat, b
 
     reducedRedInterpolator = opCompDat['reducedRedInterpolator']
     nbOfComponents = opCompDat['etoIntForces'].shape[2]
+    nbOfReducedIntPoints = len(opCompDat["reducedIntegrationPoints"])
 
     opCompDat['sigIntForces'] = np.zeros((opCompDat['etoIntForces'].shape[0],opCompDat['etoIntForces'].shape[2]))
 
@@ -223,11 +236,12 @@ def ComputeReducedInternalForcesAndTangentMatrix(onlineProblemData, opCompDat, b
 
     constLaws = onlineProblemData.GetConstitutiveLaws()
 
-    reducedInternalForces = 0.
-    reducedTangentMatrix = 0.
+
+    sigma = np.empty((nbOfReducedIntPoints,nbOfComponents))
+    localTgtMat = np.empty((nbOfReducedIntPoints,nbOfComponents,nbOfComponents))
 
     #loop over integration points
-    for k in range(len(opCompDat["reducedIntegrationPoints"])):
+    for k in range(nbOfReducedIntPoints):
 
         tag = opCompDat["reducedListOfConstitutiveLawTags"][k]
 
@@ -243,10 +257,6 @@ def ComputeReducedInternalForcesAndTangentMatrix(onlineProblemData, opCompDat, b
         constLaws[tag].constitutiveLawVariables['statev'] = np.copy(opCompDat['statevIntForces'][k])
 
 
-        #print("stran =", constLaws[tag].constitutiveLawVariables['stran'])
-        #print("dstran =", constLaws[tag].constitutiveLawVariables['dstran'])
-
-
         constLaws[tag].ComputeConstitutiveLaw()
 
 
@@ -258,23 +268,39 @@ def ComputeReducedInternalForcesAndTangentMatrix(onlineProblemData, opCompDat, b
         opCompDat['stranIntForces'][k][3:6] /= 2.
 
 
-        sigmaEpsilon = np.dot(reducedRedInterpolator[:,nbOfComponents*k:nbOfComponents*(k+1)],constLaws[tag].constitutiveLawVariables['stress'])
-        edsdee = np.dot(np.dot(reducedRedInterpolator[:,nbOfComponents*k:nbOfComponents*(k+1)],constLaws[tag].constitutiveLawVariables['ddsdde']),reducedRedInterpolator[:,nbOfComponents*k:nbOfComponents*(k+1)].T)
+        sigma[k,:] = constLaws[tag].constitutiveLawVariables['stress']
+        localTgtMat[k,:,:] = constLaws[tag].constitutiveLawVariables['ddsdde']
 
-        #print("stress =", constLaws[tag].constitutiveLawVariables['stress'])
-        #print("edsdee =", edsdee)
-        #print("statev =", constLaws[tag].constitutiveLawVariables['statev'])
 
-        reducedInternalForces += opCompDat['reducedIntegrationWeights'][k]*sigmaEpsilon
-        reducedTangentMatrix += opCompDat['reducedIntegrationWeights'][k]*edsdee
+    reducedInternalForces = np.einsum('l,klm,lm->k', opCompDat['reducedIntegrationWeights'], reducedRedInterpolator, sigma, optimize = True)
 
+    reducedTangentMatrix = np.einsum('l,klm,lmn,oln->ko', opCompDat['reducedIntegrationWeights'], reducedRedInterpolator, localTgtMat, reducedRedInterpolator, optimize = True)
 
     return reducedInternalForces, reducedTangentMatrix
 
 
 
+
+
+def PreCompressOperator(mesh):
+
+    listOfTags = FT.ComputeIntegrationPointsTags(mesh, mesh.GetDimensionality())
+
+    integrationWeights, integrator = FT.ComputeMecaIntegrator(mesh)
+
+    operatorPreCompressionData = {}
+    operatorPreCompressionData["listOfTags"] = listOfTags
+
+    operatorPreCompressionData["integrationWeights"] = integrationWeights
+    operatorPreCompressionData["integrator"] = integrator
+
+    return operatorPreCompressionData
+
+
+
+
 def CompressOperator(
-    collectionProblemData, mesh, tolerance, listNameDualVarOutput = [], listNameDualVarGappyIndicesforECM = []
+    collectionProblemData, operatorPreCompressionData, mesh, tolerance, listNameDualVarOutput = None, listNameDualVarGappyIndicesforECM = None
 ):
     """
     Operator Compression for the POD and ECM for a mechanical problem
@@ -303,31 +329,54 @@ def CompressOperator(
     #numberOfSigmaSnapshots = collectionProblemData.GetGlobalNumberOfSnapshots("sigma")
 
 
-    print("ComputeMecaIntegrator...")
-    integrationWeights, integrator = FT.ComputeMecaIntegrator(mesh)
+    print("CompressOperator starting...")
+
+
+    listOfTags = operatorPreCompressionData["listOfTags"]
+
+    integrationWeights = operatorPreCompressionData["integrationWeights"]
+    integrator = operatorPreCompressionData["integrator"]
 
 
     reducedOrderBasis = collectionProblemData.GetReducedOrderBasis("U")
-    redIntegrator = integrator.T.dot(reducedOrderBasis.T).T
+    operatorCompressionData = collectionProblemData.GetOperatorCompressionData()
+
+    numberOfModes = collectionProblemData.GetReducedOrderBasisNumberOfModes("U")
+    sigmaNumberOfComponents = collectionProblemData.GetSolutionsNumberOfComponents("sigma")
+    numberOfIntegrationPoints = FT.ComputeNumberOfIntegrationPoints(mesh)
+
+    redIntegrator = integrator.T.dot(reducedOrderBasis.T).T.reshape((numberOfModes,numberOfIntegrationPoints,sigmaNumberOfComponents))
+
+
+    if listNameDualVarOutput is None:
+        listNameDualVarOutput = []# pragma: no cover
+
+    if listNameDualVarGappyIndicesforECM is None:
+        listNameDualVarGappyIndicesforECM = []# pragma: no cover
+
+    if not operatorCompressionData:
+        operatorCompressionData["reducedIntegrationPoints"] = []
 
 
     imposedIndices = []
     for name in listNameDualVarGappyIndicesforECM:
-        print("name =", name)
         imposedIndices += list(EIM.QDEIM(collectionProblemData.GetReducedOrderBasis(name)))
-
     imposedIndices = list(set(imposedIndices))
 
-    sigmaEpsilon = ComputeSigmaEpsilon(collectionProblemData, redIntegrator)
 
-    reducedIntegrationPoints, reducedIntegrationWeights = NNOMPA.ComputeReducedIntegrationScheme(integrationWeights, sigmaEpsilon, tolerance, imposedIndices = imposedIndices)
+
+    sigmaEpsilon = ComputeSigmaEpsilon(collectionProblemData, redIntegrator, tolerance)
+
+    reducedIntegrationPoints, reducedIntegrationWeights = NNOMPA.ComputeReducedIntegrationScheme(integrationWeights, sigmaEpsilon, tolerance, imposedIndices = imposedIndices, reducedIntegrationPointsInitSet = operatorCompressionData["reducedIntegrationPoints"])
 
     #reducedIntegrationPoints = np.load("reducedIntegrationPoints.npy")
     #reducedIntegrationWeights = np.load("reducedIntegrationWeights.npy")
 
-    sigmaNumberOfComponents = collectionProblemData.GetSolutionsNumberOfComponents("sigma")
-    indices = np.array([np.arange(sigmaNumberOfComponents*i,sigmaNumberOfComponents*(i+1)) for i in reducedIntegrationPoints]).flatten()
-    reducedRedInterpolator = redIntegrator[:,indices]
+    #indices = np.array([np.arange(sigmaNumberOfComponents*i,sigmaNumberOfComponents*(i+1)) for i in reducedIntegrationPoints]).flatten()
+
+    reducedRedInterpolator = redIntegrator[:,reducedIntegrationPoints,:]
+
+
 
     uNumberOfComponents = collectionProblemData.GetSolutionsNumberOfComponents("U")
     listOfTags = FT.ComputeIntegrationPointsTags(mesh, uNumberOfComponents)
@@ -350,56 +399,32 @@ def CompressOperator(
 
 
 
-def ComputeSigmaEpsilon(collectionProblemData, redIntegrator):
+def ComputeSigmaEpsilon(collectionProblemData, redIntegrator, tolerance):
 
     """
     computes sigma(u_i):epsilon(Psi)(x_k)
     """
 
-    sigmaNumberOfSnapshotsMinus1 = collectionProblemData.GetGlobalNumberOfSnapshots("sigma", skipFirst = True)
-    sigmaNumberOfDofs = collectionProblemData.GetSolutionsNumberOfDofs("sigma")
-    sigmaNumberOfComponents = collectionProblemData.GetSolutionsNumberOfComponents("sigma")
-    numberOfIntegrationPoints = sigmaNumberOfDofs//sigmaNumberOfComponents
+    redIntegratorShape = redIntegrator.shape
+    numberOfModes = redIntegratorShape[0]
+    numberOfIntegrationPoints = redIntegratorShape[1]
+    sigmaNumberOfComponents = redIntegratorShape[2]
 
-    numberOfModes = collectionProblemData.GetReducedOrderBasisNumberOfModes("U")
+    snapshotsSigma = collectionProblemData.GetSnapshots("sigma", skipFirst = True)
 
-    sigmaEpsilon = np.zeros((numberOfModes*sigmaNumberOfSnapshotsMinus1,numberOfIntegrationPoints))
-    redIntegrator.shape = (numberOfModes,numberOfIntegrationPoints,sigmaNumberOfComponents)
+    SP.CompressData(collectionProblemData, "SigmaECM", tolerance, snapshots = snapshotsSigma)
+    reducedOrderBasisSigmaEspilon = collectionProblemData.GetReducedOrderBasis("SigmaECM")
 
-    snapshotsIteratorSigma = collectionProblemData.SnapshotsIterator("sigma", skipFirst = True)
+    reducedOrderBasisSigmaEspilonShape = reducedOrderBasisSigmaEspilon.shape
+    numberOfSigmaModes = reducedOrderBasisSigmaEspilonShape[0]
+    reducedOrderBasisSigmaEspilon.shape = (numberOfSigmaModes,sigmaNumberOfComponents,numberOfIntegrationPoints)
 
-    count = 0
-    for sigma in snapshotsIteratorSigma:
-        sigma.shape = (sigmaNumberOfComponents,numberOfIntegrationPoints)
-        for j in range(numberOfIntegrationPoints):
-            sigmaEpsilon[count:count+numberOfModes,j] = np.dot(redIntegrator[:,j,:],sigma[:,j]).T.flatten()
-        count += numberOfModes
-        sigma.shape = (sigmaNumberOfDofs)
+    sigmaEpsilon = np.einsum('klm,pml->pkl', redIntegrator, reducedOrderBasisSigmaEspilon, optimize = True).reshape(numberOfModes*numberOfSigmaModes,numberOfIntegrationPoints)
 
-    redIntegrator.shape = (numberOfModes,numberOfIntegrationPoints*sigmaNumberOfComponents)
+    reducedOrderBasisSigmaEspilon.shape = reducedOrderBasisSigmaEspilonShape
 
     return sigmaEpsilon
 
-
-
-
-"""def ComputeIndicesOfIntegPointsPerMaterial(listOfTags, keysConstitutiveLaws):
-
-    numberOfIntegrationPoints = len(listOfTags)
-
-    localTags = []
-    for i in range(numberOfIntegrationPoints):
-        tags = set(listOfTags[i]+["ALLELEMENT"])
-        tagsIntersec = keysConstitutiveLaws & tags
-        assert len(tagsIntersec) == 1, "more than one constitutive law for a reducedIntegrationPoint"
-        localTags.append(tagsIntersec.pop())
-
-    IndicesOfIntegPointsPerMaterial = {}
-    arange = np.arange(numberOfIntegrationPoints)
-    for key in keysConstitutiveLaws:
-        IndicesOfIntegPointsPerMaterial[key] = arange[np.array(localTags) == key]
-
-    return IndicesOfIntegPointsPerMaterial"""
 
 
 

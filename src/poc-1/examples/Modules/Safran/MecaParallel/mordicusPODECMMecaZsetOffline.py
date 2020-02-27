@@ -5,8 +5,8 @@ from Mordicus.Core.Containers import ProblemData as PD
 from Mordicus.Core.Containers import CollectionProblemData as CPD
 from Mordicus.Core.Containers import Solution as S
 from Mordicus.Modules.Safran.FE import FETools as FT
-from Mordicus.Core.DataCompressors import SnapshotPOD as SP
-from Mordicus.Modules.Safran.OperatorCompressors import Mechanical as Meca
+from Mordicus.Modules.Safran.DataCompressors import FusedSnapshotPOD as SP
+from Mordicus.Modules.Safran.OperatorCompressors import Mechanical
 from Mordicus.Core.IO import StateIO as SIO
 import numpy as np
 
@@ -33,6 +33,12 @@ numberOfNodes = mesh.GetNumberOfNodes()
 numberOfIntegrationPoints = FT.ComputeNumberOfIntegrationPoints(mesh)
 nbeOfComponentsPrimal = 3
 nbeOfComponentsDual = 6
+
+
+
+print("PreCompressOperator...")
+operatorPreCompressionData = Mechanical.PreCompressOperator(mesh)
+print("...done")
 
 
 outputTimeSequence = solutionReader.ReadTimeSequenceFromSolutionFile()
@@ -62,13 +68,11 @@ collectionProblemData.defineQuantity("U", "displacement", "m")
 collectionProblemData.AddProblemData(problemData, config="case-1")
 
 print("ComputeL2ScalarProducMatrix...")
-l2ScalarProducMatrix = FT.ComputeL2ScalarProducMatrix(mesh, 3)
+snapshotCorrelationOperator = FT.ComputeL2ScalarProducMatrix(mesh, 3)
 
-reducedOrderBasisU = SP.ComputeReducedOrderBasisFromCollectionProblemData(
-        collectionProblemData, "U", 1.e-4, l2ScalarProducMatrix
-)
-collectionProblemData.AddReducedOrderBasis("U", reducedOrderBasisU)
-collectionProblemData.CompressSolutions("U", l2ScalarProducMatrix)
+SP.CompressData(collectionProblemData, "U", 1.e-4, snapshotCorrelationOperator)
+collectionProblemData.CompressSolutions("U", snapshotCorrelationOperator)
+reducedOrderBasisU = collectionProblemData.GetReducedOrderBasis("U")
 
 
 
@@ -90,14 +94,12 @@ for t in outputTimeSequence:
 
 print("compressionErrors =", compressionErrors)
 
-Meca.CompressOperator(
-        collectionProblemData, mesh, 1.e-3
-)
+Mechanical.CompressOperator(collectionProblemData, operatorPreCompressionData, mesh, 1.e-3)
 
 print("CompressOperator done")
 
 SIO.SaveState("collectionProblemData", collectionProblemData)
-SIO.SaveState("snapshotCorrelationOperator", l2ScalarProducMatrix)
+SIO.SaveState("snapshotCorrelationOperator", snapshotCorrelationOperator)
 
 
 
