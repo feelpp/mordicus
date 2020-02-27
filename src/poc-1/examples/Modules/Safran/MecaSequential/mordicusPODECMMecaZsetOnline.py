@@ -1,6 +1,7 @@
 from Mordicus.Modules.Safran.IO import ZsetInputReader as ZIR
 from Mordicus.Modules.Safran.IO import ZsetMeshReader as ZMR
 from Mordicus.Modules.Safran.IO import ZsetSolutionReader as ZSR
+from Mordicus.Modules.Safran.IO import ZsetSolutionWriter as ZSW
 from Mordicus.Core.Containers import ProblemData as PD
 from Mordicus.Core.Containers import CollectionProblemData as CPD
 from Mordicus.Core.Containers import Solution as S
@@ -23,6 +24,7 @@ snapshotCorrelationOperator = SIO.LoadState("snapshotCorrelationOperator")
 
 operatorCompressionData = collectionProblemData.GetOperatorCompressionData()
 reducedOrderBasisU = collectionProblemData.GetReducedOrderBasis("U")
+reducedOrderBasisEvrcum = collectionProblemData.GetReducedOrderBasis("evrcum")
 
 
 ##################################################
@@ -59,7 +61,7 @@ initOnlineCompressedSnapshot = initialCondition.GetReducedInitialSnapshot()
 
 import time
 start = time.time()
-onlineCompressedSolution = Meca.ComputeOnline(onlineProblemData, initOnlineCompressedSnapshot, timeSequence, reducedOrderBasisU, operatorCompressionData, 1.e-4)
+onlineCompressedSolution, onlineCompressionData = Meca.ComputeOnline(onlineProblemData, initOnlineCompressedSnapshot, timeSequence, reducedOrderBasisU, operatorCompressionData, 1.e-4)
 print(">>>> DURATION ONLINE =", time.time() - start)
 
 
@@ -93,8 +95,20 @@ for t in outputTimeSequence:
 
 print("ROMErrors =", ROMErrors)
 
+print("onlineCompressionData.keys() =", list(onlineCompressionData.keys()))
 
 PW.WritePXDMF(mesh, onlineCompressedSolution, reducedOrderBasisU, "U")
 print("The compressed solution has been written in PXDMF Format")
+
+
+ZSW.WriteZsetSolution(mesh, meshFileName, "reduced_U", onlineCompressedSolution, reducedOrderBasisU, "U", primality = True)
+
+
+onlineEvrcumCompressedSolution = Meca.ReconstructDualQuantity('evrcum', operatorCompressionData, onlineCompressionData, timeSequence = list(onlineCompressedSolution.keys())[1:])
+
+
+ZSW.WriteZsetSolution(mesh, meshFileName, "reduced_evrcum", onlineEvrcumCompressedSolution, reducedOrderBasisEvrcum, "ervcum", primality = False)
+
+
 
 

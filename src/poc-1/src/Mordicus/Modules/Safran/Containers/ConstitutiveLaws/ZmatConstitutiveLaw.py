@@ -61,37 +61,25 @@ class ZmatConstitutiveLaw(ConstitutiveLawBase):
         return self.density
 
 
-    def ComputeConstitutiveLaw(self):
+    def ComputeConstitutiveLaw(self, temperature, dtemp, stran, dstran, statev):
 
         from Mordicus.Modules.Safran.External.pyumat import py3umat as pyumat
 
-        """if k==1:
-            print("BEFORE | k =", k, self.constitutiveLawVariables)"""
+        nbIntPoints = stran.shape[0]
 
-        #niROM solution:
-        """self.constitutiveLawVariables['stran'][4:6] = self.constitutiveLawVariables['stran'][[5,4]]
+        stress = np.empty(stran.shape)
+        ddsdde = np.empty((nbIntPoints , stran.shape[1], stran.shape[1]))
 
-        self.constitutiveLawVariables['dstran'][4:6] = self.constitutiveLawVariables['dstran'][[5,4]]"""
+        for k in range(nbIntPoints):
 
+            ddsdde[k,:,:] = pyumat.umat(stress=self.constitutiveLawVariables['stress'], statev=statev[k,:], ddsdde=self.constitutiveLawVariables['ddsdde'], sse=self.constitutiveLawVariables['sse'], spd=self.constitutiveLawVariables['spd'], scd=self.constitutiveLawVariables['scd'], rpl=self.constitutiveLawVariables['rpl'], ddsddt=self.constitutiveLawVariables['ddsddt'], drplde=self.constitutiveLawVariables['drplde'], drpldt=self.constitutiveLawVariables['drpldt'], stran=stran[k,:],  dstran=dstran[k,:], time=self.constitutiveLawVariables['timesim'], dtime=self.constitutiveLawVariables['dtime'], temp=temperature[k], dtemp=dtemp[k], predef=self.constitutiveLawVariables['predef'], dpred=self.constitutiveLawVariables['dpred'], cmname=self.constitutiveLawVariables['cmname'], ndi=self.constitutiveLawVariables['ndi'], nshr=self.constitutiveLawVariables['nshr'], ntens=self.constitutiveLawVariables['ntens'], nstatv=self.constitutiveLawVariables['nstatv'], props=self.constitutiveLawVariables['props'], nprops=self.constitutiveLawVariables['nprops'], coords=self.constitutiveLawVariables['coords'], drot=self.constitutiveLawVariables['drot'], pnewdt=self.constitutiveLawVariables['pnewdt'], celent=self.constitutiveLawVariables['celent'], dfgrd0=self.constitutiveLawVariables['dfgrd0'], dfgrd1=self.constitutiveLawVariables['dfgrd1'], noel=self.constitutiveLawVariables['noel'], npt=self.constitutiveLawVariables['npt'], kslay=self.constitutiveLawVariables['kslay'], kspt=self.constitutiveLawVariables['kspt'], kstep=self.constitutiveLawVariables['kstep'], kinc=self.constitutiveLawVariables['kinc'])
 
-        #if self.behavior == "linear_elastic":
-        #    self.constitutiveLawVariables['dstran'] *= 2
-        #    self.constitutiveLawVariables['stran'] *= 2
+            stress[k,:] = self.constitutiveLawVariables['stress']
 
-        self.constitutiveLawVariables['ddsdde'] = pyumat.umat(stress=self.constitutiveLawVariables['stress'], statev=self.constitutiveLawVariables['statev'], ddsdde=self.constitutiveLawVariables['ddsdde'], sse=self.constitutiveLawVariables['sse'], spd=self.constitutiveLawVariables['spd'], scd=self.constitutiveLawVariables['scd'], rpl=self.constitutiveLawVariables['rpl'], ddsddt=self.constitutiveLawVariables['ddsddt'], drplde=self.constitutiveLawVariables['drplde'], drpldt=self.constitutiveLawVariables['drpldt'], stran=self.constitutiveLawVariables['stran'],  dstran=self.constitutiveLawVariables['dstran'], time=self.constitutiveLawVariables['timesim'], dtime=self.constitutiveLawVariables['dtime'], temp=self.constitutiveLawVariables['temperature'], dtemp=self.constitutiveLawVariables['dtemp'], predef=self.constitutiveLawVariables['predef'], dpred=self.constitutiveLawVariables['dpred'], cmname=self.constitutiveLawVariables['cmname'], ndi=self.constitutiveLawVariables['ndi'], nshr=self.constitutiveLawVariables['nshr'], ntens=self.constitutiveLawVariables['ntens'], nstatv=self.constitutiveLawVariables['nstatv'], props=self.constitutiveLawVariables['props'], nprops=self.constitutiveLawVariables['nprops'], coords=self.constitutiveLawVariables['coords'], drot=self.constitutiveLawVariables['drot'], pnewdt=self.constitutiveLawVariables['pnewdt'], celent=self.constitutiveLawVariables['celent'], dfgrd0=self.constitutiveLawVariables['dfgrd0'], dfgrd1=self.constitutiveLawVariables['dfgrd1'], noel=self.constitutiveLawVariables['noel'], npt=self.constitutiveLawVariables['npt'], kslay=self.constitutiveLawVariables['kslay'], kspt=self.constitutiveLawVariables['kspt'], kstep=self.constitutiveLawVariables['kstep'], kinc=self.constitutiveLawVariables['kinc'])
+        #stran[:,3:6] /= 2.
+        #stran[:,4:6] = stran[:,[5,4]]
 
-        #niROM solution:
-        """self.constitutiveLawVariables['stress'][4:6] = self.constitutiveLawVariables['stress'][[5,4]]
-
-        self.constitutiveLawVariables['stran'][4:6]  = self.constitutiveLawVariables['stran'][[5,4]]"""
-
-        #if self.behavior == "linear_elastic":
-        #    self.constitutiveLawVariables['stress'] /= 2.
-
-        """if k==1:
-            print("AFTER | k =", k, self.constitutiveLawVariables)"""
-
-        #return ddsdde
+        return ddsdde, stress
 
 
 

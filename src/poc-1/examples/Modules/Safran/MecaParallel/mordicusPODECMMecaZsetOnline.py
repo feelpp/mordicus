@@ -1,6 +1,7 @@
 from Mordicus.Modules.Safran.IO import ZsetInputReader as ZIR
 from Mordicus.Modules.Safran.IO import ZsetMeshReader as ZMR
 from Mordicus.Modules.Safran.IO import ZsetSolutionReader as ZSR
+from Mordicus.Modules.Safran.IO import ZsetSolutionWriter as ZSW
 from Mordicus.Core.Containers import ProblemData as PD
 from Mordicus.Core.Containers import CollectionProblemData as CPD
 from Mordicus.Core.Containers import Solution as S
@@ -58,7 +59,13 @@ initOnlineCompressedSnapshot = initialCondition.GetReducedInitialSnapshot()
 
 import time
 start = time.time()
-onlineCompressedSolution = Meca.ComputeOnline(onlineProblemData, initOnlineCompressedSnapshot, timeSequence, reducedOrderBasisU, operatorCompressionData, 1.e-4)
+onlineCompressedSolution, onlineCompressionData = Meca.ComputeOnline(onlineProblemData, initOnlineCompressedSnapshot, timeSequence, reducedOrderBasisU, operatorCompressionData, 1.e-4)
 print(">>>> DURATION ONLINE =", time.time() - start)
+
+
+
+
+
+ZSW.WriteZsetSolution(mesh, meshFileName, "reduced", onlineCompressedSolution, reducedOrderBasisU, "U", primality = True)
 
 

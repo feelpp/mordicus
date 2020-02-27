@@ -82,7 +82,9 @@ def test():
         for loading in loadingList:
             loading.ReduceLoading(mesh, onlineProblemData, reducedOrderBasis[i], operatorCompressionDatas[i])
 
-        onlineCompressedSnapshots.append(Mechanical.ComputeOnline(onlineProblemData, initOnlineCompressedSnapshot, timeSequences[i], reducedOrderBasis[i], operatorCompressionDatas[i], 1.e-4))
+        onlineCompressedSolution, onlineCompressionData = Mechanical.ComputeOnline(onlineProblemData, initOnlineCompressedSnapshot, timeSequences[i], reducedOrderBasis[i], operatorCompressionDatas[i], 1.e-4)
+
+        onlineCompressedSnapshots.append(onlineCompressedSolution)
 
         for t, compressedSnapshot in onlineCompressedSnapshots[i].items():
             onlinesolution.AddCompressedSnapshots(compressedSnapshot, t)

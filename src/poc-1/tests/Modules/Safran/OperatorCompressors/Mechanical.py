@@ -78,22 +78,20 @@ def test():
     print("ComputeL2ScalarProducMatrix...")
     snapshotCorrelationOperator = FT.ComputeL2ScalarProducMatrix(mesh, 3)
 
-    reducedOrderBasisU = SP.CompressData(collectionProblemData, "U", 1.e-4, snapshotCorrelationOperator)
+    SP.CompressData(collectionProblemData, "U", 1.e-6, snapshotCorrelationOperator)
 
-    reducedOrderBasisEvrcum = SP.CompressData(collectionProblemData, "evrcum", 1.e-3)
-
+    SP.CompressData(collectionProblemData, "evrcum", 1.e-6)
 
     print("PreCompressOperator...")
     operatorPreCompressionData = Meca.PreCompressOperator(mesh)
     print("...done")
 
-    Meca.CompressOperator(collectionProblemData, operatorPreCompressionData, mesh, 1.e-3, listNameDualVarOutput = ["evrcum"], listNameDualVarGappyIndicesforECM = ["evrcum"])
+    Meca.CompressOperator(collectionProblemData, operatorPreCompressionData, mesh, 1.e-5, listNameDualVarOutput = ["evrcum"], listNameDualVarGappyIndicesforECM = ["evrcum"])
 
     print("CompressOperator done")
 
     SIO.SaveState("collectionProblemData", collectionProblemData)
     SIO.SaveState("snapshotCorrelationOperator", snapshotCorrelationOperator)
-    #SIO.SaveState("operatorPreCompressionData", operatorPreCompressionData)
 
 
     #################################################################
@@ -137,18 +135,11 @@ def test():
 
     initOnlineCompressedSnapshot = initialCondition.GetReducedInitialSnapshot()
 
-    onlineCompressedSolution = Meca.ComputeOnline(onlineProblemData, initOnlineCompressedSnapshot, timeSequence, reducedOrderBasisU, operatorCompressionData, 1.e-4)
+    onlineCompressedSolution, onlineCompressionData = Meca.ComputeOnline(onlineProblemData, initOnlineCompressedSnapshot, timeSequence, reducedOrderBasisU, operatorCompressionData, 1.e-6)
 
-    from Mordicus.Modules.Safran.BasicAlgorithms import GappyPOD as GP
 
-    import collections
-    onlineEvrcumCompressedSolution = collections.OrderedDict()
-    index = operatorCompressionData['dualVarOutputNames'].index('evrcum')
-    ModesAtMask = operatorCompressionData['gappyModesAtRedIntegPts']['evrcum']
-    for time in operatorCompressionData['dualVarOutput'].keys():
-        fieldAtMask = operatorCompressionData['dualVarOutput'][time][:,index]
-        onlineEvrcumCompressedSolution[time] = GP.Fit(ModesAtMask, fieldAtMask)
 
+    onlineEvrcumCompressedSolution = Meca.ReconstructDualQuantity('evrcum', operatorCompressionData, onlineCompressionData, timeSequence = list(onlineCompressedSolution.keys())[1:])
 
 
     solutionEvrcumExact  = Solution.Solution("evrcum", 1, numberOfIntegrationPoints, primality = False)
@@ -180,16 +171,15 @@ def test():
 
     elasConsitutiveLaw = MULE.TestMecaConstitutiveLaw('ALLELEMENT', 300000., 0.3, 8.6E-09)
     onlineProblemData.AddConstitutiveLaw(elasConsitutiveLaw)
-    onlineCompressedSolution = Meca.ComputeOnline(onlineProblemData, initOnlineCompressedSnapshot, timeSequence, reducedOrderBasisU, operatorCompressionData, 1.e-4)
+    onlineCompressedSolution = Meca.ComputeOnline(onlineProblemData, initOnlineCompressedSnapshot, timeSequence, reducedOrderBasisU, operatorCompressionData, 1.e-6)
 
 
     elasConsitutiveLaw = inputReader.ConstructOneConstitutiveLaw("elas", 'ALLELEMENT', "mechanical")
     onlineProblemData.AddConstitutiveLaw(elasConsitutiveLaw)
-    onlineCompressedSolution = Meca.ComputeOnline(onlineProblemData, initOnlineCompressedSnapshot, timeSequence, reducedOrderBasisU, operatorCompressionData, 1.e-4)
+    onlineCompressedSolution = Meca.ComputeOnline(onlineProblemData, initOnlineCompressedSnapshot, timeSequence, reducedOrderBasisU, operatorCompressionData, 1.e-6)
 
     os.system("rm -rf collectionProblemData.pkl")
     os.system("rm -rf snapshotCorrelationOperator.pkl")
-    os.system("rm -rf operatorPreCompressionData.pkl")
 
     return "ok"
 

@@ -4,14 +4,17 @@ import numpy as np
 from Mordicus.Core.IO.SolutionReaderBase import SolutionReaderBase
 from mpi4py import MPI
 from pathlib import Path
+from BasicTools.IO import UtReader as UR
 import os
-
+import numpy as np
 
 primalSolutionComponents = {1:[""], 2:["1", "2"], 3:["1", "2", "3"]}
-#niROM solution:
-#dualSolutionComponents = {1:[""], 3:["11", "22", "12"], 6:["11", "22", "33", "12", "23", "31"]}
-dualSolutionComponents = {1:[""], 3:["11", "22", "12"], 6:["11", "22", "33", "12", "31", "23"]}
 
+dualSolutionComponents = {1:[""], 3:["11", "22", "12"], 6:["11", "22", "33", "12", "23", "31"]}
+convertZsetConvention = {"11":(1.,"11"), "22":(1.,"22"), "33":(1.,"33"), "12":(1.,"12"), "23":(1.,"31"), "31":(1.,"23")}
+
+#dualSolutionComponents = {1:[""], 3:["11", "22", "12"], 6:["11", "22", "33", "12", "31", "23"]}
+#convertZsetConvention = {"11":(1.,"11"), "22":(1.,"22"), "33":(1.,"33"), "12":(1.,"12"), "23":(1.,"23"), "31":(1.,"31")}
 
 def ReadSnapshotComponent(solutionFileName, fieldName, time, primality=True):
     """
@@ -88,22 +91,23 @@ class ZsetSolutionReader(SolutionReaderBase):
 
 
     def ReadSnapshotComponent(self, fieldName, time, primality=True):
-        from BasicTools.IO import UtReader as UR
 
         if primality == True:
             atIntegrationPoints = False
-        else:
-            atIntegrationPoints = True  # pragma: no cover
-        return UR.ReadFieldFromUt(
-            self.solutionFileName,
-            fieldName,
-            time,
-            atIntegrationPoints=atIntegrationPoints,
-        )
+            coef = 1.
+        else:# pragma: no cover
+            atIntegrationPoints = True
+            try:
+                convert = convertZsetConvention[fieldName[-2:]]
+                coef = convert[0]
+                fieldName = fieldName[:-2] + convert[1]
+            except KeyError:
+                coef = 1.
+
+        return coef*UR.ReadFieldFromUt(self.solutionFileName, fieldName, time, atIntegrationPoints = atIntegrationPoints,)
 
 
     def ReadSnapshot(self, fieldName, time, numberOfComponents, primality=True):
-        from BasicTools.IO import UtReader as UR
 
         solutionComponentNames = []
         if primality == True:
@@ -117,11 +121,7 @@ class ZsetSolutionReader(SolutionReaderBase):
 
         res = []
         for name in solutionComponentNames:
-            res.append(UR.ReadFieldFromUt(
-            self.solutionFileName,
-            name,
-            time,
-            atIntegrationPoints=atIntegrationPoints))
+            res.append(self.ReadSnapshotComponent(name, time, primality))
 
         return np.concatenate(res)
 

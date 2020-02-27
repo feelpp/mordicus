@@ -46,18 +46,23 @@ outputTimeSequence = solutionReader.ReadTimeSequenceFromSolutionFile()
 
 solutionU = S.Solution("U", nbeOfComponentsPrimal, numberOfNodes, primality = True)
 solutionSigma = S.Solution("sigma", nbeOfComponentsDual, numberOfIntegrationPoints, primality = False)
+solutionEvrcum = S.Solution("evrcum", 1, numberOfIntegrationPoints, primality = False)
+
 
 for time in outputTimeSequence:
     U = solutionReader.ReadSnapshot("U", time, nbeOfComponentsPrimal, primality=True)
     solutionU.AddSnapshot(U, time)
     sigma = solutionReader.ReadSnapshot("sig", time, nbeOfComponentsDual, primality=False)
     solutionSigma.AddSnapshot(sigma, time)
+    evrcum = solutionReader.ReadSnapshotComponent("evrcum", time, primality=False)
+    solutionEvrcum.AddSnapshot(evrcum, time)
 
 
 
 problemData = PD.ProblemData(folder)
 problemData.AddSolution(solutionU)
 problemData.AddSolution(solutionSigma)
+problemData.AddSolution(solutionEvrcum)
 
 collectionProblemData = CPD.CollectionProblemData()
     collectionProblemData.addVariabilityAxis('config', 
@@ -66,10 +71,13 @@ collectionProblemData = CPD.CollectionProblemData()
     collectionProblemData.defineQuantity("U", "displacement", "m")
     collectionProblemData.AddProblemData(problemData, config="case-1")
 
+
 print("ComputeL2ScalarProducMatrix...")
 snapshotCorrelationOperator = FT.ComputeL2ScalarProducMatrix(mesh, 3)
 
-SP.CompressData(collectionProblemData, "U", 1.e-4, snapshotCorrelationOperator)
+SP.CompressData(collectionProblemData, "U", 1.e-6, snapshotCorrelationOperator)
+SP.CompressData(collectionProblemData, "evrcum", 1.e-6)
+
 collectionProblemData.CompressSolutions("U", snapshotCorrelationOperator)
 reducedOrderBasisU = collectionProblemData.GetReducedOrderBasis("U")
 
@@ -91,7 +99,7 @@ for t in outputTimeSequence:
 
 print("compressionErrors =", compressionErrors)
 
-Mechanical.CompressOperator(collectionProblemData, operatorPreCompressionData, mesh, 1.e-3)
+Mechanical.CompressOperator(collectionProblemData, operatorPreCompressionData, mesh, 1.e-5, listNameDualVarOutput = ["evrcum"], listNameDualVarGappyIndicesforECM = ["evrcum"])
 
 print("CompressOperator done")
 

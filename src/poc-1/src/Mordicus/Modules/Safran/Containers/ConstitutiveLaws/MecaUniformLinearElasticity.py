@@ -72,11 +72,14 @@ class TestMecaConstitutiveLaw(ConstitutiveLawBase):
         return self.density
 
 
-    def ComputeConstitutiveLaw(self):
+    def ComputeConstitutiveLaw(self, temperature, dtemp, stran, dstran, statev):
 
+        nbIntPoints = stran.shape[0]
 
-        self.constitutiveLawVariables['stress'] = np.dot(self.constitutiveLawVariables['ddsdde'], self.constitutiveLawVariables['stran'])
+        ddsdde = np.tile(self.constitutiveLawVariables['ddsdde'],(nbIntPoints, 1, 1))
+        stress = np.einsum('klm,kl->km', ddsdde, stran, optimize = True)
 
+        return ddsdde, stress
 
 
     def GetIdentifier(self):

@@ -7,7 +7,7 @@
   **cycles 1
    *ratio 0.01
    *time       2. 
-   *increment  10
+   *increment  20
    *algorithm p1p2p3
 
 
@@ -38,7 +38,7 @@ x0y1z1 U3 0.0
 **pressure 
 x1 file pressure.node pressure
 **centrifugal
-ALL_ELEMENT (3.5 -20 1.5) d3 1.e2 rotation
+ALL_ELEMENT (3.5 -20 1.5) d3 1.e0 rotation
 
 ***parameter
 **file temperature
@@ -54,7 +54,7 @@ function 2.0+cycle*2.; file temperature1.node 1
    *time 
    0.  0.1  2.
    *value
-   0.  -100.0  -100.0
+   0.  -10.0  -10.0
 **cycle rotation 0. 2.
    *time 
    0.  1.  2.
