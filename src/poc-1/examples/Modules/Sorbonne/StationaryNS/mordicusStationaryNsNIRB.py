@@ -2,7 +2,7 @@ import os
 import os.path as osp
 
 import subprocess
-
+from Mordicus.Modules.sorbonne.IO import GmshMeshReader as GMR
 from Mordicus.Core.Containers import ProblemData as PD
 from Mordicus.Core.Containers import CollectionProblemData as CPD
 from Mordicus.Core.Containers import Solution as S
@@ -50,6 +50,7 @@ print("-----------------------------------")
 ----------------------------------------------------------------------------------------
 """
 import vtk
+import numpy as np
 from vtk.util.numpy_support import vtk_to_numpy
 nev=3                           
 time=0.0 
@@ -71,21 +72,25 @@ for i in range(nev):
     array_list.append(u1_np_array)          
     
     #instancie une solution
-    solutionU=S.Solution("U",dimension,u1_np_array.__sizeof__(),True)
-
-    print(dimension)
-    print(u1_np_array.__sizeof__())
-    #instancie une snapshot
-    #snapReader = solreader.ReadSnapshot("U", time, dimension, primality=True)
+    solutionU=S.Solution("U",dimension,u1_np_array.shape[0],True)
+    u1_np_array=u1_np_array.flatten()
+    #print(u1_np_array.shape)
+        
+    ### ajouter la snapshot A solutionU
     
-    ### ICI IL faut ajouter la snapshot A solutionU
-    #solutionU.AddSnapshot(u1_np_array,time)
+    solutionU.AddSnapshot(u1_np_array,time)
+    problemData = PD.ProblemData(dataFolder)
+    problemData.AddSolution(solutionU)
 
-    
-    #problemData = PD.ProblemData(dataFolder)
-    #problemData.AddSolution(solutionU)
+collectionProblemData.AddProblemData(problemData)
 
-#collectionProblemData.AddProblemData(problemData)
+##On lit le maillage ici si GMSH et convertir en format gmsh sinon pour le lire avec basictools
+meshFileName = dataFolder + "/test.msh"
+
+meshReader = GMR.GmshMeshReader(meshFileName)
+mesh = meshReader.ReadMesh()
+print("Mesh defined in " + meshFileName + " has been read")
+
 
 
 """ 
