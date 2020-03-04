@@ -7,6 +7,7 @@ from Mordicus.Core.Containers import Solution as S
 from Mordicus.Modules.Safran.FE import FETools as FT
 from Mordicus.Modules.Safran.DataCompressors import FusedSnapshotPOD as SP
 from Mordicus.Modules.Safran.OperatorCompressors import Mechanical
+from Mordicus.Modules.Safran.IO import PXDMFWriter as PW
 from Mordicus.Core.IO import StateIO as SIO
 import numpy as np
 
@@ -40,18 +41,21 @@ print("PreCompressOperator...")
 operatorPreCompressionData = Mechanical.PreCompressOperator(mesh)
 print("...done")
 
-
 outputTimeSequence = solutionReader.ReadTimeSequenceFromSolutionFile()
 
+dualNames = ["evrcum", "sig12", "sig23", "sig31", "sig11", "sig22", "sig33", "eto12", "eto23", "eto31", "eto11", "eto22", "eto33"]
 
 solutionU = S.Solution("U", nbeOfComponentsPrimal, numberOfNodes, primality = True)
 solutionSigma = S.Solution("sigma", nbeOfComponentsDual, numberOfIntegrationPoints, primality = False)
 
+solutionsDual = [S.Solution(name, 1, numberOfIntegrationPoints, primality = False) for name in dualNames]
+
+
 for time in outputTimeSequence:
-    U = solutionReader.ReadSnapshot("U", time, nbeOfComponentsPrimal, primality=True)
-    solutionU.AddSnapshot(U, time)
-    sigma = solutionReader.ReadSnapshot("sig", time, nbeOfComponentsDual, primality=False)
-    solutionSigma.AddSnapshot(sigma, time)
+    solutionU.AddSnapshot(solutionReader.ReadSnapshot("U", time, nbeOfComponentsPrimal, primality=True), time)
+    solutionSigma.AddSnapshot(solutionReader.ReadSnapshot("sig", time, nbeOfComponentsDual, primality=False), time)
+    for i, name in enumerate(dualNames):
+        solutionsDual[i].AddSnapshot(solutionReader.ReadSnapshotComponent(name, time, primality=False), time)
 
 
 
@@ -60,6 +64,10 @@ problemData = PD.ProblemData(folder)
 problemData.AddSolution(solutionU)
 problemData.AddSolution(solutionSigma)
 
+for i, name in enumerate(dualNames):
+    problemData.AddSolution(solutionsDual[i])
+
+
 collectionProblemData = CPD.CollectionProblemData()
 collectionProblemData.addVariabilityAxis('config', 
                                          str,
@@ -67,39 +75,40 @@ collectionProblemData.addVariabilityAxis('config',
 collectionProblemData.defineQuantity("U", "displacement", "m")
 collectionProblemData.AddProblemData(problemData, config="case-1")
 
+
 print("ComputeL2ScalarProducMatrix...")
 snapshotCorrelationOperator = FT.ComputeL2ScalarProducMatrix(mesh, 3)
 
-SP.CompressData(collectionProblemData, "U", 1.e-4, snapshotCorrelationOperator)
+SP.CompressData(collectionProblemData, "U", 1.e-6, snapshotCorrelationOperator)
+for name in dualNames:
+    SP.CompressData(collectionProblemData, name, 1.e-6)
+
+
 collectionProblemData.CompressSolutions("U", snapshotCorrelationOperator)
 reducedOrderBasisU = collectionProblemData.GetReducedOrderBasis("U")
 
 
-
-solutionUApprox = S.Solution("U", nbeOfComponentsPrimal, numberOfNodes, primality = True)
-solutionUApprox.SetCompressedSnapshots(solutionU.GetCompressedSnapshots())
-solutionUApprox.UncompressSnapshots(reducedOrderBasisU)
+CompressedSolutionU = solutionU.GetCompressedSnapshots()
 
 compressionErrors = []
 
 for t in outputTimeSequence:
-    exactSolution = solutionU.GetSnapshotAtTime(t)
-    approxSolution = solutionUApprox.GetSnapshotAtTime(t)
+
+    reconstructedCompressedSolution = np.dot(CompressedSolutionU[t], reducedOrderBasisU)
+    exactSolution = solutionU.GetSnapshot(t)
     norml2ExactSolution = np.linalg.norm(exactSolution)
     if norml2ExactSolution != 0:
-        relError = np.linalg.norm(approxSolution-exactSolution)/norml2ExactSolution
+        relError = np.linalg.norm(reconstructedCompressedSolution-exactSolution)/norml2ExactSolution
     else:
-        relError = np.linalg.norm(approxSolution-exactSolution)
+        relError = np.linalg.norm(reconstructedCompressedSolution-exactSolution)
     compressionErrors.append(relError)
 
 print("compressionErrors =", compressionErrors)
 
-Mechanical.CompressOperator(collectionProblemData, operatorPreCompressionData, mesh, 1.e-3)
+Mechanical.CompressOperator(collectionProblemData, operatorPreCompressionData, mesh, 1.e-5, listNameDualVarOutput = dualNames, listNameDualVarGappyIndicesforECM = ["evrcum"])
 
 print("CompressOperator done")
 
 SIO.SaveState("collectionProblemData", collectionProblemData)
 SIO.SaveState("snapshotCorrelationOperator", snapshotCorrelationOperator)
-
-
 

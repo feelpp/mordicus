@@ -50,7 +50,7 @@ from Mordicus.Modules.Safran.DataCompressors import FusedSnapshotPOD as SP
 
 """
 
-
+etoIntForcesOffDiagComponents = {1:[], 2:[(0,1)], 3:[(0,1), (1,2), (0,2)]}
 
 
 
@@ -92,6 +92,7 @@ def PrepareOnline(onlineProblemData, operatorCompressionData):
         onlineCompressionData["statevIntForcesTemp"][tag] = np.zeros((localNbIntPoints,nstatv))
         onlineCompressionData["dualVarOutputNames"][tag] = law.GetOneConstitutiveLawVariable("var")
         onlineCompressionData["dualVarOutput"][tag] = collections.OrderedDict()
+
 
     onlineCompressionData['IndicesOfIntegPointsPerMaterial'] = IndicesOfIntegPointsPerMaterial
 
@@ -187,7 +188,6 @@ def ComputeOnline(onlineProblemData, initOnlineCompressedSnapshot, timeSequence,
 
             onlineCompressionData['dualVarOutput'][tag][time] = np.hstack((onlineCompressionData['stranIntForces'][intPoints], onlineCompressionData['sigIntForces'][intPoints], onlineCompressionData['statevIntForces'][tag]))
 
-
         print("=== Newton iterations:", count)
 
     os.chdir(currentFolder)
@@ -263,12 +263,10 @@ def ComputeReducedInternalForcesAndTangentMatrix(onlineProblemData, opCompDat, o
         #for dualVar output
         onlineCompressionData['statevIntForcesTemp'][tag] = statev
         onlineCompressionData['sigIntForces'][intPoints] = stress
-        #onlineCompressionData['sigIntForces'][intPoints][:,3:6] *= 2.
-        #onlineCompressionData['sigIntForces'][intPoints][:,4:6] = onlineCompressionData['sigIntForces'][intPoints][:,[5,4]]
-        onlineCompressionData['stranIntForces'][intPoints] = stran
-        #onlineCompressionData['stranIntForces'][intPoints][:,3:6] /= 2.
-        #onlineCompressionData['stranIntForces'][intPoints][:,4:6] = #onlineCompressionData['stranIntForces'][intPoints][:,[5,4]]
 
+        #Voigt convention to invert for output of epsilon
+        onlineCompressionData['stranIntForces'][intPoints,:3]  = stran[:,:3]
+        onlineCompressionData['stranIntForces'][intPoints,3:6] = 0.5*stran[:,3:6]
 
 
     reducedInternalForces = np.einsum('l,klm,lm->k', opCompDat['reducedIntegrationWeights'], reducedRedInterpolator, sigma, optimize = True)
@@ -449,6 +447,9 @@ def ComputeIndicesOfIntegPointsPerMaterial(listOfTags, keysConstitutiveLaws):
 
 
 def PrecomputeReducedMaterialVariable(collectionProblemData, mesh, listOfTags, reducedIntegrationPoints):
+    """
+    notation de Voigt sur epsilon: [e_11, e_22, e_33, 2e_12, 2e_23, 2e_31]
+    """
 
 
     uNumberOfComponents = collectionProblemData.GetSolutionsNumberOfComponents("U")
@@ -469,17 +470,17 @@ def PrecomputeReducedMaterialVariable(collectionProblemData, mesh, listOfTags, r
     etoIntForces = np.empty(((len(reducedIntegrationPoints),numberOfModes,sigmaNumberOfComponents)))
     #a renommer plus tard
 
+
     count = 0
     for i in range(uNumberOfComponents):
-
         etoIntForces[:,:,count] = FEInterpAtIntegPointGradMatrix[i].dot(componentReducedOrderBasis[i])[reducedIntegrationPoints,:]
         count += 1
 
-
-    for i in range(uNumberOfComponents):
-        for j in range(i+1,uNumberOfComponents):
-            etoIntForces[:,:,count] = (FEInterpAtIntegPointGradMatrix[i].dot(componentReducedOrderBasis[j]) + FEInterpAtIntegPointGradMatrix[j].dot(componentReducedOrderBasis[i]))[reducedIntegrationPoints,:]
-            count += 1
+    for ind in etoIntForcesOffDiagComponents[uNumberOfComponents]:
+        i = ind[0]
+        j = ind[1]
+        etoIntForces[:,:,count] = (FEInterpAtIntegPointGradMatrix[i].dot(componentReducedOrderBasis[j]) + FEInterpAtIntegPointGradMatrix[j].dot(componentReducedOrderBasis[i]))[reducedIntegrationPoints,:]
+        count += 1
 
 
     reducedListOTags = [listOfTags[intPoint] for intPoint in reducedIntegrationPoints]

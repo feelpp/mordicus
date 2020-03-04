@@ -24,7 +24,6 @@ snapshotCorrelationOperator = SIO.LoadState("snapshotCorrelationOperator")
 
 operatorCompressionData = collectionProblemData.GetOperatorCompressionData()
 reducedOrderBasisU = collectionProblemData.GetReducedOrderBasis("U")
-reducedOrderBasisEvrcum = collectionProblemData.GetReducedOrderBasis("evrcum")
 
 
 ##################################################
@@ -61,7 +60,7 @@ initOnlineCompressedSnapshot = initialCondition.GetReducedInitialSnapshot()
 
 import time
 start = time.time()
-onlineCompressedSolution, onlineCompressionData = Meca.ComputeOnline(onlineProblemData, initOnlineCompressedSnapshot, timeSequence, reducedOrderBasisU, operatorCompressionData, 1.e-4)
+onlineCompressedSolution, onlineCompressionData = Meca.ComputeOnline(onlineProblemData, initOnlineCompressedSnapshot, timeSequence, reducedOrderBasisU, operatorCompressionData, 1.e-8)
 print(">>>> DURATION ONLINE =", time.time() - start)
 
 
@@ -101,13 +100,29 @@ PW.WritePXDMF(mesh, onlineCompressedSolution, reducedOrderBasisU, "U")
 print("The compressed solution has been written in PXDMF Format")
 
 
-ZSW.WriteZsetSolution(mesh, meshFileName, "reduced_U", onlineCompressedSolution, reducedOrderBasisU, "U", primality = True)
 
 
-onlineEvrcumCompressedSolution = Meca.ReconstructDualQuantity('evrcum', operatorCompressionData, onlineCompressionData, timeSequence = list(onlineCompressedSolution.keys())[1:])
 
 
-ZSW.WriteZsetSolution(mesh, meshFileName, "reduced_evrcum", onlineEvrcumCompressedSolution, reducedOrderBasisEvrcum, "ervcum", primality = False)
+numberOfIntegrationPoints = FT.ComputeNumberOfIntegrationPoints(mesh)
+
+dualNames = ["evrcum", "sig12", "sig23", "sig31", "sig11", "sig22", "sig33", "eto12", "eto23", "eto31", "eto11", "eto22", "eto33"]
+
+
+onlineProblemData.AddSolution(solutionUApprox)
+
+for name in dualNames:
+    solutionsDual = S.Solution(name, 1, numberOfIntegrationPoints, primality = False)
+    
+    onlineDualCompressedSolution = Meca.ReconstructDualQuantity(name, operatorCompressionData, onlineCompressionData, timeSequence = list(onlineCompressedSolution.keys())[1:])
+
+    solutionsDual.SetCompressedSnapshots(onlineDualCompressedSolution)
+
+    onlineProblemData.AddSolution(solutionsDual)
+
+ZSW.WriteZsetSolution(mesh, meshFileName, "reduced", collectionProblemData, onlineProblemData, "U")
+
+
 
 
 

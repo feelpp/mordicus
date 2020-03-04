@@ -76,9 +76,6 @@ class ZmatConstitutiveLaw(ConstitutiveLawBase):
 
             stress[k,:] = self.constitutiveLawVariables['stress']
 
-        #stran[:,3:6] /= 2.
-        #stran[:,4:6] = stran[:,[5,4]]
-
         return ddsdde, stress
 
 

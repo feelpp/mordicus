@@ -11,7 +11,7 @@ import numpy as np
 primalSolutionComponents = {1:[""], 2:["1", "2"], 3:["1", "2", "3"]}
 
 dualSolutionComponents = {1:[""], 3:["11", "22", "12"], 6:["11", "22", "33", "12", "23", "31"]}
-convertZsetConvention = {"11":(1.,"11"), "22":(1.,"22"), "33":(1.,"33"), "12":(1.,"12"), "23":(1.,"31"), "31":(1.,"23")}
+convertZsetConvention = {"11":(1.,"11"), "22":(1.,"22"), "33":(1.,"33"), "12":(1.,"12"), "23":(1.,"23"), "31":(1.,"31")}
 
 #dualSolutionComponents = {1:[""], 3:["11", "22", "12"], 6:["11", "22", "33", "12", "31", "23"]}
 #convertZsetConvention = {"11":(1.,"11"), "22":(1.,"22"), "33":(1.,"33"), "12":(1.,"12"), "23":(1.,"23"), "31":(1.,"31")}
@@ -92,19 +92,7 @@ class ZsetSolutionReader(SolutionReaderBase):
 
     def ReadSnapshotComponent(self, fieldName, time, primality=True):
 
-        if primality == True:
-            atIntegrationPoints = False
-            coef = 1.
-        else:# pragma: no cover
-            atIntegrationPoints = True
-            try:
-                convert = convertZsetConvention[fieldName[-2:]]
-                coef = convert[0]
-                fieldName = fieldName[:-2] + convert[1]
-            except KeyError:
-                coef = 1.
-
-        return coef*UR.ReadFieldFromUt(self.solutionFileName, fieldName, time, atIntegrationPoints = atIntegrationPoints,)
+        return UR.ReadFieldFromUt(self.solutionFileName, fieldName, time, atIntegrationPoints = not primality)
 
 
     def ReadSnapshot(self, fieldName, time, numberOfComponents, primality=True):
