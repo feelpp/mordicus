@@ -40,10 +40,9 @@ poc-1:
   script:
     - export PYTHONPATH=$PWD/src/poc-1/src:$PYTHONPATH
     - mkdir -p public/coverageReportCore
-    - cd src/poc-1/tests/Core
-    - pytest --cov=../../src/Mordicus/Core --cov-report=html:../../../../public/coverageReportCore
-    - cd ../../../../public/coverageReportCore
-    - grep pc_cov index.html
+    - cd src/poc-1/tests/Core && pytest --cov=../../src/Mordicus/Core --cov-report=html:../../../../public/coverageReportCore && cd -
+    - cd src/poc-1/tests/Modules/Phimeca && pytest && cd -
+    - cd public/coverageReportCore && grep pc_cov index.html
   coverage: '/pc_cov">([0-9]+\.?[0-9]+?%)/'
   artifacts:
     name: "CoverageCore"
