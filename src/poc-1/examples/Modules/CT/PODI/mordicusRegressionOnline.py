@@ -39,7 +39,7 @@ def test():
     OnlineTimeSequence = np.array(np.arange(0, 1, 10), dtype=float)
 
     for t in OnlineTimeSequence:
-        onlineProblemData.AddParameter(np.array([0.3, 8.0]), t)
+        onlineProblemData.AddParameter(np.array([0.5, 8.0]), t)
 
 
     compressedSnapshots = Regression.ComputeOnline(

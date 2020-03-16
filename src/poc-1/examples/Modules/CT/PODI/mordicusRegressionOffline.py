@@ -30,7 +30,7 @@ def test():
 
     collectionProblemData = CPD.CollectionProblemData()
 
-    parameters = [[0.3, 0.0], [0.3, 5.0], [0.3, 10.0], [0.3, 15.0]]
+    parameters = [[0.3, 0.0], [0.3, 15.0], [0.8, 0.0], [0.8, 15.0]]   ###two parameters
 
     for i in range(4):
         folder = "Computation" + str(i + 1) + "/"
