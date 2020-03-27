@@ -41,18 +41,13 @@ def initproblem(dataFolder):
     print("Files generated in "+dataFolder+ " : snapshots.txt, soluH.txt, mesh1.msh, mesh2.msh")
     return "OK"
 
-
 def basisFileToArray(tmpbaseFile,nev):
-    import numpy as np
     import vtk
     from vtk.util.numpy_support import vtk_to_numpy
-    
     # Loop over temporary VTK files
     array_list = []
-        
     for i in range(nev):
-    
-        reader=vtk.vtkXMLUnstructuredGridReader()
+        reader = vtk.vtkXMLUnstructuredGridReader()
         reader.SetFileName(tmpbaseFile + str(i) + ".vtu")
         reader.Update()
         fdata = reader.GetOutput().GetPointData()
@@ -63,6 +58,18 @@ def basisFileToArray(tmpbaseFile,nev):
 
 
 
+def VTKReadToNp(tmpbaseFile,nev_i):
+    import vtk
+    from vtk.util.numpy_support import vtk_to_numpy
+    from BasicTools.IO.VtuReader import LoadVtuWithVTK
+    from vtk.numpy_interface import dataset_adapter as dsa
+    data = LoadVtuWithVTK(tmpbaseFile + str(nev_i) + ".vtu")
+    npArray = dsa.WrapDataObject(data).GetPointData().GetArray("u")
+    return npArray
+
+
+
 if __name__ == "__main__":
     dataFolder=osp.join('StationaryNSData')
+
     print(dataFolder)  # pragma: no cover
