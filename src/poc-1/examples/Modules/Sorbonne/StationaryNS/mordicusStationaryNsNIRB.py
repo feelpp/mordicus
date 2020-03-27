@@ -10,6 +10,7 @@ from Mordicus.Core.Containers import Solution as S
 #from Mordicus.Modules.sorbonne.IO import FFSolutionReader
 from initCase import initproblem
 from initCase import basisFileToArray
+from initCase import VTKReadToNp
 
 import array
 
@@ -58,23 +59,13 @@ dimension=2
 # dim
            
 # instancie a reader solution           
-#solreader = FFSolutionReader.FFSolutionReaderBase("Velocity")
-array_list = []
 collectionProblemData = CPD.CollectionProblemData()
 for i in range(nev):
     
-    reader=vtk.vtkXMLUnstructuredGridReader()
-    reader.SetFileName(dataFolder+"/snapshot"+str(i) + ".vtu")
-    reader.Update()
-    fdata = reader.GetOutput().GetPointData()
-    u1_vtk_array = fdata.GetArray("u")
-    u1_np_array = vtk_to_numpy(u1_vtk_array)
-    array_list.append(u1_np_array)          
-    
+    u1_np_array = VTKReadToNp(dataFolder+"/snapshot",i)
     #instancie une solution
     solutionU=S.Solution("U",dimension,u1_np_array.shape[0],True)
     u1_np_array=u1_np_array.flatten()
-    #print(u1_np_array.shape)
         
     ### ajouter la snapshot A solutionU
     
@@ -159,10 +150,13 @@ print("-----------------------------------")
 Convert the basis in an numpy array
 ------------------------------------
 """ 
+
 # lire les VTK en python (ds des fichiers temporaires)
-array_basis=basisFileToArray(tmpbaseFile,nev)
-#array_basis=basisFileToSolutionN(tmpbaseFile,nev)
-     
+#array_basis=basisFileToArray(tmpbaseFile,nev)
+array_list = []
+for i in range(nev):
+    array_list.append(VTKReadToNp(tmpbaseFile,i))
+
 print("-----------------------------------")
 print(" STEP1: Basis converted in numpy   ")
 print("-----------------------------------")
