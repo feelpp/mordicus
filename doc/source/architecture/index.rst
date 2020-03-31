@@ -8,5 +8,5 @@ Architecture
    :maxdepth: 1
 
    Methods <components/mordicus_methods>
-..   Components <components/mordicus_components>
+   Components <components/mordicus_components>
 

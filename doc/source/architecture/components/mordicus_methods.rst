@@ -1,5 +1,8 @@
 .. _mordicus_methods:
 
+Mordicus methods
+================
+
 As decided in Copil of december 6th, hereafter is a table of the methods that are to be implemented in Mordicus, and for each:
 
     * the participants expected to be implementing or using the method;

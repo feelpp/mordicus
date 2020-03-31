@@ -1,3 +1,8 @@
+.. _mordicus_components:
+
+Composants de Mordicus
+----------------------
+
 
 .. note::
 
@@ -6,10 +11,8 @@
    *Date*   : 22/11/2018
 
 
-
-
 Générateur de données métier
-----------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 **Objectif** : générer les données métier
 
@@ -28,7 +31,7 @@ Générateur de données métier
 **Exemple** *source*: calcul, tomographie, photo, expérimentation; *description méta-données métier*: "u", "sigma", piquets de temps
 
 Classificateur de données métier
---------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 **Objectif** : classifier les données métier
 
@@ -48,7 +51,7 @@ Classificateur de données métier
 
 
 Extracteur de données métier
-----------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 **Objectif** : extraire les données métier d'un cluster
 
@@ -65,7 +68,7 @@ Extracteur de données métier
 
 
 Compresseur de données métier
------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 **Objectif** : compresser les données métier
 
@@ -85,7 +88,7 @@ Compresseur de données métier
 
 
 Manipulateur de données métier compressées
-------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 **Objectif** : Manipuler les données compressées
 
@@ -105,7 +108,7 @@ Manipulateur de données métier compressées
 
 
 Visualisateur de données compressées
-------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 **Objectif** : visualiser les données compressées
 
@@ -119,7 +122,7 @@ Visualisateur de données compressées
 
 
 Sérialisation de données compressées
-------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 **Objectif** : sauver les données compressées indépendamment du support, machine
 
@@ -133,7 +136,7 @@ Sérialisation de données compressées
 
 
 Compression des opérateurs
---------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 **Objectif** : Compresser les opérateurs pour garantir une construction efficace du modèle réduit
 
@@ -150,7 +153,7 @@ Compression des opérateurs
 **Remarque** : *représentation compressée des opérateurs* contient optionnellement une évaluation efficace d'un estimateur ou indicateur d'erreur
 
 Compression du terme source
----------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 **Objectif** : Compresser le terme source
 
@@ -167,7 +170,7 @@ Compression du terme source
 **Remarque** : *terme source*: contient l'évolution temporelle
 
 Résolution du problème réduit
------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 **Objectif** : Résoudre le problème réduit
 
@@ -188,7 +191,7 @@ Résolution du problème réduit
 
 
 Reconstruction des quantités d'intérêt
---------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 **Objectif** : Reconstruire les quantités d'intérêt
 
@@ -208,7 +211,7 @@ Reconstruction des quantités d'intérêt
 
 
 Evaluation de l'erreur
-----------------------
+~~~~~~~~~~~~~~~~~~~~~~
 
 **Objectif** : Evaluer l'erreur commise par le modèle réduit
 
@@ -227,7 +230,7 @@ Evaluation de l'erreur
 
 
 REMARQUES
----------
+~~~~~~~~~
 
 - les périphrases entre guillemet seront à préciser à la prochaine réunion
 
@@ -236,7 +239,7 @@ REMARQUES
 - la séparation offline/online est volontairement absente: pour certaines méthodes, comme la méthode des bases réduites, ces notions sont mélangées
 
 Summary of discussions from HK1
---------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 +----------------------+------------------------------------------------------------+
 |**User environment**  | - User Data generation                                     |
@@ -275,7 +278,7 @@ Summary of discussions from HK1
 
 
 Non-intrusive process
------------------------------
+~~~~~~~~~~~~~~~~~~~~~
 
 1. **Non-intrusive typical process**
 
@@ -306,7 +309,7 @@ Non-intrusive process
 - Adaptive enrichment
 
 Intrusive process
------------------
+~~~~~~~~~~~~~~~~~
 
 **To be defined**
 

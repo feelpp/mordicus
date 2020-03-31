@@ -1,7 +1,7 @@
 .. _UC_CT01:
 
 CT Use Case : aérodynamique externe de lanceur spatial
------------
+------------------------------------------------------
 
 Dans le contexte d’optimisation (par modeFRONTIER) d’un lanceur mono-moteur (effet du culot) mono-diamètre, le processus automatique de simulation intègre un calcul de trajectoire optimale, qui s’appuie sur une table de coefficients aérodynamiques Ca et Cn dépendant du mach et de l’incidence. Cette table est déterminée par une série de calculs CFD préliminaires, réalisés pour différentes orientations (i.e. incidences) du maillage de la géométrie (prescrite par l’optimiseur) du lanceur et différentes conditions de vitesse (i.e. nombres de mach).
 
@@ -17,8 +17,7 @@ Pour mieux prendre en compte les conditions réelles où évolue le lanceur au c
    - champ de P autour/sur le contour du lanceur
    - grandeurs intégrales déduites : coefficients globaux de trainée et portance Ca et Cn (ou courbes en fonction de Mach/incidence)
    
-* Intégrant un critère d’arrêt automatisé, qui converge en quelques dizaines de mn à quelques h sur 24 cœurs 
-   -
+* Intégrant un critère d’arrêt automatisé, qui converge en quelques dizaines de mn à quelques h sur 24 coeurs 
 
 .. _CT_img1:
 .. figure:: maillageaero_lanceur.png

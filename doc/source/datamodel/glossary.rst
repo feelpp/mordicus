@@ -3,7 +3,7 @@
 Glossaire
 ---------
 
-A lire chronologiquement (idéalement).
+A lire dans l'ordre (idéalement).
 
 .. glossary::
 

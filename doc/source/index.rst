@@ -30,12 +30,12 @@ Welcome to Mordicus's documentation!
 
    features-description/index
 
-.. **Modèle de données et glossaire**
+**Modèle de données et glossaire**
 
-.. .. toctree::
-..   :maxdepth: 2
+.. toctree::
+   :maxdepth: 2
 
-..   datamodel/index
+   datamodel/index
 
 **Architecture**
 
