@@ -7,14 +7,9 @@
    *Date*   : 21/11/2018
 
 
-**Remarques générales**
------------------------
 
-Les cas sont synthétiquement décrits et sont uniquement classés par ordre
-chronologique d'élaboration dans l'atelier. Les exigences décrivent
-principalement ce qui est attendu en résultat du cas d'usage, en
-indiquant aussi parfois ce qui est requis en même temps en entrée et en sortie
-de l'exemple.
+Types d'utilisateurs
+====================
 
 Ici, **les utilisateurs sont classés en 3 grandes catégories, incluses les unes
 dans les autres** (la troisième catégorie contient la seconde, qui contient
@@ -24,20 +19,6 @@ elle-même la première, l'inverse n'étant pas vrai) :
 #. Utilisateurs connaissant le modèle complet et/ou la physique représentée (nommés "**Utilisateurs connaissant le modèle complet et/ou la physique**")
 #. Utilisateurs sachant élaborer le modèle réduit à partir du modèle complet (nommés "**Utilisateurs sachant établir un modèle réduit**")
 
-Un certain nombre de cas d'usage décrits ci-dessous ont déjà été identifiés
-comme étant à cheval entre des exemples potentiels d'utilisation et des sujets
-de développement ou de recherche à part entière (donc hors exemples
-d'utilisation). Cette distinction reste à discuter, ce qui pourrait conduire à
-retirer certains exemples d'utilisation de la liste.
-
-Les termes suivants sont à définir ou à nommer mathématiquement de manière
-commune :
-
-    - modèle réduit
-    - modèle complet ou modèle haute fidélité
-    - plan d'expérience
-    - fiabilité (indicateur continu qualifiant l'erreur commise entre modèle haute fidélité et modèle réduit)
-    - fidélité (satisfaction d'un critère quantitatif donné a priori sur la fiabilité)
 
 A - Utilisateur du modèle réduit boîte noire
 ============================================
@@ -99,7 +80,7 @@ A.08 - Archiver un modèle réduit ou une liste de modèles réduits
     - **Exigences :** une norme d'interprétation et un format de stockage avec une pérennité suffisante
 
 A.09 - Contrôler qu'un modèle réduit conserve certaines propriétés mathématiques du modèle haute fidélité sur un sous-domaine
------------------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------
 
     - **Objet :** dans ce cas, on désire que le modèle réduit présente le même comportement (par exemple convergence ou divergence de la représentation physique) sur le sous-domaine, et qu'on puisse le garantir
     - **Exigences :** un domaine d'équivalence de comportement
@@ -129,6 +110,7 @@ A.13 - Evaluer le modèle réduit en un point (cas d'usage de plus bas niveau)
 ----------------------------------------------------------------------------
 
     - **Objet:** On souhaite évaluer le modèle réduit pour une nouvelle configuration (pour les cas paramétrique, pour une nouvelle valeur de paramètre). Ce cas d'usage est appelé par un certains nombre de cas de cet utilisateur.
+    - **Exigence :** doit pouvoir se faire sur un ordinateur de bureau, pas nécessairement un cluster
 
 A.14 - Calculer un indicateur de qualité a posteriori pour un appel de modèle reduit
 ------------------------------------------------------------------------------------
@@ -223,6 +205,7 @@ C.05 - Faire calculer une nouvelle simulation HF par le solveur "à la volée" p
 ----------------------------------------------------------------------------------------------------------------------------------------
 
     - **Objet :** ce use case n'est pas appelé par l'utilisateur directement mais par le système. Dans certaines méthodes - notamment dans le cadre de l'échantillonage du cas C.01 - la méthode de réduction doit savoir appeler le solveur haute-fidélité afin de calculer un nouveau snapshot. Autrement dit, les snapshots ne sont pas tous calculés au début de la méthode de réduction
+    - **Note :** on pourrait renommer ce use case "Communiquer directement avec les codes de simulation par API".
 
 C.06 - Modifier un modèle réduit pour (i) intégrer de nouvelles informations ou (ii) appliquer un niveau de réduction supplémentaire
 ------------------------------------------------------------------------------------------------------------------------------------
@@ -297,24 +280,29 @@ C.15 - Générer une base réduite à partir d'un jeu de données de simulation 
     - **Objet :** ce cas d'usage est rarement un but en soi, mais un sous-cas d'un très grand nombre de cas d'usage. Il s'agit de construire une base avec un nombre réduit de fonction permettant d'approcher la variété des solutions complètes. Il s'agit d'une étape intermédiaire dans un très grand nombre de méthodes.
     - **Note :** c'est l'étape dite de compression des données. Peut se faire par POD, par POD incrémentale, par des méthodes de sélection gloutonne / réorthogonalisation...
 
-C.16 - Appeler une fonction utilisateur ou du code utilisateur lors de la phase online (bas niveau)
+C.16 - Enrichir un plan d'expérience à partir d'un premier jeu de données de simulation
+---------------------------------------------------------------------------------------
+
+    - **Objet :** ayant les résultats d'un premier plan d'expérience sommaire, on souhaite trouver la configuration (les valeurs de paramètres) les plus pertinentes à calculer pour enrichir ce plan d'expérience. Il s'agit de maximiser l'information qui sera apportée par ces nouvelles simulations, ce qui est quantifié de façon différente suivant les méthodes.
+
+C.17 - Appeler une fonction utilisateur ou du code utilisateur lors de la phase online (bas niveau)
 ---------------------------------------------------------------------------------------------------
 
     - **Objet :** l'enchaînement des opérations qui constitue l'évaluation du modèle réduit peut être complexe, et, pour ne pas avoir à être recodée, appeler le même code qui a servi à générer les snapshot (méthode dite intrusive) ou appeler des fonctions utilisateurs (par exemple une loi de comportement).
     - **Exigence :** il faut pouvoir formaliser ces appels à la sérialisation (use case A.06)
 
-C.17 - Construire une base réduite distribuée en mémoire (par DD) à partir de données de calcul distribuées en mémoire
+C.18 - Construire une base réduite distribuée en mémoire (par DD) à partir de données de calcul distribuées en mémoire
 ----------------------------------------------------------------------------------------------------------------------
 
     - **Objet :** même but que C.15, mais les snapshots sont trop volumineux pour être stockés sur un seul noeud de calcul et sont distribués sur plusieurs noeuds, chaque noeud contenant la restriction des résultats à un sous-domaine. Il en sera donc de même des éléments de la base réduite, qui ont la même taille que les résultats de calcul. L'enjeu est donc de pouvoir effectuer la compression des données de façon parallèle, par sous-domaine, dans jamais ramener l'ensemble du champ à un seul noeud.
 
-C.18 - Garantir qu'un modèle réduit conserve certaines propriétés mathématiques du modèle haute fidélité sur un sous-domaine
+C.19 - Garantir qu'un modèle réduit conserve certaines propriétés mathématiques du modèle haute fidélité sur un sous-domaine
 ----------------------------------------------------------------------------------------------------------------------------
 
     - **Objet :** dans ce cas, on désire que le modèle réduit présente le même comportement (par exemple convergence ou divergence de la représentation physique) sur le sous-domaine, et qu'on puisse le garantir
     - **Exigences :** un domaine d'équivalence de comportement
 
-C.19 - Gérer une taille mémoire prescrite pour l'élaboration d'un modèle réduit
+C.20 - Gérer une taille mémoire prescrite pour l'élaboration d'un modèle réduit
 -------------------------------------------------------------------------------
 
     - **Objet :** lors de l'élaboration d'un modèle réduit, on veut être capable de pouvoir satisfaire à une contrainte de taille mémoire (vive en premier lieu, et disque en second lieu) limitée de manière statique a priori ou dynamique en cours de calcul.
@@ -323,7 +311,7 @@ C.19 - Gérer une taille mémoire prescrite pour l'élaboration d'un modèle ré
 Tableau d'utilisation des cas d'usage par entité
 ================================================
 
-.. tabularcolumns:: |L|L|L|L|L|L|L|L|L|L|L|L|
+.. tabularcolumns:: |L|L|L|L|L|L|L|L|L|L|L|L|L|
 
 +----+---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
 |    | USE CASE                              |  Participants                                                                            |
@@ -384,7 +372,7 @@ Tableau d'utilisation des cas d'usage par entité
 
     \clearpage
 
-.. tabularcolumns:: |L|L|L|L|L|L|L|L|L|L|L|L|
+.. tabularcolumns:: |L|L|L|L|L|L|L|L|L|L|L|L|L|
 
 +----+---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
 |    | USE CASE                              |  Participants                                                                            |
@@ -428,7 +416,7 @@ Tableau d'utilisation des cas d'usage par entité
 
     \clearpage
 
-.. tabularcolumns:: |L|L|L|L|L|L|L|L|L|L|L|L|
+.. tabularcolumns:: |L|L|L|L|L|L|L|L|L|L|L|L|L|
 
 +----+---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
 |    | USE CASE                              |  Participants                                                                            |
@@ -475,6 +463,7 @@ Tableau d'utilisation des cas d'usage par entité
 +----+---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
 |C.09| Construire un modèle réduit 3 en      |        |         |       |    |        |        |          |     |         |     |       |
 |    | combinant deux modèles réduits 1 et 2 |   3    |         |       | X  |        |   X    |          | X   |         |     |       |
+|    | du même système                       |        |         |       |    |        |        |          |     |         |     |       |
 +----+---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
 |C.10| Évaluer l’intérêt de la démarche      |        |         |       |    |        |        |          |     |         |     |       |
 |    | “Offline+Modèle réduit” par rapport à |        |         |       |    |        |        |          |     |         |     |       |
@@ -502,48 +491,37 @@ Tableau d'utilisation des cas d'usage par entité
 |    | jeu de données de simulation (cas plus|        |         |       |    |        |        |          |     |         |     |       |
 |    | bas niveau)                           |        |         |       |    |        |        |          |     |         |     |       |
 +----+---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
-|C.17| Enrichir un plan d'expérience à partir|   1    |         |       | X  |        |        |          |     |         |     |       |
+|C.16| Enrichir un plan d'expérience à partir|   1    |         |       | X  |        |        |          |     |         |     |       |
 |    | d'un premier jeu de données de        |        |         |       |    |        |        |          |     |         |     |       |
 |    | simulation                            |        |         |       |    |        |        |          |     |         |     |       |
 +----+---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
-|C.18| Appeler une fonction utilisateur ou du|   2    |         |       |    |        |   X    |          | X   |         |     |       |
+|C.17| Appeler une fonction utilisateur ou du|   2    |         |       |    |        |   X    |          | X   |         |     |       |
 |    | code utilisateur lors de la phase     |        |         |       |    |        |        |          |     |         |     |       |
 |    | online (bas niveau)                   |        |         |       |    |        |        |          |     |         |     |       |
 +----+---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
-|C.19| Construire une base réduite distribuée|   2    |         |       |    |        |   X    |          | X   |         |     |       |
+|C.18| Construire une base réduite distribuée|   2    |         |       |    |        |   X    |          | X   |         |     |       |
 |    | en mémoire (par DD) à partir de       |        |         |       |    |        |        |          |     |         |     |       |
 |    | données de calcul distribuées         |        |         |       |    |        |        |          |     |         |     |       |
 |    | en mémoire                            |        |         |       |    |        |        |          |     |         |     |       |
 +----+---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
-|C.20| Garantir qu'un modèle                 |        |         |       |    |        |        |          |     |         |     |       |
+|C.19| Garantir qu'un modèle                 |        |         |       |    |        |        |          |     |         |     |       |
 |    | réduit conserve certaines propriétés  |   3    |   X     |       |    |        |        |          | X   |   X     |     |       |
 |    | mathématiques du modèle haute fidélité|        |         |       |    |        |        |          |     |         |     |       |
 |    | sur un sous-domaine                   |        |         |       |    |        |        |          |     |         |     |       |
 +----+---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
-|C.21| Gérer une taille mémoire prescrite    |   2    |         |       | X  |        |        |          |     |         |     |  X    |
+|C.20| Gérer une taille mémoire prescrite    |   2    |         |       | X  |        |        |          |     |         |     |  X    |
 |    | pour l’élaboration d’un modèle réduit |        |         |       |    |        |        |          |     |         |     |       |
 +----+---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
+
 
 Exigences supplémentaires potentielles
 --------------------------------------
 
 Les exigences suivantes sont apparues dans les questionnaires.
 
-Exigence pour certaines méthodes: communiquer directement avec les codes de simulation par API (exemple NIRB).
-
-Pour l'utilisateur boîte noire:
-
-    * pouvoir utiliser un ordinateur de bureau plutôt qu'un cluster
-
 Pour l'utilisateur connaissant le modèle complet et/ou la physique:
 
-    * calcul des champs mécaniques pour un grand nombre de cycles de chargement;
-
-    * pouvoir faire un post-processing complexe
-
     * le modèle réduit doit alléger le temps de calcul en conservant au mieux les propriétés non-linéaires
-
-    * Mordicus doit supporter les structures de données distribuées (HPC)
 
 Pour l'utilisateur sachant construire un modèle réduit:
 
@@ -555,8 +533,26 @@ Pour l'utilisateur sachant construire un modèle réduit:
 
     * l'archivage d'un modèle réduit doit être autonome et documenté.
 
-Que faire avec tous ces cas d'usage? Faut-il les détailler?
+**Remarques générales**
+-----------------------
 
-Non: objet/ exigences/ données ou composants concernés (après avoir fait le modèle de données)
+Les cas sont synthétiquement décrits et sont uniquement classés par ordre
+chronologique d'élaboration dans l'atelier. Les exigences décrivent
+principalement ce qui est attendu en résultat du cas d'usage, en
+indiquant aussi parfois ce qui est requis en même temps en entrée et en sortie
+de l'exemple.
 
-Voir s'il y en a d'autres à la lumière des exemples d'utilisation
+Un certain nombre de cas d'usage décrits ci-dessous ont déjà été identifiés
+comme étant à cheval entre des exemples potentiels d'utilisation et des sujets
+de développement ou de recherche à part entière (donc hors exemples
+d'utilisation). Cette distinction reste à discuter, ce qui pourrait conduire à
+retirer certains exemples d'utilisation de la liste.
+
+Les termes suivants sont à définir ou à nommer mathématiquement de manière
+commune :
+
+    - modèle réduit
+    - modèle complet ou modèle haute fidélité
+    - plan d'expérience
+    - fiabilité (indicateur continu qualifiant l'erreur commise entre modèle haute fidélité et modèle réduit)
+    - fidélité (satisfaction d'un critère quantitatif donné a priori sur la fiabilité)
