@@ -47,16 +47,18 @@ def test():
         problemData = PD.ProblemData(folder)
         problemData.AddSolution(solution)
 
+        solutionReader = VSR.VTKSolutionReader(
+                solution.GetSolutionName()
+        )
 
         count=0
         for t in outputTimeSequence:
             print('\ntime   ', t)
-            #solutionFileName = folder + "fields_"+str(count)+".vtu"
-            solutionFileName = folder + "fields_"+str(count)+".npy"
-            solutionReader = VSR.VTKSolutionReader(solutionFileName)
-
-            snapshot = solutionReader.npReadSnapshot(
-                solution.GetSolutionName(), t, nbeOfComponents
+            solutionFileName = folder + "fields_"
+            
+            #snapshot = solutionReader.VTKReadToNp(
+            snapshot = solutionReader.npRead(
+                solutionFileName, count
             )
             solution.AddSnapshot(snapshot, t)
             problemData.AddParameter(np.array(parameters[i]), t)
