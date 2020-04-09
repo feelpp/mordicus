@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from BasicTools.Containers.UnstructuredMeshTools import CreateCube
+from BasicTools.Containers.UnstructuredMeshCreationTools import CreateCube
 from Mordicus.Modules.Safran.Containers.Meshes import BasicToolsUnstructuredMesh as BTUM
 
 

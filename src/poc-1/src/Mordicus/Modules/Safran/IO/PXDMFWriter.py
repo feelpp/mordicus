@@ -132,7 +132,7 @@ class PXDMFWriter(object):
             writer.SetParafac(True)
             writer.Open(filename=self.outputName + ".pxdmf")
 
-            from BasicTools.Containers import UnstructuredMeshTools as UMT
+            from BasicTools.Containers import UnstructuredMeshCreationTools as UMT
             import BasicTools.Containers.ElementNames as ElementNames
 
             n = len(compressedSnapshots.keys())
