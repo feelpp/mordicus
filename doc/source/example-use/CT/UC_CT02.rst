@@ -1,7 +1,7 @@
 .. _UC_CT02:
 
 CT Use Case : Multiphysics coupling between a combustion chamber and cooling circuit channels 
-------------------------------------------------------
+---------------------------------------------------------------------------------------------
 
 We propose a hybrid high-order/low-order method to resolve the multi-physics coupling between a combustion chamber and cooling circuit channels. Since the computational cost of the whole multi-physics problem is often prohibitive for industrial applications, solution of this problem is supposed to be not known, or at least not very well approximated by the high-fidelity method. In this work, the main idea is to use, in a online phase, a high-fidelity scheme to discretize the governing equation of the flow in the combustion chamber and in the solid domain. On the other hand, the cooling circuit channels are split into different subdomain with recurrent topological features and are treated with a non-intrusive ROM. The ROM could be based on an iterative method by domain decomposition [1] or by using Galerkin method on reduced spaces [2]. In the latter, a suitable coupling condition across subdomain interfaces is used to guarantee continuity of the solution. Therefore, the use of an efficient domain coupling and training strategy may assume high relevance in this context.
 
@@ -37,7 +37,7 @@ As for the iterative procedure described in [1] and [4], boundary condition (tem
   +---------------------+----------+------------------------+-------------------------------------------------+
   | Level               |                                                                                     |
   +---------------------+----------+------------------------+-------------------------------------------------+
-  | Primary actor       |   User with knowledge of the context and of the reduction modelling principles      |                                                        |
+  | Primary actor       |   User with knowledge of the context and of the reduction modelling principles      |
   +---------------------+----------+------------------------+-------------------------------------------------+
   | Stakeholders and    |   Stakeholders                    | Interests                                       |
   | interests           |                                   |                                                 |
