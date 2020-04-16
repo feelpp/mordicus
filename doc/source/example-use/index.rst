@@ -13,7 +13,7 @@ High-level use cases
    Mines    <Mines/UC_Mines01>
    CADLM    <CADLM/UC_CADLM01>
    Cemosis  <Cemosis/UC_Cemosis01>
-   CT       <CT/UC_CT01>
+   CT       <CT/index>
 
 ..   MORDICUS <MORDICUS/index>
 ..   viscous_fall <viscous_fall>
