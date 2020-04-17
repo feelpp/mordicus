@@ -84,6 +84,32 @@ class MeshBase(object):
         """
         return self.GetNodes().shape[1]
 
+
+    def GetElemAttach(self, node_rk: int) -> list:
+        """
+        Return the list of all elements ranks (the index in the full element list )
+        attach to a given node
+
+        Arguments:
+            node_rk {int} -- the rank of the node
+        
+        Returns:
+            list -- the list of all elements attach to the input node
+        """
+        raise Exception("Not implemented in mesh base") # pragma: no cover
+
+    def GetElemContaining(self, ip_rk: int) -> int:
+        """
+        Return the rank of the element containint the given integration point
+        
+        Arguments:
+            ip_rk {int} -- the rank of the integration point to locate, i.e. the index of this integration point in the full list of ip.
+        
+        Returns:
+            int -- the rank of the element containing the input integration point 
+        """
+        raise Exception("Not implemented in mesh base") # pragma: no cover
+
     def __str__(self):
         res = "I am a MeshBase, try instanciating a particular mesh instead"
         return res
