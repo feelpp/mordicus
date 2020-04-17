@@ -28,7 +28,7 @@ As decided in Copil of december 6th, hereafter is a table of the methods that ar
     |                                       |                  |   (optional)                  |                         |
     +---------------------------------------+------------------+-------------------------------+-------------------------+
     |                                       |                  |                               | reduced basis at        |
-    | Greedy POD                            |                  | ibid                          | previous iteration      |
+    | Incremental POD                       |                  | ibid                          | previous iteration      |
     |                                       |                  |                               |                         |
     |                                       |                  |                               |                         |
     +---------------------------------------+------------------+-------------------------------+-------------------------+

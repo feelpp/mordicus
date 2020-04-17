@@ -575,4 +575,626 @@ The *REDUCED_DOMAIN* references its original *DISCRETE_SUPPORT*. However, this "
 
 According to the method, the *REDUCED_DOMAIN* can be a subdomain with the same kind of entities as the original support: in other words, it's a true FEM mesh, as in the *HYPER_REDUCTION* method for instance. In other cases, it is merely a cloud of *POINTS* defining a global quadrature scheme, the associated weights being then borne by a *quadrature_weights* attributes.
 
+What piece of data each use case employs
+========================================
+
+A.01 - Usage d'un modèle réduit pour réaliser un plan d'expérience
+------------------------------------------------------------------
+
+*Pour une évaluation du modèle réduit*
+
+On utilise l'objet **CAS_REDUIT_A_RESOUDRE**, qui par définition doit contenir l'ensemble des données et instructions nécessaires pour évaluer le modèle réduit en un point. Le système commence par remplacer la configuration variable par la valeur fournie par l'utilisateur à l'aide du nom de paramètre, en substituant la *ref_insertion_jdd* par la valeur fournie par l'utilisateur. Le système exécute les instructions du **REDUCED_SOLVER_DATASET** en faisant appel à une **INTERNAL_SOLVING_PROCEDURE**. Ces instructions utilisent les opérateurs et données de complexité réduites qui ont été générées *offline* et sont connues du **REDUCED_SOLVER_DATASET**. Concrètement, il peut s'agir d'objets de nature diverses: matrices (**MATRIX**) et vecteur (**VECTOR_OF_UNKNOWS**) de complexité réduite dans le cas non intrusif, pour lequel la résolution temporelle a été recodée pour le modèle réduit, et approximation des opérateurs non-linéaires par décomposition affine ou autres séries de fonctions **DECOMPOSITION_OF_OPERATORS**. Dans d'autres cas, les opérateurs sont recalculés/assemblés à l'intérieur de la **INTERNAL_SOVING_PROCEDURE**, auquel cas ils ne sont pas "vus" par le modèle de données de Mordicus. Dans ce cas, les données dont a besoin la procédure de résolution sont des quantités moins directement liées à la résolution algébrique ms permettant de calculer le système à résoudre, comme un domaine de calcul réduit ou un schéma de quadrature par exemple.
+
+*Pour l"utilisation en plan d'expérience*
+
+L'utilisateur donne le plan d'expérience via un **DISCRETE_SUPPORT** qui doit être en cohérence avec le **SUPPORT_INDEXATION** fourni dans le modèle réduit. Les évaluations du modèle réduit peuvent être appelées en distribué (dans des threads différents). Les solutions, de type **SOLUTION_REDUITE_CAS** sont ajoutées à l'objet **CAS_REDUIT_A_RESOUDRE** du processus maître (celui de l'application Mordicus qui a lancé les calculs distribués) au fur et à mesure qu'elles arrivent. 
+
+A.02 - Utilisation d'un modèle réduit avec des mesures in-situ (en laboratoire, sur site de production...)
+----------------------------------------------------------------------------------------------------------
+
+L'idée est de pouvoir appeler l'objet **CAS_REDUIT_A_RESOUDRE** dans un environnement tourné vers l'expérimental ou la mesure. Par exemple Labview, Simulink... Pour cela, un export du modèle réduit comme FMU dans le standard FMI permettrait-il d'interagir avec ces systèmes ? Liste des logiciels supportés par le FMI ici https://fmi-standard.org/tools/
+
+Cela impliquerait:
+
+   * que Mordicus sache exporter un **CAS_REDUIT_A_RESOUDRE** au format FMU, ou autre format cible du système de contrôle commande, à certaines conditions (par exemple que l'intégralité des instructions d'évaluation du modèles soient écrites en langage C);
+
+   * que le système de contrôle/commande et acquisition de données sache fournir à ce FMU les signaux expérimentaux sous la forme attendue par le FMU, qui est celle de **QUANTITY_OF_INTEREST** de Mordicus.
+
+.. todo::
+
+   Demander aux partenaires utilisateurs du use case quels sont leurs logiciels de test, contrôle / commande pour les systèmes concernés
+
+Par "interaction avec des mesures", on entend:
+
+   #. donner au modèle réduit un signal d'entrée provenant de mesures (dans le cas où la variabilité est "non paramétrique" ou "mixte"), et l'appeler dans l'environnement logiciel dédié. Ceci inclut le cas où le "modèle réduit" est en fait une procédure d'assimilation de données et les modèles réduits de systèmes d'état. Le modèle réduit est alors une brique de la chaîne de contrôle commande.
+
+   #. comparer une quantité d'intérêt (**QUANTITY_OF_INTEREST**) calculée en sortie d'un modèle réduit avec la même quantité mesurée expérimentalement, et calculer des indicateurs d'écart sur cette comparaison.
+
+.. todo::
+
+    Adapter le modèle de données pour prendre en compte le cas où le "modèle réduit" est en fait une procédure d'assimilation de données. Pour inclure le cas où la variabilité d'entrée est non paramétrique, il faut que *parameter_value* d'indexation puisse être une valeur de type **QUANTITY_OF_INTEREST**. Il faut revoir aussi le sens de l'objet intermédiaire **SUPPORT_INDEXATION**
+
+
+A.03 - Utilisation d'un modèle réduit comme brique d'un "clone digital" ou d'un code système
+--------------------------------------------------------------------------------------------
+
+Il s'agit de pouvoir appeler un objet **CAS_REDUIT_A_RESOUDRE** dans un logiciel de modélisation de systèmes complexes, par exemple Modelica, EMTP, Simulink... La discussion précédente sur l'environnement tourné vers l'expérimental s'applique.
+
+
+A.04 - Reconstruire un champ complet à partir des sorties d'un modèle réduit
+----------------------------------------------------------------------------
+
+On part d'une **SOLUTION_REDUITE_CAS** de type champ (**FIELD**) qui est une représentation "compressée" d'un champ. Suivant les cas et les méthodes, il peut s'agir:
+
+   * des coefficients de la solution dans une base réduite (**BASE_ORDRE_REDUIT**)
+    
+   * de la valeur du champ en certains points (noeuds ou points de Gauss), ou de certains moments du champ (intégrale fois une fonction spatiale)
+
+On souhaite transformer cet information en un champ **INDEXED_SOLUTION** (avec un attribut *reconstructed*) sur le maillage complet original, afin de visualiser une information qui a un sens physique clair. Pour reconstruire ce champ complet, on va respectivement:
+
+   * appliquer la combinaison des coefficients et modes de la base (combinaison linéaire par défaut), sinon la décomposition est donnée par un objet de type **DECOMPOSITION_OF_OPERATORS**
+
+   * appliquer une méthode de type "moindre carrées" sur une base de fonctions données (Gappy POD), laquelle est donnée par un objet **BASE_ORDRE_REDUIT**
+
+Dans le second cas, il est nécessaire de disposer de la localisation des valeurs données, ou du moins de la façon d'extraire cette valeur pour chaque mode (afin de calculer les opérateurs de la Gappy POD). Cette information est donnée par un objet **RESTRICTION** donnant dans un seul **FIELD** la valeur de cette fonction spatiale. On doit également dire si l'extraction se fait par un produit scalaire :math:`L^2 (\Omega)` (ce qui sera le cas pour les moments) ou un produit scalaire algébrique :math:`l^2` (ce qui sera le cas pour les extractions de valeurs ponctuelles).
+
+.. todo::
+
+   Reporter cette dernière information dans le modèle de données
+
+A.05 - Permettre la visualisation HPC des résultats du modèle réduit
+--------------------------------------------------------------------
+
+Ce cas se présente, particulièrement en CFD, lorsque le champ complet du cas A.04 est trop volumineux pour être visualisé sur un seul noeud (une seule barrette mémoire, bon je ne maîtrise âs trop tout ces concepts).
+
+On dispose alors d'un outil de visualisation permettant de faire les traitements de visualisation en parallèle. Ceci est hors resposabilité de Mordicus.
+
+En revanche, dans cette perspective, Mordicus doit être capable de fournir un champ complet par sous-domaine (on parle de parallèlisme MPI). Il faudra discuter des données connues de chaque processeur dans ce cas:
+
+   * soit chaque processeur a une copie de l'ensemble des données, le **DISCRETE_SUPPORT** représentant uniquement le sous-domaine, les **FIELD**, les **VECTEUR_BASE_ORDRE_REDUIT** de type FIELD devant être considérés comme la restriction au sous-domaine considéré. Dans cette approche, tout est local, il n'y a aucune information de correspondance locale -> globale sur la numérotation. Ce n'est pas gênant si on cherche uniquement à calculer des intégrales en parallèle par exemple, c'est donc l'approche suivie dans la maquette actuelle. Cela devient gênant si on veut imposer des traitements inter-domaines qui on besoin de cette correspondance, par exemple si on souhaite imposer des relations entre deux inconnues de deux sous-domaines différents. Pour ce use case, cette approche suffit donc. Elle a l'avantage de ne nécessiter aucun changement au modèle de données actuel.
+
+   * soit, seul un processus 0 possède l'ensemble du modèle de données, y compris un maillage en numérotation globale avec des informations de correspondance pour chacun des sous-domaines. Les autres processeurs voient uniquement le maillage du sous-domaine, les **FIELD** et les **VECTEUR_BASE_ORDRE_REDUIT** sur le sous-domaine. Ce processeur 0 est capable de reconstruire des champs complets en numérotation globale. Néanmoins, cela nécessiterait de modifier le modèle de données pour faire apparaître ces correspondances de numérotation.
+
+A.06 - Exporter (sérialiser) un modèle réduit au format d'échange
+-----------------------------------------------------------------
+
+Il s'agit d'écrire sur disque dans un format pérenne l'objet **CAS_REDUIT_A_RESOUDRE** et toutes ses dépendances nécessaires pour pouvoir évaluer une nouvelle configuration (une nouvelle valeur de paramètre) du modèle réduit. 
+
+Ce qui nous donnerait les objets suivants à sauvegarder:
+
+.. todo::
+
+   Sous-modèle de données des quantités à sauvegarder
+
+Parmi ces quantités, certaines sont strictement nécessaire pour appeler le modèle réduit et sont de complexité minimales, et d'autres (comme la **BASE_ORDRE_REDUIT**) sont des informations de contexte plus volumineuses utiles pour reconstruire des champs complets (ms pas strictement nécessaires si tel n'est pas le but).
+
+A discuter: la procédure interne de résolution capable d'exécuter les instructions peut être:
+
+    * embarquée dans la sauvegarde, ce qui ne paraît réaliste qu'à condition que cette procédure soit écrite sous une certaine forme et puisse dire sous une certaine forme quelles sont ses dépendances. Par exemple: script python autoportant avec un fichier requirements.txt de pip disant quelles sont les autres modules python nécessaire pour exécuter ce script. Idem par exemple pour un script shell avec les paquets Debian.
+
+    * pré-enregistrée dans une installation de Mordicus. On imagine que chaque installation de Mordicus a un "registre" où on peut ajouter des procédures de résolution. On appelera alors la procédure du registre. Au moment où le développeur (utilisateur C) termine une nouvelle méthode de résolution interne, il peut l'intégrer par défaut à la version de Mordicus de son entité (via les modules adaptés), et les futurs utilisateurs A qui installeront Mordicus y auront accès. Il faut aussi que ce développeur puisse contacter les utilisateurs A qui ont une ancienne version de Mordicus pour qu'ils ajoutent cette nouvelle méthode au registre.
+
+A.07 - Importer (désérialiser) un modèle réduit au format d'échange
+-------------------------------------------------------------------
+
+L'opération inverse de ce qui précède.
+
+A.08 - Archiver un modèle réduit ou une liste de modèles réduits
+----------------------------------------------------------------
+
+Ce use case utilise A.06 et A.07 et utilise par conséquent les mêmes données.
+
+De plus, il implique un certains nombre d'informations:
+
+   * pour indentifier de façon non ambigüe le modèle réduit à récupérer,
+
+   * pour le retrouver.
+
+Pour identifier, c'est l'attribut *case_reference* de **CAS_REDUIT_A_RESOUDRE** qui s'en occupe. Doit-on séparer en *case_reference* (l'objet d'étude, le cas métier, par ex "réduction du calcul thermique du clapet X") et *case_version* (la version de l'étude qui peut avoir plusieurs variantes, par exemple s'il a été traité par différentes méthodes de réduction "traitement par POD classique"), la combinaison des deux devant être unique parmi les objets archivés.
+
+Pour le retrouver, il est nécessaire d'avoir des informations "documentaires" sur le cas métier: champ de description libre *case_documentation*, mot-clés (à ajouter) 
+
+A.09 - Contrôler qu'un modèle réduit conserve certaines propriétés mathématiques du modèle haute fidélité sur un sous-domaine
+-----------------------------------------------------------------------------------------------------------------------------
+
+Dans ce cas, veut vérifier que certaines propriétés du modèle haute fidélité sont respectées. Par exemple: stabilité d'un système linéaire invariant (tous les pôles sont à partie réelle négative), stabilité :math:`L^2` ou :math:`L^\infinity` d'un schéma en temps, stabilité inf-sup dans la discrétisation d'un problème de point-selle (typiquement Navier-Stokes incompressible), positivité des solutinos et négativité des multiplicateurs d'une inégalité variationnelle, conservation d'une énergie totale...
+
+On peut classer en deux cas:
+
+   * le respect de cette propriété est évaluable par une fonction de post-traitement sur les solutions et/ou les opérateurs du modèle réduit. Par exemple: on calcule les pôles de la fonction de transfert réduite, on vérifie qu'une température se trouve entre des bornes min et max... Cela implique bien sûr que l'appel de cette fonction a un coût raisonnable. Cette fonction est fournie par l'utilisateur C avec le modèle réduit
+
+   * le respect de cette propriété n'est pas évaluable par une fonction de post-traitement. Par exemple, juger de la stabilité inf-sup d'une discrétisation implique au moins deux maillages différents et des calculs de valeurs propres avec un coût élevé, et même avec cette information on ne peut pas conclure de façon univoque. Dans ce cas, c'est l'expertise de l'utilisateur C à la vue des solutions qui fournira une réponse (par exemple oscillation non-physique de la solution).
+
+On parle ici uniquement du cas 1, le 2 est traité via A.05 "visualiser un champ complet".
+
+La fonction de post-traitement est donnée via un **QUALITY_INDICATOR** de type *mathematical_property* (à ajouter). Elle contient un lien vers le **REDUCED_POSTPROCESSING_DATASET**, qui lui-même contient tous les opérateurs (matrices et vecteurs, contenus dans **REDUCED_RESOLUTION_DATA**) nécessaires pour ce calcul. En plus de ces opérateurs, on a aussi accès à ceux de la résolution **REDUCED_SOLVER_DATASET**, et bien entendu à la solution réduite.
+
+Les **REDUCED_POSTPROCESSING_DATASET** sont produits en même temps que le modèle réduit et sont conçus pour fonctionner à la suite d'une certaine méthode de résolution réduite. Ces objets sont donc contenus dans **REDUCED_SOLVER_DATASET**, comme des post-traitements possibles de cette résolution.
+
+.. todo::
+
+    Reporter tout ça dans le modèle de données plutôt qu'un usage des **STANDARD_FUNCTION_IMPLEMENTATION** réservées aux fonctions fournies par un utilisateur. S'il n'y a aucune partie de l'indicateur d'erreur qui ont été précodées, et donc que l'usage d'une **STANDARD_FUNCTION_IMPLEMENTATION** serait le plus direct, on peut facilement déduire ce cas avec un *dataset* vide qui appelle la fonction. 
+
+.. todo::
+    
+    Faut-il envisager des sous-types (energy conservation, mass conservation, stability of time scheme...) ?
+
+A.10 - Couplage spatial entre un modèle réduit et un modèle haute fidélité
+--------------------------------------------------------------------------
+
+Dans ce cas, on couple dans la résolution un modèle haute-fidélité pour couvrir une zone d'intérêt et un modéle réduit pour la majeure partie du système. C'est le cas par exemple quand on fait des modèles réduits en mécanique des fluides avec une géométrie variable uniquement sur une petite partie du domaine.
+
+A première vue, cela implique de faire communiquer un **CASE_DATA** avec un **CAS_REDUIT_A_RESOUDRE** ?
+
+Les méthodes peuvent différer sur la façon de faire ce couplage. On note en général:
+
+   * nécessité de faire un calcul HF en donnant comme conditions limite un field sur un domaine plus grand (et discrétisé plus grossièrement, souvent)
+
+   * reconstruire par Gappy POD les coefficients à partir de valeurs dans un zoom -> couvert par le use case A.04
+
+   * construire des solutions hybrides en prenant un champ calculé sur un sous-domaine et un champ reconstruit ailleurs
+
+   * projection de Galerkin pour partie avec des modes et pour partie avec des vraies fonctions éléments finis ou volumes finis.
+
+On est dans le même cas que la méthode NIRB, où on a besoin de calculer des solutions HF sur un autre domaine, ou une autre discrétisation du domaine. Cet appel ne peut pas être entièrement boîte noire, car il faut avoir certaines informations pour effectuer les traitements sur cette solution. Il faut avoir le sous-domaine de calcul, et savoir faire des produits scalaires avec les modes (pour la Gappy POD). Cela prend la forme d'un **SOLVER_DATASET** contenu dans les **REDUCED_RESOLUTION_DATA**, contenant comme *resolution_data* un **REDUCED_DOMAIN**. Pour corser le tout, celui peut être donné comme paramètre d'entrée du modèle réduit (exemple avec géométrie variable).
+
+.. todo::
+
+   Demander un exemple à CT, ils en avaient un
+
+
+A.11 - Calculer des quantités physiques d'intérêt macroscopiques, par post-traitement (par ex durée de vie)
+-----------------------------------------------------------------------------------------------------------
+
+Note: il faut exhiber les formes linéaires x les vecteurs de la base pour exhiber les quantités intégrales linéaires qui vont servir pour le calcul des quantités. Une fois qu'on les a, on applique une **STANDARD_FUNCTION_IMPLEMENTATION**, afin que **QUANTITY_OF_INTEREST_STRUCTURE** ne référence plus **RESTRICTION_FIELD_STRUCTURE** directement. 
+
+.. todo::
+
+    Il faut ajouter des objets **QUANTITY_OF_INTEREST_COMPUTATION** et **REDUCED_QUANTITY_OF_INTEREST_COMPUTATION** dans le modèle de données.
+
+
+A.12 - Optimiser le placement des capteurs dans un système
+----------------------------------------------------------
+
+Très souvent, on part d'un ensemble discret (mais de grandes taille) de positions possibles pour les capteurs.
+
+On peut distinguer deux cas:
+
+   * celui où on dispose effectivement de signaux expérimentaux ou de synthèse pour tous ces capteurs
+
+   * celui où on ne dispose pas de tels signaux.
+
+On boucle sur les signaux en ajoutant incrémentalement le signal le moins bien approximé. Je ne connais pas d'exemple dans le premier cas. Dans le second, cela se fait à l'aide du supremizer de la constante inf-sup pour la méthode PBDW (cf thèse Amina Benaceur) et l'approximation des snapshots par la base réduite en cours de construction pour GEIM.
+
+On a donc besoin:
+
+   * de la **BASE_ORDRE_REDUIT**
+
+   * du **RESTRICTION_FIELD_STRUCTURE** représentant la localisation pour chaque capteur,
+
+   * d'un **QUALITY_INDICATOR** de type "approximation of signal" avec une **STANDARD_FUNCTION_IMPLEMENTATION** qui connait ces deux premiers éléments.
+
+
+A.13 - Evaluer le modèle réduit en un point (cas d'usage de plus bas niveau)
+----------------------------------------------------------------------------
+
+Traité en A.01
+
+A.14 - Calculer un indicateur de qualité a posteriori pour un appel de modèle reduit
+------------------------------------------------------------------------------------
+
+L'usage des données est identique à A.09: On définit un **QUALITY_INDICATOR** de type "a posteriori" qui va appeler un **REDUCED_POSTPROCESSING_DATASET**. L'indicateur peut nécessiter la solution duale, la solution primale ou les deux. Dans certains cas, une procédure *offline* a permis d'évaluer ces indicateurs de façon rapide, qui sont données sous forme de **REDUCED_RESOLUTION_DATA**.
+
+B - Utilisateur connaissant le modèle complet
+=============================================
+
+B.01 - Création d'un modèle réduit avec garantie de fiabilité sur un domaine paramétrique donné
+-----------------------------------------------------------------------------------------------
+
+Les use case de création d'un modèle réduit suivent le processus suivant:
+
+    1. l'utilisateur fournit les information pour caractériser le problème et sa variabilité;
+
+    2. l'utilisateur récupère ou fait calculer par le solveur haute-fidélité les opérateurs HF qui sont des données d'entrée pour la phase d'apprentissage;
+
+    3. l'utilisateur récolte et caractérise les résultats haute-fidélité depuis des fichiers résultats;
+
+    4. l'utilisateur lance la phase d'apprentissage (phase offline), en spécifiant *certaines options*;
+
+    5. le système effectue la phase d'aprentissage et produit les objets constituant le modèle réduit **CAS_REDUIT_A_RESOUDRE**.
+
+Dans ce use case, on ne spécifie pas explicitement une méthode d'apprentissage pour la phase 4. On donne en revanche un **QUALITY_INDICATOR**. Néanmoins, concrètement toutes les méthodes de réduction ne sont pas applicables à tous les problèmes (beaucoup sont spécifiques à un problème particulier, comme les méthodes de projection de Galerkin par exemple). Il faut donc que l'utilisateur fournisse, pour son type de problème:
+
+    * les méthodes de réduction **COMPRESSION_OF_DATA** et **COMPRESSION_OF_OPERATORS** qui sont applicables en 4;
+
+    * une procédure de réduction "maître" (**REDUCTION_PROCEDURE**) qui dira comment effectuer les étapes 3-4 afin d'arriver à l'objectif fixé sur l'indicateur de qualité. Ces étapes 3-4 sont parfois effectuées à l'intérieur d'une boucle, c'est-à-dire en traitant l'aprentissage d'un résultat haute-fidélité à la fois, avant de calculer le prochain. Dans ce cas, la procédure de réduction "maître" s'occupe aussi de l'échantillonage des calculs HF.
+
+On a déjà un premier problème à ce stade: l'utilisateur B n'est pas sensé avoir les compétences pour dire quelles sont les méthodes applicables pour son problème, en tout cas pas sans l'aide de l'utilisateur C. Il faudrait pour cela ajouter dans l'objet **REDUCTION_PROCEDURE** les méthodes de réduction des données et des opérateurs qui sont applicables, information qui serait à renseigner par l'utilisateur C quand il écrit la **REDUCTION_PROCEDURE**.
+
+.. todo::
+
+   Ajouter dans l'objet **REDUCTION_PROCEDURE** les méthodes de réduction des données et des opérateurs qui sont applicables
+
+On peut imaginer que le système lance plusieurs méthodes de réduction en même temps (ce qui est coûteux), et s'arrête dès qu'il y en a une qui atteint la précision demandée. Pour éviter le coût, on peut lancer une première phase d'essai avec une précision très lâche uniquement afin de sélectionner la meilleure méthode.
+
+*Caractérisation du problème et de sa variabilité*
+
+Cette phase est déclarative: l'utilisateur créé l'objet racine *CASE_DATA* avec sa documentation et une référence (voir use case A.08). Il caractérise les sorties attendues du problème (les résultats) en remplissant des objets **OUTPUT_DESCRIPTION**. Il dit également quels sont les paramètres du problème: ils peuvent être réels - par abus de langage on parlera de "cas paramétrique" - ou non. On les renseigne via **VARIABLE_PARAMETER**, et la quantité physique associée **PHYSICAL_QUANTITY**, mis à part l'attribut *available_components* qui est sans objet dans ce cas.
+
+Dans le cas paramétrique, on donne le domaine paramétrique **SUPPORT_INDEXATION** via des bornes sur chaque valeur, ou la référence d'une fonction prenant les paramètres en argument et retournant un booléen d'appartenance au domaine de définition. Plus tard, en 3, on renseignera dans ce domaine paramétrique les points où une solution HF doit être disponible (le *design of experiment* et les points où une solution HF est susceptible d'être calculée (le *training set*).
+
+On définit aussi des maillages **DISCRETE_SUPPORT** de référence pour la discrétisation spatiale et temporelle. Ils serviront pour la compression des donées.
+
+Le contenu détaillé des objets n'est pas rappelé ici car il est décrit dans le datamodel.
+
+.. note::
+
+    On notera que l'**OUTPUT_DESCRIPTION** contient un objet **RESTRICTION_FIELD_STRUCTURE**, ou équivalent pour les sorties qui ne sont pas de type field, qui donnent la structure fixe attendue pour les résultats. En effet, pour pouvoir compresser les résultats, il faut qu'ils aient tous la même structure. Celle-ci dit à quelle *entité du maillage* et à quelle *composante de la grandeur* se rapporte chaque valeur dans le champ. Cependant, donner cette structure avant d'avoir lu le moindre résultat peut être compliqué en pratique, c'est pourquoi on laisse également la possibilité de ne la remplir qu'à la lecture du premier résultat (étape 2).
+
+*Récupération ou calcul des opérateurs HF*
+
+La procédure à utiliser pour produire ces opérateurs est contenue dans un objet **PREPROCESSING_DATASET**, lequel référence le solveur à utiliser (**SOLVING_PROCEDURE**). En revanche, les liens de cet objet **SOLVER_DATASET** sont différents du cas **REDUCED_POSTPROCESSING_DATASET**. En effet, cet objet **PREPROCESSING_DATASET** n'est pas relié au **SOLVER_DATASET**, car on put vouloir calculer des opérateurs (matrice d'un produit scalaire sur un certain maillage par exemple) indépendamment d'un cas de calcul explicite avec le solveur. En outre, dans certains cas, on n'a pas accès au solveur dataset: imaginons par exemple un cas dont on récupère les résultats sans avoit les fichiers qui les ont générés. Si on a le maillage, on peut toujours calculer la matrice du produit scalaire par un autre outil externe.
+
+Un objet **PREPROCESSING_DATASET** produit les **RESOLUTION_DATA_OBJECT** spécifique à une méthode de réduction **REDUCTION_PROCEDURE** pour un certain cas **CASE_DATA**.
+
+Un **PREPROCESSING_DATASET** à une **REDUCTION_PROCEDURE**, et par cet intermédiaire à un **CASE_DATA**. Plusieurs méthodes pouvant être utilisées sur un **CASE_DATA** (l'objet **CASE_DATA** est agnostique de la méthode d'aprentissage qui sera utilisée, il se contente de décrire le problème et sa variabilité), le lien à cet objet à lui seul ne suffit pas.
+
+.. todo:: 
+
+    Dans le modèle de données, mettre le lien HD_resolution_data à **REDUCTION_PROCEDURE** au lieu de **COMPRESSION_OF_OPERATORS** (exemple matrice d'un produit scalaire)
+
+Une méthodologie de réduction est prévue pour fonctionner pour une classe de problèmes (exemple "thermique linéaire instationnaire depuis calculs Code_Aster"), avec des modification mineures en fonction du cas étudié dans cette classe (exemple "clapet A"): seul des noms de groupes d'éléments du maillage ou certaines options de calcul changeront. On a donc intérêt à mettre en place une structure de *template* d'une procédure de réduction pour une *classe de problème*.
+
+Concrètement, **REDUCTION_PROCEDURE** peut avoir été créé en remplissant un **REDUCTION_PROCEDURE_TEMPLATE**, lequel s'applique à une **CLASS_OF_PROBLEMS**.
+
+Sur un schéma identique, un **PREPROCESSING_DATASET** peut avoir été créé depuis un **PREPROCESSING_DATASET_TEMPLATE** qui s'applique à une classe de problèmes, et laisse vide certaines caractéristiques dépendantes du cas.
+
+.. todo::
+
+   A reporter dans le modèle de données
+
+Dans ce use case, l'utilisateur B va donc adapter un **PREPROCESSING_DATASET_TEMPLATE** (qui aura été écrit par l'utilisateur C), et lancer le calcul des **RESOLUTION_DATA_OBJECT** qui seront nécessaires pour la procédure d'apprentissage.
+
+*Récolte des résultats haute-fidélité*
+
+En dépendance de la procédure de réduction, l'utilisateur peut disposer des résultats haute-fidélité au début ou les faire calculer par le solveur (cas ...).
+
+Typiquement, l'utilisateur aura une arborescence avec un dossier pour chaque configuration (valeur de paramètre) comme en :numref:`reading_results_folder`.
+
+.. _reading_results_folder:
+.. figure:: images/reading_results_folder.png
+
+    Typical folder structure with input HF results, mesh and other operators
+
+Pour chaque résultat, l'utilisateur va appeler un *reader* qui va transformer le résultats sur disque (au format du solveur qui l'a produit), en une **INDEXED_SOLUTION**. L'utilisateur fournit pour chaque configuration la valeur de paramètre, que le système va transformer en objet **INDEXATION** dont il se servira pour accèder aux différentes *solutions*. L'utilisateur fournit également le type de résultat qui est attendu pour chaque lecture, parmi **QUANTITY_OF_INTEREST**, **VECTOR_OF_UNKNOWN**, **FIELD**.
+
+Il y a en effet des méthodes de réduction adaptées à chacun des 3: le plus courant est sans doute **FIELD** (POD...), mais on peut faire par exemple de la reconstruction de fonction de transfert à partir de **QUANTITY_OF_INTEREST** (méthode de Loewner...) ou des POD par composantes à partir d'un **VECTOR_OF_UNKNOWN**.
+
+Pour que la compression de données puisse marcher - et c'est une exigence commune à toutes les méthodes à ma connaissance - il faut que tous les résultats du même type aient la même *structure*. Si celle-ci n'a pas été déduite lors de la phase 1 (voir note plus haut), elle est déduite de la première lecture de résultat via le *reader* et vérifiée pour les lectures suivantes ensuite.
+
+*Options de la phase d'apprentissage*
+
+Pour ce use case, l'utilisateur va partir d'un *template* d'une **REDUCTION_PROCEDURE** compatible avec sa classe de problème **CLASS_OF_PROBLEMS**. Il adapte ce template, en se faisant aider si besoin par l'utilisateur C, les modifications étant en général mineures (sinon, il s'agit d'une nouvelle classe de problèmes).
+
+La **REDUCTION_PROCEDURE** fait appel à des méthodes de compression des données et des méthodes de compression des opérateurs **COMPRESSION_OF_DATA** et **COMPRESSION_OF_OPERATORS**, avec certaines options (tolérances etc.). Dans ce use case, l'utilisateur souhaite en tester plusieurs, il va donc pour chaque test dire quelle méthodes **COMPRESSION_OF_DATA** et **COMPRESSION_OF_OPERATORS** il souhaite utiliser, parmi celles que le template autorise, et avec quelles options.
+
+L'utilisateur B donne enfin la précision désirée sur la réduction, ainsi que le **QUALITY_INDICATOR** (parmi ceux qui se réfèrent à la **REDUCTION_PROCEDURE**) qui sera utilisé pour l'évaluer. Il faut que la procédure de réduction se base sur ces évaluations pour enrichir l'approximation (par exemple méthodes de bases réduites).
+
+.. todo::
+
+   Ajouter à l'objet **REDUCTION_PROCEDURE**:
+
+      - la précision désirée sur la réduction
+
+      - les méthodes **COMPRESSION_OF_DATA** et **COMPRESSION_OF_OPERATORS** supportées.
+
+*Exécution de la phase d'apprentissage*
+
+On peut distinguer les méthodes "en bloc" des méthodes incrémentales.
+
+La **REDUCTION_PROCEDURE** va typiquement appliquer une première phase de compression des données **COMPRESSION_OF_DATA**. Elle va prendre en entrée le dictionnaire des solutions HF **COLLECTION_SOLUTIONS_CAS**. Elle va ensuite déterminer un espace vectoriel de dimension réduite (ou une variété de dimnension réduite, pour les méthodes non linéaires), matérialisé par une **BASE_ORDRE_REDUIT**, telle que la distance des solution à cet espace soit faible.
+
+Dans un deuxième temps, une méthode **COMPRESSION_OF_OPERATORS** va produire des opérateurs de résolution approchée de complexité moindre, en prenant en entrée des **RESOLUTION_DATA_OBJECT** obtenus à l'étape 1 ainsi que la **BASE_ORDRE_REDUIT**, afin de produire des **REDUCED_RESOLUTION_DATA**.
+
+Enfin, l'objet résultat final **CAS_REDUIT_A_RESOUDRE** est "assemblé" à partir:
+
+   * d'un **REDUCED_SOLVER_DATASET** qui sera copié depuis la **REDUCTION_PROCEDURE**, éventuellement adapté également à partir d'un *template* comme cette dernière;
+
+   * de la **BASE_ORDRE_REDUIT**
+
+   * du **CASE_DATA** afin d'avoir les informations pour qualifier le problème et sa variabilité
+
+   * des **REDUCED_RESOLUTION_DATA**.
+
+.. todo::
+
+    Montrer dans le modèle de données que **REDUCED_SOLVER_DATASET** est contenu dans la **REDUCTION_PROCEDURE**. 
+
+Pour être plus exhaustif sur les différents algorithmes possibles et leur usage des données, on pourra se référer au tableau dédié. 
+
+B.02 - Comparer un modèle réduit romA avec un modèle haute-fidélité A
+---------------------------------------------------------------------
+
+L'utilisateur B va commencer à reconstruire la solution en utilisant le use case A.04, ce qui va transformer la **SOLUTION_REDUITE_CAS** en **INDEXED_SOLUTION** :math:`u_r`.
+
+Puis le système va comparer deux **INDEXED_SOLUTION** (une *reconstructed* et une *high-fidelity*) à l'aide d'une méthode **COMPARISON_OF_FIELDS** qui a accès à **COLLECTION_SOLUTION_CAS** et peut donc:
+
+    * accéder aux solutions disponibles par valeurs de paramètres. Pour être sûr de comparer des solutions à valeur de paramètre égale, il faut que les solutions *reconstructed* soit indexées comme les solutions *high-fidelity*, et par conséquent, il faut en amont que les **SOLUTION_REDUITE_CAS** aient été indexées de cette façon: c'est une exigence sur le use case A.04.
+
+    * disposer d'une *scalar_product_matrix* :math:`K`
+
+Ceci va produire un **QUALITY_INDICATOR** de type *a priori error*. Cet indicateur calcule :math:`\dfrac{\| u_r - u \|}{\| u \|}` avec :math:`\| u \| = u^T K u`.
+
+.. todo::
+
+   Ajouter cet accés des solutions réduites par valeur de paramètre dans le modèle de données
+
+B.03 - Comparer un modèle réduit romA avec un modèle haute fidélité B
+---------------------------------------------------------------------
+
+Plusieurs cas de figure:
+
+   * soit les résultats des modèles haute-fidélité A et B ont la même structure, et on peut alors appliquer tel quel B.02
+
+   * soit pas, et on va alors comparer des **QUANTITY_OF_INTEREST** de A et B dont l'utilisateur estime qu'elles doivent être semblables entre les deux modèles.
+
+Pour créer la **QUANTITY_OF_INTEREST** issue de A, on fait appel au use case A.11. On fait ensuite appel à une méthode **COMPARISON_OF_SIGNALS** qui compare deux **QUANTITY_OF_INTEREST** (réduites ou non) et produit un indicateur scalaire **QUALITY_INDICATOR**, qui sera de type *validation with other computation* pour ce use case.
+
+B.04 - Comparer un modèle réduit romA avec des expériences (validation)
+-----------------------------------------------------------------------
+
+Idem que B.03, l'indicateur produit est de type *validation with experimental data*.
+
+B.05 - Faire interagir un modèle réduit et des opérations de Data Science, typiquement pour obtenir un estimateur d'état
+------------------------------------------------------------------------------------------------------------------------
+
+Dans ce use case, on souhaite utiliser un modèle réduit avec des méthodes d'assimilation de donées. L'ojectif est d'obtenir un estimateur d'état sur la base:
+
+   * des méthodes PBDW ou GEIM;
+
+   * de méthodes variationnelles (3D-Var, 4D-Var) ou de contrôle optimal.
+
+Commençons par le premier cas, on suppose que la sélection de la base réduite et des capteurs est réalisée par le use case A.12, qui peut être vu comme la "phase offline" de la méthode. Reste donc la phase online à effectuer.
+
+Pour cela, il faut donc une **BASE_ORDRE_REDUIT** et des **QUANTITY_OF_INTEREST_STRUCTURE** afin d'avoir la forme linéaire permettant de reconstruire les signaux à partir des champs. Typiquement, la phase online consiste à résoudre un petit système linéaire (taille de la base réduite + nombre de mesures). La phase *offline* peut avoir pré-calculé certains opérateurs en tant que **REDUCED_RESOLUTION_DATA**, par exemple la matrice de ce système et sa factorisation.
+
+Dans le second cas, on résoud un problème qui couple les opérateurs du modèle réduit (dont les opérateurs sont en général supposés linéaires à paramètre donné), les mesures et les formes linéaires qui localisent les mesures. Donc on a une procédure qui couple **REDUCED_RESOLUTION_DATA**, **QUANTITY_OF_INTEREST** et **QUANTITY_OF_INTEREST_STRUCTURE**.
+
+Dans ce seond cas, la phase *offline* doit donc également être traitée par ce use case. On peut imaginer qu'on part d'une **REDUCTION_PROCEDURE** existante, et on y ajoute des opérateurs mixte modèle données et une nouvelle procédure de réduction online.
+
+.. todo::
+
+   Concrètement, compression of operators doit donc pouvoir accèder aux **QUANTITY_OF_INTEREST_STRUCTURE** qui définissent le lien (forme linéaire) entre champs et mesures.
+
+B.06 - Utilisation in-situ pour accélérer la convergence du solveur non-linéaire HF
+-----------------------------------------------------------------------------------
+
+Ce cas test est très intrusif (codage dans le solveur en question) et potentiellement impactant. Il n'est pas inclus dans le modèle du domaine actuellement.
+
+B.07 - Création d'un modèle réduit pour un nouveau cas métier à partir d'un template existant de méthodologie de réduction
+--------------------------------------------------------------------------------------------------------------------------
+
+Identique à B.01 sauf qu'on donne explicitement les méthodes **COMPRESSION_OF_DATA** et **COMPRESSION_OF_OPERATORS** à utiliser au lieu de les tester parmi celles disponibles (c'est donc plus simple).
+
+B.08 - Utilisation d'un modèle réduit dans une boucle d'optimisation ou d'incertitude
+-------------------------------------------------------------------------------------
+
+Ce cas appelle A.13, il s'agit d'appeler un modèle réduit à la place d'un modèle complet pour le traitement d'incertitude ou d'optimisation. Il faut que le code d'optimisation ou d'incertitude puisse évaluer le modèle réduit comme s'il s'agissait du modèle complet.
+
+Difficile d'en tirer des conclusions génériques sur un format d'export du modèle réduit tant les codes d'optimisation ou de traitement d'incertitudes sont variés, et tant les façons d'appeler le comdèle complet sont variées.
+
+C - Utilisateur sachant établir un modèle réduit
+================================================
+
+C.01 - Création d'un modèle réduit en choisissant la méthode, pour un problème à variabilité paramétrique
+---------------------------------------------------------------------------------------------------------
+
+On rappelle les 5 étapes de la création d'un modèle réduit de B.01:
+
+    1. l'utilisateur fournit les information pour caractériser le problème et sa variabilité;
+
+    2. l'utilisateur récupère ou fait calculer par le solveur haute-fidélité les opérateurs HF qui sont des données d'entrée pour la phase d'apprentissage;
+
+    3. l'utilisateur récolte et caractérise les résultats haute-fidélité depuis des fichiers résultats;
+
+    4. l'utilisateur *écrit* la phase d'apprentissage (phase offline);
+
+    5. le système effectue la phase d'aprentissage et produit les objets constituant le modèle réduit **CAS_REDUIT_A_RESOUDRE**.
+
+La seule différence avec B.01 est l'étape 4: cette fois-ci, plutôt que d'adapter à la marge un template, l'utilisateur C écrit sa phase d'apprentissage, éventuellement en réutilisant à certaines étapes des méthodes de **COMPRESSION_OF_DATA** et **COMPRESSION_OF_OPERATORS** existantes par ailleurs dans la bibliothèque ou ses modules.
+
+*Cas où l'utilisateur C souhaite enregistrer son code comme template*
+
+    * on doit qualifier les informations qui seront à compléter par B.07 (leur type et leur rôle)
+
+    * on doit enregistrer le template. Dans un premier temps en vue de la prochaine sortie de version de Mordicus, au moins dans la sortie de version pour un partenaire en question, avec son environnement logiciel propre. Dans un second temps dans une base de données commune à tous ?
+
+*Notes:*
+
+    * à propos de l'écriture d'un reader pour 2 et 3: l'utilisateur se conforme à une API avec des entrées et des sorties obligées (ms il peut en rajouter)
+
+    * les phases 2 - 5 peuvent faire appels à des outils externes **EXTERNAL_SOLVING_PROCEDURE** qui viennent avec leur environnement logiciel, et peuvent être propriétaires ou non (exemple ZSet, Medcoupling...). La procédure "d'enregistrement" d'une **EXTERNAL_SOLVING_PROCEDURE** doit ensuite permettre de construire Mordicus avec les dépendances correspondantes, de sorte que chaque partenaire du projet puisse ensuite construire Mordicus de façon différenciée selon les **EXTERNAL_SOLVING_PROCEDURE** qui ont été enregistrées.
+
+C.02 - Création d'un modèle réduit en choisissant la méthode, pour un problème à variabilité non paramétrique
+-------------------------------------------------------------------------------------------------------------
+
+L'utilisateur renseigne un **VARIABLE_PARAMETER** avec un type qui n'est pas *float* mais peut être n'importe quel **RESOLUTION_DATA_OBJECT**. Il n'y a alors pas de *design of experiments*, directement un **PARAMETER_VALUE** qui met en lien la valeur avec une *string* unique pour l'identifier.
+
+.. todo::
+
+   Ajouter tout ça dans le modèle de données, qui jusqu'alors était écrit pour le cas paramétrique uniquement
+
+C.03 - Création d'un modèle réduit en choisissant la méthode, pour un problème à variablité mixte paramétrique / non paramétrique
+---------------------------------------------------------------------------------------------------------------------------------
+
+Combinaison naturelle de C.01 et C.02, le *support d'indexation* ne s'applique qu'aux paramètres réels.
+
+C.04 - Création d'un modèle réduit à partir de mesures ou de signaux I/O d'un modèle inconnu
+--------------------------------------------------------------------------------------------
+
+Dans ce cas, il n'y a pas de solveur ni de **RESOLUTION_DATA_OBJECT**, la méthode **COMPRESSION_OF_OPERATORS** (on devrait plutôt dire *construction of operators* dans ce cas) repose uniquement sur des **INDEXED_SOLUTIONS**.
+
+C.05 - Faire calculer une nouvelle simulation HF par le solveur "à la volée" pour une procédure de réduction qui le demande (bas niveau)
+----------------------------------------------------------------------------------------------------------------------------------------
+
+C'est le cas notamment de toutes les méthodes où l'échantillonage se fait de façon incrémentale. On doit faire calculer par **REDUCTION_PROCEDURE** de nouvelles **INDEXED_SOLUTION**. On utilise pour cela le lien de **REDUCTION_PROCEDURE** à **CASE_DATA**.
+
+Pour ça, on doit avoir "déclaré" au registre de Mordicus le solveur externe. On peut noter deux types de déclaration, selon qu'on envisage d'utiliser ou non le solveur sur la durée:
+
+   * enregistrement uniquement pour la durée de la session Mordicus (peut-on dire *enregistrement dynamique*?),
+
+   * enregistrement durable pour construire Mordicus en lien avec le solveur (*enregistrement statique*). Le solveur sera alors disponible à la prochaine sortie version de Mordicus *du partenaire* (avec ses modules et dépendances). Au passage, cela signifie qu'il faut pouvoir avoir une procédure de construction différenciée pour chaque partenaire.
+
+Cette déclaration prend la forme d'un objet **EXTERNAL_SOLVING_PROCEDURE** léger qui contient des informations pour savoir comment appeler le solveur pour :
+
+   * cette session en particulier dans le *cas dynamique*;
+
+   * cette installation de Mordicus en particulier dans le *cas statique*.
+
+Ces informations sont typiquement: des variables d'environnement, un chemin d'installation, un script de lancement...
+
+L'appel au solveur est fait via une API imposée, afin de pouvoir changer de solveur sans changer le code de la **REDUCTION_PROCEDURE**. Il faut donc adapter:
+
+   * les entrées: **INDEXATION**, **SOLVER_DATASET**
+
+   * les sorties: **INDEXED_SOLUTIONS**
+
+On va donc trouver dans les méthodes de **EXTERNAL_SOLVING_PROCEDURE** des *adaptateurs*, à écrire par l'utilisateur C qui déclare ce solveur:
+
+   * permettant l'appel au solveur avec les données de **SOLVER_DATASET** et **INDEXATION**, et les informations de **EXTERNAL_SOLVING_PROCEDURE**
+
+   * permattant la conversion des résultats du format du solveur en **INDEXED_SOLUTION** de Mordicus.
+
+C.06 - Modifier un modèle réduit pour (i) intégrer de nouvelles informations ou (ii) appliquer un niveau de réduction supplémentaire
+------------------------------------------------------------------------------------------------------------------------------------
+
+Comme nous l'avons déjà dit, une procédure de réduction se compose souvent d'une première phase de compression des données et une seconde phase de compression des opérateurs. Parfois, on peut déjà obtenir un modèle réduit à partir de la phase de compression des données et d'une compression des opérateurs très sommaire (et pas efficace). La réduction se fait donc en deux temps, en appliquant un second niveau de réduction à un **CAS_REDUIT_A_RESOUDRE** déjà existant.
+
+.. todo::
+
+   Ajouter dans le modèle de données que **COMPRESSION_OF_OPERATORS** peut travailler sur un **CAS_REDUIT_A_RESOUDRE**
+
+Par ailleurs, il arrive qu'on veuille améliorer l'approximation d'un **CAS_REDUIT_A_RESOUDRE** en incluant de nouvelles données haute-fidélité (qu'on vient de recevoir, par exemple).
+
+Dans ce cas, la méthode **COMPRESSION_OF_DATA** vient enrichir en place la **BASE_ORDRE_REDUIT**, puis la méthode **COMPRESSION_OF_OPERATORS** vient enrichir en place les **REDUCED_RESOLUTION_DATA**. C'est ce qui est fait pour chaque **INDEXED_SOLUTION** par les algorithmes incrémentaux.
+
+L'intérêt de procéder de la sorte (construire **CAS_REDUIT_A_RESOUDRE** incrémentalement par des modifications en place, et non à la fin) est que si une itération échoue, on dispose toujours du modèle réduit construit jusqu'alors.
+
+C.07 - Permettre le calcul multi-échelles ou multi-physiques de systèmes représentés par des modèles réduits
+------------------------------------------------------------------------------------------------------------
+
+On peut distinguer deux cas de figure:
+
+    * on dispose de cette même physique multi-représentée avec des modèles complet, et un couplage logiciel fonctionnel,
+
+    * on n'en dispose pas.
+
+Dans le premier cas, l'utilisateur cherchera sans doute à conserver le chaînage logiciel existant et à remplacer les appels aux solveurs complets par des appels à Mordicus. Compte-tenu des nombreuses façon possibles d'appeler un solveur, c'est hors cadre de Mordicus (comme B.08).
+
+En ce qui concerne le second cas, concrètement, un **CAS_REDUIT_A_RESOUDRE** contient alors plusieurs **REDUCED_SOLVER_DATASET**. A propos de l'impact sur le modèle de données, tout dépend de ce qui est transmis dans ce chaînage: **VECTOR_OF_UNKNOWNS** (par exemple un chargement), **MATRIX**, **FIELD** (températures en entrée d'un calcul mécanique)..., qui sont à un format réduit (sinon on retombe sur le premier cas).
+
+Le problème est alors la cohérence sémantique des données qui sont transférées, exemple:
+
+   * **FIELD** du modèle 1 qui a une base dans le modèle 2 ms qui vivent sur des maillages différents ou dans des bases différentes (IFS). Il faut arriver à les projecter d'une base à une autre, et pour cela repasser faire des projections de champs via les **APPROXIMATION_SPACE** des maillages complets est le plus sûr. Pour cela, on doit déclarer à l'utilitaire qui fait les projections de champs (par exemple Medcoupling) les caractéristiques des **APPROXIMATION_SPACE** (élément de référence, coordonnées de références des points des Gauss, poids de référence des points de Gauss) des modèles complets. Si la localisation des champs à tranférer est toujours la même, cela peut être fait en offline, on peut assimiler ça à une **COMPRESSION_OF_OPERATORS**.
+
+   * **FIELD** du modèle 1 qui n'a pas de base dans le modèle 2 (température donnée en entrée d'un calcul mécanique). En général, il suffit de transférer ce champ sur le sous-maillage (points de quadrature empirique, de l'EIM...) utile à la résolution offline. Si la localisation ne change pas, c'est un opérateur linéaire, et ça peut être fait en *offline* (avec les mêmes informations que le cas précédent).
+
+C.08 - Affichage ergonomique des informations contenues dans le modèle réduit (bases etc)
+-----------------------------------------------------------------------------------------
+
+Visualisation des **REDUCED_RESOLUTION_DATA** (base réduite y compris) pour débugger. Chaque partenaire est libre de l'implémenter dans son viewer sur la base d'une API commune, laquelle dépendra forcément de la sérialisation de A.07.
+
+C.09 - Construire un modèle réduit 3 en combinant deux modèles réduits 1 et 2 du même système
+---------------------------------------------------------------------------------------------
+
+*Voir par exemple le cas versé par Safran dans la maquette*
+
+Dans ce cas d'usage, pour un seul **CAS_REDUIT_A_RESOUDRE** et un seul **REDUCED_SOLVER_DATASET**, on a plusieurs **BASE_ORDRE_REDUIT** et même plus largement plusieurs **REDUCED_RESOLUTION_DATA** que l'on sélectionne en fonction de la région du domaine paramétrique dans laquelle on se trouve.
+
+La sélection se fait sur la base d'une **FUNCTION_OF_PARAMETERS** (avec éventuellement le temps comme argument supplémentaire).
+
+Cette structure peut être construite comme telle à la base (prévu dans l'algorithme de la **REDUCTION_PROCEDURE**), ou construit à partir de deux **CAS_REDUIT_A_RESOUDRE** se basant sur un même **CASE_DATA**. Il faut dans ce cas que les **CAS_REDUIT_A_RESOUDRE** originaux contiennent chacun un **SUPPORT_INDEXATION** indiquant leur domaine de validité, lequel peut être produit dynamiquement par des algorithmes de classification. Le **CAS_REDUIT_A_RESOUDRE** sera obtenu en fusionnant les deux domaines.
+
+Il faut ajouter dans le **REDUCED_SOLVER_DATASET** des **REDUCED_RESOLUTION_DATA** particulier permettant de faire le passage de la solution réduite d'une représentation (une **BASE_ORDRE_REDUIT**) à une autre quand on change de région en cours de calcul online.
+
+.. todo::
+
+   Ajouter ce qui précède dans le modèle de données
+
+C.10 - Évaluer l'intérêt de la démarche "Offline+Modèle réduit" par rapport à l'utilisation directe du modèle haute fidélité
+----------------------------------------------------------------------------------------------------------------------------
+
+Ce cas d'usage se présente quand on anticipe un petit nombre d'évaluations du modèle réduit. On doit pouvoir mesurer le temps CPU d'un appel du modèle complet et le temps CPU de l'appel à la **REDUCTION_PROCEDURE** (phase offline) + appel au modèle réduit. Peut se faire dans le noyau de Mordicus, pas vraiment d'impact sur le modèle de données.
+
+C.11 - Construire un modèle réduit lorsque le maillage (voire la géométrie) change entre les différents snapshots
+-----------------------------------------------------------------------------------------------------------------
+
+Différent de A.10 dans le sens où on veut compresser des *solutions* qui ne vivent pas sur le même maillage. Pour cela, il faut que l'utilisateur applique un opérateur de *morphing* pour ramener tous les snapshots sur le même maillage de référence (*reference_support*).
+
+Ce morphing est a priori hors du modèle de données de Mordicus. Néanmoins, il peut entrer dans la composition de la **REDUCTION_PROCEDURE**. Il est alors implémenté comme une **STANDARD_FUNCTION_IMPLEMENTATION** par l'utilisateur C développeur.
+
+C.12 - Utilisation d'itérés de calcul comme snapshots pour effectuer la réduction
+---------------------------------------------------------------------------------
+
+Dans ce use case, c'est le code de calcul qui appelle les API de Mordicus et non l'inverse.
+
+Ce les choix technologiques, cela plaide pour une implémentation du noyau en C++. En ce qui concerne le modèle de données, on ne peut pas prévoir la faisabilité de l'appel depuis n'importe quel code de calcul (il y en a énormément, et on ne maîtrise par leur structure), il faut uniquement prévoir des **INDEXED_SOLUTION** qui se sont pas indexées par les valeurs de paramètre ms uniquement par un numéro d'ordre *ordinal_number*.
+
+C.13 - Création d'un modèle réduit à partir d'un DoE déjà disponible (et sans possibilité de faire de nouveaux calculs HF)
+--------------------------------------------------------------------------------------------------------------------------
+
+Ce use case est prévu par le modèle de données: le **CASE_DATA** n'a pas de **SOLVER_DATASET**. On ne peut pas calculer de **RESOLUTION_DATA_OBJECT** nécessitant un appel au code de calcul, donc ceux que la méthode de réduction demande doivent pouvoir être déduit du seul **DISCRETE_SUPPORT**.
+
+C.14 - Développer / brancher dans Mordicus une nouvelle méthodologie de réduction de modèles ou une variante d'une méthode existante
+------------------------------------------------------------------------------------------------------------------------------------
+
+L'utilisateur C développeur doit implémenter une **REDUCTION_PROCEDURE** ou une **REDUCTION_PROCEDURE_TEMPLATE**. Il peut appeler les **COMPRESSION_OF_DATA** et **COMPRESSION_OF_OPERATORS** disponibles dans la bibliothèque. La **REDUCTION_PROCEDURE** prend un **CASE_DATA** et des **RESOLUTION_DATA_OBJECTS** en entrée et produit un **CAS_REDUIT_A_RESOUDRE**.
+
+Il adapte la procédure de construction de Mordicus de son entité (avec les modules de son entité et ceux dont la PI est disponible) par rapport aux dépendances de cette **REDUCTION_PROCEDURE**. 
+
+Idem pour l'écrite d'une **INTERNAL_SOLVING_PROCEDURE** dont l'écriture se fait sans API normalisée.
+
+
+C.15 - Générer une base réduite à partir d'un jeu de données de simulation (cas plus bas niveau)
+------------------------------------------------------------------------------------------------
+
+
+.. todo::
+
+   A ecrire
+
+C.16 - Enrichir un plan d'expérience à partir d'un premier jeu de données de simulation
+---------------------------------------------------------------------------------------
+
+.. todo::
+
+   A ecrire
+
+C.17 - Appeler une fonction utilisateur ou du code utilisateur lors de la phase online (bas niveau)
+---------------------------------------------------------------------------------------------------
+
+.. todo::
+
+   A ecrire
+
+C.18 - Construire une base réduite distribuée en mémoire (par DD) à partir de données de calcul distribuées en mémoire
+----------------------------------------------------------------------------------------------------------------------
+
+.. todo::
+
+   A ecrire
+
+C.19 - Garantir qu'un modèle réduit conserve certaines propriétés mathématiques du modèle haute fidélité sur un sous-domaine
+----------------------------------------------------------------------------------------------------------------------------
+
+.. todo::
+
+   A ecrire
+
+C.20 - Gérer une taille mémoire prescrite pour l'élaboration d'un modèle réduit
+-------------------------------------------------------------------------------
+
+.. todo::
+
+   A ecrire
 
