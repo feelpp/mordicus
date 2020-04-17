@@ -32,6 +32,7 @@ doc:
     - apt-get update
     - apt-get install -y python3-venv gcc python3-dev libopenmpi-dev make
     - pip install --upgrade pip
+    - export BASICTOOLS_BUILD_CYTHON=False
     - pip install -r ./src/poc-1/requirements.txt
     - export PYTHONPATH=$PWD/../basic-tools/src:$PYTHONPATH
 
