@@ -697,7 +697,7 @@ Pour le retrouver, il est nécessaire d'avoir des informations "documentaires" s
 A.09 - Contrôler qu'un modèle réduit conserve certaines propriétés mathématiques du modèle haute fidélité sur un sous-domaine
 -----------------------------------------------------------------------------------------------------------------------------
 
-Dans ce cas, veut vérifier que certaines propriétés du modèle haute fidélité sont respectées. Par exemple: stabilité d'un système linéaire invariant (tous les pôles sont à partie réelle négative), stabilité :math:`L^2` ou :math:`L^\infinity` d'un schéma en temps, stabilité inf-sup dans la discrétisation d'un problème de point-selle (typiquement Navier-Stokes incompressible), positivité des solutinos et négativité des multiplicateurs d'une inégalité variationnelle, conservation d'une énergie totale...
+Dans ce cas, veut vérifier que certaines propriétés du modèle haute fidélité sont respectées. Par exemple: stabilité d'un système linéaire invariant (tous les pôles sont à partie réelle négative), stabilité :math:`L^2` ou :math:`L^\infty` d'un schéma en temps, stabilité inf-sup dans la discrétisation d'un problème de point-selle (typiquement Navier-Stokes incompressible), positivité des solutions et négativité des multiplicateurs d'une inégalité variationnelle, conservation d'une énergie totale...
 
 On peut classer en deux cas:
 
@@ -1152,49 +1152,76 @@ L'utilisateur C développeur doit implémenter une **REDUCTION_PROCEDURE** ou un
 
 Il adapte la procédure de construction de Mordicus de son entité (avec les modules de son entité et ceux dont la PI est disponible) par rapport aux dépendances de cette **REDUCTION_PROCEDURE**. 
 
-Idem pour l'écrite d'une **INTERNAL_SOLVING_PROCEDURE** dont l'écriture se fait sans API normalisée.
+Idem pour l'écrite d'une **INTERNAL_SOLVING_PROCEDURE** dont l'écriture se fait sans API normalisée. C'est a priori le **CAS_REDUIT_A_RESOUDRE** qui sait comment appeler **INTERNAL_SOLVING_PROCEDURE** en lui fournissant le **REDUCED_SOLVER_DATASET** dont il a besoin.
 
 
 C.15 - Générer une base réduite à partir d'un jeu de données de simulation (cas plus bas niveau)
 ------------------------------------------------------------------------------------------------
 
+Ceci est matérialisé par l'opération **COMPRESSION_OF_DATA** du modèle de données, elle prend en entrée un objet **COLLECTION_SOLUTION_CAS** contenant les données de simulation et produit un objet **BASE_ORDRE_REDUIT**. 
 
-.. todo::
+Les **INDEXED_SOLUTION** de la **COLLECTION_SOLUTION_CAS** (en entrée) et les **VECTEUR_BASE_ORDRE_REDUIT** de la **BASE_ORDRE_REDUIT** (en sortie) ont la même **OUTPUT_DESCRIPTION** (même gradeur physique, même structures des champs etc.)
 
-   A ecrire
+Cette opération peut être incrémentale (voir C.06), auquel cas **COMPRESSION_OF_DATA** vient enrichir en place la **BASE_ORDRE_REDUIT**, qui fait alors également partie des entrées.
 
 C.16 - Enrichir un plan d'expérience à partir d'un premier jeu de données de simulation
 ---------------------------------------------------------------------------------------
 
-.. todo::
+Dans ce use case, on imagine que l'utilisateur C a déjà fait tourner une **REDUCTION_PROCEDURE** sur un premier jeu de simulations complètes, correspondant à un ensemble de valeurs des paramètres (objet *available_values* de **SUPPORT_INDEXATION**). Cette **REDUCTION_PROCEDURE** peut procéder en utilisant les équations de la physique ou être une procédure simplifiée de régression statistique qui tourne très rapidement. Il souhaite à présent enrichir **COLLECTION_SOLUTION_CAS** avec de nouvelles simulations, choisies pour apporter un maximum d'information en un minimum de tirages. Il va pour cela exploiter le **CAS_REDUIT_A_RESOUDRE** issu de cette reduction procedure pour produire un *design_of_experiments* dans **SUPPORT_INDEXATION**.
 
-   A ecrire
+Cas 1: pour la **REDUCTION_PROCEDURE**, on dispose d'un indicateur de qualité *a posteriori*. On va alors faire tourner le **CAS_REDUIT_A_RESOUDRE** sur un ensemble large (c'est l'attribut *training_set* de **SUPPORT_INDEXATION**), et choisir pour le *design_of_experiments* les :math:`N` valeurs pour lesquelles l'indicateur *as posteriori* est le plus élevé, avec souvent des indicateurs de distance en plus entre les valeurs, pour ne pas toutes les choisir dans la même région.
+
+Cas 2: on se base sur des indicateurs statistiques (typiquement le maximum de l'estimation de la variance d'un modèle de régression statistique) pour choisir ces valeurs. Au niveau du modèle de données, c'est la même chose que le Cas 1, sauf que le **CAS_REDUIT_A_RESOUDRE** est issu d'une méthode statistique et possède un **QUALITY_INDICATOR** de type *estimated_variance*.
 
 C.17 - Appeler une fonction utilisateur ou du code utilisateur lors de la phase online (bas niveau)
 ---------------------------------------------------------------------------------------------------
 
-.. todo::
+Dans ce cas d'usage, la méthode de résolution **INTERNAL_SOLVING_PROCEDURE** qui est utilisée lors de l'évaluation d'un modèle réduit ne prend pas en arguments uniquement des objets *statiques* (un vecteur, une matrice... je ne sait pas si le vocabulaire est le bon), mais également des fonctions fournie par l'utilisateur C au cours de C.01 ou C.02. Typiquement, cela va être le cas quand la **INTERNAL_SOLVING_PROCEDURE** doit appeler une loi de comportement externe.
 
-   A ecrire
+Dans ce cas, l'utilisateur C va déclarer "un blanc" au moment de développer son **INTERNAL_SOLVING_PROCEDURE** (use case C.14), l'interface de la fonction à fournir étant spécifiée par une **STANDARD_FUNCTION_DECLARATION**. 
+
+L'appel de la **STANDARD_FUNCTION_IMPLEMENTATION** doit être autoportante quand l'utilisateur A récupère le modèle réduit.
+
+Récapitulons le déroulement de l'utilisation d'une fonction utilisateur:
+
+   * C.14: l'utilisateur C développeur développe une procédure de résolution pour un type de modèle réduit, il déclare certains blancs à remplir par des fonctions utilisateurs dans son algorithmes par les **STANDARD_FUNCTION_DECLARATION**
+
+   * C.01 ou C.02: l'utilisateur C génère un **CAS_REDUIT_A_RESOUDRE**, il fournit dans la **RESOLUTION_PROCEDURE** la fonction utilisateur **STANDARD_FUNCTION_IMPLEMENTATION** à utiliser
+
+   * A.13: la **STANDARD_FUNCTION_IMPLEMENTATION** est appelée par le **CAS_REDUIT_A_RESOUDRE** qui a été récupéré par l'utilisateur A 
+
 
 C.18 - Construire une base réduite distribuée en mémoire (par DD) à partir de données de calcul distribuées en mémoire
 ----------------------------------------------------------------------------------------------------------------------
 
-.. todo::
+A mettre en lien avec A.05.
 
-   A ecrire
+Du point de vue de la compression des données **COMPRESSION_OF_DATA**:
+
+    * le maillage est distribué sur les sous-domaines: chaque processeur possède un maillage **DISCRETE_SUPPORT** qui est le maillage du sous-domaine;
+
+    * les résultats de type **FIELD** sont distribués par sous-domaine sur les processeur, ainsi que les modes **VECTEUR_BASE_ORDRE_REDUIT** de type **FIELD**.
+
+Pour les algorithmes MPI de **COMPRESSION_OF_DATA** (typiquement snapshot-POD), les opérations principales sont des intégrales (opérateurs d'auto-corrélation, projection sur une base...) qui peuvent être calculées par sous-domaine et sommées, de sorte qu'il n'est pas besoin pour cette étape de disposer de la correspondance de numérotation locale -> globale du maillage et des champs.
+
+Du point de vue de la compression des opérateurs **COMPRESSION_OF_OPERATORS**, cette distribution de données est faite de la même façon. En revanche, la méthode **COMPRESSION_OF_OPERATORS** calcule des **REDUCED_RESOLUTION_DATA** par *sous-domaine*, lesquels doivent ensuite être "rassemblés" (selon une logique à coder par le développeur de la méthode) en un **REDUCED_RESOLUTION_DATA** final, car le modèle réduit final tourne sur un seul processeur. Cette opération de "rassemblement" fait presque toujours appel à la correspondance de numérotation local -> global.
+
+Par exemple, une procédure type quadrature empirique ou hyperréduction va produire un maillage réduit par sous-domaines, lesquels doivent ensuite être assemblés en un unique maillage réduit.
 
 C.19 - Garantir qu'un modèle réduit conserve certaines propriétés mathématiques du modèle haute fidélité sur un sous-domaine
 ----------------------------------------------------------------------------------------------------------------------------
 
-.. todo::
+A mettre en lien avec A.09.
 
-   A ecrire
+L'utilisateur C doit développer un **REDUCED_POSTPROCESSING_DATASET** ou un **REDUCED_POSTPROCESSING_DATASET_TEMPLATE** en même temps que le développement de la **REDUCTION_PROCEDURE** dans C.14. Comme décrit dans A.09, le **REDUCED_POSTPROCESSING_DATASET** à droit en données d'entrée aux **REDUCED_RESOLUTION_DATA** du **CAS_REDUIT_A_RESOUDRE**, et à des **REDUCED_RESOLUTION_DATA** qu'il peut faire calculer par la procédure de réduction.
+
+A la fin de la **REDUCTION_PROCEDURE** (voir le use case B.01), le **QUALITY_INDICATOR** et **REDUCED_POSTPROCESSING_DATASET** sont intégrés à l'assmblage du **CAS_REDUIT_A_RESOUDRE**.
 
 C.20 - Gérer une taille mémoire prescrite pour l'élaboration d'un modèle réduit
 -------------------------------------------------------------------------------
 
-.. todo::
+Les méthodes **COMPRESSION_OF_DATA** et **COMPRESSSION_OF_OPERATORS** possèdent certaines options "de contrôle" (tolérance de la SVD, taille de la base réduite à produire, précision de l'EIM...). L'idée est d'utiliser les options de contrôle qui peuvent facilement être reliée à une estimation de la consommation mémoire (typiquement des tailles de bases ou nombres de fonctions dans une décomposition en série d'une fonction). On ajuste itérativement ces options de contrôle de façon à ne pas dépasser une consommation mémoire limite. 
 
-   A ecrire
+Exemple type: on contrôle la taille de la base réduite en estimant le coût mémoire de générer vecteur supplémentaire dans la base.
 
+Il faut pour cela que le développeur de la méthode **COMPRESSION_OF_DATA** ait implémenté une fonction d'estimation de la consommation mémoire en fonction de certaines options de contrôle, grâce à une analyse de complexité mémoire (même sommaire) de son algorithme. L'utilisateur peut alors paramétrer sa **REDUCTION_PROCEDURE** en fonction de ces options de contrôle et contrôler par ce biais la consommation mémoire avant de lancer la **REDUCTION_PROCEDURE**.
