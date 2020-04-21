@@ -422,7 +422,7 @@ A reduction procedure is often made of two steps, see :numref:`v0_zoom6`:
    * an *operator compression* phase, which relies on these bases to build reduced-order *resolution data*, to be employed in a reduced-order resolution procedure
 
 .. _v0_zoom6:
-.. figure:: images/v0_zoom6.pdf
+.. figure:: images/v1-zoom6.pdf
 
     Offline treatments: zoom on the reduction methods
 
@@ -515,7 +515,7 @@ The data model for the *online* part has been designed according to the followin
 The online data structures are summarized on :numref:`v0_zoom7`
 
 .. _v0_zoom7:
-.. figure:: images/v0_zoom7.pdf
+.. figure:: images/v1-zoom7.pdf
 
     Zoom on the online treatments
 
