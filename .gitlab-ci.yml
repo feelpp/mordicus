@@ -19,7 +19,9 @@ doc:
     - mkdir -p public
     - cd src/poc-1/doc
     - make html
-    - mv _build/html ../../../public/doc
+    - mv _build/html ../../../public/doc && cd -
+    - cd doc/
+    - make latexpdf
   artifacts:
     name: "Documentation"
     paths:
