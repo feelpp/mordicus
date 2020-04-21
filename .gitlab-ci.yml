@@ -12,7 +12,7 @@ doc:
   stage: doc
   image: python:3.7-alpine
   before_script:
-    - apk add build-base
+    - apk add build-base texlive
     - pip install -U sphinx
   script:
     - export PYTHONPATH=$PWD/../basic-tools/src:$PYTHONPATH
