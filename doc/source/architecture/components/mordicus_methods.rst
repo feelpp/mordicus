@@ -17,9 +17,9 @@ As decided in Copil of december 6th, hereafter is a table of the methods that ar
     :class: longtable
 
     +---------------------------------------+------------------+-------------------------------+-------------------------+
-    | METHOD                                |  Participants    | Input data from solver        | Other input data        |
-    +---------------------------------------+------------------+-------------------------------+-------------------------+
-    | Generate a reduced basis (*data compression*)                                                                      |
+    | **METHOD**                            | **Participants** | **Input data from solver**    | **Other input data**    |
+    +=======================================+==================+===============================+=========================+
+    | **Generate a reduced basis (data compression)**                                                                    |
     +---------------------------------------+------------------+-------------------------------+-------------------------+
     | POD                                   |   all            | + solutions vectors with      |                         |
     |                                       |                  |   consistent dimensions       |                         |
@@ -27,16 +27,17 @@ As decided in Copil of december 6th, hereafter is a table of the methods that ar
     |                                       |                  | + scalar product matrix       |                         |
     |                                       |                  |   (optional)                  |                         |
     +---------------------------------------+------------------+-------------------------------+-------------------------+
-    |                                       |                  |                               | reduced basis at        |
-    | Incremental POD                       |                  | ibid                          | previous iteration      |
+    |                                       |                  | + solutions vectors with      | reduced basis at        |
+    | Incremental POD                       |                  |   consistent dimensions       | previous iteration      |
     |                                       |                  |                               |                         |
-    |                                       |                  |                               |                         |
+    |                                       |                  | + scalar product matrix       |                         |
+    |                                       |                  |   (optional)                  |                         |
     +---------------------------------------+------------------+-------------------------------+-------------------------+
-    | Explore parameter space, reduce parameter complexity                                                               |
+    | **Explore parameter space, reduce parameter complexity**                                                           |
     +---------------------------------------+------------------+-------------------------------+-------------------------+
     |                                       |                  |                               |                         |
-    |                                       |                  |                               |                         |
-    | Low-rank decomposition                |  Phiméca (1.1a)  |             ?                 |             ?           |
+    |                                       |  Phiméca (1.1a)  |                               |                         |
+    | Low-rank decomposition                |                  |         *???*                 |    *???*                |
     | (to be clarified)                     |  Mines   (1.1c)  |                               |                         |
     |                                       |                  |                               |                         |
     +---------------------------------------+------------------+-------------------------------+-------------------------+
@@ -45,72 +46,96 @@ As decided in Copil of december 6th, hereafter is a table of the methods that ar
     |                                       |                  |                               |                         |
     |                                       |                  |                               |                         |
     +---------------------------------------+------------------+-------------------------------+-------------------------+
-    | Reduce evaluation cost, reduce operator complexity (*operator compression*)                                        |
+    | **Reduce evaluation cost, reduce operator complexity (operator compression)**                                      |
     +---------------------------------------+------------------+-------------------------------+-------------------------+
     |                                       |                  | + FE or FV operators (e.g.    | reduced basis           |
     | Galerkin projection onto reduced      |  EDF             |   matrices for viscous and    |                         |
-    | space (e.g. POD-Galerkin for NS)      |  Sorbonne        |   convective terms)           |                         |
-    |                                       |  Cemosis         |                               |                         |
+    | space (e.g. POD-Galerkin for NS)      |                  |   convective terms)           |                         |
+    |                                       |  Sorbonne        |                               |                         |
+    |                                       |                  | + initial condition           |                         |
+    |                                       |                  |                               |                         |
+    |                                       |  Cemosis         | + BC terms (matrices          |                         |
+    |                                       |                  |   or vectors)                 |                         |
+    +---------------------------------------+------------------+-------------------------------+-------------------------+
+    |                                       |                  | + FE or FV operators (e.g.    |  reduced basis          |
+    |                                       |                  |   matrices for viscous and    |                         |
+    |                                       |                  |   convective terms)           |                         |
+    |                                       |                  |                               |                         | 
     |                                       |                  | + initial condition           |                         |
     |                                       |                  |                               |                         |
     |                                       |                  | + BC terms (matrices          |                         |
     |                                       |                  |   or vectors)                 |                         |
-    +---------------------------------------+------------------+-------------------------------+-------------------------+
-    |                                       |                  | ibid                          | ibid                    |
     | EIM                                   |  EDF             |                               |                         |
     |                                       |                  | + primal solution vectors     |                         |
     |                                       |                  |                               |                         |
     +---------------------------------------+------------------+-------------------------------+-------------------------+
-    |                                       |                  | ibid                          | ibid                    |
+    |                                       |                  | + FE or FV operators (e.g.    |  reduced basis          |
+    |                                       |                  |   matrices for viscous and    |                         |
+    |                                       |                  |   convective terms)           |                         |
+    |                                       |                  |                               |                         | 
+    |                                       |                  | + initial condition           |                         |
+    |                                       |                  |                               |                         |
+    |                                       |                  | + BC terms (matrices          |                         |
+    |                                       |                  |   or vectors)                 |                         |
     | Empirical quadrature (ECM, ECSW)      |  Safran          |                               |                         |
-    |                                       |                  |                               |                         |
-    |                                       |                  |                               |                         |
-    |                                       |  EDF             | + dual solution vectors       |                         |
+    |                                       |                  | + dual solution vectors       |                         |
+    |                                       |  EDF             |                               |                         |
     |                                       |                  |                               |                         |
     +---------------------------------------+------------------+-------------------------------+-------------------------+
-    |                                       |                  | ibid                          | ibid                    |
-    | Hyper-reduction (RID)                 |  Safran          |                               |                         |
-    |                                       |  EDF             | + mesh                        |                         |
-    |                                       |  Mines           |                               |                         |
+    |                                       |  Safran          | + FE or FV operators (e.g.    |  reduced basis          |
+    |                                       |                  |   matrices for viscous and    |                         |
+    |                                       |  EDF             |   convective terms)           |                         |
+    |                                       |                  |                               |                         | 
+    |                                       |  Mines           | + initial condition           |                         |
+    |                                       |                  |                               |                         |
+    |                                       |                  | + BC terms (matrices          |                         |
+    |                                       |                  |   or vectors)                 |                         |
+    | Hyper-reduction (RID)                 |                  |                               |                         |
+    |                                       |                  | + mesh                        |                         |
+    |                                       |                  |                               |                         |
     |                                       |                  | + dual solution vector        |                         |
     +---------------------------------------+------------------+-------------------------------+-------------------------+
     |                                       |                  | solution vectors              | reduced basis           |
     | Gaussian process regressor            |  Scilab          |                               |                         |
-    |                                       |  Phiméca         |                               |                         |
     |                                       |                  |                               |                         |
+    |                                       |  Phiméca         |                               |                         |
     +---------------------------------------+------------------+-------------------------------+-------------------------+
-    |                                       |                  |                               | reduced basis (built    |
-    | NIRB                                  |  Sorbonne (1.1ef)|                               | from fine mesh)         |
+    |                                       |  Sorbonne (1.1ef)|                               | reduced basis (built    |
+    | NIRB                                  |                  |                               | from fine mesh)         |
     |                                       |  EDF      (1.2h) |                               |                         |
     |                                       |                  |                               |                         |
     +---------------------------------------+------------------+-------------------------------+-------------------------+
     |                                       |                  |                               |                         |
-    | GEIM                                  |  Cemosis (1.1d)  |             ?                 |             ?           |
+    | GEIM                                  |  Cemosis (1.1d)  |            *???*              |        *???*            |
     |                                       |                  |                               |                         |
     |                                       |                  |                               |                         |
     +---------------------------------------+------------------+-------------------------------+-------------------------+
-    | Reconstruction and data assimilation                                                                               |
+    | **Reconstruction and data assimilation**                                                                           |
     +---------------------------------------+------------------+-------------------------------+-------------------------+
     |                                       |                  |                               | - observed signals      |
     | PBDW                                  |  EDF             |                               |                         |
-    |                                       |  Sorbonne        |                               | - Riesz representers    |
-    |                                       |  Cemosis (1.1d)  |                               |   of sensors            |
+    |                                       |                  |                               | - Riesz representers    |
+    |                                       |  Sorbonne        |                               |   of sensors            |
     |                                       |                  |                               |                         |
-    |                                       |                  |                               | - reduced basis         |
+    |                                       |  Cemosis (1.1d)  |                               | - reduced basis         |
     +---------------------------------------+------------------+-------------------------------+-------------------------+
     |                                       |                  |                               |                         |
     | Gappy POD                             |  EDF             |                               |                         |
-    |                                       |  Mines           |            ?                  |         ?               |
+    |                                       |                  |           *???*               |       *???*             |
+    |                                       |  Mines           |                               |                         |
+    |                                       |                  |                               |                         |
     |                                       |  Sorbonne        |                               |                         |
     +---------------------------------------+------------------+-------------------------------+-------------------------+
+
+The required services from the solver are presented in the table below:
 
 .. table:: Methods and their required services from the solver
     :class: longtable
 
     +---------------------------------------+------------------+-------------------------+-----------------------------+
-    | METHOD                                |  Participants    | Offline calls to solver |  Online calls to solver     |
-    +---------------------------------------+------------------+-------------------------+-----------------------------+
-    | Generate a reduced basis (*data compression*)                                                                    |
+    | **METHOD**                            | **Participants** |**Offline calls**        | **Online calls to solver**  |
+    +=======================================+==================+=========================+=============================+
+    | **Generate a reduced basis (data compression)**                                                                  |
     +---------------------------------------+------------------+-------------------------+-----------------------------+
     | POD                                   |   all            | scalar product of 2     |                             |
     |                                       |                  | solutions (optional)    |                             |
@@ -118,33 +143,32 @@ As decided in Copil of december 6th, hereafter is a table of the methods that ar
     |                                       |                  |                         |                             |
     |                                       |                  |                         |                             |
     +---------------------------------------+------------------+-------------------------+-----------------------------+
-    |                                       |                  | ibid                    |                             |
-    | Greedy POD                            |                  |                         |                             |
+    |                                       |                  | scalar product of 2     |                             |
+    | Greedy POD                            |                  | solutions (optional)    |                             |
     |                                       |                  |                         |                             |
     |                                       |                  |                         |                             |
     +---------------------------------------+------------------+-------------------------+-----------------------------+
-    | Explore parameter space, reduce parameter complexity                                                             |
+    | **Explore parameter space, reduce parameter complexity**                                                         |
     +---------------------------------------+------------------+-------------------------+-----------------------------+
     |                                       |                  |                         |                             |
     |                                       |                  |                         |                             |
-    | Low-rank decomposition                |  Phiméca (1.1a)  |           ?             |            ?                |
-    | (to be clarified)                     |  Mines   (1.1c)  |                         |                             |
-    |                                       |                  |                         |                             |
+    | Low-rank decomposition                |  Phiméca (1.1a)  |          *???*          |          *???*              |
+    | (to be clarified)                     |                  |                         |                             |
+    |                                       |  Mines   (1.1c)  |                         |                             |
     +---------------------------------------+------------------+-------------------------+-----------------------------+
     |                                       |                  | compute solution for    | compute a posteriori error  |
     | Greedy reduced basis, e.g. PREIM      |  EDF             | some parameter value    | indicator                   |
     |                                       |                  |                         |                             |
     |                                       |                  |                         |                             |
     +---------------------------------------+------------------+-------------------------+-----------------------------+
-    | Reduce evaluation cost, reduce operator complexity (*operator compression*)                                      |
+    | **Reduce evaluation cost, reduce operator complexity (operator compression)**                                    |
     +---------------------------------------+------------------+-------------------------+-----------------------------+
     |                                       |                  |                         |                             |
     | Galerkin projection onto reduced      |  EDF             |                         |                             |
-    | space (e.g. POD-Galerkin for NS)      |  Sorbonne        |                         |                             |
+    | space (e.g. POD-Galerkin for NS)      |                  |                         |                             |
     |                                       |  Cemosis         |                         |                             |
     |                                       |                  |                         |                             |
-    |                                       |                  |                         |                             |
-    |                                       |                  |                         |                             |
+    |                                       |  Sorbonne        |                         |                             |
     |                                       |                  |                         |                             |
     +---------------------------------------+------------------+-------------------------+-----------------------------+
     |                                       |                  | compute non-linear      |                             |
@@ -159,28 +183,28 @@ As decided in Copil of december 6th, hereafter is a table of the methods that ar
     |                                       |  EDF             | - provide Gauss points  |                             |
     |                                       |                  |   weights and location  |                             |
     +---------------------------------------+------------------+-------------------------+-----------------------------+
-    |                                       |                  |                         |                             |
-    | Hyper-reduction (RID)                 |  Safran          |                         |                             |
+    |                                       |  Safran          |                         |                             |
+    | Hyper-reduction (RID)                 |                  |                         |                             |
     |                                       |  EDF             |                         |                             |
-    |                                       |  Mines           |                         |                             |
     |                                       |                  |                         |                             |
+    |                                       |  Mines           |                         |                             |
     +---------------------------------------+------------------+-------------------------+-----------------------------+
     |                                       |                  |                         |                             |
     | Gaussian process regressor            |  Scilab          |                         |                             |
-    |                                       |  Phiméca         |                         |                             |
     |                                       |                  |                         |                             |
+    |                                       |  Phiméca         |                         |                             |
     +---------------------------------------+------------------+-------------------------+-----------------------------+
     |                                       |                  |                         | compute solution on coarse  |
     | NIRB                                  |  Sorbonne (1.1ef)|                         | mesh                        |
+    |                                       |                  |                         |                             |
     |                                       |  EDF      (1.2h) |                         |                             |
-    |                                       |                  |                         |                             |
     +---------------------------------------+------------------+-------------------------+-----------------------------+
     |                                       |                  |                         |                             |
-    | GEIM                                  |  Cemosis (1.1d)  |            ?            |             ?               |
+    | GEIM                                  |  Cemosis (1.1d)  |           *???*         |            *???*            |
     |                                       |                  |                         |                             |
     |                                       |                  |                         |                             |
     +---------------------------------------+------------------+-------------------------+-----------------------------+
-    | Reconstruction and data assimilation                                                                             |
+    | **Reconstruction and data assimilation**                                                                         |
     +---------------------------------------+------------------+-------------------------+-----------------------------+
     |                                       |                  | compute scalar product  |                             |
     | PBDW                                  |  EDF             |                         |                             |
@@ -191,6 +215,6 @@ As decided in Copil of december 6th, hereafter is a table of the methods that ar
     +---------------------------------------+------------------+-------------------------+-----------------------------+
     |                                       |                  |                         |                             |
     | Gappy POD                             |  EDF             |                         |                             |
-    |                                       |  Mines           |          ?              |             ?               |
+    |                                       |  Mines           |          *???*          |            *???*            |
     |                                       |  Sorbonne        |                         |                             |
     +---------------------------------------+------------------+-------------------------+-----------------------------+
