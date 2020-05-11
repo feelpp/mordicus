@@ -35,10 +35,10 @@ As decided in Copil of december 6th, hereafter is a table of the methods that ar
     +---------------------------------------+------------------+-------------------------------+-------------------------+
     | **Explore parameter space, reduce parameter complexity**                                                           |
     +---------------------------------------+------------------+-------------------------------+-------------------------+
-    |                                       |                  |                               |                         |
-    |                                       |  Phiméca (1.1a)  |                               |                         |
-    | Low-rank decomposition                |                  |         *???*                 |    *???*                |
-    | (to be clarified)                     |  Mines   (1.1c)  |                               |                         |
+    |                                       |                  | + solutions vectors with      | Tensor-Train at previous|
+    |                                       |  Phiméca (1.1a)  |   consistent dimensions       | iteration               |
+    | Low-rank decomposition                |                  |   and a sparse tensor         |                         |
+    | (to be clarified)                     |  Mines   (1.1c)  |   format                      |                         |
     |                                       |                  |                               |                         |
     +---------------------------------------+------------------+-------------------------------+-------------------------+
     |                                       |                  |                               | training set            |
