@@ -8,15 +8,15 @@ This is a basic use case meant to validate modes computation for fluid dynamic.
 In that case we are computing pressure field around a NACA0012 airfoil depending on the Angle of Attack (AoA).
 This use case is the corner stone to start working on more complex use cases such as prediction using interpolation function on modes coefficients, time changing parameter and model export.
 
-.. i .. _ESI_img1:
-.. i .. figure:: Modes.png
-.. i
-.. i    4 first most energetic modes
-.. i    
-.. i .. _ESI_img2:
-.. i .. figure:: Pred.png
-.. i
-.. i    Pressure field prediction for AoA = 1.2°
+.. _ESI_img1:
+.. figure:: Modes.png
+
+    4 first most energetic modes
+    
+ .. _ESI_img2:
+ .. figure:: Pred.png
+
+    Pressure field prediction for AoA = 1.2°
 
 
 .. .. tabularcolumns:: |L|L|L|L|
