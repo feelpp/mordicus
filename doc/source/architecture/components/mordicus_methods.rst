@@ -44,7 +44,7 @@ As decided in Copil of december 6th, hereafter is a table of the methods that ar
     |                                       |                  |                               | training set            |
     | Greedy reduced basis, e.g. PREIM      |  EDF             |                               |                         |
     |                                       |                  |                               |                         |
-    |                                       |                  |                               |                         |
+    |                                       |  CT              |                               |                         |
     +---------------------------------------+------------------+-------------------------------+-------------------------+
     | **Reduce evaluation cost, reduce operator complexity (operator compression)**                                      |
     +---------------------------------------+------------------+-------------------------------+-------------------------+
@@ -99,6 +99,8 @@ As decided in Copil of december 6th, hereafter is a table of the methods that ar
     | Gaussian process regressor            |  Scilab          |                               |                         |
     |                                       |                  |                               |                         |
     |                                       |  Phiméca         |                               |                         |
+    |                                       |                  |                               |                         |
+    |                                       |  CT              |                               |                         |
     +---------------------------------------+------------------+-------------------------------+-------------------------+
     |                                       |  Sorbonne (1.1ef)|                               | reduced basis (built    |
     | NIRB                                  |                  |                               | from fine mesh)         |
@@ -159,7 +161,7 @@ The required services from the solver are presented in the table below:
     |                                       |                  | compute solution for    | compute a posteriori error  |
     | Greedy reduced basis, e.g. PREIM      |  EDF             | some parameter value    | indicator                   |
     |                                       |                  |                         |                             |
-    |                                       |                  |                         |                             |
+    |                                       |  CT              |                         |                             |
     +---------------------------------------+------------------+-------------------------+-----------------------------+
     | **Reduce evaluation cost, reduce operator complexity (operator compression)**                                    |
     +---------------------------------------+------------------+-------------------------+-----------------------------+
@@ -193,6 +195,8 @@ The required services from the solver are presented in the table below:
     | Gaussian process regressor            |  Scilab          |                         |                             |
     |                                       |                  |                         |                             |
     |                                       |  Phiméca         |                         |                             |
+    |                                       |                  |                         |                             |
+    |                                       |  CT              |                         |                             |
     +---------------------------------------+------------------+-------------------------+-----------------------------+
     |                                       |                  |                         | compute solution on coarse  |
     | NIRB                                  |  Sorbonne (1.1ef)|                         | mesh                        |
