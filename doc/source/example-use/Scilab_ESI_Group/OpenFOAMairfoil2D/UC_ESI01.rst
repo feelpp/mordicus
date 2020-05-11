@@ -11,12 +11,12 @@ This use case is the corner stone to start working on more complex use cases suc
 .. _ESI_img1:
 .. figure:: Modes.png
 
-    4 first most energetic modes
-    
- .. _ESI_img2:
- .. figure:: Pred.png
+   4 first most energetic modes
+ 
+.. _ESI_img2:
+.. figure:: Pred.png
 
-    Pressure field prediction for AoA = 1.2°
+   Pressure field prediction for AoA = 1.2°
 
 
 .. .. tabularcolumns:: |L|L|L|L|
