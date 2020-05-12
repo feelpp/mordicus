@@ -70,19 +70,14 @@ class GmshMeshReader(MeshReaderBase):
             mesh of the HF computation
         """
 
-        suffix = str(Path(self.meshFileName).suffix)
-        print(suffix)
-        stem = str(Path(self.meshFileName).stem)
-        print(stem)
-        mesh=meshio.read(str(Path(self.meshFileName)))
-        meshvtu= str(Path(self.meshFileName).stem)+".vtu"
-        meshio.write(meshvtu,mesh)
-        #from Mordicus.Modules.Safran.Containers.Meshes import BasicToolsUnstructuredMesh as BTUM
-        from BasicTools.IO.VtuReader import VtuReader
+        from BasicTools.IO.GmshReader import ReadGmsh as Read
+   
+        data=Read(self.meshFileName)
+        print("namefile",self.meshFileName)
+        print("data",data)
+        from Mordicus.Modules.Safran.Containers.Meshes import BasicToolsUnstructuredMesh as BTUM
 
-        #raise NotImplementedError("FileName error!")
-        data=VtuReader()
-        mesh=data.Read(meshvtu)
-        print("ok")
+        mesh = BTUM.BasicToolsUnstructuredMesh(data)
+
         return mesh
  
