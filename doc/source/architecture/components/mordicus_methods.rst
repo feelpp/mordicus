@@ -28,7 +28,7 @@ As decided in Copil of december 6th, hereafter is a table of the methods that ar
     |                                       |                  |   (optional)                  |                         |
     +---------------------------------------+------------------+-------------------------------+-------------------------+
     |                                       |                  | + solutions vectors with      | reduced basis at        |
-    | Incremental POD                       |                  |   consistent dimensions       | previous iteration      |
+    | Incremental POD                       |   Safran         |   consistent dimensions       | previous iteration      |
     |                                       |                  |                               |                         |
     |                                       |                  | + scalar product matrix       |                         |
     |                                       |                  |   (optional)                  |                         |
@@ -52,7 +52,8 @@ As decided in Copil of december 6th, hereafter is a table of the methods that ar
     | Galerkin projection onto reduced      |  EDF             |   matrices for viscous and    |                         |
     | space (e.g. POD-Galerkin for NS)      |                  |   convective terms)           |                         |
     |                                       |  Sorbonne        |                               |                         |
-    |                                       |                  | + initial condition           |                         |
+    |                                       |                  |                               |                         |
+    |                                       |  Safran          | + initial condition           |                         |
     |                                       |                  |                               |                         |
     |                                       |  Cemosis         | + BC terms (matrices          |                         |
     |                                       |                  |   or vectors)                 |                         |
@@ -122,11 +123,13 @@ As decided in Copil of december 6th, hereafter is a table of the methods that ar
     |                                       |  Cemosis (1.1d)  |                               |                         |
     +---------------------------------------+------------------+-------------------------------+-------------------------+
     |                                       |                  |                               |                         |
-    | Gappy POD                             |  EDF             |                               |                         |
-    |                                       |                  |           *???*               |       *???*             |
+    | Gappy POD                             |  EDF             | + solutions vectors with      |                         |
+    |                                       |                  |   consistent dimensions       |                         |
     |                                       |  Mines           |                               |                         |
     |                                       |                  |                               |                         |
     |                                       |  Sorbonne        |                               |                         |
+    |                                       |                  |                               |                         |
+    |                                       |  Safran          |                               |                         |
     +---------------------------------------+------------------+-------------------------------+-------------------------+
 
 The required services from the solver are presented in the table below:
@@ -166,11 +169,13 @@ The required services from the solver are presented in the table below:
     | **Reduce evaluation cost, reduce operator complexity (operator compression)**                                    |
     +---------------------------------------+------------------+-------------------------+-----------------------------+
     |                                       |                  |                         |                             |
-    | Galerkin projection onto reduced      |  EDF             |                         |                             |
-    | space (e.g. POD-Galerkin for NS)      |                  |                         |                             |
-    |                                       |  Cemosis         |                         |                             |
+    | Galerkin projection onto reduced      |  EDF             |   assemble operators    |  recombines precomputed     |
+    | space (e.g. POD-Galerkin for NS)      |                  | on the reduced basis    |  small size operators       |
+    |                                       |  Cemosis         |  without approximation  |                             |
     |                                       |                  |                         |                             |
     |                                       |  Sorbonne        |                         |                             |
+    |                                       |                  |                         |                             |
+    |                                       |  Safran          |                         |                             |
     |                                       |                  |                         |                             |
     +---------------------------------------+------------------+-------------------------+-----------------------------+
     |                                       |                  | compute non-linear      |                             |
@@ -178,7 +183,7 @@ The required services from the solver are presented in the table below:
     |                                       |  Cemosis         |                         |                             |
     |                                       |                  |                         |                             |
     +---------------------------------------+------------------+-------------------------+-----------------------------+
-    |                                       |                  | - compute integral of   |                             |
+    |                                       |                  | - compute integral of   |  compute reduced quadrature |
     | Empirical quadrature (ECM, ECSW)      |  Safran          |   solution against some |                             |
     |                                       |                  |   test function         |                             |
     |                                       |                  |                         |                             |
@@ -218,7 +223,8 @@ The required services from the solver are presented in the table below:
     |                                       |                  |                         |                             |
     +---------------------------------------+------------------+-------------------------+-----------------------------+
     |                                       |                  |                         |                             |
-    | Gappy POD                             |  EDF             |                         |                             |
-    |                                       |  Mines           |          *???*          |            *???*            |
-    |                                       |  Sorbonne        |                         |                             |
+    | Gappy POD                             |  EDF             | - Compute modes         |                             |
+    |                                       |  Mines           | - Compute a mask        |  Fit online prediction on   |
+    |                                       |  Sorbonne        | (both can be done       | modes values on mask        |
+    |                                       |  Safran          | via DEIM)               |  (least square)             |
     +---------------------------------------+------------------+-------------------------+-----------------------------+
