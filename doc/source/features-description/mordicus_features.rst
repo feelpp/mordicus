@@ -320,7 +320,7 @@ Tableau d'utilisation des cas d'usage par entité
 +----+---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
 | A  | Utilisateur boîte noire                                                                                                          |
 +----+---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
-|A.01| Usage d’un modèle réduit pour réaliser|   6    |   X     |  X    | X  |        |        |          |  X  |   X     |     |  X    |
+|A.01| Usage d’un modèle réduit pour réaliser|   6    |   X     |  X    | X  |        |  X     |          |  X  |   X     |     |  X    |
 |    | un plan d’expérience                  |        |         |       |    |        |        |          |     |         |     |       |
 +----+---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
 |A.02| Utilisation d’un modèle réduit avec   |        |         |       |    |        |        |          |     |         |     |       |
@@ -332,10 +332,10 @@ Tableau d'utilisation des cas d'usage par entité
 |    | code système                          |        |         |       |    |        |        |          |     |         |     |       |
 +----+---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
 |A.04| Reconstruire un champ complet à partir|        |         |       |    |        |        |          |     |         |     |       |
-|    | des sorties d’un modèle réduit        |   4    |         |       |    |        |        |    X     |  X  |   X     |     |  X    |
+|    | des sorties d’un modèle réduit        |   4    |         |       |    |        |  X     |    X     |  X  |   X     |     |  X    |
 +----+---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
 |A.05| Permettre la visualisation HPC des    |        |         |       |    |        |        |          |     |         |     |       |
-|    | résultats du modèle réduit            |   5    |         |  X    | X  |        |        |    X     |     |   X     |     |  X    |
+|    | résultats du modèle réduit            |   5    |         |  X    | X  |        |  X     |    X     |     |   X     |     |  X    |
 +----+---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
 |A.06| Exporter (sérialiser) un modèle réduit|        |         |       |    |        |        |          |     |         |     |       |
 |    | au format d'échange                   |   3    |         |       |    |        |        |          |     |         |     |       |
@@ -343,19 +343,19 @@ Tableau d'utilisation des cas d'usage par entité
 |A.07| Importer (désérialiser) un modèle     |        |         |       |    |        |        |          |     |         |     |       |
 |    | réduit au format d'échange            |   3    |   X     |       |    |   X    |        |          |     |   X     |     |       |
 +----+---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
-|A.08| Archiver un modèle réduit             |   2    |         |       |    |   X    |        |          |     |   X     |     |       |
+|A.08| Archiver un modèle réduit             |   2    |         |       |    |   X    |  X     |          |     |   X     |     |       |
 |    | ou une liste de modèles réduits       |        |         |       |    |        |        |          |     |         |     |       |
 +----+---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
 |A.09| Contrôler qu'un modèle                |        |         |       |    |        |        |          |     |         |     |       |
-|    | réduit conserve certaines propriétés  |   3    |   X     |       |    |        |        |          | X   |   X     |     |       |
+|    | réduit conserve certaines propriétés  |   3    |   X     |       |    |        |  X     |          | X   |   X     |     |       |
 |    | mathématiques du modèle haute fidélité|        |         |       |    |        |        |          |     |         |     |       |
 |    | sur un sous-domaine                   |        |         |       |    |        |        |          |     |         |     |       |
 +----+---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
 |A.10| Couplage spatial entre un modèle      |        |         |       |    |        |        |          |     |         |     |       |
-|    | réduit et un modèle haute fidélité    |   2    |         |       | X  |        |        |          |     |   X     |     |       |
+|    | réduit et un modèle haute fidélité    |   2    |         |       | X  |        |  X     |          |     |   X     |     |       |
 +----+---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
 |A.11| Calculer des quantités d'intérêt      |        |         |       |    |        |        |          |     |         |     |       |
-|    | physiques macro par post-traitement   |   2    |         |       | X  |        |        |          |     |         |     |  X    |
+|    | physiques macro par post-traitement   |   2    |         |       | X  |        |  X     |          |     |         |     |  X    |
 +----+---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
 |A.12| Optimiser le placement des capteurs   |        |         |       |    |        |        |          |     |         |     |       |
 |    | dans un système                       |   1    |         |       |    |        |        |          |     |   X     |     |       |
@@ -363,7 +363,7 @@ Tableau d'utilisation des cas d'usage par entité
 |A.13| Evaluer le modèle réduit en un point  |   ?    |         |       |    |        |        |          |     |         |     |       |
 |    | (cas d'usage de plus bas niveau)      |        |         |       |    |        |        |          |     |         |     |       |
 +----+---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
-|A.14| Calculer un indicateur de qualité     |   2    |         |       |    |        |        |          | X   |         |     |  X    |
+|A.14| Calculer un indicateur de qualité     |   2    |         |       |    |        |  X     |          | X   |         |     |  X    |
 |    | a posteriori pour un appel de modèle  |        |         |       |    |        |        |          |     |         |     |       |
 |    | reduit                                |        |         |       |    |        |        |          |     |         |     |       |
 +----+---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
@@ -386,16 +386,16 @@ Tableau d'utilisation des cas d'usage par entité
 |    | domaine paramétrique donné            |        |         |       |    |        |        |          |     |         |     |       |
 +----+---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
 |B.02| Comparer un modèle réduit romA avec   |        |         |       |    |        |        |          |     |         |     |       |
-|    | un modèle haute fidélité A            |   1    |         |       |    |        |        |    X     |     |         |     |       |
+|    | un modèle haute fidélité A            |   1    |         |       |    |        |  X     |    X     |     |         |     |       |
 +----+---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
 |B.03| Comparer un modèle réduit romA avec   |        |         |       |    |        |        |          |     |         |     |       |
-|    | un modèle haute fidélité B            |   5    |    X    |       | X  |        |        |    X     | X   |   X     |     |  x    |
+|    | un modèle haute fidélité B            |   5    |    X    |       | X  |        |  X     |    X     | X   |   X     |     |  x    |
 +----+---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
 |B.04| Comparer un modèle réduit romA avec   |        |         |       |    |        |        |          |     |         |     |       |
 |    | des données expérimentales            |   1    |    X    |       |    |        |        |          |     |         |     |       |
 +----+---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
 |B.05| Faire interagir un modèle réduit et   |        |         |       |    |        |        |          |     |         |     |       |
-|    | des opérations de Data Science,       |   3    |         |       | X  |        |        |          | X   |   X     |     |       |
+|    | des opérations de Data Science,       |   3    |         |       | X  |        |  X     |          | X   |   X     |     |       |
 |    | typiquement pour obtenir un estimateur|        |         |       |    |        |        |          |     |         |     |       |
 |    | d'état                                |        |         |       |    |        |        |          |     |         |     |       |
 +----+---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
@@ -408,7 +408,7 @@ Tableau d'utilisation des cas d'usage par entité
 |    | template existant de méthodologie de  |        |         |       |    |        |   X    |    X     |     |         |     |       |
 |    | réduction                             |        |         |       |    |        |        |          |     |         |     |       |
 +----+---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
-|B.08| Utilisation in-situ pour accélérer la |   2    |         |       |    |        |        |    X     | X   |         |     |       |
+|B.08| Utilisation in-situ pour accélérer la |   2    |         |       |    |        |   X    |    X     | X   |         |     |       |
 |    | convergence du solveur non-linéaire HF|        |         |       |    |        |        |          |     |         |     |       |
 +----+---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
 
@@ -444,7 +444,7 @@ Tableau d'utilisation des cas d'usage par entité
 +----+---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
 |C.05| Faire calculer une nouvelle simulation|        |         |       |    |        |        |          |     |         |     |       | 
 |    | HF par le solveur "à la volée" pour   |        |         |       |    |        |        |          |     |         |     |       |
-|    | une procédure de réduction qui le     |   3    |         |       | X  |        |        |    X     | X   |         |     |       |
+|    | une procédure de réduction qui le     |   3    |         |       | X  |        |   X    |    X     | X   |         |     |       |
 |    | demande (bas niveau)                  |        |         |       |    |        |        |          |     |         |     |       |
 +----+---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
 |C.06| Modifier un modèle réduit pour        |        |         |       |    |        |        |          |     |         |     |       | 
@@ -483,12 +483,12 @@ Tableau d'utilisation des cas d'usage par entité
 |    | calculs                               |        |         |       |    |        |        |          |     |         |     |       |
 +----+---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
 |C.14| Développer / brancher dans Mordicus   |        |         |       |    |        |        |          |     |         |     |       |
-|    | une nouvelle méthodologie de réduction|   1    |         |       |    |        |        |    X     |     |         |     |       |
+|    | une nouvelle méthodologie de réduction|   1    |         |       |    |        |   X    |    X     |     |         |     |       |
 |    | de modèles ou une variante            |        |         |       |    |        |        |          |     |         |     |       |
 |    | d'une méthode existante               |        |         |       |    |        |        |          |     |         |     |       |
 +----+---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
 |C.15| Générer une base réduite à partir d'un|   ?    |         |       |    |        |        |          |     |         |     |       |
-|    | jeu de données de simulation (cas plus|        |         |       |    |        |        |          |     |         |     |       |
+|    | jeu de données de simulation (cas plus|        |         |       |    |        |   X    |          |     |         |     |       |
 |    | bas niveau)                           |        |         |       |    |        |        |          |     |         |     |       |
 +----+---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
 |C.16| Enrichir un plan d'expérience à partir|   1    |         |       | X  |        |        |          |     |         |     |       |
@@ -505,11 +505,11 @@ Tableau d'utilisation des cas d'usage par entité
 |    | en mémoire                            |        |         |       |    |        |        |          |     |         |     |       |
 +----+---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
 |C.19| Garantir qu'un modèle                 |        |         |       |    |        |        |          |     |         |     |       |
-|    | réduit conserve certaines propriétés  |   3    |   X     |       |    |        |        |          | X   |   X     |     |       |
+|    | réduit conserve certaines propriétés  |   3    |   X     |       |    |        |   X    |          | X   |   X     |     |       |
 |    | mathématiques du modèle haute fidélité|        |         |       |    |        |        |          |     |         |     |       |
 |    | sur un sous-domaine                   |        |         |       |    |        |        |          |     |         |     |       |
 +----+---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
-|C.20| Gérer une taille mémoire prescrite    |   2    |         |       | X  |        |        |          |     |         |     |  X    |
+|C.20| Gérer une taille mémoire prescrite    |   2    |         |       | X  |        |   X    |          |     |         |     |  X    |
 |    | pour l’élaboration d’un modèle réduit |        |         |       |    |        |        |          |     |         |     |       |
 +----+---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
 
