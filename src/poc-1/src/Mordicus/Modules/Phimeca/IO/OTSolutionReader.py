@@ -1,4 +1,5 @@
 import numpy as np
+import math
 
 from Mordicus.Core.IO.SolutionReaderBase import SolutionReaderBase
 
@@ -16,11 +17,13 @@ class OTSolutionReader(SolutionReaderBase):
         self.outputSample = outputSample
 
     def ReadSnapshotComponent(self, fieldName, time, primality):
-        # FIXME: indexing variable is not time, just the number of the realization
-        i = int(time)
-        snapshot = np.array(self.outputSample[i].getValues()).flatten()
+        timeseq = self.ReadTimeSequenceFromSolutionFile()
+        index = max(np.searchsorted(timeseq, time, side='left'), len(timeseq)-1)
+        if index > 0 and math.fabs(timeseq[index-1] - time) < math.fabs(timeseq[index] - time):
+            index = index-1
+        snapshot = np.array(self.outputSample.getValueAtIndex(index)).flatten()
         return snapshot
 
     def ReadTimeSequenceFromSolutionFile(self):
         # here too
-        return [float(i) for i in range(self.outputSample.getSize())]
+        return np.array(self.outputSample.getTimeGrid().getValues())

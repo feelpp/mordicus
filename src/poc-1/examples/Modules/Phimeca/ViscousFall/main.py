@@ -58,32 +58,45 @@ print("-- Create ProblemData...")
 reader = OTMeshReader(ot_mesh)
 mesh = reader.ReadMesh()
 
-numberOfNodes = mesh.GetNumberOfNodes()
-nbeOfComponents = outputSample.getDimension()
+#numberOfNodes = mesh.GetNumberOfNodes()
+#nbeOfComponents = outputSample.getDimension()
+nbeOfComponents = 1
+numberOfNodes = 1
 primality = True
 
 dataFolder = '.'
-problemData = ProblemData(dataFolder)
-
-solutionZ = Solution('Z', nbeOfComponents, numberOfNodes, primality)
-problemData.AddSolution(solutionZ)
-
-for i in range(size):
-    solutionReader = OTSolutionReader(outputSample)
-    #print(outputSample[i].getValues()[:5])
-
-    snapshot = solutionReader.ReadSnapshotComponent(solutionZ.GetSolutionName(), i, solutionZ.GetPrimality())
-    #print(snapshot.shape)
-
-    solutionZ.AddSnapshot(snapshot, time)
-
-    parameter = np.array(inputSample[i])
-    problemData.AddParameter(parameter, time)
-
-
 
 collectionProblemData = CollectionProblemData()
-collectionProblemData.AddProblemData(problemData)
+collectionProblemData.defineVariabilityAxes(["Z0", "V0", "M", "C", "Zmin"],
+                                            [float]*5,
+                                            [("position", "m"), ("speed", "m/s"), ("mass", "Kg"), ("drag", "Kg/s"), ("position", "m")], 
+                                            ["Initial altitude",
+                                             "Initial speed",
+                                             "Mass",
+                                             "Drag coefficient",
+                                             "Altitude of ground"])
+
+for i in range(size):
+
+    problemData = ProblemData(dataFolder)
+
+    solutionZ = Solution('Z', nbeOfComponents, numberOfNodes, primality)
+    problemData.AddSolution(solutionZ)
+    solutionReader = OTSolutionReader(outputSample[i])
+    parameter = np.array(inputSample[i])
+
+    for t in solutionReader.ReadTimeSequenceFromSolutionFile():
+
+        snapshot = solutionReader.ReadSnapshotComponent(solutionZ.GetSolutionName(), t, solutionZ.GetPrimality())
+        solutionZ.AddSnapshot(snapshot, t)
+
+        problemData.AddParameter(parameter, t)
+
+    collectionProblemData.AddProblemData(problemData, Z0=inputSample[i][0],
+                                                      V0=inputSample[i][1],
+                                                      M=inputSample[i][2],
+                                                      C=inputSample[i][3],
+                                                      Zmin=float(inputSample[i][4]))
 
 print("-- Offline...")
 reducedOrderBasis = SP.ComputeReducedOrderBasisFromCollectionProblemData(collectionProblemData, "Z", 1.0e-8)

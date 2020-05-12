@@ -46,10 +46,11 @@ def test():
 
 
     collectionProblemData = CPD.CollectionProblemData()
-    collectionProblemData.AddProblemData(problemData)
+    collectionProblemData.defineVariabilityAxes(('mu',), (float, ))
+    collectionProblemData.AddProblemData(problemData, mu=0.)
     print(
         "A collectionProblemData with problemDatas "
-        + str(collectionProblemData.GetProblemDatasFolders())
+        + str(collectionProblemData.GetProblemSampling())
         + " has been constructed"
     )
 

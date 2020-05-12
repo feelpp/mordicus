@@ -22,7 +22,16 @@ def test():
     reducedOrderBases = np.ones((2, 20))
 
     collectionProblemData = CPD.CollectionProblemData()
-    collectionProblemData.AddProblemData(problemData)
+    collectionProblemData.defineVariabilityAxes(["mu1"],
+                                                [float],
+                                                quantities=[("name", "unit")], 
+                                                descriptions=["Parameter long description"])
+    collectionProblemData.addVariabilityAxis("mu2",
+                                            float,
+                                            quantity=("name", "unit"), 
+                                            description="Parameter long description")
+    collectionProblemData.AddProblemData(problemData, mu1=0., mu2=0.)
+    collectionProblemData.getNumberOfVariabilityAxes()
     collectionProblemData.GetProblemData("computation1")
     collectionProblemData.GetProblemDatas()
     collectionProblemData.AddReducedOrderBasis("U", reducedOrderBases)
@@ -30,7 +39,7 @@ def test():
     collectionProblemData.GetNumberOfProblemDatas()
     collectionProblemData.GetSolutionsNumberOfDofs("U")
     collectionProblemData.GetSolutionsNumberOfNodes("U")
-    collectionProblemData.GetProblemDatasFolders()
+    collectionProblemData.GetProblemSampling()
     collectionProblemData.GetGlobalNumberOfSnapshots("U")
     collectionProblemData.GetGlobalNumberOfSnapshots("U", skipFirst = True)
     collectionProblemData.GetSolutionsNumberOfComponents("U")
