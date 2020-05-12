@@ -48,7 +48,7 @@ EndMacro
 
 string mesh1=getARGV("-m","mesh1.msh"); //mesh1.msh 
 string snapshot=getARGV("-snap","err_default.log");
-int ns=1;//Nombre snapshots (automatique)
+int ns=10;//Nombre snapshots (automatique)
 int nev=getARGV("-nev",1);
 string tmpbase=getARGV("-tmpbase","default");
 cout<<"NEV "<<nev<<endl;
@@ -62,7 +62,7 @@ cout<< " Reading mesh ... " <<endl;
 fespace Ph(Th,P0);
 Ph h = hTriangle;
 cout << "size of mesh 1 = " << h[].max << endl;
-fespace Vh(Th,[P2,P2]);
+fespace Vh(Th,[P1,P1]);
 cout<<"nombre de DOF "<< Vh.ndof<<endl;
 Vh[int] [usnsh,vsnsh](ns); //ns Vecteurs vitesse [u1,u2]
 
@@ -93,7 +93,14 @@ assert(fData.good());
 //en nlogn
 Vh [temp,tempv];
 int cpt=0;
-while(1)
+
+
+for(int i=0;i<ns;i++){
+	cout<<"ok"<<i<<endl;
+	fData>>usnsh[i][];
+}
+
+/*while(1)
 {
 	int nn,where=fData.tellg();//position carac ds le fichier
 	fData >> nn;
@@ -111,7 +118,7 @@ while(1)
 	else break;
 }
 usnsh.resize(cpt); 
-ns=cpt;//number of snapshots
+ns=cpt;//number of snapshots*/
 cout<<" Snapshot:  "<<ns<<endl;
 	
 /*for(int i=0;i<ns;i++){

@@ -24,12 +24,11 @@ def initproblem(dataFolder):
     
     ## Script Files - Initiate data
     externalFolder=osp.join(currentFolder,'External')
-    
     scriptFreeFem=osp.join(externalFolder,'script_donnees_init.edp')
             
     try:
         FNULL = open(os.devnull, 'w')
-        ret = subprocess.run(["FreeFem++", scriptFreeFem, "-outputDir", dataFolder, ">sortie"],
+        ret = subprocess.run(["FreeFem++", scriptFreeFem, "-outputDir", dataFolder],
         stdout=FNULL,stderr=subprocess.PIPE)
         ret.check_returncode()
                 
@@ -57,7 +56,7 @@ def basisFileToArray(tmpbaseFile,nev):
     return u1_np_array
 
 
-
+"""
 def VTKReadToNp(tmpbaseFile,nev_i):
     import vtk
     from vtk.util.numpy_support import vtk_to_numpy
@@ -66,10 +65,11 @@ def VTKReadToNp(tmpbaseFile,nev_i):
     data = LoadVtuWithVTK(tmpbaseFile + str(nev_i) + ".vtu")
     npArray = dsa.WrapDataObject(data).GetPointData().GetArray("u")
     return npArray
-
+"""
 
 
 if __name__ == "__main__":
     dataFolder=osp.join('StationaryNSData')
-
+    
     print(dataFolder)  # pragma: no cover
+    initproblem(dataFolder)

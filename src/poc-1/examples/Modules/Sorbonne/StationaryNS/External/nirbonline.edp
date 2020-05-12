@@ -42,8 +42,8 @@ Ph2 h2 = hTriangle;
 cout << "size of mesh 2 = " << h2[].max << endl;
 //plot(Th2,wait=1);
 
-fespace Vh(Th,[P2,P2]);
-fespace Vh2(Th2,[P2,P2]);
+fespace Vh(Th,[P1,P1]);
+fespace Vh2(Th2,[P1,P1]);
 
 Vh[int] [usnsh,vsnsh](nev); //nev Vecteurs de la base [u1,u2]
 Vh2 [uhh,vhh]; 
