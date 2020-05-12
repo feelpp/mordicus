@@ -6,8 +6,6 @@ from scipy import sparse
 from Mordicus.Core.Containers import ProblemData
 from Mordicus.Core.Containers import Solution
 from mpi4py import MPI
-from mercurial.thirdparty.attr._compat import iteritems
-
 
 class CollectionProblemData(object):
     """
