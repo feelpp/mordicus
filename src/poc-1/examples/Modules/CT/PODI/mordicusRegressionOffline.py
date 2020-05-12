@@ -29,6 +29,10 @@ def test():
     primality = True
 
     collectionProblemData = CPD.CollectionProblemData()
+    collectionProblemData.defineVariabilityAxes(['mu1', 'mu2'], 
+                                                [float, float],
+                                                [('Quantity 1', 'unit1'), ('Quantity 2', 'unit2')],
+                                                ['description 1', 'description 2'])
 
     parameters = [[0.3, 0.0], [0.3, 15.0], [0.8, 0.0], [0.8, 15.0]]   ###two parameters
 
@@ -66,7 +70,7 @@ def test():
             print('Parameters' , problemData.GetParameters().get(t))
             count +=1
 
-        collectionProblemData.AddProblemData(problemData)
+        collectionProblemData.AddProblemData(problemData, mu1=parameters[i][0], mu2=parameters[i][1])
     
 
     print("\nSolutions have been read\n")

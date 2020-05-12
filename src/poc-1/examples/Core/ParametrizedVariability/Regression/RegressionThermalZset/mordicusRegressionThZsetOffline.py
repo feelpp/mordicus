@@ -24,6 +24,10 @@ def test():
     primality = True
 
     collectionProblemData = CPD.CollectionProblemData()
+    collectionProblemData.defineVariabilityAxes(['Text', 'Tint'], 
+                                                [float, float],
+                                                [('Temperature', 'Celsius')]*2,
+                                                ['External temperature', 'Internal Temperature'])
 
     parameters = [[100.0, 1000.0], [50.0, 3000.0], [150.0, 300.0], [130.0, 2000.0]]
 
@@ -57,7 +61,7 @@ def test():
             solution.AddSnapshot(snapshot, t)
             problemData.AddParameter(np.array(parameters[i] + [t]), t)
 
-        collectionProblemData.AddProblemData(problemData)
+        collectionProblemData.AddProblemData(problemData, Text=parameters[i][0], Tint=parameters[i][1])
 
 
     print("Solutions have been read")

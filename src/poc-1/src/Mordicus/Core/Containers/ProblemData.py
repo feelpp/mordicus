@@ -35,7 +35,7 @@ class ProblemData(object):
         initialCondition : InitialConditionBase
         loadings : dict
         constitutiveLaws : dict
-        parameters : collections.OrderedDict
+        parametersValues : collections.OrderedDict
         """
         self.dataFolder = dataFolder
         self.solutions = {}

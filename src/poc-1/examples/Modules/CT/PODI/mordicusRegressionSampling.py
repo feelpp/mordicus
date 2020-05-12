@@ -6,13 +6,16 @@ import numpy as np
 #initial data
 print('Read VTK base file')
 VTKBaseMesh = MR.ReadVTKBase("meshBase.vtu")
-numberOfNodes = VTKBaseMesh.GetNumberOfPoints()
 print('Read mesh')
-mesh = MR.ReadMesh("meshBase.vtu")  ###mesh is used for WritePXDMF only
+mesh = MR.ReadMesh("meshBase.vtu")
 
-#Parameters = [[0.3, 0.0], [0.3, 15.0], [0.8, 0.0], [0.8, 15.0]]   ###two parameters
-Parameters = [[0.3, 0.0, 0], [0.3, 15.0, 0], [0.8, 0.0, 0], [0.8, 15.0, 0], [0.3, 0.0, 3], [0.3, 15.0, 3], [0.8, 0.0, 3], [0.8, 15.0, 3]] ###three parameters
-DataInd = list(range(len(Parameters)))
+#ParametersValues = [[0.3, 0.0], [0.3, 15.0], [0.8, 0.0], [0.8, 15.0]]   ###two parameters
+ParametersDefinition = (['mu1', 'mu2', 'mu3'], 
+                        [float, float, int],
+                        [('Quantity 1', 'unit1'), ('Quantity 2', 'unit2'), None],
+                        ['description 1', 'description 2', 'description 3'])
+ParametersValues = [[0.3, 0.0, 0], [0.3, 15.0, 0], [0.8, 0.0, 0], [0.8, 15.0, 0], [0.3, 0.0, 3], [0.3, 15.0, 3], [0.8, 0.0, 3], [0.8, 15.0, 3]] ###three parameters
+DataInd = list(range(len(ParametersValues)))
 OutputTimeSequence = [0.]
 SolutionName = "Mach"
 print('SolutionName ', SolutionName)
@@ -21,7 +24,7 @@ print('SolutionName ', SolutionName)
 if __name__ == "__main__":
 
     #Offline phase for the starting parameters 
-    rom = RM.ROM(Parameters, OutputTimeSequence, SolutionName, numberOfNodes)
+    rom = RM.ROM(ParametersDefinition, ParametersValues, OutputTimeSequence, SolutionName, mesh)
     rom.Dataset(DataInd)
     rom.POD()
     rom.CompressFit()
@@ -30,7 +33,7 @@ if __name__ == "__main__":
     ##Online phase for one parameter
     #OnlineTimeSeq = np.arange(0, 1, 10)
     #OnlineParameter = [0.3, 8.0]
-    #rom.Predict(OnlineTimeSeq, OnlineParameter, mesh)
+    #rom.Predict(OnlineTimeSeq, OnlineParameter)
     #rom.WriteRec(VTKBaseMesh)
 
     #initial set of snapshots for the calucaltion of the loo error
@@ -40,20 +43,20 @@ if __name__ == "__main__":
 
 
     #Leave One Out method.
-    error = np.zeros(len(Parameters))
+    error = np.zeros(len(ParametersValues))
     for j in DataInd:
         UsedInd = DataInd[:]
         UsedInd.remove(j)
-        NewPar = np.array(Parameters)[UsedInd].tolist()
-        romLO = RM.ROM(NewPar, OutputTimeSequence, SolutionName, numberOfNodes)
+        NewPar = np.array(ParametersValues)[UsedInd].tolist()
+        romLO = ROM(NewPar, OutputTimeSequence, SolutionName, mesh)
         romLO.Dataset(UsedInd)
         romLO.POD()
         romLO.CompressFit()
     
         OnlineTimeSeq = np.arange(0, 1, 10)
-        OnlineParameter = Parameters[j]
+        OnlineParameter = ParametersValues[j]
         print('Leave One Out OnlineParameter ', OnlineParameter)
-        romLO.Predict(OnlineTimeSeq, OnlineParameter, mesh)
+        romLO.Predict(OnlineTimeSeq, OnlineParameter)
     
         error[j] = np.linalg.norm(snaps[j] - romLO.GetSnapOnline())
     
@@ -61,7 +64,7 @@ if __name__ == "__main__":
 
 
     #calcualtion of next points in the parameter space. Initial simplex has to be convex.
-    points = np.array(Parameters)
+    points = np.array(ParametersValues)
     error = error
 
     from scipy.spatial import Delaunay

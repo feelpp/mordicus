@@ -53,13 +53,18 @@ print("-----------------------------------")
 import vtk
 import numpy as np
 from vtk.util.numpy_support import vtk_to_numpy
-nev=3                           
+nev=3
+v0 = [5., 10., 15.]
 time=0.0 
 dimension=2
 # dim
            
 # instancie a reader solution           
 collectionProblemData = CPD.CollectionProblemData()
+collectionProblemData.addVariabilityAxis('V0', 
+                                            float,
+                                            quantity=("speed", "m/s"),
+                                            description="input velocity")
 for i in range(nev):
     
     u1_np_array = VTKReadToNp(dataFolder+"/snapshot",i)
@@ -73,7 +78,7 @@ for i in range(nev):
     problemData = PD.ProblemData(dataFolder)
     problemData.AddSolution(solutionU)
 
-collectionProblemData.AddProblemData(problemData)
+    collectionProblemData.AddProblemData(problemData, V0=v0[i])
 
 ##On lit le maillage ici si GMSH et convertir en format gmsh sinon pour le lire avec basictools
 meshFileName = dataFolder + "/test.msh"
