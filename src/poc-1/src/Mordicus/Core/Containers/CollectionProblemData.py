@@ -174,7 +174,7 @@ class CollectionProblemData(object):
         """
         if len(kwargs) != self.getNumberOfVariabilityAxes():
             raise ValueError("Provided point in parameter space has {0} components, {1} expected".format(len(kwargs), self.getNumberOfVariabilityAxes()))
-        for k, v in iteritems(kwargs):
+        for k, v in kwargs.iteritems():
             if k not in self.variabilityDefinition:
                 raise KeyError("{} is not a defined axis of variability".format(k))
             if not isinstance(v, self.variabilityDefinition[k]['type']):
