@@ -10,7 +10,6 @@ from Mordicus.Modules.Safran.OperatorCompressors import Mechanical as Meca
 import numpy as np
 from pathlib import Path
 import os
-from builtins import str
 
 
 initFolder = os.getcwd()
