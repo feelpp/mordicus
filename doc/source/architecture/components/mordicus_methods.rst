@@ -114,12 +114,12 @@ As decided in Copil of december 6th, hereafter is a table of the methods that ar
     +---------------------------------------+------------------+-------------------------------+-------------------------+
     | **Reconstruction and data assimilation**                                                                           |
     +---------------------------------------+------------------+-------------------------------+-------------------------+
-    |                                       |                  |                               | - observed signals      |
-    | PBDW                                  |  EDF             |                               |                         |
+    |                                       |                  |  - reduced basis              | - observed signals      |
+    | PBDW                                  |  EDF             |  - scalar product             | - sensor metadata       |
     |                                       |                  |                               | - Riesz representers    |
     |                                       |  Sorbonne        |                               |   of sensors            |
     |                                       |                  |                               |                         |
-    |                                       |  Cemosis (1.1d)  |                               | - reduced basis         |
+    |                                       |  Cemosis (1.1d)  |                               |                         |
     +---------------------------------------+------------------+-------------------------------+-------------------------+
     |                                       |                  |                               |                         |
     | Gappy POD                             |  EDF             |                               |                         |
