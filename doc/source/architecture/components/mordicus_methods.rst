@@ -66,7 +66,7 @@ As decided in Copil of december 6th, hereafter is a table of the methods that ar
     |                                       |                  | + BC terms (matrices          |                         |
     |                                       |                  |   or vectors)                 |                         |
     | EIM                                   |  EDF             |                               |                         |
-    |                                       |                  | + primal solution vectors     |                         |
+    |                                       |  Cemosis         | + primal solution vectors     |                         |
     |                                       |                  |                               |                         |
     +---------------------------------------+------------------+-------------------------------+-------------------------+
     |                                       |                  | + FE or FV operators (e.g.    |  reduced basis          |
@@ -80,7 +80,7 @@ As decided in Copil of december 6th, hereafter is a table of the methods that ar
     | Empirical quadrature (ECM, ECSW)      |  Safran          |                               |                         |
     |                                       |                  | + dual solution vectors       |                         |
     |                                       |  EDF             |                               |                         |
-    |                                       |                  |                               |                         |
+    |                                       |  Cemosis         |                               |                         |
     +---------------------------------------+------------------+-------------------------------+-------------------------+
     |                                       |  Safran          | + FE or FV operators (e.g.    |  reduced basis          |
     |                                       |                  |   matrices for viscous and    |                         |
@@ -175,7 +175,7 @@ The required services from the solver are presented in the table below:
     +---------------------------------------+------------------+-------------------------+-----------------------------+
     |                                       |                  | compute non-linear      |                             |
     | EIM                                   |  EDF             | term for some solution  |                             |
-    |                                       |                  |                         |                             |
+    |                                       |  Cemosis         |                         |                             |
     |                                       |                  |                         |                             |
     +---------------------------------------+------------------+-------------------------+-----------------------------+
     |                                       |                  | - compute integral of   |                             |
@@ -183,7 +183,7 @@ The required services from the solver are presented in the table below:
     |                                       |                  |   test function         |                             |
     |                                       |                  |                         |                             |
     |                                       |  EDF             | - provide Gauss points  |                             |
-    |                                       |                  |   weights and location  |                             |
+    |                                       |  Cemosis         |   weights and location  |                             |
     +---------------------------------------+------------------+-------------------------+-----------------------------+
     |                                       |  Safran          |                         |                             |
     | Hyper-reduction (RID)                 |                  |                         |                             |
