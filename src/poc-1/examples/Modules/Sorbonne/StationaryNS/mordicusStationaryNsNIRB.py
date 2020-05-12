@@ -10,7 +10,8 @@ from Mordicus.Core.Containers import Solution as S
 #from Mordicus.Modules.sorbonne.IO import FFSolutionReader
 from initCase import initproblem
 from initCase import basisFileToArray
-from initCase import VTKReadToNp
+#from initCase import VTKReadToNp
+from  Mordicus.Modules.CT.IO import VTKSolutionReader as VTKSR
 
 import array
 
@@ -61,8 +62,9 @@ dimension=2
 # instancie a reader solution           
 collectionProblemData = CPD.CollectionProblemData()
 for i in range(nev):
-    
-    u1_np_array = VTKReadToNp(dataFolder+"/snapshot",i)
+
+    test=VTKSR.VTKSolutionReader("u");
+    u1_np_array =test.VTKReadToNp(dataFolder+"/snapshot",i)
     #instancie une solution
     solutionU=S.Solution("U",dimension,u1_np_array.shape[0],True)
     u1_np_array=u1_np_array.flatten()
@@ -155,7 +157,10 @@ Convert the basis in an numpy array
 #array_basis=basisFileToArray(tmpbaseFile,nev)
 array_list = []
 for i in range(nev):
-    array_list.append(VTKReadToNp(tmpbaseFile,i))
+    test=VTKSR.VTKSolutionReader("u");
+    array_list.append(test.VTKReadToNp(tmpbaseFile,i))
+    
+    #array_list.append(VTKReadToNp(tmpbaseFile,i))
 
 print("-----------------------------------")
 print(" STEP1: Basis converted in numpy   ")
