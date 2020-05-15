@@ -108,9 +108,10 @@ As decided in Copil of december 6th, hereafter is a table of the methods that ar
     |                                       |  EDF      (1.2h) |                               |                         |
     |                                       |                  |                               |                         |
     +---------------------------------------+------------------+-------------------------------+-------------------------+
-    |                                       |                  |                               |                         |
-    | GEIM                                  |  Cemosis (1.1d)  |            *???*              |        *???*            |
-    |                                       |                  |                               |                         |
+    |                                       |                  |                               | - reduced basis         |
+    | GEIM                                  |  Cemosis (1.1d)  | linear form to approximate    |                         |
+    |                                       |                  |                               | - linear form to        |
+    |                                       |                  |                               |   approximate           |
     |                                       |                  |                               |                         |
     +---------------------------------------+------------------+-------------------------------+-------------------------+
     | **Reconstruction and data assimilation**                                                                           |
@@ -178,10 +179,13 @@ The required services from the solver are presented in the table below:
     |                                       |  Safran          |                         |                             |
     |                                       |                  |                         |                             |
     +---------------------------------------+------------------+-------------------------+-----------------------------+
-    |                                       |                  | compute non-linear      |                             |
-    | EIM                                   |  EDF             | term for some solution  |                             |
-    |                                       |  Cemosis         |                         |                             |
-    |                                       |                  |                         |                             |
+    |                                       |                  | - compute non-linear    |                             |
+    | EIM                                   |  EDF             |   term for some         |                             |
+    |                                       |                  |   solution              | compute coefficient for     |
+    |                                       |  Cemosis         |                         | given parameter             |
+    |                                       |                  | - compute affine        |                             |
+    |                                       |                  |   decomposition of a    |                             |
+    |                                       |                  |   term                  |                             |
     +---------------------------------------+------------------+-------------------------+-----------------------------+
     |                                       |                  | - compute integral of   |  compute reduced quadrature |
     | Empirical quadrature (ECM, ECSW)      |  Safran          |   solution against some |                             |
@@ -208,16 +212,20 @@ The required services from the solver are presented in the table below:
     |                                       |                  |                         |                             |
     |                                       |  EDF      (1.2h) |                         |                             |
     +---------------------------------------+------------------+-------------------------+-----------------------------+
-    |                                       |                  |                         |                             |
-    | GEIM                                  |  Cemosis (1.1d)  |           *???*         |            *???*            |
-    |                                       |                  |                         |                             |
+    |                                       |                  | - compute linear forms  | - compute linear form at    |
+    |                                       |                  |   for some solutions    |   the interpolation points  |
+    | GEIM                                  |  Cemosis (1.1d)  |                         |                             |
+    |                                       |                  | - perform greedy        | - solve the algebraic       |
+    |                                       |                  |   algorithm to compute  |   problem to find the       |
+    |                                       |                  |   the basis and the     |   coefficient for a given   |
+    |                                       |                  |   matrix of coefficient |   paramater                 |
     |                                       |                  |                         |                             |
     +---------------------------------------+------------------+-------------------------+-----------------------------+
     | **Reconstruction and data assimilation**                                                                         |
     +---------------------------------------+------------------+-------------------------+-----------------------------+
-    |                                       |                  | compute scalar product  |                             |
+    |                                       |                  | compute scalar product  | - get observation           |
     | PBDW                                  |  EDF             |                         |                             |
-    |                                       |  Sorbonne        |                         |                             |
+    |                                       |  Sorbonne        |                         | - solve mixed problem       |
     |                                       |  Cemosis (1.1d)  |                         |                             |
     |                                       |                  |                         |                             |
     |                                       |                  |                         |                             |
