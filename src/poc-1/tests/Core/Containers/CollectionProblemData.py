@@ -32,7 +32,7 @@ def test():
                                             description="Parameter long description")
     collectionProblemData.AddProblemData(problemData, mu1=0., mu2=0.)
     collectionProblemData.getNumberOfVariabilityAxes()
-    collectionProblemData.GetProblemData("computation1")
+    collectionProblemData.GetProblemData(mu1=0., mu2=0.)
     collectionProblemData.GetProblemDatas()
     collectionProblemData.AddReducedOrderBasis("U", reducedOrderBases)
     collectionProblemData.GetReducedOrderBasis("U")
