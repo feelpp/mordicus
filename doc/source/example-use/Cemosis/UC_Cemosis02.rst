@@ -29,7 +29,7 @@ In this case finally, we may want to use EQM to speed up the computation of the 
   :class: longtable
   
   +---------------------+----------+------------------------+-------------------------------------------------+
-  | USE CASE Cemosis01  |   Reduction of a non linear multi-physics 3D electro thermic and magnetostatic      |
+  | USE CASE Cemosis02  |   Reduction of a non linear multi-physics 3D electro thermic and magnetostatic      |
   +---------------------+----------+------------------------+-------------------------------------------------+
   | Context of use      |   Expert user establishes the needed autonomous data structure for running a        |
   |                     |   reduced order simulation of a parametric multi-physic simulation, with non-linear |
