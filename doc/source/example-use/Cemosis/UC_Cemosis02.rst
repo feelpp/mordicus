@@ -3,7 +3,25 @@
 Cemosis Use Case
 ----------------
 
-*Contexte à ajouter*
+A high field magnet involves several different coupled physics.
+First, the electricity that runs through the magnet will produce heat because of the Joule losses.
+The temperature will change the thermal and electric conductivity of the copper alloys constituting the magnet.
+To control the temperature, the magnet will be cooled by a forced water flow.
+The current density will produce a magnetic field.
+And the thermal dilation and the Lorentz forces will deform the magnet.
+Finally, the deformation of the magnet may alter the cooling and hence the electric current.
+
+Since modeling directly such a complicate problem is very difficult, we chose to make some simplification.
+First, we place ourselves in a stationary problem, thus eliminating the difficulty of time-dependent problems.
+Then, the cooling of the magnet involves a fluid mechanic problem that is very expensive to solve.
+We chose to simplify this problem by introducing heat exchange coefficients derived from standard correlation in thermohydraulics.
+
+We have three problems to solve: a nonlinear thermo-electric problem, a magnetostatic problem and a linear elasticity problem.
+We will focus on the thermo-electric problem and we will compute the magnetic field by using the Biot-Savart law.
+To reduce the nonlinear problem, we will use EIM to interpolate the thermic and electric conductivities, as well as the Joule losses.
+We will then create another reduced basis for the Biot-Savart law by using the precedent reduced basis.
+Additionnaly, we want to perform a shape optimization of the magnet, thus needing the discrete version of EIM to approximate the integral on the reference domain.
+In this case finally, we may want to use EQM to speed up the computation of the magnetic field by the Biot-Savart law.
 
 .. .. tabularcolumns:: |L|L|L|L|
 
@@ -78,6 +96,6 @@ Cemosis Use Case
   |                     | 7a       | User does not agree with errors bounds, request additional basis.        |
   |                     |          | Return to step 4                                                         |
   +---------------------+----------+------------------------+-------------------------------------------------+
-  | Related information | Available documentation at ...                                                      |
+  | Related information | Available documentation at http://docs.cemosis.fr/hifimagnet/stable/                |
   +---------------------+----------+------------------------+-------------------------------------------------+
 
