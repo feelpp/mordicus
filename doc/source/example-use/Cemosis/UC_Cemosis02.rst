@@ -1,7 +1,7 @@
 .. _UC_Cemosis02:
 
-Cemosis Use Case
-----------------
+Cemosis Use Case: High Field Magnet
+-----------------------------------
 
 A high field magnet involves several different coupled physics.
 First, the electricity that runs through the magnet will produce heat because of the Joule losses.
@@ -25,7 +25,7 @@ In this case finally, we may want to use EQM to speed up the computation of the 
 
 .. .. tabularcolumns:: |L|L|L|L|
 
-.. table:: Cemosis use case
+.. table:: Cemosis high field magnet use case
   :class: longtable
   
   +---------------------+----------+------------------------+-------------------------------------------------+
