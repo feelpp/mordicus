@@ -36,4 +36,5 @@ class OTSolutionReader(SolutionReaderBase):
             tlist.append(xm)
             x = next(it)[0]
             stop = (x < xm)
+            xm = x
         return np.array(tlist)
