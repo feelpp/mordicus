@@ -12,8 +12,8 @@ def test():
     processSample = ot.GaussianProcess(model, mesh).getSample(10)
 
     # run reader
-    reader = OTSolutionReader(processSample)
-    snapshot = reader.ReadSnapshotComponent("U1", 0.0, primality=True)
+    reader = OTSolutionReader(processSample[0])
+    snapshot = reader.ReadSnapshotComponent("U1", 0.0, True)
     outputTimeSequence = reader.ReadTimeSequenceFromSolutionFile()
 
     return "ok"

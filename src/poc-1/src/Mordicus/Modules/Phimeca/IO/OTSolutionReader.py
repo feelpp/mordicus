@@ -26,4 +26,14 @@ class OTSolutionReader(SolutionReaderBase):
 
     def ReadTimeSequenceFromSolutionFile(self):
         # here too
-        return np.array(self.outputSample.getTimeGrid().getValues())
+        if self.outputSample.getMesh().getDimension() == 1:
+            return np.array(self.outputSample.getTimeGrid().getValues())
+        stop = False
+        tlist = []
+        it = iter(outputSample.getMesh().getVertices())
+        xm = next(it)[0]
+        while not stop:
+            tlist.append(xm)
+            x = next(it)[0]
+            stop = (x < xm)
+        return np.array(tlist)
