@@ -30,7 +30,7 @@ class OTSolutionReader(SolutionReaderBase):
             return np.array(self.outputSample.getTimeGrid().getValues())
         stop = False
         tlist = []
-        it = iter(outputSample.getMesh().getVertices())
+        it = iter(self.outputSample.getMesh().getVertices())
         xm = next(it)[0]
         while not stop:
             tlist.append(xm)
