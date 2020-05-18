@@ -18,11 +18,11 @@ import vtk
     
 class ROM(object):
 
-    def __init__(self, parameters, outputTimeSequence, solutionName, numberOfNodes):
+    def __init__(self, ParametersDefinition, ParametersValues, outputTimeSequence, solutionName, numberOfNodes):
 
-        assert isinstance(parameters, list)    
+        assert isinstance(ParametersValues, list)    
         assert isinstance(outputTimeSequence, list)    
-        self.parameters = parameters
+        self.parameters = ParametersValues
         self.outputTimeSequence = outputTimeSequence
         self.solutionName = solutionName
 
@@ -31,8 +31,9 @@ class ROM(object):
         self.primality = True
 
         self.collectionProblemData = CPD.CollectionProblemData()
+        self.collectionProblemData.defineVariabilityAxes(*ParametersDefinition)
+        self.collectionProblemData.defineQuantity(solutionName)
         self.onlineProblemData = PD.ProblemData("Online")
-    
 
 
     def Dataset(self, Ind):
@@ -69,8 +70,10 @@ class ROM(object):
                 print('Parameters' , problemData.GetParameters().get(t))
                 count +=1
     
-            self.collectionProblemData.AddProblemData(problemData)
-    
+            kws = {}
+            for j, k in enumerate(self.collectionProblemData.variabilityDefinition.keys()):
+                kws[k] = self.parameters[i][j]
+            self.collectionProblemData.AddProblemData(problemData, **kws)   
         print("\nSolutions have been read\n")
 
 

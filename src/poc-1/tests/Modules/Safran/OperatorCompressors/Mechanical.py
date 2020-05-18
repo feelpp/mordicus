@@ -67,7 +67,11 @@ def test():
     problemData.AddSolution(solutionEvrcum)
 
     collectionProblemData = CollectionProblemData.CollectionProblemData()
-    collectionProblemData.AddProblemData(problemData)
+    collectionProblemData.addVariabilityAxis("config", str)
+    collectionProblemData.defineQuantity("U", "displacement", "m")
+    collectionProblemData.defineQuantity("sigma", "stress", "Pa")
+    collectionProblemData.defineQuantity("evrcum", "cumulated plasticity", "none")
+    collectionProblemData.AddProblemData(problemData, config="case-1")
 
 
     print("ComputeL2ScalarProducMatrix...")

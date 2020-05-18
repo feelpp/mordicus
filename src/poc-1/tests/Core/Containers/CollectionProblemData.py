@@ -7,7 +7,6 @@ from Mordicus.Core.Containers import ProblemData
 from Mordicus.Core.Containers import Solution
 from Mordicus.Core.Containers import CollectionProblemData as CPD
 
-
 def test():
 
     solution = Solution.Solution("U", 2, 10, True)
@@ -30,6 +29,7 @@ def test():
                                             float,
                                             quantity=("name", "unit"), 
                                             description="Parameter long description")
+    collectionProblemData.defineQuantity("U", "velocity", "m/s")
     collectionProblemData.AddProblemData(problemData, mu1=0., mu2=0.)
     collectionProblemData.getNumberOfVariabilityAxes()
     collectionProblemData.GetProblemData(mu1=0., mu2=0.)

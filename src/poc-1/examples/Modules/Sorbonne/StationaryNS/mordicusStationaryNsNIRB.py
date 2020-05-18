@@ -65,6 +65,7 @@ collectionProblemData.addVariabilityAxis('V0',
                                             float,
                                             quantity=("speed", "m/s"),
                                             description="input velocity")
+collectionProblemData.defineQuantity("U", "velocity", "m/s")
 for i in range(nev):
     
     u1_np_array = VTKReadToNp(dataFolder+"/snapshot",i)

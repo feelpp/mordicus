@@ -28,6 +28,7 @@ def test():
                                                 [float, float],
                                                 [('Temperature', 'Celsius')]*2,
                                                 ['External temperature', 'Internal Temperature'])
+    collectionProblemData.defineQuantity(solutionName, "Temperature", "Celsius")
 
     parameters = [[100.0, 1000.0], [50.0, 3000.0], [150.0, 300.0], [130.0, 2000.0]]
 
