@@ -1,5 +1,97 @@
 .. _mordicus_methods:
 
+Foreword
+========
+
+On imagine un problème à résoudre dans un domaine quelconque, dont un modèle prend la forme d'une équations aux dérivées partielles, dont l'inconnue est :math:`u (x, t; \mu )`:
+
+.. math::
+   :label: eq-meth-1
+
+   f \left( x, t ; u( x, t; \mu ); \dfrac{\partial u}{\partial x_1}, ... \dfrac{\partial u}{\partial x_n}, \dfrac{\partial u}{\partial t}; \dfrac{\partial^2 u}{\partial x_1^2}, ...  \dfrac{\partial^2 u}{\partial x_1 t}, ... ; \mu \right)
+
+où :math:`f` désigne une expression ou une procédure algébrique. Si :math:`f` est linéaire relativement au bloc :math:`\left(u, \dfrac{\partial u}{\partial x_1} ... \right)`, on dit que l'EDP est linéaire.
+
+A partir des données métier, un solveur haute-fidélité écrire une discrétisation en espace de cette équation (une ODE donc), par une méthode de discrétisation de type éléments finis, volumes finis ou autre. :math:`u ( x, t; \mu)` est recherchée sous la forme d'une combinaison de fonctions polynomiales par morceaux, éventuellement discontinues entre les morceaux (cas des volumes finis et Galerkin discontinu):
+
+.. math::
+   :label: eq-meth-2
+
+   u (x, t; \mu) = \sum_{k=0}^{\mathcal{N}} u_k (t; \mu) \phi_k ( x )
+
+On introduit une discrétisation spatiale (un maillage) :math:`\mathcal{T} = \left\lbrace T_e \right\rbrace_{e=1}^E`, où :math:`T_e` désignent les éléments ou cellules deux à deux disjointes dont la réunion couvre le domaine :math:`\Omega`. Souvent, :math:`\phi_k` n'est non nul que sur petit sous-ensemble :math:`S(k)` d'éléments du maillage, de sorte que :numref:`eq-meth-2` peut se réécrire:
+
+.. math::
+   :label: eq-meth-3
+
+   u (x, t; \mu) = \sum_{k=0}^{\mathcal{N}} u_k (t; \mu) \sum_{e \in S(k)} \phi_k^e ( x )
+
+avec :math:`\phi_k^e ( x )` une fonction polynomiale, ou du moins une fraction rationnelle.
+
+Dans certain cas, la variabilité agit sur la géométrie elle-même (celle -ci restant néanmoins fixe au cours du temps), et dans ce cas :math:`\phi_k` dépend de :math:`\mu`:
+
+.. math::
+   :label: eq-meth-4
+
+   u (x, t; \mu) = \sum_{k=0}^{\mathcal{N}} u_k (t; \mu) \phi_k ( x; \mathbf{\mu})
+
+Il se peut aussi que la résolution utilise une approche espace-temps, c'est-à-dire:
+
+.. math::
+   :label: eq-meth-5
+
+   u (x, t; \mu) = \sum_{k=0}^{\mathcal{N}} u_k (\mu) \phi_k ( x, t)
+
+On considère que cela ne sera pas le cas pour Mordicus pour la génération des snapshots.
+  
+Ces écritures :numref:`eq-meth-2`-:numref:`eq-meth-4` permettent la conversion de l'EDP :numref:`eq-meth-1` en une ODE:
+
+.. math::
+   :label: eq-meth-6
+
+   F ( u, \dot{u}, ... u^{(m)}; t, \mu ) = 0
+
+où cette fois :math:`u (t, \mu) = \left( u_k ( t; \mu) \right)_{1 \leq k \leq \mathcal{N}}`, et :math:`F` est une fonction ou une procédure algébrique. Si :math:`F` est linéaire relativement au bloc de variables :math:`( u, \dot{u}, ... u^{(m)})`, alors on dit que l'ODE est linéaire.
+
+On introduit une discrétisation temporelle :math:`\left\lbrace t_i \right\rbrace_{i=0}^K`. Cette ODE :numref:`eq-meth-6` est en général résolue en utilisant un schéma différences finies en temps:
+
+.. math::
+   :label: eq-meth-7
+
+   G_{n+1} (u_{n+1}; u_n, u_{n-1}, ...; \mu ) = 0
+
+Si cette expression peut se réécrire sous une forme explicite en :math:`u_{n+1}`, le schéma est dit explicite en temps.
+
+On définit alors la variété :math:`\mathcal{M}` des solutions discrètes comme:
+
+.. math::
+   :label: eq-meth-8
+
+   \mathcal{M} = \left\lbrace u (t; \mu) : \mu \in \mathcal{P}, t \in \left\lbrace t_i \right\rbrace_{i=0}^K \right\rbrace
+
+La réduction de modèle se base sur le constat qu'il est souvent possible de trouver un espace vectoriel :math:`\mathcal{Z}_N` ou une variété :math:`\mathcal{M}_N` de dimension :math:`N` faible proches de :math:`\mathcal{M}` (au sens d'indicateurs mathématiques type distance de Kolmogorov sur lesquels nous ne revenons pas ici), c'est à dire que la distance de tout point de :math:`\mathcal{M}` à :math:`\mathcal{M}_N` est faible.
+
+La construction de :math:`\mathcal{Z}_N` (compression *linéaire*) ou :math:`\mathcal{M}_N` (compression *non-linéaire*) se fait avec un algorithme de *compression des données* à partir de solutions haute-fidélité :math:`\mathcal{S} = \left\lbrace u_k^i := u (t_i, \mu_k), 1 \leq i \leq K \right\rbrace_{k=1}^{n_{\textrm{sample}}}`, dites snapshots.
+
+.. note::
+
+   Y a-t-il un intérêt à définir la variété des solutions continues ? Si oui lequel ?
+
+Le *modèle réduit* du problème initial va rechercher une approximation de la solution dans :math:`\mathcal{Z}_N` ou :math:`\mathcal{M}_N`. C'est la phase de *résolution réduite*, pour laquelle on distingue deux grandes familles de méthodes:
+
+   * les méthodes de *compression des opérateurs*: elles utilisent la connaissance du modèle physique: il s'agit de projeter :numref:`eq-meth-6` sur :math:`\mathcal{Z}_N` voir le réécrire en discrétisant :numref:`eq-meth-1` de façon appropriée sur :math:`\mathcal{Z}_N` ou :math:`\mathcal{M}_N`. Elles sont en général plus performantes en terle de qualité d'approximation et surtout nécessitent moins de *snapshots*. Elles sont néanmoins plus complexes à mettre en oeuvre, avec des spécificités qui dépendent du type de problème envisagé (elliptiques, paraboliques...)
+
+   * les méthodes de *construction d'un méta-modèle*: elles n'utilisent pas les équations :numref:`eq-meth-6`, :numref:`eq-meth-1` du problème. Au lieu de cela, elles reposent sur des techniques de régression statistiques ou machine learning sur la seule donnée de :math:`\mathcal{S}`. Plus faciles à mettre en oeuvre, elles nécessitent plus de snapshots, pour une qualité d'approximation difficile à garantir.
+
+Dans ces deux familles, certaines méthodes utilisent en plus des données de provenance expérimentales pour produire la solution réduite, on parle alors d'*assimilation de données*.
+
+Ayant donné cette image générale, on peut dès à présent dresser une cartographie des méthodes (*donner la référence de l'image*), que l'on détaille dans les paragraphes suivants.
+
+Compression des données
+-----------------------
+
+*A compléter*
+
 Mordicus methods
 ================
 
