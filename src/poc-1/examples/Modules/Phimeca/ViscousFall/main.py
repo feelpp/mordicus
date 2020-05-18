@@ -75,6 +75,7 @@ collectionProblemData.defineVariabilityAxes(["Z0", "V0", "M", "C", "Zmin"],
                                              "Mass",
                                              "Drag coefficient",
                                              "Altitude of ground"])
+collectionProblemData.defineQuantity("Z", "altitude", "m")
 
 for i in range(size):
 

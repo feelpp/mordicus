@@ -64,10 +64,11 @@ def test():
     problemData.AddSolution(solutionSigma)
 
     collectionProblemData = CPD.CollectionProblemData()
-    collectionProblemData.addVariabilityAxis('mu', 
-                                             float,
-                                             description="dummy parameter")
-    collectionProblemData.AddProblemData(problemData, mu=0.0)
+    collectionProblemData.addVariabilityAxis('config', 
+                                             str,
+                                             description="dummy variability")
+    collectionProblemData.defineQuantity("U", "displacement", "m")
+    collectionProblemData.AddProblemData(problemData, config="case-1")
         
     print("ComputeL2ScalarProducMatrix...")
     l2ScalarProducMatrix = FT.ComputeL2ScalarProducMatrix(mesh, 3)

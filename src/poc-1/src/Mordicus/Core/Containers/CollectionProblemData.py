@@ -31,6 +31,7 @@ class CollectionProblemData(object):
         self.reducedOrderBases = {}
         self.snapshotCorrelationOperators = {}
         self.variabilityDefinition = {}
+        self.quantityDefinition = {}
         self.operatorCompressionData = None
 
 
@@ -50,7 +51,7 @@ class CollectionProblemData(object):
             isinstance(reducedOrderBasis, np.ndarray)
             and len(reducedOrderBasis.shape) == 2
         ), "reducedOrderBasis must be a 2D np.ndarray"
-
+        self._checkSolutionName(solutionName)
         self.reducedOrderBases[solutionName] = reducedOrderBasis
 
     def GetReducedOrderBasis(self, solutionName):
@@ -146,7 +147,24 @@ class CollectionProblemData(object):
         for opt in ('quantity', 'description'):
             if opt in kwargs and kwargs[opt] is not None:
                 self.variabilityDefinition[varname][opt] = kwargs[opt]
-    
+
+    def defineQuantity(self, key, full_name="", unit=""):
+        """
+        Define a new quantity for results
+        
+        Parameters
+        ----------
+        key : str
+           Key to be served in ProblemData to retrieve the result
+        full_name : str
+           Full name of the quantity, e.g. "velocity"
+        unit : str
+           Measuring unit, e.g. "meter"
+        """
+        if not isinstance(key, str):
+            raise TypeError("Quantity identifier should be a str")
+        self.quantityDefinition[key] = (full_name, unit)
+        
     def getNumberOfVariabilityAxes(self):
         """
         Gets the number of variability axes.
@@ -164,7 +182,7 @@ class CollectionProblemData(object):
         Checks keys and values provided as parameter point.
         
         Raises:
-        --------
+        -------
         ValueError
             if the number of components provided is wrong
         KeyError
@@ -179,6 +197,23 @@ class CollectionProblemData(object):
                 raise KeyError("{} is not a defined axis of variability".format(k))
             if not isinstance(v, self.variabilityDefinition[k]['type']):
                 raise TypeError("Provided value {0} has type {1}, expected {2}".format(v, type(v), self.variabilityDefinition[k]['type']))
+
+    def _checkSolutionName(self, solutionName):
+        """
+        Checks that solutionName has been defined as a quantity identifier before.
+        
+        Argument:
+        ---------
+        solutionName:
+            candidate identifier
+        
+        Raises:
+        -------
+        ValueError:
+           if not
+        """
+        if solutionName not in self.quantityDefinition:
+            raise ValueError("Solution name {} was not defined as a quantity before".format(solutionName))
 
     def AddProblemData(self, problemData, **kwargs):
         """
@@ -372,7 +407,7 @@ class CollectionProblemData(object):
             an iterator over snapshots of solutions of name "solutionName" in all problemDatas
         """
         this = self
-
+        self._checkSolutionName(solutionName)
         class iterator:
             def __init__(self, solutionName, skipFirst):
                 self.solutionName = solutionName
@@ -401,6 +436,7 @@ class CollectionProblemData(object):
         solutionName : str
         snapshotCorrelationOperator : scipy.sparse.csr
         """
+        self._checkSolutionName(solutionName)
         self.snapshotCorrelationOperators[solutionName] = snapshotCorrelationOperator
 
     def GetSnapshotCorrelationOperator(self, solutionName):

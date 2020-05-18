@@ -66,6 +66,7 @@ collectionProblemData.addVariabilityAxis('V0',
                                             float,
                                             quantity=("speed", "m/s"),
                                             description="input velocity")
+collectionProblemData.defineQuantity("U", "velocity", "m/s")
 for i in range(nev):
 
     test=VTKSR.VTKSolutionReader("u");
