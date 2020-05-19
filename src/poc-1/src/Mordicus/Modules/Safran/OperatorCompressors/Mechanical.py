@@ -60,7 +60,7 @@ def PrepareOnline(onlineProblemData, operatorCompressionData):
 
     onlineCompressionData = {}
 
-    nReducedIntegrationPoints = operatorCompressionData["hyperReducedIntegrator"].shape[2]
+    nReducedIntegrationPoints = operatorCompressionData["hyperReducedIntegrator"].shape[1]
     nSigmaComponents = operatorCompressionData["hyperReducedIntegrator"].shape[0]
 
     onlineCompressionData["stranIntForces0"] =  np.zeros((nReducedIntegrationPoints,nSigmaComponents))
