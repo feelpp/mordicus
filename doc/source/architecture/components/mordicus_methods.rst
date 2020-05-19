@@ -43,7 +43,7 @@ As decided in Copil of december 6th, hereafter is a table of the methods that ar
     +---------------------------------------+------------------+-------------------------------+-------------------------+
     |                                       |                  |                               | training set            |
     | Greedy reduced basis, e.g. PREIM      |  EDF             |                               |                         |
-    |                                       |                  |                               |                         |
+    |                                       |  Sorbonne        |                               |                         |
     |                                       |  CT              |                               |                         |
     +---------------------------------------+------------------+-------------------------------+-------------------------+
     | **Reduce evaluation cost, reduce operator complexity (operator compression)**                                      |
@@ -103,10 +103,11 @@ As decided in Copil of december 6th, hereafter is a table of the methods that ar
     |                                       |                  |                               |                         |
     |                                       |  CT              |                               |                         |
     +---------------------------------------+------------------+-------------------------------+-------------------------+
-    |                                       |  Sorbonne (1.1ef)|                               | reduced basis (built    |
-    | NIRB                                  |                  |                               | from fine mesh)         |
-    |                                       |  EDF      (1.2h) |                               |                         |
-    |                                       |                  |                               |                         |
+    |                                       |  Sorbonne (1.1ef)| + For all:                    | reduced basis (built    |
+    | NIRB                                  |                  |   fine solution vectors       | from fine mesh)         |
+    | + Without Post treatment              |  EDF      (1.2h) |+ For rectification :          |                         |
+    | + With rectification                  |                  |  coarse solution vector       |                         |
+    | + Constrained minimization            |                  |                               |                         |
     +---------------------------------------+------------------+-------------------------------+-------------------------+
     |                                       |                  |                               | - reduced basis         |
     | GEIM                                  |  Cemosis (1.1d)  | linear form to approximate    |                         |
@@ -149,7 +150,7 @@ The required services from the solver are presented in the table below:
     |                                       |                  |                         |                             |
     |                                       |                  |                         |                             |
     +---------------------------------------+------------------+-------------------------+-----------------------------+
-    |                                       |                  | scalar product of 2     |                             |
+    |                                       |    Sorbonne      | scalar product of 2     |                             |
     | Greedy POD                            |                  | solutions (optional)    |                             |
     |                                       |                  |                         |                             |
     |                                       |                  |                         |                             |
