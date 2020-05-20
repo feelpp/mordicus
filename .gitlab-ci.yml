@@ -13,7 +13,7 @@ doc:
   image: python:3.7-alpine
   before_script:
     - apk add build-base texlive texmf-dist-latexextra
-    - pip install -U sphinx
+    - pip install -U sphinx sphinxcontrib-bibtex
   script:
     - export PYTHONPATH=$PWD/../basic-tools/src:$PYTHONPATH
     - mkdir -p public
