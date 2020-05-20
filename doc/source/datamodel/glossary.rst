@@ -159,7 +159,7 @@ A lire dans l'ordre (idéalement).
         Question: quelle différence avec MODELE_REDUIT? Pour moi, c'est la même chose. Quest-ce qui pilote l'ensemble de la définition d'un CAS_REDUIT_A_RESOUDRE? Est-ce METHODE_DE_REDUCTION en délégant certaines parties à OPERATEUR_DE_COMPRESSION?
 
     HYPER_REDUCTION
-        Méthode de compression définie par Ryckelynck et al [Ryckelyck09]_, consistant à résoudre un problème aux éléments finis sur un sous-maillage du maillage existant.
+        Méthode de compression définie par Ryckelynck et al, consistant à résoudre un problème aux éléments finis sur un sous-maillage du maillage existant.
 
     QUADRATURE_WEIGHTS
         Poids d'un schéma de quadrature utilisé pour approximer une intégrale.
@@ -172,5 +172,3 @@ A lire dans l'ordre (idéalement).
 
     RB_METHOD
         Désigne les méthodes de production d'une base d'ordre réduit reposant sur de sélections gloutonnes de vecteurs pour construire la base d'ordre réduit. Exemples: celles proposées par Maday, Prudhomme, Patera [Réfs?]
-
-.. [Ryckelyck09] D. Ryckelynck, Hyper reduction of mechanical models involving internal variables, International Journal for Numerical Methods in Engineering, Volume 77, Issue 1, Pages: 75-89, (2009).

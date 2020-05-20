@@ -71,7 +71,7 @@ On définit alors la variété :math:`\mathcal{M}` des solutions discrètes comm
 
 La réduction de modèle se base sur le constat qu'il est souvent possible de trouver un espace vectoriel :math:`\mathcal{Z}_N` ou une variété :math:`\mathcal{M}_N` de dimension :math:`N` faible proches de :math:`\mathcal{M}` (au sens d'indicateurs mathématiques type distance de Kolmogorov sur lesquels nous ne revenons pas ici), c'est à dire que la distance de tout point de :math:`\mathcal{M}` à :math:`\mathcal{M}_N` est faible.
 
-La construction de :math:`\mathcal{Z}_N` (compression *linéaire*) ou :math:`\mathcal{M}_N` (compression *non-linéaire*) se fait avec un algorithme de *compression des données* à partir de solutions haute-fidélité :math:`\mathcal{S} = \left\lbrace u_k^i := u (t_i, \mu_k), 1 \leq i \leq K \right\rbrace_{k=1}^{n_{\textrm{sample}}}`, dites snapshots.
+La construction de :math:`\mathcal{Z}_N` (compression *linéaire*) ou :math:`\mathcal{M}_N` (compression *non-linéaire*) se fait avec un algorithme de *compression des données* à partir de solutions haute-fidélité :math:`\mathcal{S} = \left\lbrace u_k^i := u (t_i, \mu_k), 1 \leq i \leq K, \mu_k \in \mathcal{K} \right\rbrace`, dites snapshots, les :math:`\mu_k` sont pris dans un échantillonage :math:`\mathcal{K} = \left\lbrace \mu_1 , \cdots \mu_{N^{\mu}} \right\rbrace`.
 
 .. note::
 
@@ -85,12 +85,100 @@ Le *modèle réduit* du problème initial va rechercher une approximation de la 
 
 Dans ces deux familles, certaines méthodes utilisent en plus des données de provenance expérimentales pour produire la solution réduite, on parle alors d'*assimilation de données*.
 
-Ayant donné cette image générale, on peut dès à présent dresser une cartographie des méthodes (*donner la référence de l'image*), que l'on détaille dans les paragraphes suivants.
+Ayant donné cette image générale, on peut dès à présent dresser une cartographie des méthodes dans les paragraphes suivants.
+
+.. note::
+
+   Donner uniquement l'algorithme pour chaque méthode, se contenter de citer des références pour les démonstrations
+
 
 Compression des données
 -----------------------
 
-*A compléter*
+*Méthodes linéaires*
+
+On construit une base réduite de :math:`\mathcal{Z}_N`, de sorte que :math:`\mathcal{Z}_N = Span \left\lbrace \zeta_n \right\rbrace_{n=1}^N`. On introduit la matrice des snapshots définis précédemment comme:
+
+.. math::
+
+   Q = \begin{bmatrix} u(t_1 , \mu_1) & \cdots & u(t_K , \mu_{N^{\mu}}) \\ \end{bmatrix} \in \mathbb{R}^{\mathcal{N} \times K N^{\mu}}
+
+POD par SVD
+~~~~~~~~~~~
+
+On trouve alors les fonctions de base :math:`\left\lbrace \zeta_n \right\rbrace_{n=1}^N` comme les vecteurs singuliers dominants à gauche. On calcule la décomposition en valeurs singulières de :math:`Q`:
+
+.. math::
+
+   Q = U \Sigma V^T
+
+avec:
+
+.. math::
+
+   \mathbb{R}_{M \times M} \ni \Sigma = \left( \sigma_1 , \cdots , \sigma_M \right) 
+
+la matrice des valeurs singulières par ordre décroissant :math:`\sigma_1 > \cdots > \sigma_M \ge 0`, et :math:`M = \min \lbrace \mathcal{N} , K N^{\mu} \rbrace`. La base réduite est alors :math:`\zeta_i = U_i , i \in \mathbb{N} (N)`
+
+*Prise en compte d'un opérateur de corrélation*
+
+Appelons :math:`M` la matrice du produit scalaire par rapport auquel on souhaite compresser les données, et notons :math:`M = L L^T` sa décomposition de Choleski.
+
+.. math::
+
+   \tilde{Q} = L^T Q
+
+On calcule sa décomposition en valeurs singulières:
+
+.. math::
+
+   \tilde{Q} = \tilde{U} \tilde{\Sigma} \tilde{V}^T
+
+On obtient la matrice :math:`U` par:
+
+.. math::
+
+   U = L^{-T} \tilde{U}
+
+
+.. rubric:: Références
+
+.. bibliography:: ref-pod-svd.bib
+  :all:
+  :list: bullet
+
+Snapshot POD
+~~~~~~~~~~~~
+
+On construit la matrice d'autocorrélation :math:`C \in \mathbb{R}^{K N^{\mu} \times K N^{\mu}}` des snapshots:
+
+.. math::
+
+    C_{ij} = \langle u(t_{k_i} , \mu_{l_i}) , u(t_{k_j} , \mu_{l_j})  \rangle
+
+où :math:`\langle \bullet \rangle` est un produit scalaire d'intérêt pour les snapshots. On résoud le problème aux valeurs propres:
+
+.. math::
+
+    C \xi^i = \lambda^i \xi^i , i \in \mathbb{N}(K N^{\mu}) , \lambda_1 > \cdots > \lambda_{K N^{\mu}}
+
+Les fonctions de base sont alors calculées comme:
+
+.. math::
+
+    \zeta_i = \dfrac{1}{\sqrt{\lambda_i}} \sum_{n=1}^{K N^{\mu}} \xi_n^i u(t_{k_n} , \mu_{l_n})
+
+.. rubric:: Références
+
+.. bibliography:: ref-snap-pod.bib
+  :all:
+  :list: bullet
+
+Compression des opérateurs
+--------------------------
+
+*Work in progress*
+
 
 Mordicus methods
 ================
