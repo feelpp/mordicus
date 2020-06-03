@@ -346,6 +346,10 @@ As decided in Copil of december 6th, hereafter is a table of the methods that ar
     |                                       |                  |                               |                         |
     |                                       |  CT              |                               |                         |
     +---------------------------------------+------------------+-------------------------------+-------------------------+
+    |                                       |                  | solution vectors              | reduced basis           |
+    | Artificial neural network regressor   |  CT              |                               |                         |
+    |                                       |                  |                               |                         |
+    +---------------------------------------+------------------+-------------------------------+-------------------------+
     |                                       |  Sorbonne (1.1ef)| + For all:                    | reduced basis (built    |
     | NIRB                                  |                  |   fine solution vectors       | from fine mesh)         |
     | + Without Post treatment              |  EDF      (1.2h) |+ For rectification :          |                         |
@@ -450,6 +454,10 @@ The required services from the solver are presented in the table below:
     |                                       |  Phiméca         |                         |                             |
     |                                       |                  |                         |                             |
     |                                       |  CT              |                         |                             |
+    +---------------------------------------+------------------+-------------------------------+-----------------------+
+    |                                       |                  |                         |                             |
+    | Artificial neural network regressor   |  CT              |                         |                             |
+    |                                       |                  |                         |                             |
     +---------------------------------------+------------------+-------------------------+-----------------------------+
     |                                       |                  |                         | compute solution on coarse  |
     | NIRB                                  |  Sorbonne (1.1ef)|                         | mesh                        |
