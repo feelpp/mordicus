@@ -174,6 +174,69 @@ Les fonctions de base sont alors calculées comme:
   :all:
   :list: bullet
 
+Tenseurs de faible rang
+~~~~~~~~~~~~~~~~~~~~~~~
+
+C'est une familles de méthodes de décomposition fonctionnelle aussi appelée *low rank tensors* dans la littérature.
+Dans le contexte de Mordicus on appelle ça une méthode d'interpolation.
+
+On peut définir de manière générique les décompositions fonctionnelles:
+
+.. math::
+
+    Y \, \,  \equiv \, \,  h(\underline{X}) \, \, = \, \, \sum_{j=0}^{\infty} \; a_{j} \; \psi_{j}(\underline{X})
+
+usuellement sur des familles de bases de fonctions orthogonales (par ex pour le chaos fonctionnel):
+
+.. math::
+
+    \phi^{(j)}_1, ..., \phi^{(j)}_M ~~~~~ \forall j \in [1, d]
+
+sur des bases tensorisées:
+
+.. math::
+
+    \psi_{\underline{\alpha}}(\underline{x}) \, \, \equiv \,\, \phi^{(1)}_{\alpha_{1}}(x_{1}) \times \cdots \times \phi^{(d)}_{\alpha_{d}}(x_{d})
+
+avec la notation des multi-indices:
+
+.. math::
+
+    \alpha \equiv \{\alpha_{1},\dots,\alpha_{d}\}
+
+mais le nombre de termes dans la décomposition augmente exponentiellement avec la dimension (malédiction de dimension):
+
+.. math::
+
+    P = C^{d+M}_{M}
+
+Un type simple de décompositions de la catégorie des décompositions de tenseur de faible rang est la décomposition canonique:
+
+.. math::
+
+    f(x_1, \dots, x_d) = \prod_{i=1}^d v_i (x_i)
+
+avec
+
+.. math::
+
+    v_i = \sum_{j=1}^{n_i} \alpha_j^{(i)} \phi_j(x_i)
+
+ce qui se développe en
+
+.. math::
+
+    f(x_1, \dots, x_d) & = (\alpha_1^{(1)} \phi_1(x_1)+\dots+\alpha_{n_1}^{(1)} \phi_{n_1}(x_1)) \\
+                       & \times \dots \\
+                       & \times (\alpha_1^{(d)} \phi_1(x_d)+\dots+\alpha_{n_d}^{(d)} \phi_{n_d}(x_d))
+
+Ceci n'est qu'une brève introduction et d'autres types de décomposition de tenseur de faible rang plus avancées sont souhaitables, notamment les formats de tenseurs hiérarchiques.
+
+Pour plus de détails, se réferrer aux travaux d'Anthony Nouy (Centrale Nantes):
+
+- https://www.ljll.math.upmc.fr/cohen/Sanservolotalks/nouy.pdf
+
+
 Compression des opérateurs
 --------------------------
 
@@ -338,9 +401,9 @@ The required services from the solver are presented in the table below:
     | **Explore parameter space, reduce parameter complexity**                                                         |
     +---------------------------------------+------------------+-------------------------+-----------------------------+
     |                                       |                  |                         |                             |
-    |                                       |                  |                         |                             |
-    | Low-rank decomposition                |  Phiméca (1.1a)  |          *???*          |          *???*              |
-    | (to be clarified)                     |                  |                         |                             |
+    |                                       |                  | learn decomposition     | evaluate decomposition      |
+    | Low-rank decomposition                |  Phiméca (1.1a)  | least-squares           |                             |
+    | New hierarchichal formats             |                  |                         |                             |
     |                                       |  Mines   (1.1c)  |                         |                             |
     +---------------------------------------+------------------+-------------------------+-----------------------------+
     |                                       |                  | compute solution for    | compute a posteriori error  |
