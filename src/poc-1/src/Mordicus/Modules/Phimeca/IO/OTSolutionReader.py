@@ -9,7 +9,7 @@ class OTSolutionReader(SolutionReaderBase):
 
     Attributes
     ----------
-    outputSample : :class:`openturns.ProcessSample`
+    outputSample : :class:`openturns.Field`
         Snapshot
     """
     def __init__(self, outputSample):
