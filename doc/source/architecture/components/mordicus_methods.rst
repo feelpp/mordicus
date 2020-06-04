@@ -253,13 +253,13 @@ Pour rappel, on part de l'hypothèse que toute solution peut s'écrire sous la f
 
    u (x, \mu) = \sum_{k=0}^{\mathcal{N}} u_k (\mu) \phi_k ( x)
    
-Une fois les fonctions de base obtenus, il suffit de projeter les simulations d'entrainement sur cette base pour obtenir les coefficients associés.
+Une fois les fonctions de base obtenues, il suffit de projeter les simulations d'entrainement sur cette base pour obtenir les coefficients associés.
 
 .. math::
 
 	\forall k \in [\![1:\mathcal{N}]\!], u_k (\mu) = (u (\mu) \cdot \phi_k ( x))
 	
-Il est dès lors possible d'opérer une interpolation dans l'espace des paramètres sur les coefficients scalaires :math: `u_k(\mu)`, en utilisant par exemple un regresseur gaussien.
+Il est dès lors possible d'opérer une interpolation dans l'espace des paramètres sur les coefficients scalaires :math:`u_k(\mu)`, en utilisant par exemple un regresseur gaussien.
 
 Dans le cas d'une étude instationnaire, et en l'absence d'ODE, la snapshot POD sépare l'espace d'un côté et le temps et les paramètres de l'autre.
 
@@ -269,9 +269,25 @@ Dans le cas d'une étude instationnaire, et en l'absence d'ODE, la snapshot POD 
 
 Deux options sont alors envisageables pour être capable d'opérer une reconstruction du champ instationnaire :
 
-	* Effectuer l'interpolation à chaque pas de temps.
+	* Effectuer l'interpolation pour chaque pas de temps
 	
-	* Effectuer une nouvelle séparation des variables sur les coefficients en utilisant de nouveau une POD.
+	* Effectuer une nouvelle séparation des variables sur les coefficients
+	
+Cette dernière méthode a été utilisée pour la première fois par S. Walton, O. Hassan et K. Morgan dans leur étude *Reduced order modelling for unsteady fluid flow using proper orthogonal decomposition and radial basis functions*.
+
+L'idée derrière consiste à effectuer une nouvelle POD sur les coefficients. Pour se faire on construit une nouvelle matrice des snapshots.
+
+.. math::
+
+	\forall k \in [\![1:\mathcal{N}]\!], S_k(i,j) = u_k(t_i, \mu_j)
+	
+A partir de là, on obtient la décomposition suivante:
+
+.. math::
+
+   u (x, t, \mu) = \sum_{k=0}^{\mathcal{N}}(\sum_{i=0}^{K} c_{ki} (\mu) \psi_{ki}(t)) \phi_k ( x)
+
+On peut dés lors procéder à l'interpolation des grandeurs scalaires :math:`c_{ki} (\mu)`
 
 
 Mordicus methods
