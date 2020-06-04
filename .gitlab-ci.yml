@@ -16,12 +16,13 @@ doc:
     - pip install -U sphinx sphinxcontrib-bibtex
   script:
     - export PYTHONPATH=$PWD/../basic-tools/src:$PYTHONPATH
-    - mkdir -p public
+    - mkdir -p public/doc
     - cd src/poc-1/doc
     - make html
-    - mv _build/html ../../../public/doc && cd -
+    - mv _build/html ../../../public/doc/html && cd -
     - cd doc/
     - make latexpdf
+    - mv build/latex ../public/doc/latex && cd -
   artifacts:
     name: "Documentation"
     paths:
