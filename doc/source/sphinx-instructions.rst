@@ -40,6 +40,7 @@ Run the following command and it will install onto ``${HOME}/.local/lib/python2.
 
     edf-proxy-cli.py
     pip install --user --proxy proxypac.edf.fr:3128 sphinxcontrib-plantuml
+    pip install --user --proxy proxypac.edf.fr:3128 sphinxcontrib.bibtex
     # Add to PYTHONPATH
     export PYTHONPATH=${PYTHONPATH}:${HOME}/.local/lib/python2.7/site-packages
     # Check
