@@ -242,6 +242,37 @@ Compression des opérateurs
 
 *Work in progress*
 
+Interpolation
+-------------
+
+Dans le cas où on ne disposerait pas d'ODE (non-intrusif), une alternative à la compression des opérateurs consiste à effectuer une interpolation sur les coefficients de la base.
+
+Pour rappel, on part de l'hypothèse que toute solution peut s'écrire sous la forme suivante :
+
+.. math::
+
+   u (x, \mu) = \sum_{k=0}^{\mathcal{N}} u_k (\mu) \phi_k ( x)
+   
+Une fois les fonctions de base obtenus, il suffit de projeter les simulations d'entrainement sur cette base pour obtenir les coefficients associés.
+
+.. math::
+
+	\forall k \in [\![1:\mathcal{N}]\!], u_k (\mu) = (u (\mu) \cdot \phi_k ( x))
+	
+Il est dès lors possible d'opérer une interpolation dans l'espace des paramètres sur les coefficients scalaires :math: `u_k(\mu)`, en utilisant par exemple un regresseur gaussien.
+
+Dans le cas d'une étude instationnaire, et en l'absence d'ODE, la snapshot POD sépare l'espace d'un côté et le temps et les paramètres de l'autre.
+
+.. math::
+
+   u (x, t, \mu) = \sum_{k=0}^{\mathcal{N}} u_k (\mu, t) \phi_k ( x)
+
+Deux options sont alors envisageables pour être capable d'opérer une reconstruction du champ instationnaire :
+
+	* Effectuer l'interpolation à chaque pas de temps.
+	
+	* Effectuer une nouvelle séparation des variables sur les coefficients en utilisant de nouveau une POD.
+
 
 Mordicus methods
 ================
