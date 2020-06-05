@@ -64,6 +64,8 @@ OK pour tout le monde pour l'architecture 1 présentée, voir :numref:`meeting_i
 .. _meeting_img1:
 .. figure:: img1.png
 
+   Proposition de stratégie C++/python pour la future librairie Mordicus
+
 .. note::
 
    Qui aurait quelques exemples concrets de telles "règles facilitatrices" ?
