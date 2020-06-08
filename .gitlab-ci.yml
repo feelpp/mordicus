@@ -57,6 +57,9 @@ poc-1:
 pages:
   image: alpine:latest
   stage: deploy
+  dependencies:
+    - poc-1
+    - doc
   script:
     - echo 'Nothing to do...'
   artifacts:
