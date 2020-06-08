@@ -16,7 +16,7 @@ doc:
     - pip install -U sphinx sphinxcontrib-bibtex
   script:
     - export PYTHONPATH=$PWD/../basic-tools/src:$PYTHONPATH
-    - mkdir -p public/doc
+    - mkdir -p pages/doc
     - cd src/poc-1/doc
     - make html
     - mv _build/html ../../../pages/doc/html && cd -
@@ -46,7 +46,7 @@ poc-1:
     - mkdir -p pages/coverageReportCore
     - cd src/poc-1/tests/Core && pytest --cov=../../src/Mordicus/Core --cov-report=html:../../../../pages/coverageReportCore && cd -
     - cd src/poc-1/tests/Modules/Phimeca && pytest && cd -
-    - cd public/coverageReportCore && grep pc_cov index.html
+    - cd pages/coverageReportCore && grep pc_cov index.html
   coverage: '/pc_cov">([0-9]+\.?[0-9]+?%)/'
   artifacts:
     name: "CoverageCore"
