@@ -19,14 +19,14 @@ doc:
     - mkdir -p public/doc
     - cd src/poc-1/doc
     - make html
-    - mv _build/html ../../../public/doc/html && cd -
+    - mv _build/html ../../../pages/doc/html && cd -
     - cd doc/
     - make latexpdf
-    - mv build/latex ../public/doc/latex && cd -
+    - mv build/latex ../pages/doc/latex && cd -
   artifacts:
     name: "Documentation"
     paths:
-      - public/doc
+      - pages/doc
 
 .test:
   stage: test
@@ -43,15 +43,15 @@ poc-1:
   extends: .test
   script:
     - export PYTHONPATH=$PWD/src/poc-1/src:$PYTHONPATH
-    - mkdir -p public/coverageReportCore
-    - cd src/poc-1/tests/Core && pytest --cov=../../src/Mordicus/Core --cov-report=html:../../../../public/coverageReportCore && cd -
+    - mkdir -p pages/coverageReportCore
+    - cd src/poc-1/tests/Core && pytest --cov=../../src/Mordicus/Core --cov-report=html:../../../../pages/coverageReportCore && cd -
     - cd src/poc-1/tests/Modules/Phimeca && pytest && cd -
     - cd public/coverageReportCore && grep pc_cov index.html
   coverage: '/pc_cov">([0-9]+\.?[0-9]+?%)/'
   artifacts:
     name: "CoverageCore"
     paths:
-      - public/coverageReportCore
+      - pages/coverageReportCore
 
 
 pages:
@@ -61,7 +61,7 @@ pages:
     - poc-1
     - doc
   script:
-    - echo 'Nothing to do...'
+    - mv pages/ public/
   artifacts:
     name: "WebSite"
     paths:
