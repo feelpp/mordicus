@@ -17,12 +17,12 @@ doc:
   script:
     - export PYTHONPATH=$PWD/../basic-tools/src:$PYTHONPATH
     - mkdir -p pages/doc
-    - cd src/poc-1/doc
-    - make html
-    - mv _build/html ../../../pages/doc/html && cd -
-    - cd doc/
+    - cd - && cd doc/
     - make latexpdf
-    - mv build/latex ../pages/doc/latex && cd -
+    - cd - && cd src/poc-1/doc
+    - make html
+    - cd - && mv doc/build/latex pages/doc/latex
+    - cd - && mv src/poc-1/doc/_build/html pages/doc/html && cd -
   artifacts:
     name: "Documentation"
     paths:
