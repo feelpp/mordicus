@@ -18,11 +18,11 @@ doc:
     - export PYTHONPATH=$PWD/../basic-tools/src:$PYTHONPATH
     - mkdir -p pages/doc
     - cd doc/
-    - make latexpdf && cd -
+    - make latexpdf && cd ..
     - cd src/poc-1/doc
-    - make html && cd -
-    - mv doc/build/latex pages/doc/latex && cd -
-    - mv src/poc-1/doc/_build/html pages/doc/html && cd -
+    - make html && cd ../../..
+    - mv doc/build/latex pages/doc/latex
+    - mv src/poc-1/doc/_build/html pages/doc/html
   artifacts:
     name: "Documentation"
     paths:
