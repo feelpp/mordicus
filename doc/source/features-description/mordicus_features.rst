@@ -483,15 +483,15 @@ Tableau d'utilisation des cas d'usage par entité
 |    | calculs                               |        |         |       |    |        |        |          |     |         |     |       |
 +----+---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
 |C.14| Développer / brancher dans Mordicus   |        |         |       |    |        |        |          |     |         |     |       |
-|    | une nouvelle méthodologie de réduction|   1    |         |       |    |        |   X    |    X     |     |         |     |       |
+|    | une nouvelle méthodologie de réduction|   1    |         |       |    |        |   X    |    X     |     |   X     |     |       |
 |    | de modèles ou une variante            |        |         |       |    |        |        |          |     |         |     |       |
 |    | d'une méthode existante               |        |         |       |    |        |        |          |     |         |     |       |
 +----+---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
 |C.15| Générer une base réduite à partir d'un|   ?    |         |       |    |        |        |          |     |         |     |       |
-|    | jeu de données de simulation (cas plus|        |         |       |    |        |   X    |          |     |         |     |       |
+|    | jeu de données de simulation (cas plus|        |    X    |  X    |  X |      X |   X    |   X   |  X     |  X      |  X  |   X   |
 |    | bas niveau)                           |        |         |       |    |        |        |          |     |         |     |       |
 +----+---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
-|C.16| Enrichir un plan d'expérience à partir|   1    |         |       | X  |        |        |          |     |         |     |       |
+|C.16| Enrichir un plan d'expérience à partir|   5    |         |       | X  |        |   X    |          |  X  |  X      |     |   X   |
 |    | d'un premier jeu de données de        |        |         |       |    |        |        |          |     |         |     |       |
 |    | simulation                            |        |         |       |    |        |        |          |     |         |     |       |
 +----+---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
