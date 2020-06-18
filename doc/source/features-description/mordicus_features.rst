@@ -386,7 +386,7 @@ Tableau d'utilisation des cas d'usage par entité
 |    | domaine paramétrique donné            |        |         |       |    |        |        |          |     |         |     |       |
 +----+---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
 |B.02| Comparer un modèle réduit romA avec   |        |         |       |    |        |        |          |     |         |     |       |
-|    | un modèle haute fidélité A            |   1    |         |       |    |        |  X     |    X     |     |         |     |       |
+|    | un modèle haute fidélité A            |   5    |   X     |       |  X |        |  X     |    X     |     |   X     |     |       |
 +----+---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
 |B.03| Comparer un modèle réduit romA avec   |        |         |       |    |        |        |          |     |         |     |       |
 |    | un modèle haute fidélité B            |   6    |    X    |       | X  |   X    |  X     |    X     | X   |   X     |     |  x    |
