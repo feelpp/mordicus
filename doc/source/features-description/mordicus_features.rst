@@ -386,13 +386,13 @@ Tableau d'utilisation des cas d'usage par entité
 |    | domaine paramétrique donné            |        |         |       |    |        |        |          |     |         |     |       |
 +----+---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
 |B.02| Comparer un modèle réduit romA avec   |        |         |       |    |        |        |          |     |         |     |       |
-|    | un modèle haute fidélité A            |   5    |   X     |       |  X |        |  X     |    X     |     |   X     |     |       |
+|    | un modèle haute fidélité A            |   5    |   X     |       |  X |        |  X     |    X     |  X  |   X     |     |       |
 +----+---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
 |B.03| Comparer un modèle réduit romA avec   |        |         |       |    |        |        |          |     |         |     |       |
 |    | un modèle haute fidélité B            |   6    |    X    |       | X  |   X    |  X     |    X     | X   |   X     |     |  x    |
 +----+---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
-|B.04| Comparer un modèle réduit romA avec   |        |         |       |    |        |        |          |     |         |     |       |
-|    | des données expérimentales            |   1    |    X    |       |    |        |        |          |     |         |     |       |
+|B.04| Comparer un modèle réduit romA avec   |        |         |       |    |        |        |          | X   |   X     |     |       |
+|    | des données expérimentales            |   4    |    X    |       | X  |        |        |          |     |         |     |       |
 +----+---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
 |B.05| Faire interagir un modèle réduit et   |        |         |       |    |        |        |          |     |         |     |       |
 |    | des opérations de Data Science,       |   3    |         |       | X  |        |  X     |          | X   |   X     |     |       |
@@ -404,7 +404,7 @@ Tableau d'utilisation des cas d'usage par entité
 |    | d'incertitudes                        |        |         |       |    |        |        |          |     |         |     |       |
 +----+---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
 |B.07| Création d'un modèle réduit à pour un |        |         |       |    |        |        |          |     |         |     |       |
-|    | nouveau cas métier à partir d'un      |   2    |         |       |    |        |        |          |     |         |     |       |
+|    | nouveau cas métier à partir d'un      |   2    |         |       |    |        |        |          |  X  |         |     |       |
 |    | template existant de méthodologie de  |        |         |       |    |        |   X    |    X     |     |         |     |       |
 |    | réduction                             |        |         |       |    |        |        |          |     |         |     |       |
 +----+---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
@@ -488,7 +488,7 @@ Tableau d'utilisation des cas d'usage par entité
 |    | d'une méthode existante               |        |         |       |    |        |        |          |     |         |     |       |
 +----+---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
 |C.15| Générer une base réduite à partir d'un|   ?    |         |       |    |        |        |          |     |         |     |       |
-|    | jeu de données de simulation (cas plus|        |    X    |  X    |  X |      X |   X    |   X   |  X     |  X      |  X  |   X   |
+|    | jeu de données de simulation (cas plus|        |    X    |  X    |  X |      X |   X    |   X      |  X  |  X      |  X  |   X   |
 |    | bas niveau)                           |        |         |       |    |        |        |          |     |         |     |       |
 +----+---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
 |C.16| Enrichir un plan d'expérience à partir|   5    |         |       | X  |        |   X    |          |  X  |  X      |     |   X   |
