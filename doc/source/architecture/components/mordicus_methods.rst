@@ -335,6 +335,7 @@ As decided in Copil of december 6th, hereafter is a table of the methods that ar
     | Greedy reduced basis, e.g. PREIM      |  EDF             |                               |                         |
     |                                       |  Sorbonne        |                               |                         |
     |                                       |  CT              |                               |                         |
+    |                                       |  Cemosis         |                               |                         |
     +---------------------------------------+------------------+-------------------------------+-------------------------+
     | **Reduce evaluation cost, reduce operator complexity (operator compression)**                                      |
     +---------------------------------------+------------------+-------------------------------+-------------------------+
