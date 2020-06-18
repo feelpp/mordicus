@@ -449,12 +449,12 @@ Tableau d'utilisation des cas d'usage par entité
 +----+---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
 |C.06| Modifier un modèle réduit pour        |        |         |       |    |        |        |          |     |         |     |       | 
 |    | (i) intégrer de nouvelles informations|        |         |       |    |        |        |          |     |         |     |       |
-|    | ou                                    |   3    |         |       |    |        |   X    |          | X   |         |     |  X    |
+|    | ou                                    |   4    |         |       |  X |        |   X    |          | X   |   X     |     |  X    |
 |    | (ii) appliquer un niveau de réduction |        |         |       |    |        |        |          |     |         |     |       |
 |    | supplémentaire                        |        |         |       |    |        |        |          |     |         |     |       |
 +----+---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
 |C.07| Permettre le calcul multi-échelles ou |        |         |       |    |        |        |          |     |         |     |       |
-|    | multi-physiques de systèmes           |   3    |         |       | X  |   X    |        |          |     |   X     |     |       |
+|    | multi-physiques de systèmes           |   4    |         |       | X  |   X    |        |          |  X  |   X     |     |       |
 |    | représentés par des modèles réduits   |        |         |       |    |        |        |          |     |         |     |       |
 +----+---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
 |C.08| Affichage ergonomique des informations|        |         |       |    |        |        |          |     |         |     |       |
