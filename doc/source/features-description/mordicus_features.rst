@@ -363,7 +363,7 @@ Tableau d'utilisation des cas d'usage par entité
 |A.13| Evaluer le modèle réduit en un point  |   ?    |         |       |    |        |        |          |     |         |     |       |
 |    | (cas d'usage de plus bas niveau)      |        |         |       |    |        |        |          |     |         |     |       |
 +----+---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
-|A.14| Calculer un indicateur de qualité     |   2    |         |       |    |        |  X     |          | X   |         |     |  X    |
+|A.14| Calculer un indicateur de qualité     |   2    |         |       |  X |        |  X     |    X     | X   |    X    |     |  X    |
 |    | a posteriori pour un appel de modèle  |        |         |       |    |        |        |          |     |         |     |       |
 |    | reduit                                |        |         |       |    |        |        |          |     |         |     |       |
 +----+---------------------------------------+--------+---------+-------+----+--------+--------+----------+-----+---------+-----+-------+
