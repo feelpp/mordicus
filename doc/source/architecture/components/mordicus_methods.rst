@@ -290,6 +290,19 @@ A partir de là, on obtient la décomposition suivante:
 On peut dés lors procéder à l'interpolation des grandeurs scalaires :math:`c_{ki} (\mu)`
 
 
+Stable POD for the incompressible turbulent Navier-Stokes equations
+-------------------------------------------------------------------
+
+We consider two snapshots POD basis: one on the velocity fields, and one on the gradients of the velocity fields. In the second POD, only the eigenvalues and eigenvectors are kept, and recombined with the velocity snapshots directly. Then, the two basis are orthonormalized using a Gram-Schmidt orthonormalization algorithm. On this basis, a ROM-Galerkin on the incompressible Navier Stokes is stable without resorting to artificial numerical stabilization, and without any turbulent model.
+
+
+Nonparametrized geometrical variability
+---------------------------------------
+
+We dispose of a baseline LES computation (and associated stable POD basis) and wish to fastly predict the influence of nonparametrized geometrical modifications locally in a mask. Under a new geometrical variation, a high fidelity prediction in the mask is computed efficiently using an immersed boundary solver, where the baseline velocity field is imposed outside this mask. A classical Gappy-POD is used to update the velocity fields outside the mask, and a stable POD basis is computed in the complete obtained snapshots. Then, a ROM-Galerkin for this new geometry is computed, and the obtained reduced coefficients (on the POD modes) are combined on the baseline stable POD basis to obtain the prediction outside the mask.
+
+
+
 Mordicus methods
 ================
 
