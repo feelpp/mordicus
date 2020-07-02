@@ -14,10 +14,9 @@ Pour les cas d'usage qui vont suivre, on a deux acteurs "système" qui peuvent a
 
     * les *autres dépendances logicielles*: tous les éléments logiciels dont dépend un module
 
+.. _arch-img-1:
 .. figure:: img/img1.png
-    :label: arch-img-1
     :align: center
-    :height: 100px
     :alt: Figure representant l agencement des elements logiciels
     :figclass: align-center
 
@@ -129,10 +128,9 @@ Ebauche d'architecture
 
 Préambule: dans le travail sur l'architecture de Mordicus, il a été convenu que Mordicus comporte 4 **briques fonctionnelles de base**. Elles sont rappelés ci-dessous, ainsi que la correspondance avec la maquette actuelle:
 
+.. _arch-img-6:
 .. figure:: img/img5.png
-    :label: arch-img-6
     :align: center
-    :height: 500px
     :alt: Suite des opérations d'installation du noyau et de modules adaptés open source
     :figclass: align-center
 
@@ -146,10 +144,9 @@ Architecture Python / C++
 
 Les cas d'usage font remonter un usage python et C++. L'architecture d'ensemble retenue est la suivante:
 
+.. _arch-img-2:
 .. figure:: img/img1.png
-    :label: arch-img-2
     :align: center
-    :height: 100px
     :alt: Figure representant l agencement des elements logiciels
     :figclass: align-center
 
@@ -179,10 +176,9 @@ Au vu des cas d'usage, on propose un noyau qui se composerait de 4 composants, v
    #. composant **Procédure d'installation**.
 
 
+.. _arch-img-3:
 .. figure:: img/img2.png
-    :label: arch-img-3
     :align: center
-    :height: 500px
     :alt: Figure representant le noyau avec ses 4 composants
     :figclass: align-center
 
@@ -212,52 +208,51 @@ Les modules adaptés C++ sont constitués d'un ".so" par brique de base de Mordi
 
 La logique de fonctionnement du noyau est régie par les principes suivants:
 
-.. tabularcolumns:: |l|l|
+.. tabularcolumns:: |L|L|
 
-    +------------+------------------------------------------------------------------------+
-    | Règle      | Enoncé                                                                 |
-    +============+========================================================================+
-    | Règle 1    | Une seule version d'un même module adapté peut être chargée à la fois  |
-    +------------+------------------------------------------------------------------------+
-    | Règle 2    | Les codes sources du noyau et des modules adaptés Open Source sont dans|
-    |            | le même dépôt                                                          |
-    +------------+------------------------------------------------------------------------+
-    | Règle 3    | Un module est toujours compilé et testé en lien avec une installation  |
-    |            | existante de Mordicus                                                  |
-    +------------+------------------------------------------------------------------------+
-    | Règle 4    | Une fois la première installation de Mordicus effectuée, il n'est plus |
-    |            | possible de modifier les modules disponibles par défaut. Autrement     |
-    |            | dit, un module disponible par défaut a été installé lors de la même    |
-    |            | opération que l'installation du noyau                                  |
-    +------------+------------------------------------------------------------------------+
-    | Règle 5    | Il est possible d'ajouter un nouveau module, ou une nouvelle version   |
-    |            | de module à une installation existante, en tant qu'extensions.         |
-    |            | Les extensions sont stockées dans un sous-répertoire dédié             |
-    |            | du répertoire d'installation                                           |
-    +------------+------------------------------------------------------------------------+
-    | Règle 6    | Il est possible de charger ou décharger dynamiquement des modules      |
-    |            | qui font partie des extensions. Quand un module chargé est une autre   |
-    |            | version d'un module par défaut, il la remplace (temporairement,        |
-    |            | le temps que le module reste chargé)                                   |
-    +------------+------------------------------------------------------------------------+
-    | Règle 7    | A discuter: du point de vue du code client, les chargement/déchargement|
-    |            | de modules adaptés se font *at run time*, c'est à dire juste avant     |
-    |            | d'appeler l'exécutable du code client lié à Mordicus. C'est donc de la |
-    |            | responsabilité du client de mettre Mordicus dans la configuration      |
-    |            | voulue juste avant d'appeler son exécutable. Le noyau fournit des      |
-    |            | fonctions pour cela.                                                   |
-    +------------+------------------------------------------------------------------------+
-    | Règle 8    | Le chargement/déchargement de modules ne doit pas se traduire par des  |
-    |            | opérations sur le système de fichiers dans l'install Mordicus (cas où  |
-    |            | l'install Mordicus est utilisée simultanément par plusieurs processus) |
-    +------------+------------------------------------------------------------------------+
++------------+------------------------------------------------------------------------+
+| Règle      | Enoncé                                                                 |
++------------+------------------------------------------------------------------------+
+| Règle 1    | Une seule version d'un même module adapté peut être chargée à la fois  |
++------------+------------------------------------------------------------------------+
+| Règle 2    | Les codes sources du noyau et des modules adaptés Open Source sont dans|
+|            | le même dépôt                                                          |
++------------+------------------------------------------------------------------------+
+| Règle 3    | Un module est toujours compilé et testé en lien avec une installation  |
+|            | existante de Mordicus                                                  |
++------------+------------------------------------------------------------------------+
+| Règle 4    | Une fois la première installation de Mordicus effectuée, il n'est plus |
+|            | possible de modifier les modules disponibles par défaut. Autrement     |
+|            | dit, un module disponible par défaut a été installé lors de la même    |
+|            | opération que l'installation du noyau                                  |
++------------+------------------------------------------------------------------------+
+| Règle 5    | Il est possible d'ajouter un nouveau module, ou une nouvelle version   |
+|            | de module à une installation existante, en tant qu'extensions.         |
+|            | Les extensions sont stockées dans un sous-répertoire dédié             |
+|            | du répertoire d'installation                                           |
++------------+------------------------------------------------------------------------+
+| Règle 6    | Il est possible de charger ou décharger dynamiquement des modules      |
+|            | qui font partie des extensions. Quand un module chargé est une autre   |
+|            | version d'un module par défaut, il la remplace (temporairement,        |
+|            | le temps que le module reste chargé)                                   |
++------------+------------------------------------------------------------------------+
+| Règle 7    | A discuter: du point de vue du code client, les chargement/déchargement|
+|            | de modules adaptés se font at run time, c'est à dire juste avant       |
+|            | d'appeler l'exécutable du code client lié à Mordicus. C'est donc de la |
+|            | responsabilité du client de mettre Mordicus dans la configuration      |
+|            | voulue juste avant d'appeler son exécutable. Le noyau fournit des      |
+|            | fonctions pour cela.                                                   |
++------------+------------------------------------------------------------------------+
+| Règle 8    | Le chargement/déchargement de modules ne doit pas se traduire par des  |
+|            | opérations sur le système de fichiers dans l'install Mordicus (cas où  |
+|            | l'install Mordicus est utilisée simultanément par plusieurs processus) |
++------------+------------------------------------------------------------------------+
 
 On peut voir sur le schéma ci-après la suite des opérations d'installation du noyau.
 
+.. _arch-img-4:
 .. figure:: img/img3.png
-    :label: arch-img-4
     :align: center
-    :height: 500px
     :alt: Suite des opérations d'installation du noyau et de modules adaptés open source
     :figclass: align-center
 
@@ -265,10 +260,9 @@ On peut voir sur le schéma ci-après la suite des opérations d'installation du
 
 On peut voir sur le schéma ci-après la suite des opération d'installation, ou de modification d'installation de Mordicus et ses modules.
 
+.. _arch-img-5:
 .. figure:: img/img4.png
-    :label: arch-img-5
     :align: center
-    :height: 500px
     :alt: Suite des opérations d'installation du noyau et de modules adaptés open source
     :figclass: align-center
 
@@ -277,55 +271,50 @@ On peut voir sur le schéma ci-après la suite des opération d'installation, ou
 On résume ci-après ce qui relève de la responsabilité du noyau - et donc du consortium - et ce qui est de la responsabilité de chaque partenaire développeur de module (voir également :numref:`arch-img-4` et :numref:`arch-img-5`):
 
 
-.. tabularcolumns:: |l|l|
+.. tabularcolumns:: |L|L|
 
-    +------------+------------------------------------------------------------------------+
-    |            | Fonctionnalités                                                        |
-    +============+========================================================================+
-    | De la responsabilité du noyau, donc du consortium                                   |
-    +------------+------------------------------------------------------------------------+
-    |            | L'hébergement du code source du noyau + modules adaptés Open Source    |
-    |            | dans un dépôt unique                                                   |
-    +------------+------------------------------------------------------------------------+
-    |            | La compilation du code source du noyau + modules adaptés Open Source   |
-    |            | dans une procédure indépendante de la plateforme (CMake, etc.)         |
-    +------------+------------------------------------------------------------------------+
-    |            | Structure et contenu du répertoire de build du noyau                   |
-    +------------+------------------------------------------------------------------------+
-    |            | Structure et contenu du répertoire de build d'un module                |
-    +------------+------------------------------------------------------------------------+
-    |            | Ajout d'un module en tant que dispo par défaut                         |
-    +------------+------------------------------------------------------------------------+
-    |            | Ajout d'un module en tant qu'extension, à partir d'un répertoire de    |
-    |            | build                                                                  |
-    +------------+------------------------------------------------------------------------+
-    |            | Chargement/déchargement d'un module                                    |
-    +------------+------------------------------------------------------------------------+
-    | De la responsabilité de chaque partenaire                                           |
-    +------------+------------------------------------------------------------------------+
-    |            | Le packaging et la distribution du noyau + modules adaptés Open Source |
-    +------------+------------------------------------------------------------------------+
-    |            | L'hébergement du code source d'un module adapté non open source        |
-    +------------+------------------------------------------------------------------------+
-    |            | L'installation des autres dépendances logicielles d'un module adapté,  |
-    |            | préalable à l'install de ce module adapté                              |
-    +------------+------------------------------------------------------------------------+
-    |            | La compilation du module adapté, tant que:                             |
-    |            |                                                                        |
-    |            |     -  la structure du répertoire de build produit est respectée       |
-    |            |                                                                        |
-    |            |     -  pour retrouver les éléments de l'install Mordicus existante dont|
-    |            |        on a besoin, seules les variables d'environnement codifiées sont|
-    |            |        utilisées                                                       |
-    +------------+------------------------------------------------------------------------+
-    |            | L'installation des autres dépendances logicielles d'un module adapté,  |
-    |            | préalable à l'install de ce module adapté                              |
-    +------------+------------------------------------------------------------------------+
-    |            | Le packaging et la distribution d'un module adapté                     |
-    +------------+------------------------------------------------------------------------+
-    |            | Le téléchargement et la décompression (retour du format de package vers|
-    |            | la structure du répertoire de build codifiée) d'un module adapté       |
-    +------------+------------------------------------------------------------------------+
++------------+------------------------------------------------------------------------+
+|            | Fonctionnalités                                                        |
++------------+------------------------------------------------------------------------+
+| **De la responsabilité du noyau, donc du consortium**                               |
++------------+------------------------------------------------------------------------+
+|            | L'hébergement du code source du noyau + modules adaptés Open Source    |
+|            | dans un dépôt unique                                                   |
++------------+------------------------------------------------------------------------+
+|            | La compilation du code source du noyau + modules adaptés Open Source   |
+|            | dans une procédure indépendante de la plateforme (CMake, etc.)         |
++------------+------------------------------------------------------------------------+
+|            | Structure et contenu du répertoire de build du noyau                   |
++------------+------------------------------------------------------------------------+
+|            | Structure et contenu du répertoire de build d'un module                |
++------------+------------------------------------------------------------------------+
+|            | Ajout d'un module en tant que dispo par défaut                         |
++------------+------------------------------------------------------------------------+
+|            | Ajout d'un module en tant qu'extension, à partir d'un répertoire de    |
+|            | build                                                                  |
++------------+------------------------------------------------------------------------+
+|            | Chargement/déchargement d'un module                                    |
++------------+------------------------------------------------------------------------+
+|  **De la responsabilité de chaque partenaire**                                      |
++------------+------------------------------------------------------------------------+
+|            | Le packaging et la distribution du noyau + modules adaptés Open Source |
++------------+------------------------------------------------------------------------+
+|            | L'hébergement du code source d'un module adapté non open source        |
++------------+------------------------------------------------------------------------+
+|            | L'installation des autres dépendances logicielles d'un module adapté,  |
+|            | préalable à l'install de ce module adapté                              |
++------------+------------------------------------------------------------------------+
+|            | La compilation du module adapté, tant que la structure du répertoire de|
+|            | build produit est respectée                                            |
++------------+------------------------------------------------------------------------+
+|            | L'installation des autres dépendances logicielles d'un module adapté,  |
+|            | préalable à l'install de ce module adapté                              |
++------------+------------------------------------------------------------------------+
+|            | Le packaging et la distribution d'un module adapté                     |
++------------+------------------------------------------------------------------------+
+|            | Le téléchargement et la décompression (retour du format de package vers|
+|            | la structure du répertoire de build codifiée) d'un module adapté       |
++------------+------------------------------------------------------------------------+
 
 Constitution des différents composants + formats de fichiers possibles
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -338,9 +327,8 @@ Le répertoire de build d'un module adapté est constitué des éléments suivan
 
    * un **script d'activation des dépendances**: l'installation des dépendances est à la charge du partenaire qui installe le module. Néanmoins, certaines de ces dépendances peuvent être activées (par exemple via *module load* sous Linux) quand on active le module adapté. Le build du module doit donc fournir un script qui sera appelé par le noyau au moment de chargé le module, afin d'activer les dépendances. Le script peut contenir des variables qui ne seront remplies qu'à l'installation, en dépendance de la plateforme, via des substitutions de chaînes (post-installation).
 
+.. _arch-img-7:
 .. figure:: img/img6.png
-
-    :label: arch-img-7
     :align: center
     :alt: Exemple de structure du répertoire source et répertoire de build d'un module adapté C++
     :figclass: align-center
@@ -383,9 +371,8 @@ Enfin, dans le répertoire de build, le composant **Superviseur de modules** est
 
    * un **répertoire "extensions"** contenant tous les répertoires de build des modules chargeables comme extensions
 
+.. _arch-img-8:
 .. figure:: img/img7.png
-
-    :label: arch-img-8
     :align: center
     :alt: Exemple de structure du répertoire source du noyau
     :figclass: align-center
