@@ -1,0 +1,34 @@
+include "getARGV.idp";
+load "iovtk"
+load "gmsh"
+
+string outputDir=getARGV("-outputDir","err.log");
+string meshFile1=getARGV("-m1", "err.msh");
+string meshFile2=getARGV("-m2", "err.msh");
+string snapshot=getARGV("-u", "err.log");
+
+mesh Th1=gmshload(meshFile1);//maillage fin
+mesh Th2=gmshload(meshFile2); //maillage grossier
+//plot(Th1,wait=1);
+//plot(Th2,wait=2);
+
+//plot(Th,wait=1);
+
+fespace Mh(Th1,[P1,P1]);
+fespace MhG(Th2,[P1,P1]);
+
+Mh [u,v];
+MhG [uH,vH];
+
+ifstream file(snapshot);
+
+file>>uH[];
+
+//matrix Ih = interpolate(Mh,MhG) ;
+[u,v]=[uH,vH];//interpolation
+
+//plot([u,v],wait=1);
+int[int] order=[1];
+string vtkfile=outputDir+"/uH0.vtu";
+savevtk(vtkfile, Th1, [u, v],order=order,dataname="u",bin=0);
+
