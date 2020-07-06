@@ -65,7 +65,7 @@ NewMacro defProblem(Th,u,v,p,uu,vv,pp,up,vp,fine,file,paramfile)
 //    	savevtk(vtkfile, Th, [usnsh[j], vsnsh[j]],order=order,dataname="u",bin=0);
    	    }
    	    else{
-		if(j==2){
+		if(j==ns-1){
 			[uhh,vhh]=[u,v];
 			//file<<u[];
       			break;
@@ -82,12 +82,13 @@ mesh Th=square(n,n);
 Th=movemesh(Th,[(1-cos(pi*x))/2.,(1-cos(pi*y))/2.]);  // refine near the boundaries
 savemesh(Th,meshFile1);
 
-mesh Th2=square(sqrt(n),sqrt(n));
+mesh Th2=square(n/2,n/2);
 Th2=movemesh(Th2,[(1-cos(pi*x))/2.,(1-cos(pi*y))/2.]);  // refine near the boundaries
 savemesh(Th2,meshFile2);
 
 fespace Mh(Th,[P2,P2,P1]);
 fespace Vh(Th,[P2,P2]);
+
 Mh [u,v,p],[uu,vv,pp],[up,vp,q];
 up[]=0.;
 
@@ -113,6 +114,8 @@ fespace Mh2(Th2,[P1,P1]);
 Xh [usnshP1,vsnshP1];
 Mh2 [uhhP1,vhhP1];
 [uhhP1,vhhP1]=[uhh,vhh];
+
+
 cout<<"ns"<<ns<<endl;
 for(int i=0;i<ns;i++){
 	[usnshP1,vsnshP1]=[usnsh[i],vsnsh[i]];
