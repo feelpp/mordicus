@@ -58,7 +58,8 @@ print("-----------------------------------")
 import vtk
 import numpy as np
 from vtk.util.numpy_support import vtk_to_numpy
-nev=3    #nombre de modes         
+nev=5    #nombre de modes
+ns=10
 time=0.0 
 dimension=2
            
@@ -69,21 +70,23 @@ array_list = []
 
 
 ## On lit le maillage ici si deja GMSH et sinon on convertit d'abord en GMSH pour le lire ensuite avec basictools
-meshFileName = dataFolder + "/mesh1GMSH.msh"
+meshFileName = dataFolder + "/mesh1.msh"
 print(meshFileName)
 meshFile=open(meshFileName,"r")
+meshFileNameGMSH = dataFolder + "/mesh1GMSH.msh"
 premiereligne=meshFile.readline()
 premierelignebis="MeshFormat"
+
 if premiereligne[1:-1] == premierelignebis[:]: #si c'est au format GMSH 
     print("GMSH format")
-    meshFileNameGMSH = dataFolder + "/mesh1GMSH.msh"
+ 
     os.rename(meshFileName, meshFileNameGMSH)
 else: #si c'est format FF++, on convertir au format GMSH
     #ici appel de ff++ pour convertir
     print("FF++ format to GMSH...")
     scriptPythonConvert=osp.join(externalFolder,'Converter.py')
-    meshFileNameconv = dataFolder + "/mesh1GMSH.msh"
-    cmd_py=["python", scriptPythonConvert,meshFileName,"-o", meshFileNameconv]
+ 
+    cmd_py=["python", scriptPythonConvert,meshFileName,"-o", meshFileNameGMSH]
     print("Converted")
     try:
         FNULL = open(os.devnull, 'w')
@@ -108,7 +111,7 @@ collectionProblemData = CPD.CollectionProblemData()
 #solutionU=S.Solution("U",dimension,numberOfNodes,True)
 
 
-for i in range(nev):
+for i in range(ns):
     
     test=VTKSR.VTKSolutionReader("u");
     u1_np_array =test.VTKReadToNp(dataFolder+"/snapshot",i)
@@ -140,7 +143,6 @@ print(np.shape(numberOfIntegrationPoints))
 """ POD """
 print("ComputeL2ScalarProducMatrix...")
 l2ScalarProducMatrix = FT.ComputeL2ScalarProducMatrix(mesh, 2)
-print("t",type(l2ScalarProducMatrix))
 print("max",l2ScalarProducMatrix.max())
 print(l2ScalarProducMatrix.min())
 
@@ -149,6 +151,7 @@ collectionProblemData.SetSnapshotCorrelationOperator("U", l2ScalarProducMatrix)
 snapshotCorrelationOperator=collectionProblemData.GetSnapshotCorrelationOperator("U")
 
 reducedOrderBasisU = SP.ComputeReducedOrderBasisFromCollectionProblemData(collectionProblemData, "U", 1.e-4)
+
 collectionProblemData.AddReducedOrderBasis("U", reducedOrderBasisU)
 collectionProblemData.CompressSolutions("U")
 
@@ -211,21 +214,7 @@ else: #si c'est format FF++, on convertir au format GMSH
 
 print("lecture maillage ok...")
 
-# Convertion Snapshot version FF++ to VTK
-"""try:
-    FNULL = open(os.devnull, 'w')
-    ret = subprocess.run(["FreeFem++", scriptFreeFem,
-                          "-m"   , meshFileNameGMSH2,
-                          "-u", uH,
-                          "-outputDir", dataFolder
-                          ],
-                          stdout=FNULL,
-                          stderr=subprocess.PIPE)
-    ret.check_returncode()
-except subprocess.CalledProcessError:
-    retstr = "Error when calling Freefem++\n" + "    Returns error:\n" + str(ret.stderr)
-    raise OSError(ret.returncode, retstr)
-"""
+
 #lecture snapshot grossier
 #collectionProblemData2 = CPD.CollectionProblemData()
 
@@ -264,32 +253,43 @@ problemData.AddSolution(solutionUH)
 collectionProblemData.AddProblemData(problemData) #on ajoute la solution à la collection de pb initiale
 
 
-
-# A revoir:pour chaque i produit scalaire avec phi_i  reducedOrderBasisU = SP.ComputeReducedOrderBasisFromCollectionProblemData(collectionProblemData, "U", 1.e-4)
-
-#collectionProblemData.CompressSolutions("U")
-
-
-#problemData=collectionProblemData.GetProblemData(dataFolder+"00") #i?
-#solutionU=problemData.GetSolution("U")
-#recuperer sur la solution pr chaque problemdata
-
-#CompressedSolutionU = solutionUH.GetCompressedSnapshots()
-
-#collectionProblemData.CompressSolutions("U")
 print("shape ")
 print("shape ",CompressedSolutionU)
 print("shape ",reducedOrderBasisU.shape)
+for i in range(5):
+        reducedOrderBasisUNorm=np.linalg.norm(reducedOrderBasisU[i,:])
+        #reducedOrderBasisU[i,:]/=reducedOrderBasisUNorm
+for i in range(5):
+    for j in range(5):
+        if i==j:
+            print(i,"norm?",np.linalg.norm(reducedOrderBasisU[i,:]))
+        else:
+            u11=np.array(reducedOrderBasisU[i,:])
+            u21=np.array(reducedOrderBasisU[j,:])
+            matVecProduct = l2ScalarProducMatrix.dot(u11)
+            a = np.dot(matVecProduct, u21)
+            print(i,j,"ortho?:",a)
+            
 
+        
 solutionUH.CompressSnapshots(snapshotCorrelationOperator,reducedOrderBasisU)
 CompressedSolutionU = solutionUH.GetCompressedSnapshots()
-
+print("shape !!!",CompressedSolutionU)
 reconstructedCompressedSolution = np.dot(CompressedSolutionU[0], reducedOrderBasisU) #pas de tps 0
-exactSolution = solutionUH.GetSnapshot(0)
+print("shape!!",reducedOrderBasisU.shape)
+print("shape !!!!",reconstructedCompressedSolution.shape)
+
+problemData=collectionProblemData.GetProblemData(dataFolder+str(ns-1))
+solutionU=problemData.GetSolution("U")
+exactSolution = solutionU.GetSnapshot(0)
+#exactSolution = solutionUH.GetSnapshot(0)
 compressionErrors=[]
     
 norml2ExactSolution = np.linalg.norm(exactSolution)
 if norml2ExactSolution != 0:
+    print("norm!=0")
+    print("rec",np.linalg.norm(reconstructedCompressedSolution))
+    print("rec",np.linalg.norm(exactSolution))
     relError = np.linalg.norm(reconstructedCompressedSolution-exactSolution)/norml2ExactSolution
 else:
     relError = np.linalg.norm(reconstructedCompressedSolution-exactSolution)
