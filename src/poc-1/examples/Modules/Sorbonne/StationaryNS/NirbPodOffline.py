@@ -41,7 +41,7 @@ externalFolder=osp.join(currentFolder,'External')
 print("-----------------------------------")
 print(" STEP0: start init                 ")
 print("-----------------------------------")
-dataFolder=osp.join(currentFolder,'StationaryNSData')
+
 #initproblem(dataFolder)
 print("-----------------------------------")
 print(" STEP0: snapshots generated        ")
