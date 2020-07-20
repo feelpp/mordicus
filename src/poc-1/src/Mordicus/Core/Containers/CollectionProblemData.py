@@ -36,6 +36,7 @@ class CollectionProblemData(object):
         self.problemDatas = {}
         self.reducedOrderBases = {}
 
+        self.fieldInstances = {}
         self.variabilityDefinition = {}
         self.quantityDefinition = {}
 
@@ -590,6 +591,63 @@ class CollectionProblemData(object):
         return globalProjectedReducedOrderBasis
 
 
+    def SetTemplateDataset(self, templateDataset):
+        """
+        Template dataset to compute high-fidelity solution
+        
+        Parameters:
+        -----------
+        templateDataset : Dataset
+        """
+        self.templateDataset = templateDataset
+        
+    def SetReducedTemplateDataset(self, reducedTemplateDataset):
+        """
+        Template dataset to compute high-fidelity solution
+        
+        Parameters:
+        -----------
+        templateDataset : Dataset
+        """
+        self.reducedTemplateDataset = reducedTemplateDataset
+        
+    def solve(self, **kwargs):
+        """
+        New high-fidelity model evaluation
+        
+        Parameters:
+        -----------
+        kwargs: (parameter_name=value) keyword arguments
+        """
+        dataset = self.templateDataset.instantiate(**kwargs)
+        
+        # populate information for the structure
+        return dataset.run(sampleFieldPrimal=self.fieldInstances["U"],
+                           sampleFieldDual=self.fieldInstances["sigma"] )
+
+    def solve_reduced(self, **kwargs):
+        """
+        New high-fidelity model evaluation
+        
+        Parameters:
+        -----------
+        kwargs: (parameter_name=value) keyword arguments
+        """
+        kwargs["reduced"] = True
+        dataset = self.reducedTemplateDataset.instantiate(**kwargs)
+        
+        # populate information for the structure
+        return dataset.run(sampleFieldPrimal=self.fieldInstances["U"],
+                           sampleFieldDual=self.fieldInstances["sigma"] )
+    
+    def SetFieldInstance(self, solutionName, fieldInstance):
+        """
+        Parameters:
+        ----------
+        problemData : ProblemData
+           problemData with field Structure
+        """
+        self.fieldInstances[solutionName] = fieldInstance
 
     def __str__(self):
         res = "CollectionProblemData\n"

@@ -5,18 +5,19 @@ Created on 26 févr. 2020
 """
 import subprocess
 import shlex
+from Mordicus.Core.IO.ExternalSolvingProcedure import ExternalSolvingProcedure
 
-class Code_Aster_Solver(object):
+class Code_Aster_Solver(ExternalSolvingProcedure):
     """
     Informations to call Code_Aster
     """
 
 
-    def __init__(self, params):
+    def __init__(self, **kwargs):
         """
         Constructor
         """
-        return super(Code_Aster_Solver, self).__init__()
+        return super(Code_Aster_Solver, self).__init__(**kwargs)
     
     def import_resolution_data(self, data):
         """

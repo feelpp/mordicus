@@ -1,9 +1,4 @@
 # coding: utf-8
-"""
-Created on 26 févr. 2020
-
-@author: Guilhem Ferté
-"""
 
 class ExternalSolvingProcedure(object):
     """

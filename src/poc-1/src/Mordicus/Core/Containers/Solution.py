@@ -34,6 +34,8 @@ class Solution(object):
         dictionary with time indices as keys and a np.ndarray of size (numberOfDOFs,) containing the solution data
     compressedSnapshots : collections.OrderedDict
         dictionary with time indices as keys and a np.ndarray of size (numberOfModes,) containing the coefficients of the reduced solution
+    mesh : MeshBase
+        mesh associated with the solution
     """
 
     def __init__(self, solutionName, nbeOfComponents, numberOfNodes, primality):
