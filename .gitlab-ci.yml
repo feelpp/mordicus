@@ -66,4 +66,7 @@ pages:
     name: "WebSite"
     paths:
       - public    
+  only:
+  - master
+
 
