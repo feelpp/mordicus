@@ -4,6 +4,7 @@ from Mordicus.Core.Containers import Solution as S
 from Mordicus.Core.DataCompressors import SnapshotPOD as SP
 from Mordicus.Core.OperatorCompressors import Regression
 from Mordicus.Modules.Scilab_ESI_Group import SciSolutionReader as SSR
+from Mordicus.Core.IO import StateIO as SIO
 import numpy as np
 from pathlib import Path
 import os
@@ -16,11 +17,11 @@ def test():
     ####################################################
     # LOAD DATA FOR ONLINE
     ####################################################
-    collectionProblemData = CPD.LoadState("mordicusState2")
+    collectionProblemData = SIO.LoadState("collectionProblemData")
     reducedOrderBasis = collectionProblemData.GetReducedOrderBasis("P")
     #print(collectionProblemData.GetProblemData('.').GetParameters()) # Pas top!
     operatorCompressionData = collectionProblemData.GetOperatorCompressionData()
-    
+
     ####################################################
     # DEFINE PREDICTED SOLUTION ARCHITECTURE
     ####################################################

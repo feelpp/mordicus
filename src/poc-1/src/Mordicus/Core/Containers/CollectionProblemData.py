@@ -105,7 +105,7 @@ class CollectionProblemData(object):
         """
         Sets the axes of variability: names to be served as keys
            to collect ProblemData instances and documenting properties
-           
+
         Parameters
         ----------
         names : tuple
@@ -120,15 +120,15 @@ class CollectionProblemData(object):
         qlist = [None]*len(names) if quantities is None else list(quantities)
         dlist = [None]*len(names) if descriptions is None else list(descriptions)
         if not all(l==len(names) for l in (len(list(types)), len(qlist), len(dlist))):
-            raise IndexError("Not all arguments to defineVariabilityAxes have the same size")
+            raise IndexError("Not all arguments to defineVariabilityAxes have the same size") # pragma: no cover
         for varname, vartype, quantity, description in zip(names, types, qlist, dlist):
             self.addVariabilityAxis(varname, vartype, quantity=quantity, description=description)
-  
+
     def addVariabilityAxis(self, varname, vartype, **kwargs):
         """
         Sets the axes of variability: names to be served as keys
            to collect ProblemData instances and documenting properties
-           
+
         Parameters
         ----------
         varname : str
@@ -141,7 +141,7 @@ class CollectionProblemData(object):
            (optional) describes the role of the axis of variability
         """
         if varname in self.variabilityDefinition:
-            raise KeyError("Variability axis {} already exists in your CollectionProblemData".format(varname))
+            raise KeyError("Variability axis {} already exists in your CollectionProblemData".format(varname))  # pragma: no cover
         self.variabilityDefinition[varname] = {'type': vartype}
         for opt in ('quantity', 'description'):
             if opt in kwargs and kwargs[opt] is not None:
@@ -150,7 +150,7 @@ class CollectionProblemData(object):
     def defineQuantity(self, key, full_name="", unit=""):
         """
         Define a new quantity for results
-        
+
         Parameters
         ----------
         key : str
@@ -161,13 +161,13 @@ class CollectionProblemData(object):
            Measuring unit, e.g. "meter"
         """
         if not isinstance(key, str):
-            raise TypeError("Quantity identifier should be a str")
+            raise TypeError("Quantity identifier should be a str")  # pragma: no cover
         self.quantityDefinition[key] = (full_name, unit)
-        
+
     def getNumberOfVariabilityAxes(self):
         """
         Gets the number of variability axes.
-        
+
         Returns:
         --------
         int
@@ -179,7 +179,7 @@ class CollectionProblemData(object):
     def _checkPointInParameterSpace(self, **kwargs):
         """
         Checks keys and values provided as parameter point.
-        
+
         Raises:
         -------
         ValueError
@@ -190,32 +190,32 @@ class CollectionProblemData(object):
             if some value has the wrong type
         """
         if len(kwargs) != self.getNumberOfVariabilityAxes():
-            raise ValueError("Provided point in parameter space has {0} components, {1} expected".format(len(kwargs), self.getNumberOfVariabilityAxes()))
+            raise ValueError("Provided point in parameter space has {0} components, {1} expected".format(len(kwargs), self.getNumberOfVariabilityAxes()))  # pragma: no cover
         for k, v in kwargs.items():
             if k not in self.variabilityDefinition:
-                raise KeyError("{} is not a defined axis of variability".format(k))
+                raise KeyError("{} is not a defined axis of variability".format(k))  # pragma: no cover
             if not isinstance(v, self.variabilityDefinition[k]['type']):
-                raise TypeError("Provided value {0} has type {1}, expected {2}".format(v, type(v), self.variabilityDefinition[k]['type']))
+                raise TypeError("Provided value {0} has type {1}, expected {2}".format(v, type(v), self.variabilityDefinition[k]['type']))  # pragma: no cover
 
     def _checkSolutionName(self, solutionName):
         """
         Checks that solutionName has been defined as a quantity identifier before.
-        
+
         Argument:
         ---------
         solutionName:
             candidate identifier
-        
+
         Raises:
         -------
         ValueError:
            if not
         """
         if solutionName not in self.quantityDefinition:
-            raise ValueError("Solution name {} was not defined as a quantity before".format(solutionName))
-            
+            raise ValueError("Solution name {} was not defined as a quantity before".format(solutionName))  # pragma: no cover
 
-        def SetDataCompressionData(self, key, dataCompressionData):
+
+    def SetDataCompressionData(self, key, dataCompressionData):
         """
         Adds a dataCompressionData corresponding to key
 
@@ -266,9 +266,9 @@ class CollectionProblemData(object):
         operatorCompressionData
             custom data structure
         """
-        return self.operatorCompressionData            
-            
-            
+        return self.operatorCompressionData
+
+
 
     def AddProblemData(self, problemData, **kwargs):
         """
@@ -282,7 +282,7 @@ class CollectionProblemData(object):
             same type as the axes of variability, gives the point in parameter space at which to add data
         """
         # check keys are all parameters
-        
+
         assert isinstance(
             problemData, ProblemData.ProblemData
         ), "wrong type for problemData"
@@ -487,6 +487,7 @@ class CollectionProblemData(object):
         """
         GetSnapshots
         """
+        self._checkSolutionName(solutionName)
         nbSnapshots = self.GetGlobalNumberOfSnapshots(solutionName, skipFirst)
         nbDofs = self.GetSolutionsNumberOfDofs(solutionName)
 

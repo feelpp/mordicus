@@ -397,6 +397,8 @@ def ComputeSigmaEpsilon(collectionProblemData, reducedIntegrator, tolerance):
     """
     computes sigma(u_i):epsilon(Psi)(x_k)
     """
+    collectionProblemData.defineQuantity("sigma")
+    collectionProblemData.defineQuantity("SigmaECM")
 
     redIntegratorShape = reducedIntegrator.shape
     sigmaNumberOfComponents = redIntegratorShape[0]

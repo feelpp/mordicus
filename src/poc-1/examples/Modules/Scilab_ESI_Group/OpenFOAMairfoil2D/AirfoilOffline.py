@@ -6,6 +6,7 @@ from Mordicus.Modules.Scilab_ESI_Group import SciSolutionReader as SSR
 from sklearn.gaussian_process.kernels import WhiteKernel, RBF
 from sklearn.gaussian_process import GaussianProcessRegressor
 from Mordicus.Core.OperatorCompressors import Regression
+from Mordicus.Core.IO import StateIO as SIO
 import numpy as np
 from pathlib import Path
 import os
@@ -25,7 +26,9 @@ def test():
     # DEFINE COLLECTION PROBLEM DATA ARCHITECTURE
     ####################################################
     collectionProblemData = CPD.CollectionProblemData()
-    # ADD? DOE = SCENARIO1 SCENARIO2 ... SCENARIO10 
+    # ADD? DOE = SCENARIO1 SCENARIO2 ... SCENARIO10
+    collectionProblemData.addVariabilityAxis('mu1',float,description="my_parameter")
+    collectionProblemData.defineQuantity("P", full_name="pressure", unit="Pa")
 
     nbOfComp = 1
     nbOfNodes = 10906
@@ -53,7 +56,7 @@ def test():
         # Fill DOE
         problemData.AddParameter(np.array([parameter[i]]), 0)
         problemData.AddSolution(solutionP)
-        collectionProblemData.AddProblemData(problemData)
+        collectionProblemData.AddProblemData(problemData,mu1=float(parameter[i]))
 
     ####################################################
     # FILL COLLECTION PROBLEM WITH OFFLINE
@@ -85,7 +88,7 @@ def test():
     ####################################################
     # SAVE DATA
     ####################################################
-    collectionProblemData.SaveState("mordicusState2")
+    SIO.SaveState("collectionProblemData", collectionProblemData)
 
     ####################################################
     # TEST

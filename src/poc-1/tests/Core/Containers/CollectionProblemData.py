@@ -23,11 +23,11 @@ def test():
     collectionProblemData = CPD.CollectionProblemData()
     collectionProblemData.defineVariabilityAxes(["mu1"],
                                                 [float],
-                                                quantities=[("name", "unit")], 
+                                                quantities=[("name", "unit")],
                                                 descriptions=["Parameter long description"])
     collectionProblemData.addVariabilityAxis("mu2",
                                             float,
-                                            quantity=("name", "unit"), 
+                                            quantity=("name", "unit"),
                                             description="Parameter long description")
     collectionProblemData.defineQuantity("U", "velocity", "m/s")
     collectionProblemData.AddProblemData(problemData, mu1=0., mu2=0.)

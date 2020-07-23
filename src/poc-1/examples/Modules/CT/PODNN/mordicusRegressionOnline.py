@@ -5,6 +5,7 @@ from Mordicus.Modules.CT.OperatorCompressors import Regression
 from Mordicus.Core.Containers import CollectionProblemData as CPD
 from Mordicus.Core.Containers import Solution as S
 from Mordicus.Modules.CT.IO import MeshReader as MR
+from Mordicus.Core.IO import StateIO as SIO
 import numpy as np
 from pathlib import Path
 import os
@@ -65,7 +66,7 @@ def test():
     nbeOfComponents = 1
     primality = True
 
-    collectionProblemData = CPD.LoadState("mordicusState")
+    collectionProblemData = SIO.LoadState("mordicusState")
     operatorCompressionData = collectionProblemData.GetOperatorCompressionData()
     reducedOrderBasis = collectionProblemData.reducedOrderBases[solutionName]
 

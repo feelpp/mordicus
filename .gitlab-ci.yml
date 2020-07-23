@@ -50,9 +50,9 @@ poc-1:
     - echo 'Starting NonRegression tests on Core...'
     - pytest
     - echo '... NonRegression tests on Core ended'
-    - cd ../../../.. && mkdir -p public/coverageReportCore
+    - cd ../../../.. && mkdir -p pages/coverageReportCore
     - echo 'Starting coverage report on Core...'
-    - cd src/poc-1/tests/Core && pytest --cov=../../src/Mordicus/Core --cov-report=html:../../../../public/coverageReportCore && cd -
+    - cd src/poc-1/tests/Core && pytest --cov=../../src/Mordicus/Core --cov-report=html:../../../../pages/coverageReportCore && cd -
     - echo '... coverage report on Core ended'
     - echo 'Starting Phimeca tests...'
     - cd src/poc-1/tests/Modules/Phimeca && pytest && cd -

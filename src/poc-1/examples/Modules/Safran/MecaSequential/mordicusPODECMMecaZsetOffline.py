@@ -68,11 +68,14 @@ for i, name in enumerate(dualNames):
 
 
 collectionProblemData = CPD.CollectionProblemData()
-    collectionProblemData.addVariabilityAxis('config', 
+collectionProblemData.addVariabilityAxis('config',
                                              str,
                                              description="dummy variability")
-    collectionProblemData.defineQuantity("U", "displacement", "m")
-    collectionProblemData.AddProblemData(problemData, config="case-1")
+collectionProblemData.defineQuantity("U", "displacement", "m")
+collectionProblemData.defineQuantity("sig", "stress", "Pa")
+for i, name in enumerate(dualNames):
+    collectionProblemData.defineQuantity(name)
+collectionProblemData.AddProblemData(problemData, config="case-1")
 
 
 print("ComputeL2ScalarProducMatrix...")

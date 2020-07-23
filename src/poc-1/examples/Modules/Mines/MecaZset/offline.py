@@ -6,6 +6,7 @@ from Mordicus.Core.Containers import Solution as S
 from Mordicus.Core.DataCompressors import SnapshotPOD as SP
 from Mordicus.Modules.Mines.IO.ZsetReader import ZsetMeshReader
 from Mordicus.Modules.Mines.OperatorCompressors import HyperReduction as hrom
+from Mordicus.Core.IO import StateIO as SIO
 
 import numpy as np
 from pathlib import Path
@@ -38,14 +39,14 @@ def test():
     nbeOfComponentsPrimal = 3
     nbeOfComponentsDual = 6
 
-    
+
     outputTimeSequence = solutionReader.ReadTimeSequenceFromSolutionFile()
-        
+
 
     solutionU = S.Solution("U", nbeOfComponentsPrimal, numberOfNodes, primality = True)
     solutionSigma = S.Solution("sigma", nbeOfComponentsDual, numberOfIntegrationPoints, primality = False)
     solutionEvcum = S.Solution("evcum", 1, numberOfIntegrationPoints, primality = False)
-    
+
     for time in outputTimeSequence:
         U = solutionReader.ReadSnapshot("U", time, nbeOfComponentsPrimal, primality=True)
         solutionU.AddSnapshot(U, time)
@@ -69,9 +70,9 @@ def test():
 
 
     collectionProblemData.AddProblemData(problemData, config="case-1")
-        
+
     #collectionProblemData.SetSnapshotCorrelationOperator("U", l2ScalarProducMatrix)
-        
+
     reducedOrderBasisU = SP.ComputeReducedOrderBasisFromCollectionProblemData(
             collectionProblemData, "U", 1.e-4
     )
@@ -109,14 +110,14 @@ def test():
 
     print("compressionErrors =", compressionErrors)
 
-    
+
     hrom.BuildReducedIntegrationOperator( collectionProblemData, mesh, 1, listNameDualVarOutput=["sigma", "evcum"])
 
     print("CompressMecaOperator done")
 
-    collectionProblemData.SaveState("mordicusState")
-    
-    os.chdir(initFolder)    
+    SIO.SaveState("collectionProblemData", collectionProblemData)
+
+    os.chdir(initFolder)
 
     return "ok"
 

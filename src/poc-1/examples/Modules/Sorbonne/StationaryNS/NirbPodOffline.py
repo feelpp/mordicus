@@ -10,6 +10,7 @@ from Mordicus.Core.Containers import Solution as S
 from Mordicus.Core.DataCompressors import SnapshotPOD as SP
 from Mordicus.Modules.Safran.FE import FETools as FT
 from  Mordicus.Modules.CT.IO import VTKSolutionReader as VTKSR
+from Mordicus.Core.IO import StateIO as SIO
 #from tkinter.constants import CURRENT
 from initCase import initproblem
 from initCase import basisFileToArray
@@ -23,11 +24,11 @@ import array
 """
 Create data (mesh1,mesh2,snapshots,uH) for Sorbonne usecase
 """
-""" 
+"""
 ----------------------------
               generate snapshots
 ----------------------------
-""" 
+"""
 
 ## Directories
 currentFolder=os.getcwd()
@@ -59,16 +60,16 @@ import numpy as np
 from vtk.util.numpy_support import vtk_to_numpy
 nev=5    #nombre de modes
 ns=10
-time=0.0 
+time=0.0
 dimension=2
-           
+
 ## On lit le maillage ici si deja GMSH et sinon on convertit d'abord en GMSH pour le lire ensuite avec basictools
 
 meshFileName = dataFolder + "/mesh1.msh"
 print(meshFileName)
 meshFileNameGMSH = dataFolder + "/mesh1GMSH.msh"
 GMR.CheckAndConvertMeshFFtoGMSH(meshFileName,meshFileNameGMSH)
-    
+
 meshReader = GMR.GmshMeshReader(meshFileNameGMSH)
 mesh = meshReader.ReadMesh()
 mesh.GetInternalStorage().nodes = mesh.GetInternalStorage().nodes[:,:2]
@@ -78,7 +79,7 @@ nbeOfComponentsPrimal = 2 # vitesses 2D
 numberOfNodes = mesh.GetNumberOfNodes()
 #print("nbNodes",numberOfNodes)
 #print("dimmesh",mesh.GetDimensionality())
-        
+
 collectionProblemData = CPD.CollectionProblemData()
 collectionProblemData.addVariabilityAxis('mu1',float,description="Reynolds number")
 collectionProblemData.defineQuantity("U", full_name="Velocity", unit="m/s")
@@ -86,15 +87,15 @@ collectionProblemData.defineQuantity("U", full_name="Velocity", unit="m/s")
 parameters = [float(1+15*i) for i in range(ns)]   ###Reynolds
 
 for i in range(ns):
-    
+
     test=VTKSR.VTKSolutionReader("u");
     u1_np_array =test.VTKReadToNp(dataFolder+"/snapshot",i)
- 
+
     #instancie une solution
     u1_np_array=u1_np_array.flatten()
 
     solutionU=S.Solution("U",dimension,numberOfNodes,True)
-    ### Only one snapshot --> time 0 
+    ### Only one snapshot --> time 0
     solutionU.AddSnapshot(u1_np_array,0)
     problemData = PD.ProblemData(dataFolder+str(i))
     problemData.AddSolution(solutionU)
@@ -117,12 +118,12 @@ l2ScalarProducMatrix = FT.ComputeL2ScalarProducMatrix(mesh, 2)
 #print("max",l2ScalarProducMatrix.max())
 #print(l2ScalarProducMatrix.min())
 
-collectionProblemData.SetSnapshotCorrelationOperator("U", l2ScalarProducMatrix)
-snapshotCorrelationOperator=collectionProblemData.GetSnapshotCorrelationOperator("U")
-reducedOrderBasisU = SP.ComputeReducedOrderBasisFromCollectionProblemData(collectionProblemData, "U", 1.e-4)
+#collectionProblemData.SetSnapshotCorrelationOperator("U", l2ScalarProducMatrix)
+#snapshotCorrelationOperator=collectionProblemData.GetSnapshotCorrelationOperator("U")
+reducedOrderBasisU = SP.ComputeReducedOrderBasisFromCollectionProblemData(collectionProblemData, "U", 1.e-4, l2ScalarProducMatrix)
 
 collectionProblemData.AddReducedOrderBasis("U", reducedOrderBasisU)
-collectionProblemData.CompressSolutions("U")
+collectionProblemData.CompressSolutions("U", l2ScalarProducMatrix)
 
 
 ### Offline Errors
@@ -135,7 +136,7 @@ for _, problemData in collectionProblemData.GetProblemDatas().items():
     exactSolution = problemData.solutions["U"].GetSnapshot(0)
     reconstructedCompressedSolution = np.dot(CompressedSolutionU[0], reducedOrderBasisU) #pas de tps 0
     norml2ExactSolution = np.linalg.norm(exactSolution)
- 
+
     if norml2ExactSolution != 0:
         relError = np.linalg.norm(reconstructedCompressedSolution-exactSolution)/norml2ExactSolution
     else:
@@ -143,5 +144,6 @@ for _, problemData in collectionProblemData.GetProblemDatas().items():
     compressionErrors.append(relError)
 print("compressionErrors =", compressionErrors)
 
-collectionProblemData.SaveState("mordicusState")
+SIO.SaveState("collectionProblemData", collectionProblemData)
+SIO.SaveState("snapshotCorrelationOperator", l2ScalarProducMatrix)
 

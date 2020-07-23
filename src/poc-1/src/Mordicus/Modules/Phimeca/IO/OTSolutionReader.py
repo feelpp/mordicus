@@ -1,6 +1,4 @@
 import numpy as np
-import math
-
 from Mordicus.Core.IO.SolutionReaderBase import SolutionReaderBase
 
 class OTSolutionReader(SolutionReaderBase):
@@ -9,7 +7,7 @@ class OTSolutionReader(SolutionReaderBase):
 
     Attributes
     ----------
-    outputSample : :class:`openturns.Field`
+    outputSample : :class:`openturns.ProcessSample`
         Snapshot
     """
     def __init__(self, outputSample):
@@ -17,24 +15,14 @@ class OTSolutionReader(SolutionReaderBase):
         self.outputSample = outputSample
 
     def ReadSnapshotComponent(self, fieldName, time, primality):
-        timeseq = self.ReadTimeSequenceFromSolutionFile()
-        index = max(np.searchsorted(timeseq, time, side='left'), len(timeseq)-1)
-        if index > 0 and math.fabs(timeseq[index-1] - time) < math.fabs(timeseq[index] - time):
-            index = index-1
-        snapshot = np.array(self.outputSample.getValueAtIndex(index)).flatten()
+        # FIXME: indexing variable is not time, just the number of the realization
+        i = int(time)
+
+        snapshot = np.array(self.outputSample[i]).flatten()
+
         return snapshot
 
     def ReadTimeSequenceFromSolutionFile(self):
         # here too
-        if self.outputSample.getMesh().getDimension() == 1:
-            return np.array(self.outputSample.getTimeGrid().getValues())
-        stop = False
-        tlist = []
-        it = iter(self.outputSample.getMesh().getVertices())
-        xm = next(it)[0]
-        while not stop:
-            tlist.append(xm)
-            x = next(it)[0]
-            stop = (x < xm)
-            xm = x
-        return np.array(tlist)
+        return [float(i) for i in range(self.outputSample.getSize())]
+

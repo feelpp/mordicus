@@ -60,11 +60,12 @@ problemData.AddSolution(solutionU)
 problemData.AddSolution(solutionSigma)
 
 collectionProblemData = CPD.CollectionProblemData()
-    collectionProblemData.addVariabilityAxis('config', 
+collectionProblemData.addVariabilityAxis('config',
                                              str,
                                              description="dummy variability")
-    collectionProblemData.defineQuantity("U", "displacement", "m")
-    collectionProblemData.AddProblemData(problemData, config="case-1")
+collectionProblemData.defineQuantity("U", "displacement", "m")
+collectionProblemData.AddProblemData(problemData, config="case-1")
+
 
 print("ComputeL2ScalarProducMatrix...")
 snapshotCorrelationOperator = FT.ComputeL2ScalarProducMatrix(mesh, 3)

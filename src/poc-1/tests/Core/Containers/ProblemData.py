@@ -37,6 +37,7 @@ def test():
     problemData.GetParameterDimension()
     problemData.GetParametersTimeSequence()
     problemData.GetParametersList()
+    problemData.GetDataFolder()
 
     import collections
     compressedSnapshots = collections.OrderedDict()

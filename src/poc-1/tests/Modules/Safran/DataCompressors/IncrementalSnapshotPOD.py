@@ -22,8 +22,11 @@ def test():
     problemData = ProblemData.ProblemData("computation1")
     problemData.AddSolution(solution)
 
+
     collectionProblemData = CollectionProblemData.CollectionProblemData()
-    collectionProblemData.AddProblemData(problemData)
+    collectionProblemData.addVariabilityAxis("config", str)
+    collectionProblemData.defineQuantity("U")
+    collectionProblemData.AddProblemData(problemData, config="case-1")
 
     IncrementalSnapshotPOD.CompressData(
         collectionProblemData, "U", 1.e-8

@@ -45,6 +45,7 @@ def test():
 
     collectionProblemData = CPD.CollectionProblemData()
     collectionProblemData.defineVariabilityAxes(('mu',), (float, ))
+    collectionProblemData.defineQuantity("TP", "temperature", "K")
     collectionProblemData.AddProblemData(problemData, mu=0.)
     print(
         "A collectionProblemData with problemDatas "

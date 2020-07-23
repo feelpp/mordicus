@@ -50,6 +50,14 @@ def test():
     for i in range(2):
 
       collectionProblemData = CPD.CollectionProblemData()
+
+      collectionProblemData.addVariabilityAxis('config',
+                                             str,
+                                             description="dummy variability")
+      collectionProblemData.defineQuantity("U", "displacement", "m")
+      collectionProblemData.defineQuantity("sig", "stress", "Pa")
+
+
       collectionProblemDatas.append(collectionProblemData)
 
       folders = ["Computation1/", "Computation2/"]
@@ -75,7 +83,7 @@ def test():
         problemData.AddSolution(solutionSigma)
         #problemData.AddConstitutiveLaw(constitutiveLawsList)
 
-        collectionProblemData.AddProblemData(problemData)
+        collectionProblemData.AddProblemData(problemData, config="case-"+str(i))
 
         for time in outputTimeSequence:
             U = solutionReader.ReadSnapshot("U", time, nbeOfComponentsPrimal, primality=True)
@@ -84,9 +92,9 @@ def test():
             solutionSigma.AddSnapshot(sigma, time)
 
         SP.CompressData(collectionProblemData, "U", 1.e-4, snapshotCorrelationOperator)
-        
+
         Mechanical.CompressOperator(collectionProblemData, operatorPreCompressionData, mesh, 1.e-3)
-        
+
         print("check compression...")
         reducedOrderBasis = collectionProblemData.GetReducedOrderBasis("U")
         collectionProblemData.CompressSolutions("U", snapshotCorrelationOperator)

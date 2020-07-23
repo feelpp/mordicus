@@ -58,13 +58,29 @@ print("-- Create ProblemData...")
 reader = OTMeshReader(ot_mesh)
 mesh = reader.ReadMesh()
 
-#numberOfNodes = mesh.GetNumberOfNodes()
-#nbeOfComponents = outputSample.getDimension()
-nbeOfComponents = 1
-numberOfNodes = 1
+numberOfNodes = mesh.GetNumberOfNodes()
+nbeOfComponents = outputSample.getDimension()
 primality = True
 
 dataFolder = '.'
+problemData = ProblemData(dataFolder)
+
+solutionZ = Solution('Z', nbeOfComponents, numberOfNodes, primality)
+problemData.AddSolution(solutionZ)
+
+for i in range(size):
+    solutionReader = OTSolutionReader(outputSample)
+    #print(outputSample[i].getValues()[:5])
+
+    snapshot = solutionReader.ReadSnapshotComponent(solutionZ.GetSolutionName(), i, solutionZ.GetPrimality())
+    #print(snapshot.shape)
+
+    solutionZ.AddSnapshot(snapshot, i)
+
+    parameter = np.array(inputSample[i])
+    problemData.AddParameter(parameter, i)
+
+
 
 collectionProblemData = CollectionProblemData()
 collectionProblemData.defineVariabilityAxes(["Z0", "V0", "M", "C", "Zmin"],
@@ -77,23 +93,7 @@ collectionProblemData.defineVariabilityAxes(["Z0", "V0", "M", "C", "Zmin"],
                                              "Altitude of ground"])
 collectionProblemData.defineQuantity("Z", "altitude", "m")
 
-for i in range(size):
-
-    problemData = ProblemData(dataFolder)
-
-    solutionZ = Solution('Z', nbeOfComponents, numberOfNodes, primality)
-    problemData.AddSolution(solutionZ)
-    solutionReader = OTSolutionReader(outputSample[i])
-    parameter = np.array(inputSample[i])
-
-    for t in solutionReader.ReadTimeSequenceFromSolutionFile():
-
-        snapshot = solutionReader.ReadSnapshotComponent(solutionZ.GetSolutionName(), t, solutionZ.GetPrimality())
-        solutionZ.AddSnapshot(snapshot, t)
-
-        problemData.AddParameter(parameter, t)
-
-    collectionProblemData.AddProblemData(problemData, Z0=inputSample[i][0],
+collectionProblemData.AddProblemData(problemData, Z0=inputSample[i][0],
                                                       V0=inputSample[i][1],
                                                       M=inputSample[i][2],
                                                       C=inputSample[i][3],
@@ -134,16 +134,3 @@ plt.legend()
 plt.savefig('viscous_fall.png')
 print("ok")
 
-# wget -c --no-check-certificate https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -P /tmp
-# bash /tmp/Miniconda3-latest-Linux-x86_64.sh -b -p $PWD/miniconda
-# export PATH=$PWD/miniconda/bin:$PATH
-# conda config --add channels conda-forge
-# conda config --set channel_priority strict
-# conda update conda
-# conda env create -f environment.yml 
-
-
-# cd tests/Core && PYTHONPATH=../../src pytest --cov=../../src/Mordicus/Core --cov-report=html:../../coverageReports/coverageReportCore
-# cd tests/Modules/Safran && PYTHONPATH=../../../src/ pytest --cov=../../../src/Mordicus/Modules/Safran --cov-report=html:../../../coverageReports/coverageReportCore
-# cd tests/Modules/Phimeca && PYTHONPATH=../../../src/ pytest --cov=../../../src/Mordicus/Modules/Phimeca --cov-report=html:../../../coverageReports/coverageReportCore
-# PYTHONPATH=$PWD/src python examples/Modules/Phimeca/ViscousFall/main.py
