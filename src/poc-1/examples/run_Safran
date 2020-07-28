@@ -16,3 +16,6 @@ cd ../MecaSequentialNoZsetLocalBasis/
 python3 mordicusPODECMMecaZsetOffline.py
 python3 mordicusPODECMMecaZsetOnline.py
 
+cd ../MecaSequentialOtherOnline/
+python3 mordicusPODECMMecaZsetOnline.py
+
