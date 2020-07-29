@@ -4,48 +4,69 @@ variables:
   MYPROJECT : 'mordicus'
 
 stages:
-  - doc
+  - srcBasicTools
+  - docLatex
+  - docWebsite
   - test
   - deploy
 
-doc:
-  stage: doc
+
+srcBasicTools:
+  stage: srcBasicTools
+  image: python:3.7-alpine
+  before_script:
+    - apk add --no-cache git
+  script:
+    - cd .. && rm -rf basic-tools && git clone https://gitlab.com/drti/basic-tools.git
+    
+    
+docLatex:
+  stage: docLatex
   image: python:3.7-alpine
   before_script:
     - apk add build-base texlive texmf-dist-latexextra
     - pip install -U sphinx sphinxcontrib-bibtex
   script:
-    - export PYTHONPATH=$PWD/../basic-tools/src:$PYTHONPATH
     - mkdir -p pages/doc
-    - cd doc/
-    - make latexpdf && cd ..
-    - cd src/poc-1/doc
-    - make html && cd ../../..
+    - cd doc/ && make latexpdf && cd ..
     - mv doc/build/latex pages/doc/latex
+  artifacts:
+    name: "Specification File"
+    paths:
+      - pages/doc/latex
+
+
+docWebsite:
+  stage: docWebsite
+  image: python:3.7
+  before_script:
+    - apt-get update
+    - apt-get install -y python3-venv gcc python3-dev libopenmpi-dev make
+    - pip install --upgrade pip
+    - pip install -r ./src/poc-1/requirements.txt
+    - pip install -U sphinx
+    - export PYTHONPATH=$PWD/src/poc-1/src:$PYTHONPATH
+    - export PYTHONPATH=$PWD/../basic-tools/src:$PYTHONPATH
+  script:
+    - cd src/poc-1 && python setup.py build_sphinx && cd ../..
     - mv src/poc-1/doc/_build/html pages/doc/html
   artifacts:
-    name: "Documentation"
+    name: "Documentation Sphinx"
     paths:
-      - pages/doc
+      - pages/doc/html
+    
 
-.test:
+poc-1:
   stage: test
   image: python:3.7
   before_script:
     - apt-get update
     - apt-get install -y python3-venv gcc python3-dev libopenmpi-dev make
     - pip install --upgrade pip
-    - export BASICTOOLS_BUILD_CYTHON=False
     - pip install -r ./src/poc-1/requirements.txt
-    - export MYPATH=$PWD
-    - cd .. && rm -rf basic-tools && git clone https://gitlab.com/drti/basic-tools.git
-    - cd $MYPATH
-
-poc-1:
-  extends: .test
-  script:
     - export PYTHONPATH=$PWD/src/poc-1/src:$PYTHONPATH
     - export PYTHONPATH=$PWD/../basic-tools/src:$PYTHONPATH
+  script:
     - cd src/poc-1/examples/Core
     - echo 'Starting NonRegression tests on Core...'
     - pytest
@@ -69,15 +90,17 @@ pages:
   image: alpine:latest
   stage: deploy
   dependencies:
+    - docLatex
+    - docWebsite
     - poc-1
-    - doc
   script:
     - mv pages/ public/
   artifacts:
     name: "WebSite"
     paths:
-      - public    
+      - public      
   only:
   - master
+
 
 

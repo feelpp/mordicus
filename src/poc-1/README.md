@@ -36,9 +36,10 @@
 
 2) **DOCUMENTATION**
 
-    Documentation is generated using sphinx in the form of a website by executing the following command in the doc folder
+    Documentation is generated using sphinx in the form of a website by executing the following command in the main folder
 
-	make html
+	python setup.py build_sphinx
+
 
 
 3) **TESTING INFRASTRUCTURE**

@@ -10,9 +10,10 @@ Contents:
 .. toctree::
    :maxdepth: 4
 
-   _source/modules.rst
+   _source/Mordicus
    
 
+.. literalinclude:: ../README.md
 
 
 Indices and tables
