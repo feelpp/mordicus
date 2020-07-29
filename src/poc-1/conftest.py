@@ -12,8 +12,9 @@ def pytest_pycollect_makeitem(collector, name, obj):
     if name == "test" and hasattr(obj, "__call__"):
         # Collect CheckIntegrity functions
         # Decorate them to detect failing return values 
-        return pytest.Function(name, parent=collector, callobj=fail_if_not_ok(obj)) 
+        res =  pytest.Function.from_parent(collector, name=name)
+        res.callobj = fail_if_not_ok(obj)
+        return res 
     else:
         # Fallback to default handler
         return None
-

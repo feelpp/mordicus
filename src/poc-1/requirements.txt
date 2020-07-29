@@ -2,6 +2,6 @@ pytest-cov>=2.8
 scikit-learn>=0.22
 mpi4py
 openturns
--e git+https://gitlab.com/bmarchand/basic-tools.git@518380b6add9ec3a4272d89e787ae5064b057964#egg=basictools
+-e git+https://gitlab.com/drti/basic-tools.git#egg=basictools
 sympy
 
