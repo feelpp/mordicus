@@ -10,120 +10,129 @@ from Mordicus.Core.DataCompressors import SnapshotPOD as SP
 from Mordicus.Modules.Safran.IO import PXDMFWriter as PW
 from Mordicus.Modules.Safran.OperatorCompressors import Mechanical as Meca
 from Mordicus.Core.IO import StateIO as SIO
+from Mordicus.Core.Helpers import FolderHandler as FH
 import numpy as np
 
 
-
-##################################################
-# LOAD DATA FOR ONLINE
-##################################################
-
-collectionProblemData = SIO.LoadState("collectionProblemData")
-operatorCompressionData = collectionProblemData.GetOperatorCompressionData()
-snapshotCorrelationOperator = SIO.LoadState("snapshotCorrelationOperator")
-
-operatorCompressionData = collectionProblemData.GetOperatorCompressionData()
-reducedOrderBasisU = collectionProblemData.GetReducedOrderBasis("U")
+def test():
 
 
-##################################################
-# ONLINE
-##################################################
+    folderHandler = FH.FolderHandler(__file__)
+    folderHandler.SwitchToScriptFolder()
 
 
-folder = "MecaSequential/"
-inputFileName = folder + "cube.inp"
-inputReader = ZIR.ZsetInputReader(inputFileName)
+    ##################################################
+    # LOAD DATA FOR ONLINE
+    ##################################################
 
-meshFileName = folder + "cube.geof"
-mesh = ZMR.ReadMesh(meshFileName)
+    collectionProblemData = SIO.LoadState("collectionProblemData")
+    operatorCompressionData = collectionProblemData.GetOperatorCompressionData()
+    snapshotCorrelationOperator = SIO.LoadState("snapshotCorrelationOperator")
 
-onlineProblemData = PD.ProblemData(folder)
-
-timeSequence = inputReader.ReadInputTimeSequence()
-
-constitutiveLawsList = inputReader.ConstructConstitutiveLawsList()
-onlineProblemData.AddConstitutiveLaw(constitutiveLawsList)
-
-loadingList = inputReader.ConstructLoadingsList()
-for loading in loadingList:
-    loading.ReduceLoading(mesh, onlineProblemData, reducedOrderBasisU, operatorCompressionData)
-onlineProblemData.AddLoading(loadingList)
-
-initialCondition = inputReader.ConstructInitialCondition()
-initialCondition.ReduceInitialSnapshot(reducedOrderBasisU, snapshotCorrelationOperator)
-
-onlineProblemData.SetInitialCondition(initialCondition)
-
-initOnlineCompressedSnapshot = initialCondition.GetReducedInitialSnapshot()
+    operatorCompressionData = collectionProblemData.GetOperatorCompressionData()
+    reducedOrderBasisU = collectionProblemData.GetReducedOrderBasis("U")
 
 
-import time
-start = time.time()
-onlineCompressedSolution, onlineCompressionData = Meca.ComputeOnline(onlineProblemData, initOnlineCompressedSnapshot, timeSequence, reducedOrderBasisU, operatorCompressionData, 1.e-8)
-print(">>>> DURATION ONLINE =", time.time() - start)
+    ##################################################
+    # ONLINE
+    ##################################################
 
 
-## Compute Error
-numberOfNodes = mesh.GetNumberOfNodes()
-nbeOfComponentsPrimal = 3
+    folder = "MecaSequential/"
+    inputFileName = folder + "cube.inp"
+    inputReader = ZIR.ZsetInputReader(inputFileName)
 
-solutionUApprox = S.Solution("U", nbeOfComponentsPrimal, numberOfNodes, primality = True)
-solutionUApprox.SetCompressedSnapshots(onlineCompressedSolution)
-solutionUApprox.UncompressSnapshots(reducedOrderBasisU)
+    meshFileName = folder + "cube.geof"
+    mesh = ZMR.ReadMesh(meshFileName)
 
-solutionFileName = folder + "cube.ut"
-solutionReader = ZSR.ZsetSolutionReader(solutionFileName)
-solutionUExact = S.Solution("U", nbeOfComponentsPrimal, numberOfNodes, primality = True)
-outputTimeSequence = solutionReader.ReadTimeSequenceFromSolutionFile()
-for time in outputTimeSequence:
-    U = solutionReader.ReadSnapshot("U", time, nbeOfComponentsPrimal, primality=True)
-    solutionUExact.AddSnapshot(U, time)
+    onlineProblemData = PD.ProblemData(folder)
 
+    timeSequence = inputReader.ReadInputTimeSequence()
 
-ROMErrors = []
-for t in outputTimeSequence:
-    exactSolution = solutionUExact.GetSnapshotAtTime(t)
-    approxSolution = solutionUApprox.GetSnapshotAtTime(t)
-    norml2ExactSolution = np.linalg.norm(exactSolution)
-    if norml2ExactSolution != 0:
-        relError = np.linalg.norm(approxSolution-exactSolution)/norml2ExactSolution
-    else:
-        relError = np.linalg.norm(approxSolution-exactSolution)
-    ROMErrors.append(relError)
+    constitutiveLawsList = inputReader.ConstructConstitutiveLawsList()
+    onlineProblemData.AddConstitutiveLaw(constitutiveLawsList)
 
-print("ROMErrors =", ROMErrors)
+    loadingList = inputReader.ConstructLoadingsList()
+    for loading in loadingList:
+        loading.ReduceLoading(mesh, onlineProblemData, reducedOrderBasisU, operatorCompressionData)
+    onlineProblemData.AddLoading(loadingList)
 
-print("onlineCompressionData.keys() =", list(onlineCompressionData.keys()))
+    initialCondition = inputReader.ConstructInitialCondition()
+    initialCondition.ReduceInitialSnapshot(reducedOrderBasisU, snapshotCorrelationOperator)
 
-PW.WritePXDMF(mesh, onlineCompressedSolution, reducedOrderBasisU, "U")
-print("The compressed solution has been written in PXDMF Format")
+    onlineProblemData.SetInitialCondition(initialCondition)
+
+    initOnlineCompressedSnapshot = initialCondition.GetReducedInitialSnapshot()
 
 
+    import time
+    start = time.time()
+    onlineCompressedSolution, onlineCompressionData = Meca.ComputeOnline(onlineProblemData, initOnlineCompressedSnapshot, timeSequence, reducedOrderBasisU, operatorCompressionData, 1.e-8)
+    print(">>>> DURATION ONLINE =", time.time() - start)
 
 
+    ## Compute Error
+    numberOfNodes = mesh.GetNumberOfNodes()
+    nbeOfComponentsPrimal = 3
+
+    solutionUApprox = S.Solution("U", nbeOfComponentsPrimal, numberOfNodes, primality = True)
+    solutionUApprox.SetCompressedSnapshots(onlineCompressedSolution)
+    solutionUApprox.UncompressSnapshots(reducedOrderBasisU)
+
+    solutionFileName = folder + "cube.ut"
+    solutionReader = ZSR.ZsetSolutionReader(solutionFileName)
+    solutionUExact = S.Solution("U", nbeOfComponentsPrimal, numberOfNodes, primality = True)
+    outputTimeSequence = solutionReader.ReadTimeSequenceFromSolutionFile()
+    for time in outputTimeSequence:
+        U = solutionReader.ReadSnapshot("U", time, nbeOfComponentsPrimal, primality=True)
+        solutionUExact.AddSnapshot(U, time)
 
 
-numberOfIntegrationPoints = FT.ComputeNumberOfIntegrationPoints(mesh)
+    ROMErrors = []
+    for t in outputTimeSequence:
+        exactSolution = solutionUExact.GetSnapshotAtTime(t)
+        approxSolution = solutionUApprox.GetSnapshotAtTime(t)
+        norml2ExactSolution = np.linalg.norm(exactSolution)
+        if norml2ExactSolution != 0:
+            relError = np.linalg.norm(approxSolution-exactSolution)/norml2ExactSolution
+        else:
+            relError = np.linalg.norm(approxSolution-exactSolution)
+        ROMErrors.append(relError)
 
-dualNames = ["evrcum", "sig12", "sig23", "sig31", "sig11", "sig22", "sig33", "eto12", "eto23", "eto31", "eto11", "eto22", "eto33"]
+    print("ROMErrors =", ROMErrors)
 
+    print("onlineCompressionData.keys() =", list(onlineCompressionData.keys()))
 
-onlineProblemData.AddSolution(solutionUApprox)
-
-for name in dualNames:
-    solutionsDual = S.Solution(name, 1, numberOfIntegrationPoints, primality = False)
-    
-    onlineDualCompressedSolution = Meca.ReconstructDualQuantity(name, operatorCompressionData, onlineCompressionData, timeSequence = list(onlineCompressedSolution.keys())[1:])
-
-    solutionsDual.SetCompressedSnapshots(onlineDualCompressedSolution)
-
-    onlineProblemData.AddSolution(solutionsDual)
-
-ZSW.WriteZsetSolution(mesh, meshFileName, "reduced", collectionProblemData, onlineProblemData, "U")
+    PW.WritePXDMF(mesh, onlineCompressedSolution, reducedOrderBasisU, "U")
+    print("The compressed solution has been written in PXDMF Format")
 
 
 
+    numberOfIntegrationPoints = FT.ComputeNumberOfIntegrationPoints(mesh)
+
+    dualNames = ["evrcum", "sig12", "sig23", "sig31", "sig11", "sig22", "sig33", "eto12", "eto23", "eto31", "eto11", "eto22", "eto33"]
 
 
+    onlineProblemData.AddSolution(solutionUApprox)
+
+    for name in dualNames:
+        solutionsDual = S.Solution(name, 1, numberOfIntegrationPoints, primality = False)
+
+        onlineDualCompressedSolution = Meca.ReconstructDualQuantity(name, operatorCompressionData, onlineCompressionData, timeSequence = list(onlineCompressedSolution.keys())[1:])
+
+        solutionsDual.SetCompressedSnapshots(onlineDualCompressedSolution)
+
+        onlineProblemData.AddSolution(solutionsDual)
+
+    ZSW.WriteZsetSolution(mesh, meshFileName, "reduced", collectionProblemData, onlineProblemData, "U")
+
+
+    folderHandler.SwitchToExecutionFolder()
+
+    assert np.max(ROMErrors) < 1.e-3, "!!! Regression detected !!! ROMErrors have become too large"
+
+
+
+if __name__ == "__main__":
+    test()
 

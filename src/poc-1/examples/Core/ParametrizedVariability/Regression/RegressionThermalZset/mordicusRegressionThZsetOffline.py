@@ -6,16 +6,15 @@ from Mordicus.Core.Containers import Solution as S
 from Mordicus.Core.DataCompressors import SnapshotPOD
 from Mordicus.Core.OperatorCompressors import Regression
 from Mordicus.Core.IO import StateIO as SIO
+from Mordicus.Core.Helpers import FolderHandler as FH
 import numpy as np
-from pathlib import Path
-import os
 
 
 def test():
 
-    initFolder = os.getcwd()
-    currentFolder = str(Path(__file__).parents[0])
-    os.chdir(currentFolder)
+
+    folderHandler = FH.FolderHandler(__file__)
+    folderHandler.SwitchToScriptFolder()
 
 
     mesh = ZMR.ReadMesh("cube.geof")
@@ -25,7 +24,7 @@ def test():
     primality = True
 
     collectionProblemData = CPD.CollectionProblemData()
-    collectionProblemData.defineVariabilityAxes(['Text', 'Tint'], 
+    collectionProblemData.defineVariabilityAxes(['Text', 'Tint'],
                                                 [float, float],
                                                 [('Temperature', 'Celsius')]*2,
                                                 ['External temperature', 'Internal Temperature'])
@@ -113,17 +112,11 @@ def test():
             compressionErrors.append(relError)
 
 
-    os.chdir(initFolder)
+    folderHandler.SwitchToExecutionFolder()
 
-    if np.max(compressionErrors) > 1.e-2:
-
-        return "not ok"
-
-    else:
-
-        return "ok"
+    assert np.max(compressionErrors) < 1.e-2, "!!! Regression detected !!! compressionErrors have become too large"
 
 
 
 if __name__ == "__main__":
-    print(test())  # pragma: no cover
+    test()

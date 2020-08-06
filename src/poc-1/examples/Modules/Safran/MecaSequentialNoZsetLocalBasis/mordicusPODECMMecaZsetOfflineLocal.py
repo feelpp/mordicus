@@ -9,16 +9,13 @@ from Mordicus.Modules.Safran.DataCompressors import FusedSnapshotPOD as SP
 from Mordicus.Modules.Safran.OperatorCompressors import Mechanical
 from Mordicus.Modules.Safran.IO import PXDMFWriter as PW
 from Mordicus.Core.IO import StateIO as SIO
+from Mordicus.Core.Helpers import FolderHandler as FH
 import numpy as np
-from pathlib import Path
-import os
-
 
 def test():
 
-    initFolder = os.getcwd()
-    currentFolder = str(Path(__file__).parents[0])
-    os.chdir(currentFolder)
+    folderHandler = FH.FolderHandler(__file__)
+    folderHandler.SwitchToScriptFolder()
 
     inputFileName = "cube.inp"
     meshFileName = "cube.geof"
@@ -121,9 +118,10 @@ def test():
         SIO.SaveState("mordicusState_Basis_"+str(i), collectionProblemDatas[i])
 
 
-    os.chdir(initFolder)
+    folderHandler.SwitchToExecutionFolder()
 
-    return "ok"
+    assert np.max(compressionErrors) < 1.e-5, "!!! Regression detected !!! compressionErrors have become too large"
+
 
 if __name__ == "__main__":
-    print(test())  # pragma: no covers
+    test()

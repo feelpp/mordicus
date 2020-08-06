@@ -8,9 +8,8 @@ from Mordicus.Modules.Safran.FE import FETools as FT
 from Mordicus.Modules.Safran.IO import PXDMFWriter as PW
 from Mordicus.Modules.Safran.OperatorCompressors import Mechanical
 from Mordicus.Core.IO import StateIO as SIO
+from Mordicus.Core.Helpers import FolderHandler as FH
 import numpy as np
-from pathlib import Path
-import os
 import time
 
 
@@ -20,11 +19,8 @@ def test():
     import time
     start = time.time()
 
-    initFolder = os.getcwd()
-    currentFolder = str(Path(__file__).parents[0])
-    os.chdir(currentFolder)
-
-
+    folderHandler = FH.FolderHandler(__file__)
+    folderHandler.SwitchToScriptFolder()
 
     ##################################################
     # LOAD DATA FOR ONLINE
@@ -127,7 +123,7 @@ def test():
 
 
     print("check U")
-    rel = [] 
+    rel = []
     for t in onlinesolution.GetTimeSequenceFromCompressedSnapshots():
         if t < timeSequence[len(timeSequence)//2-1]:
             i = 0
@@ -143,9 +139,11 @@ def test():
 
     print("rel error =", rel)
 
-    os.chdir(initFolder)
 
-    return "ok"
+    folderHandler.SwitchToExecutionFolder()
+
+    assert np.max(rel) < 1.e-2, "!!! Regression detected !!! ROMErrors have become too large"
+
 
 if __name__ == "__main__":
-    print(test())  # pragma: no cover
+    test()

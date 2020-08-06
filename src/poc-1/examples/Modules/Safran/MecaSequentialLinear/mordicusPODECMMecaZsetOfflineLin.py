@@ -20,7 +20,7 @@ def test():
     folderHandler.SwitchToScriptFolder()
 
 
-    folder = "MecaSequential/"
+    folder = "Computation1/"
 
     inputFileName = folder + "cube.inp"
     meshFileName = folder + "cube.geof"
@@ -42,26 +42,22 @@ def test():
     nbeOfComponentsDual = 6
 
 
-
     print("PreCompressOperator...")
     operatorPreCompressionData = Mechanical.PreCompressOperator(mesh)
     print("...done")
 
+
     outputTimeSequence = solutionReader.ReadTimeSequenceFromSolutionFile()
 
-    dualNames = ["evrcum", "sig12", "sig23", "sig31", "sig11", "sig22", "sig33", "eto12", "eto23", "eto31", "eto11", "eto22", "eto33"]
 
     solutionU = S.Solution("U", nbeOfComponentsPrimal, numberOfNodes, primality = True)
     solutionSigma = S.Solution("sigma", nbeOfComponentsDual, numberOfIntegrationPoints, primality = False)
 
-    solutionsDual = [S.Solution(name, 1, numberOfIntegrationPoints, primality = False) for name in dualNames]
-
-
     for time in outputTimeSequence:
-        solutionU.AddSnapshot(solutionReader.ReadSnapshot("U", time, nbeOfComponentsPrimal, primality=True), time)
-        solutionSigma.AddSnapshot(solutionReader.ReadSnapshot("sig", time, nbeOfComponentsDual, primality=False), time)
-        for i, name in enumerate(dualNames):
-            solutionsDual[i].AddSnapshot(solutionReader.ReadSnapshotComponent(name, time, primality=False), time)
+        U = solutionReader.ReadSnapshot("U", time, nbeOfComponentsPrimal, primality=True)
+        solutionU.AddSnapshot(U, time)
+        sigma = solutionReader.ReadSnapshot("sig", time, nbeOfComponentsDual, primality=False)
+        solutionSigma.AddSnapshot(sigma, time)
 
 
 
@@ -69,18 +65,11 @@ def test():
     problemData.AddSolution(solutionU)
     problemData.AddSolution(solutionSigma)
 
-    for i, name in enumerate(dualNames):
-        problemData.AddSolution(solutionsDual[i])
-
-
     collectionProblemData = CPD.CollectionProblemData()
     collectionProblemData.addVariabilityAxis('config',
-                                                str,
-                                                description="dummy variability")
+                                             str,
+                                             description="dummy variability")
     collectionProblemData.defineQuantity("U", "displacement", "m")
-    collectionProblemData.defineQuantity("sig", "stress", "Pa")
-    for i, name in enumerate(dualNames):
-        collectionProblemData.defineQuantity(name)
     collectionProblemData.AddProblemData(problemData, config="case-1")
 
 
@@ -88,13 +77,8 @@ def test():
     snapshotCorrelationOperator = FT.ComputeL2ScalarProducMatrix(mesh, 3)
 
     SP.CompressData(collectionProblemData, "U", 1.e-6, snapshotCorrelationOperator)
-    for name in dualNames:
-        SP.CompressData(collectionProblemData, name, 1.e-6)
-
-
     collectionProblemData.CompressSolutions("U", snapshotCorrelationOperator)
     reducedOrderBasisU = collectionProblemData.GetReducedOrderBasis("U")
-
 
     CompressedSolutionU = solutionU.GetCompressedSnapshots()
 
@@ -113,7 +97,7 @@ def test():
 
     print("compressionErrors =", compressionErrors)
 
-    Mechanical.CompressOperator(collectionProblemData, operatorPreCompressionData, mesh, 1.e-5, listNameDualVarOutput = dualNames, listNameDualVarGappyIndicesforECM = ["evrcum"])
+    Mechanical.CompressOperator(collectionProblemData, operatorPreCompressionData, mesh, 1.e-6)
 
     print("CompressOperator done")
 
@@ -128,4 +112,3 @@ def test():
 
 if __name__ == "__main__":
     test()
-

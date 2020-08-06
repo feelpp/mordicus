@@ -67,16 +67,15 @@ poc-1:
     - export PYTHONPATH=$PWD/src/poc-1/src:$PYTHONPATH
     - export PYTHONPATH=$PWD/../basic-tools/src:$PYTHONPATH
   script:
-    - cd src/poc-1/examples/Core
     - echo 'Starting NonRegression tests on Core...'
-    - pytest
+    - pytest src/poc-1/examples/Core
     - echo '... NonRegression tests on Core ended'
-    - cd ../../../.. && mkdir -p pages/coverageReportCore
+    - mkdir -p pages/coverageReportCore
     - echo 'Starting coverage report on Core...'
     - cd src/poc-1/tests/Core && pytest --cov=../../src/Mordicus/Core --cov-report=html:../../../../pages/coverageReportCore && cd -
     - echo '... coverage report on Core ended'
     - echo 'Starting Phimeca tests...'
-    - cd src/poc-1/tests/Modules/Phimeca && pytest && cd -
+    - pytest src/poc-1/tests/Modules/Phimeca
     - echo '... Phimeca tests ended'
     - cd pages/coverageReportCore && grep pc_cov index.html
   coverage: '/pc_cov">([0-9]+\.?[0-9]+?%)/'

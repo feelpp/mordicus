@@ -5,6 +5,7 @@ from Mordicus.Core.OperatorCompressors import Regression
 from Mordicus.Core.Containers import CollectionProblemData as CPD
 from Mordicus.Core.Containers import Solution as S
 from Mordicus.Core.IO import StateIO as SIO
+from Mordicus.Core.Helpers import FolderHandler as FH
 import numpy as np
 from pathlib import Path
 import os
@@ -12,11 +13,9 @@ import os
 
 def test():
 
-    initFolder = os.getcwd()
-    currentFolder = str(Path(__file__).parents[0])
-    os.chdir(currentFolder)
 
-
+    folderHandler = FH.FolderHandler(__file__)
+    folderHandler.SwitchToScriptFolder()
 
     ##################################################
     # LOAD DATA FOR ONLINE
@@ -93,17 +92,11 @@ def test():
             relError = np.linalg.norm(reconstructedCompressedSolution-exactSolution)
         compressionErrors.append(relError)
 
+    folderHandler.SwitchToExecutionFolder()
 
-    os.chdir(initFolder)
+    assert np.max(compressionErrors) < 0.12, "!!! Regression detected !!! compressionErrors have become too large"
 
-    if np.max(compressionErrors) > 0.12:
-
-        return "not ok"
-
-    else:
-
-        return "ok"
 
 
 if __name__ == "__main__":
-    print(test())  # pragma: no cover
+    test()

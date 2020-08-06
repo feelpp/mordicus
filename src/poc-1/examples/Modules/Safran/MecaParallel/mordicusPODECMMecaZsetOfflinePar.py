@@ -11,8 +11,9 @@ from Mordicus.Modules.Safran.IO import PXDMFWriter as PW
 from Mordicus.Core.IO import StateIO as SIO
 from Mordicus.Core.Helpers import FolderHandler as FH
 import numpy as np
+import pytest
 
-
+@pytest.mark.mpi
 def test():
 
 
@@ -20,7 +21,7 @@ def test():
     folderHandler.SwitchToScriptFolder()
 
 
-    folder = "MecaSequential/"
+    folder = "MecaParallel/"
 
     inputFileName = folder + "cube.inp"
     meshFileName = folder + "cube.geof"
@@ -66,6 +67,7 @@ def test():
 
 
     problemData = PD.ProblemData(folder)
+
     problemData.AddSolution(solutionU)
     problemData.AddSolution(solutionSigma)
 
@@ -75,8 +77,8 @@ def test():
 
     collectionProblemData = CPD.CollectionProblemData()
     collectionProblemData.addVariabilityAxis('config',
-                                                str,
-                                                description="dummy variability")
+                                            str,
+                                            description="dummy variability")
     collectionProblemData.defineQuantity("U", "displacement", "m")
     collectionProblemData.defineQuantity("sig", "stress", "Pa")
     for i, name in enumerate(dualNames):

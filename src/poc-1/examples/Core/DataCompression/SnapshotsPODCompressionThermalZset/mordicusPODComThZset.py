@@ -6,16 +6,15 @@ from Mordicus.Core.Containers import CollectionProblemData as CPD
 from Mordicus.Core.Containers import Solution as S
 from Mordicus.Modules.Safran.FE import FETools as FT
 from Mordicus.Core.DataCompressors import SnapshotPOD
+from Mordicus.Core.Helpers import FolderHandler as FH
 import numpy as np
-from pathlib import Path
-import os
 
 
 def test():
 
-    initFolder = os.getcwd()
-    currentFolder = str(Path(__file__).parents[0])
-    os.chdir(currentFolder)
+
+    folderHandler = FH.FolderHandler(__file__)
+    folderHandler.SwitchToScriptFolder()
 
 
     folder = "Computation1/"
@@ -96,15 +95,10 @@ def test():
         compressionErrors.append(relError)
 
 
-    os.chdir(initFolder)
+    folderHandler.SwitchToExecutionFolder()
 
-    if np.max(compressionErrors) > 1.e-6:
+    assert np.max(compressionErrors) < 1.e-6, "!!! Regression detected !!! compressionErrors have become too large"
 
-        return "not ok"
-
-    else:
-
-        return "ok"
 
 if __name__ == "__main__":
-    print(test())  # pragma: no cover
+    test()

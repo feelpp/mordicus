@@ -1,7 +1,6 @@
 from Mordicus.Modules.Safran.IO import ZsetInputReader as ZIR
 from Mordicus.Modules.Safran.IO import ZsetMeshReader as ZMR
 from Mordicus.Modules.Safran.IO import ZsetSolutionReader as ZSR
-from Mordicus.Modules.Safran.IO import ZsetSolutionWriter as ZSW
 from Mordicus.Core.Containers import ProblemData as PD
 from Mordicus.Core.Containers import CollectionProblemData as CPD
 from Mordicus.Core.Containers import Solution as S
@@ -21,13 +20,14 @@ def test():
     folderHandler = FH.FolderHandler(__file__)
     folderHandler.SwitchToScriptFolder()
 
+
     ##################################################
     # LOAD DATA FOR ONLINE
     ##################################################
 
-    collectionProblemData = SIO.LoadState("../MecaSequential/collectionProblemData")
+    collectionProblemData = SIO.LoadState("collectionProblemData")
     operatorCompressionData = collectionProblemData.GetOperatorCompressionData()
-    snapshotCorrelationOperator = SIO.LoadState("../MecaSequential/snapshotCorrelationOperator")
+    snapshotCorrelationOperator = SIO.LoadState("snapshotCorrelationOperator")
 
     operatorCompressionData = collectionProblemData.GetOperatorCompressionData()
     reducedOrderBasisU = collectionProblemData.GetReducedOrderBasis("U")
@@ -38,7 +38,7 @@ def test():
     ##################################################
 
 
-    folder = "../../../../tests/TestsData/Zset/MecaSequentialOther/"
+    folder = "Computation1/"
     inputFileName = folder + "cube.inp"
     inputReader = ZIR.ZsetInputReader(inputFileName)
 
@@ -67,7 +67,7 @@ def test():
 
     import time
     start = time.time()
-    onlineCompressedSolution, onlineCompressionData = Meca.ComputeOnline(onlineProblemData, initOnlineCompressedSnapshot, timeSequence, reducedOrderBasisU, operatorCompressionData, 1.e-8)
+    onlineCompressedSolution, onlineCompressionData = Meca.ComputeOnline(onlineProblemData, initOnlineCompressedSnapshot, timeSequence, reducedOrderBasisU, operatorCompressionData, 1.e-6)
     print(">>>> DURATION ONLINE =", time.time() - start)
 
 
@@ -101,40 +101,14 @@ def test():
 
     print("ROMErrors =", ROMErrors)
 
-    print("onlineCompressionData.keys() =", list(onlineCompressionData.keys()))
 
     PW.WritePXDMF(mesh, onlineCompressedSolution, reducedOrderBasisU, "U")
     print("The compressed solution has been written in PXDMF Format")
 
 
-
-
-
-
-    numberOfIntegrationPoints = FT.ComputeNumberOfIntegrationPoints(mesh)
-
-    dualNames = ["evrcum", "sig12", "sig23", "sig31", "sig11", "sig22", "sig33", "eto12", "eto23", "eto31", "eto11", "eto22", "eto33"]
-
-
-    onlineProblemData.AddSolution(solutionUApprox)
-
-    for name in dualNames:
-        solutionsDual = S.Solution(name, 1, numberOfIntegrationPoints, primality = False)
-
-        onlineDualCompressedSolution = Meca.ReconstructDualQuantity(name, operatorCompressionData, onlineCompressionData, timeSequence = list(onlineCompressedSolution.keys())[1:])
-
-        solutionsDual.SetCompressedSnapshots(onlineDualCompressedSolution)
-
-        onlineProblemData.AddSolution(solutionsDual)
-
-    ZSW.WriteZsetSolution(mesh, meshFileName, "reduced", collectionProblemData, onlineProblemData, "U")
-
-
-
     folderHandler.SwitchToExecutionFolder()
 
-    assert np.max(ROMErrors) < 1.e-2, "!!! Regression detected !!! ROMErrors have become too large"
-
+    assert np.max(ROMErrors) < 1.e-3, "!!! Regression detected !!! ROMErrors have become too large"
 
 
 if __name__ == "__main__":

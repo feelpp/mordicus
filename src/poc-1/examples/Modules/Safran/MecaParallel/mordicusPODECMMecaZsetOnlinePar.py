@@ -12,22 +12,23 @@ from Mordicus.Modules.Safran.OperatorCompressors import Mechanical as Meca
 from Mordicus.Core.IO import StateIO as SIO
 from Mordicus.Core.Helpers import FolderHandler as FH
 import numpy as np
+import pytest
 
-
-
+@pytest.mark.mpi
 def test():
 
 
     folderHandler = FH.FolderHandler(__file__)
     folderHandler.SwitchToScriptFolder()
 
+
     ##################################################
     # LOAD DATA FOR ONLINE
     ##################################################
 
-    collectionProblemData = SIO.LoadState("../MecaSequential/collectionProblemData")
+    collectionProblemData = SIO.LoadState("collectionProblemData")
     operatorCompressionData = collectionProblemData.GetOperatorCompressionData()
-    snapshotCorrelationOperator = SIO.LoadState("../MecaSequential/snapshotCorrelationOperator")
+    snapshotCorrelationOperator = SIO.LoadState("snapshotCorrelationOperator")
 
     operatorCompressionData = collectionProblemData.GetOperatorCompressionData()
     reducedOrderBasisU = collectionProblemData.GetReducedOrderBasis("U")
@@ -38,7 +39,7 @@ def test():
     ##################################################
 
 
-    folder = "../../../../tests/TestsData/Zset/MecaSequentialOther/"
+    folder = "MecaParallel/"
     inputFileName = folder + "cube.inp"
     inputReader = ZIR.ZsetInputReader(inputFileName)
 
@@ -130,14 +131,15 @@ def test():
     ZSW.WriteZsetSolution(mesh, meshFileName, "reduced", collectionProblemData, onlineProblemData, "U")
 
 
-
     folderHandler.SwitchToExecutionFolder()
 
-    assert np.max(ROMErrors) < 1.e-2, "!!! Regression detected !!! ROMErrors have become too large"
+    assert np.max(ROMErrors) < 1.e-3, "!!! Regression detected !!! ROMErrors have become too large"
 
 
 
 if __name__ == "__main__":
     test()
+
+
 
 
