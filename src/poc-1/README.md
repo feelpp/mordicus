@@ -1,4 +1,4 @@
-[![pipeline status](https://gitlab.pam-retd.fr/mordicus/mordicus/badges/master/pipeline.svg)](https://gitlab.pam-retd.fr/mordicus/mordicus/commits/master)   [![Coverage report](https://gitlab.pam-retd.fr/mordicus/mordicus/badges/master/coverage.svg?job=poc-1)](https://gitlab.pam-retd.fr/mordicus/mordicus/coverageReportCore/)
+[![pipeline status](https://gitlab.pam-retd.fr/mordicus/mordicus/badges/master/pipeline.svg)](https://gitlab.pam-retd.fr/mordicus/mordicus/commits/master)   [![Coverage report](https://gitlab.pam-retd.fr/mordicus/mordicus/badges/master/coverage.svg?job=poc-1)](http://mordicus.pages.gitlab.pam-retd.fr/mordicus/coverageReportCore/)
 
 
         Reduced Order Modelling library of the FUI project "MOR_DICUS".
