@@ -142,7 +142,7 @@ def test():
 
     folderHandler.SwitchToExecutionFolder()
 
-    assert np.max(rel) < 1.e-2, "!!! Regression detected !!! ROMErrors have become too large"
+    assert np.max(rel) < 0.1, "!!! Regression detected !!! ROMErrors have become too large"
 
 
 if __name__ == "__main__":
