@@ -7,7 +7,7 @@ from Mordicus.Core.BasicAlgorithms import SVD as SVD
 
 
 def CompressData(
-    collectionProblemData, solutionName, tolerance, snapshotCorrelationOperator = None, snapshots = None
+    collectionProblemData, solutionName, tolerance, snapshotCorrelationOperator = None, snapshots = None, compressSolutions = False
 ):
     """
     Computes a reducedOrderBasis using the SnapshotPOD algorithm, from the snapshots contained in the solutions of name "solutionName" from all problemDatas in collectionProblemData, with tolerance as target accuracy of the data compression
@@ -20,6 +20,8 @@ def CompressData(
         name of the solutions from which snapshots are taken
     tolerance : float
         target accuracy of the data compression
+    compressSolutions : bool
+        decides if solutions may be compressed using the constructed reducedOrderBasis
 
     Returns
     -------
@@ -92,5 +94,10 @@ def CompressData(
 
         reducedOrderBasis = np.dot(changeOfBasisMatrix,snapshots)
         collectionProblemData.AddReducedOrderBasis(solutionName, reducedOrderBasis)
+
+
+    if compressSolutions == True:
+        collectionProblemData.CompressSolutions(solutionName, snapshotCorrelationOperator)
+
 
 
