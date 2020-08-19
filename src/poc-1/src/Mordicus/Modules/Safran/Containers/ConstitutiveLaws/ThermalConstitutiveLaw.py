@@ -89,11 +89,26 @@ class ThermalConstitutiveLaw(ConstitutiveLawBase):
 
     def ComputeInternalEnergyVectorized(self, temperature):
 
+        """
+        Out of bounds: we take for internal energy the constant value of the bound, not extrapolate the primitive
+        """
+
         temperature = np.array(temperature)
 
         previousTempStep = TI.BinarySearchVectorized(self.capacityTemp, temperature)
 
+        underOutOfBoundsInidices = temperature <= self.capacityTemp[0]
+        overOutOfBoundsInidices = temperature >= self.capacityTemp[-1]
+
+        previousTempStep[underOutOfBoundsInidices]  = -1
+        previousTempStep[overOutOfBoundsInidices] = -1
+
+
         res = np.empty(temperature.size)
+
+        res[underOutOfBoundsInidices]  = self.internalEnergyConstants[0]
+        res[overOutOfBoundsInidices] = self.internalEnergyConstants[-1] + self.internalEnergyFunctions[-1](self.capacityTemp[-1])
+
         for i in range(len(self.capacityTemp)):
             indices = previousTempStep == i
             localTemperature = temperature[indices]
