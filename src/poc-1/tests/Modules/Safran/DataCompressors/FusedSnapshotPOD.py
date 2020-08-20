@@ -28,7 +28,7 @@ def test():
     collectionProblemData.AddProblemData(problemData, config="case-1")
 
     FusedSnapshotPOD.CompressData(
-        collectionProblemData, "U", 1.e-8
+        collectionProblemData, "U", 1.e-8, compressSolutions = True
     )
 
     solution.RemoveSnapshots([0.0, 1.0])
