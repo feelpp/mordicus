@@ -35,7 +35,7 @@ ofstream snapshot(snapFile);
 ofstream uH(solFile);
 ofstream paramfile(param);
 
-int n=20;    // mesh refinement	
+int n=30;    // mesh refinement	
 int ns=10; // number of snapshots to use 30
 
 //fine=1 si maillage fin, 0 sinon
@@ -65,6 +65,7 @@ NewMacro defProblem(Th,u,v,p,uu,vv,pp,up,vp,fine,file,paramfile)
 //    	savevtk(vtkfile, Th, [usnsh[j], vsnsh[j]],order=order,dataname="u",bin=0);
    	    }
    	    else{
+		[usnshh[j],vsnshh[j]]=[u,v];
 		if(j==ns-1){
 			[uhh,vhh]=[u,v];
 			//file<<u[];
@@ -81,11 +82,13 @@ EndMacro
 mesh Th=square(n,n);
 Th=movemesh(Th,[(1-cos(pi*x))/2.,(1-cos(pi*y))/2.]);  // refine near the boundaries
 savemesh(Th,meshFile1);
+//plot(Th,wait=1);
 //medit("yoyo",Th);
 
 mesh Th2=square(n/2,n/2);
 Th2=movemesh(Th2,[(1-cos(pi*x))/2.,(1-cos(pi*y))/2.]);  // refine near the boundaries
 savemesh(Th2,meshFile2);
+//plot(Th2,wait=1);
 
 fespace Mh(Th,[P2,P2,P1]);
 fespace Vh(Th,[P2,P2]);
@@ -100,6 +103,7 @@ Vh[int] [usnsh,vsnsh](ns); //ns Vecteurs vitesse [u1,u2]
 fespace Vh2(Th2,[P2,P2]);
 fespace Xh2(Th2,[P2,P2,P1]);
 Vh2 [uhh,vhh];
+Vh2[int] [usnshh,vsnshh](ns); //ns Vecteurs vitesse [u1,u2]
 Xh2 [uh,vh,ph],[uuh,vvh,pph],[uph,vph,qh];
 uph[]=0.;
 
@@ -113,16 +117,24 @@ defProblem(Th2,uh,vh,ph,uuh,vvh,pph,uph,vph,0,uH,paramfile)
 fespace Xh(Th,[P1,P1]);
 fespace Mh2(Th2,[P1,P1]);
 Xh [usnshP1,vsnshP1];
+Xh [usnshhP1,vsnshhP1];
 Mh2 [uhhP1,vhhP1];
 [uhhP1,vhhP1]=[uhh,vhh];
 
 
+
 cout<<"ns"<<ns<<endl;
 for(int i=0;i<ns;i++){
+	//snapshots dans snapshot+i.vtu
 	[usnshP1,vsnshP1]=[usnsh[i],vsnsh[i]];
 	string file=snapFileVtu+i+".vtu";
 		int[int] order=[1];
     	savevtk(file, Th, [usnshP1, vsnshP1],order=order,dataname="u",bin=0);
+	//snapshots grossier dans shapshotsH+i+vtu
+	[usnshhP1,vsnshhP1]=[usnshh[i],vsnshh[i]]; //interpolation
+	string fileC=snapFileVtu+"H"+i+".vtu";
+	savevtk(fileC, Th2, [usnshhP1, vsnshhP1],order=order,dataname="u",bin=0);
+	//solution grossiere
 	snapshot<<usnshP1[];
 }
 

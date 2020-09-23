@@ -59,7 +59,6 @@ class GmshMeshReader(MeshReaderBase):
         else:
             self.meshFileName = meshFileName
 
-
     def ReadMesh(self):
         """
         Read the HF mesh
@@ -69,11 +68,11 @@ class GmshMeshReader(MeshReaderBase):
         BasicToolsUnstructuredMesh
             mesh of the HF computation
         """
-
+        #from GmshReader import ReadGmsh as Read
         from BasicTools.IO.GmshReader import ReadGmsh as Read
-   
-        data=Read(self.meshFileName)
         print("namefile",self.meshFileName)
+        data=Read(self.meshFileName)
+       
         print("data",data)
         from Mordicus.Modules.Safran.Containers.Meshes import BasicToolsUnstructuredMesh as BTUM
 

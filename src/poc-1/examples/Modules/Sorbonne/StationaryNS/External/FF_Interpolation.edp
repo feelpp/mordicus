@@ -32,3 +32,5 @@ int[int] order=[1];
 string vtkfile=outputDir+"/uH0.vtu";
 savevtk(vtkfile, Th1, [u, v],order=order,dataname="u",bin=0);
 
+string vtkfile2=outputDir+"/uHgrossier.vtu";
+savevtk(vtkfile2, Th2, [uH, vH],order=order,dataname="u",bin=0);

@@ -25,11 +25,11 @@ import array
 """
 Create data (mesh1,mesh2,snapshots,uH) for Sorbonne usecase
 """
-"""
+""" 
 ----------------------------
               generate snapshots
 ----------------------------
-"""
+""" 
 
 ## Directories
 currentFolder=os.getcwd()
@@ -60,18 +60,18 @@ import numpy as np
 from vtk.util.numpy_support import vtk_to_numpy
 nev=5   #nombre de modes
 ns=10
-time=0.0
+time=0.0 
 dimension=2
-
+           
 ###  convert mesh to GMSH if necessary and read it with Basictools
 
 meshFileName = dataFolder + "/mesh1.msh"
 print("init fine mesh: ",meshFileName)
 meshFileNameGMSH = dataFolder + "/mesh1GMSH.msh"
 GMR.CheckAndConvertMeshFFtoGMSH(meshFileName,meshFileNameGMSH)
-
+    
 meshReader = GMR.GmshMeshReader(meshFileNameGMSH)
-mesh = meshReader.ReadMesh()
+mesh= meshReader.ReadMesh()
 mesh.GetInternalStorage().nodes = mesh.GetInternalStorage().nodes[:,:2] #CAS 2D
 
 ### Convert mesh to VTU
@@ -91,59 +91,101 @@ nbeOfComponentsPrimal = 2 # vitesses 2D
 numberOfNodes = mesh.GetNumberOfNodes()
 #print("nbNodes",numberOfNodes)
 #print("dimmesh",mesh.GetDimensionality())
-
+        
 collectionProblemData = CPD.CollectionProblemData()
 collectionProblemData.addVariabilityAxis('mu1',float,description="Reynolds number")
 collectionProblemData.defineQuantity("U", full_name="Velocity", unit="m/s")
-
+collectionProblemData.defineQuantity("UH", full_name="Velocity", unit="m/s")
 parameters = [float(1+15*i) for i in range(ns)]   ###Reynolds
 #### Read solutions 
 for i in range(ns):
-
+    
     test=VTKSR.VTKSolutionReader("u");
     u1_np_array =test.VTKReadToNp(dataFolder+"/snapshot",i)
-
+    u1_np_arrayH=test.VTKReadToNp(dataFolder+"/snapshotH",i) #Snapshots grossiers
     #instancie une solution
     u1_np_array=u1_np_array.flatten()
-
+    u1_np_arrayH=u1_np_array.flatten()
+    
     solutionU=S.Solution("U",dimension,numberOfNodes,True)
- 
-    ### Only one snapshot --> time 0
+    solutionUH=S.Solution("UH",dimension,numberOfNodes,True)
+    ### Only one snapshot --> time 0 
     solutionU.AddSnapshot(u1_np_array,0)
+    solutionUH.AddSnapshot(u1_np_arrayH,0)
     problemData = PD.ProblemData(dataFolder+str(i))
     problemData.AddSolution(solutionU)
+    problemData.AddSolution(solutionUH)
     collectionProblemData.AddProblemData(problemData,mu1=parameters[i])
 snapshotsIterator = collectionProblemData.SnapshotsIterator("U")
 snapshots = []
+snapshotsHIterator = collectionProblemData.SnapshotsIterator("UH")
+snapshotsH = []
 
 numberOfIntegrationPoints = FT.ComputeNumberOfIntegrationPoints(mesh)
 
-""" POD """
+""" Greedy """
 print("-----------------------------------")
-print(" STEP1: POD Offline                ")
+print(" STEP1: GREEDY Offline                ")
 print("-----------------------------------")
 
 print("ComputeL2ScalarProducMatrix...")
 l2ScalarProducMatrix = FT.ComputeL2ScalarProducMatrix(mesh, 2)
-"""for s in snapshotsIterator:
+ListeNorm=[]
+for s in snapshotsIterator:
     snapshots.append(s)
-    t=l2ScalarProducMatrix.dot(s)
-    norm=t.dot(s)
+    norm=s@(l2ScalarProducMatrix@s)
+    ListeNorm.append(np.sqrt(norm))
     print("norm",np.sqrt(norm))
-print("snap",np.shape(snapshots))"""
+print("snap",np.shape(snapshots))
+
+for s in snapshotsHIterator:#snap grossiers
+    snapshotsH.append(s)
 
 #test=NpVTK.VTKWriter(VTKBase);
 
-#collectionProblemData.SetSnapshotCorrelationOperator("U", l2ScalarProducMatrix)
-#snapshotCorrelationOperator=collectionProblemData.GetSnapshotCorrelationOperator("U")
-reducedOrderBasisU = SP.ComputeReducedOrderBasisFromCollectionProblemData(collectionProblemData, "U", 1.e-4, l2ScalarProducMatrix)
+##### ALGO GREEDY
 
+nbdeg=numberOfNodes*nbeOfComponentsPrimal;
+reducedOrderBasisU=np.zeros((nev,numberOfNodes*nbeOfComponentsPrimal))
+reducedOrderBasisU[0,:]=snapshots[0]/ListeNorm[0] #premiere fct dans la base
+ListeIndex=[0]#premier snapshot utilise
+
+basis=[]
+basis.append(np.array(snapshots[0])/ListeNorm[0])
+
+for n in range(1,nev):
+    print("nev ",n)
+    testjl=[]
+    testjn=[]
+    for j in range(ns):
+        if not (j in ListeIndex):
+            
+            coef=[snapshots[j]@(l2ScalarProducMatrix@b) for b in basis]
+            w=snapshots[j]-np.sum(snapshots[j]@(l2ScalarProducMatrix@b)*b for b in basis)
+            norml2=np.sqrt(w@(l2ScalarProducMatrix@w))
+            #print("norml2 ",norml2)
+            testjnorm=norml2/ListeNorm[j]
+            testjl.append(testjnorm)
+            testjn.append(w)
+        
+        else:
+            testjl.append(-1)
+            testjn.append(-1)
+    maximum=max(testjl)
+    ind=testjl.index(max(testjl))
+    ListeIndex.append(ind)
+    norm=np.sqrt(testjn[ind]@(l2ScalarProducMatrix@testjn[ind]))
+    basis.append(testjn[ind]/norm)
+    reducedOrderBasisU[n,:]=(testjn[ind]/norm)
+    
+collectionProblemData.SetSnapshotCorrelationOperator("U", l2ScalarProducMatrix)
 collectionProblemData.AddReducedOrderBasis("U", reducedOrderBasisU)
 
 #print(np.shape(reducedOrderBasisU[0,:]))
 #for i in range(nev):
 #    namefile="PODbase"+str(i)+".vtu"
 #    test.numpyToVTKPODWrite("U", reducedOrderBasisU[i,:],namefile)
+collectionProblemData.CompressSolutions("U")
 
 #base orthonorme?
 
@@ -153,6 +195,16 @@ for i in range(nev):
         norm=t.dot(reducedOrderBasisU[j,:])
         print(i,j," ",norm)
 
+# Rectification
+alpha=np.zeros((ns,nev))
+beta=np.zeros((ns,nev))
+for i in range(ns):
+    for j in range(nev):
+        alpha[i,j]=snapshots[i]@(l2ScalarProducMatrix@reducedOrderBasisU[j,:])
+        beta[i,j]=snapshotsH[i]@(l2ScalarProducMatrix@reducedOrderBasisU[j,:])
+
+R=np.linalg.inv(beta.transpose()@beta+1e-10*np.eye(nev))@beta.transpose()@alpha
+print(" shape R ",np.shape(R))
 
 ### Offline Errors
 
@@ -175,6 +227,5 @@ for _, problemData in collectionProblemData.GetProblemDatas().items():
     compressionErrors.append(relError)
 print("compressionErrors =", compressionErrors)
 
-SIO.SaveState("collectionProblemData", collectionProblemData)
-SIO.SaveState("snapshotCorrelationOperator", l2ScalarProducMatrix)
+collectionProblemData.SaveState("mordicusState")
 

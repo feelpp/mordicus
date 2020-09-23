@@ -10,7 +10,6 @@ from Mordicus.Core.Containers import Solution as S
 from Mordicus.Core.DataCompressors import SnapshotPOD as SP
 from Mordicus.Modules.Safran.FE import FETools as FT
 from  Mordicus.Modules.CT.IO import VTKSolutionReader as VTKSR
-from Mordicus.Core.IO import StateIO as SIO
 from initCase import initproblem
 from initCase import basisFileToArray
 import numpy as np
@@ -20,7 +19,7 @@ import array
 
 nev=5   #nombre de modes
 ns=10
-time=0.0
+time=0.0 
 dimension=2
 print("NIRB online...")
 ## Directories
@@ -42,10 +41,9 @@ print("-----------------------------------")
     # LOAD DATA FOR ONLINE
     ##################################################
 
-collectionProblemData = SIO.LoadState("collectionProblemData")
-snapshotCorrelationOperator = SIO.LoadState("snapshotCorrelationOperator")
-
+collectionProblemData = CPD.LoadState("mordicusState")
 operatorCompressionData = collectionProblemData.GetOperatorCompressionData()
+snapshotCorrelationOperator = collectionProblemData.GetSnapshotCorrelationOperator("U")
 reducedOrderBasisU = collectionProblemData.GetReducedOrderBasis("U")
 
 #Fine mesh
@@ -119,16 +117,23 @@ for i in range(nev):
             matVecProduct = l2ScalarProducMatrix.dot(u11)
             a = np.dot(matVecProduct, u21)
             print(i,j,"ortho?:",a)
-
+            
     ##################################################
     # ONLINE COMPRESSION
     ##################################################
 print("-----------------------------------")
 print(" STEP3: Snapshot compression       ")
-print("-----------------------------------")
+print("-----------------------------------")        
 solutionUH.CompressSnapshots(snapshotCorrelationOperator,reducedOrderBasisU)
 CompressedSolutionU = solutionUH.GetCompressedSnapshots()
-#print("compressedSolutionU",CompressedSolutionU)
+
+###ajouter R
+
+#coef=np.zeros(nev)
+#for j in range(nev):
+#coef[i]+=R[i,j]*CompressedSolutionU[0][j]
+#reconstructedCompressedSolution = np.dot(coef, reducedOrderBasisU) #pas de tps 0
+
 reconstructedCompressedSolution = np.dot(CompressedSolutionU[0], reducedOrderBasisU) #pas de tps 0
     ##################################################
     # ONLINE ERRORS
@@ -141,23 +146,23 @@ print("-----------------------------------")
 print("reading exact solution...")
 test=VTKSR.VTKSolutionReader("u");
 u1_np_array =test.VTKReadToNp(dataFolder+"/snapshot",ns-1)
-
+ 
 #instancie une solution
 u1_np_array=u1_np_array.flatten()
 
 solutionU=S.Solution("U",dimension,numberOfNodes,True)
-### Only one snapshot --> time 0
+### Only one snapshot --> time 0 
 solutionU.AddSnapshot(u1_np_array,0)
 problemData = PD.ProblemData(dataFolder)
 problemData.AddSolution(solutionU)
 collectionProblemData.AddProblemData(problemData,mu1=110.0)
-
+    
 #problemData=collectionProblemData.GetProblemData(mu1=110.0)
 #solutionU=problemData.GetSolution("U")
 #print(solutionU)
 exactSolution =solutionU.GetSnapshot(0)
 compressionErrors=[]
-
+    
 norml2ExactSolution = np.linalg.norm(exactSolution)
 
 #norml2ExactSolution=np.sqrt(np.dot(l2ScalarProducMatrix.dot(exactSolution),exactSolution))
@@ -178,11 +183,11 @@ compressionErrors.append(relError)
 print("compressionErrors =", compressionErrors)
 
 
-"""
+""" 
 ----------------------------
               PLOT SOL
 ----------------------------
-"""
+""" 
 """
 solutionFile = osp.join(os.getcwd(),'../test/data/solution.txt')
 """
