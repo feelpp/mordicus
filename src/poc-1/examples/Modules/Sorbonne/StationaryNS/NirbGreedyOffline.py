@@ -12,6 +12,7 @@ from Mordicus.Core.DataCompressors import SnapshotPOD as SP
 from Mordicus.Modules.Safran.FE import FETools as FT
 from  Mordicus.Modules.CT.IO import VTKSolutionReader as VTKSR
 from Mordicus.Modules.sorbonne.IO import numpyToVTKWriter as NpVTK
+from Mordicus.Core.IO import StateIO as SIO
 #from tkinter.constants import CURRENT
 from initCase import initproblem
 from initCase import basisFileToArray
@@ -58,7 +59,7 @@ print("-----------------------------------")
 import vtk
 import numpy as np
 from vtk.util.numpy_support import vtk_to_numpy
-nev=5   #nombre de modes
+nev=3   #nombre de modes
 ns=10
 time=0.0 
 dimension=2
@@ -105,8 +106,9 @@ for i in range(ns):
     u1_np_arrayH=test.VTKReadToNp(dataFolder+"/snapshotH",i) #Snapshots grossiers
     #instancie une solution
     u1_np_array=u1_np_array.flatten()
-    u1_np_arrayH=u1_np_array.flatten()
-    
+    print(np.shape(u1_np_array))
+    u1_np_arrayH=u1_np_arrayH.flatten()
+    print(np.shape(u1_np_arrayH))
     solutionU=S.Solution("U",dimension,numberOfNodes,True)
     solutionUH=S.Solution("UH",dimension,numberOfNodes,True)
     ### Only one snapshot --> time 0 
@@ -178,14 +180,14 @@ for n in range(1,nev):
     basis.append(testjn[ind]/norm)
     reducedOrderBasisU[n,:]=(testjn[ind]/norm)
     
-collectionProblemData.SetSnapshotCorrelationOperator("U", l2ScalarProducMatrix)
+#collectionProblemData.SetSnapshotCorrelationOperator("U", l2ScalarProducMatrix)
 collectionProblemData.AddReducedOrderBasis("U", reducedOrderBasisU)
 
 #print(np.shape(reducedOrderBasisU[0,:]))
 #for i in range(nev):
 #    namefile="PODbase"+str(i)+".vtu"
 #    test.numpyToVTKPODWrite("U", reducedOrderBasisU[i,:],namefile)
-collectionProblemData.CompressSolutions("U")
+collectionProblemData.CompressSolutions("U",snapshotCorrelationOperator=l2ScalarProducMatrix)
 
 #base orthonorme?
 
@@ -202,9 +204,12 @@ for i in range(ns):
     for j in range(nev):
         alpha[i,j]=snapshots[i]@(l2ScalarProducMatrix@reducedOrderBasisU[j,:])
         beta[i,j]=snapshotsH[i]@(l2ScalarProducMatrix@reducedOrderBasisU[j,:])
-
-R=np.linalg.inv(beta.transpose()@beta+1e-10*np.eye(nev))@beta.transpose()@alpha
-print(" shape R ",np.shape(R))
+        #print(alpha[i,j])
+        #print(beta[i,j])
+lambd=1e-10
+R=np.linalg.inv(beta.transpose()@beta+lambd*np.eye(nev))@beta.transpose()@alpha
+#print(" shape R ",np.shape(R))
+collectionProblemData.SetDataCompressionData("Rectification",R)
 
 ### Offline Errors
 
@@ -215,17 +220,17 @@ for _, problemData in collectionProblemData.GetProblemDatas().items():
     CompressedSolutionU=solutionU.GetCompressedSnapshots()
     exactSolution = problemData.solutions["U"].GetSnapshot(0)
     reconstructedCompressedSolution = np.dot(CompressedSolutionU[0], reducedOrderBasisU) #pas de tps 0
-    t=l2ScalarProducMatrix.dot(exactSolution)
-    norml2ExactSolution=t.dot(exactSolution)
+    norml2ExactSolution=exactSolution@(l2ScalarProducMatrix@exactSolution)
         
     if norml2ExactSolution != 0:
-        t=l2ScalarProducMatrix.dot(reconstructedCompressedSolution-exactSolution)
-        relError=t.dot(reconstructedCompressedSolution-exactSolution)/norml2ExactSolution
+        t=reconstructedCompressedSolution-exactSolution
+       
+        relError=t@(l2ScalarProducMatrix@t)/norml2ExactSolution
         #        relError = np.linalg.norm(reconstructedCompressedSolution-exactSolution)/norml2ExactSolution
     else:
         relError = np.linalg.norm(reconstructedCompressedSolution-exactSolution)
     compressionErrors.append(relError)
 print("compressionErrors =", compressionErrors)
 
-collectionProblemData.SaveState("mordicusState")
-
+SIO.SaveState("collectionProblemData", collectionProblemData)
+SIO.SaveState("snapshotCorrelationOperator", l2ScalarProducMatrix)

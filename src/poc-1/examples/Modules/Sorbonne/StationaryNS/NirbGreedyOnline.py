@@ -10,6 +10,7 @@ from Mordicus.Core.Containers import Solution as S
 from Mordicus.Core.DataCompressors import SnapshotPOD as SP
 from Mordicus.Modules.Safran.FE import FETools as FT
 from  Mordicus.Modules.CT.IO import VTKSolutionReader as VTKSR
+from Mordicus.Core.IO import StateIO as SIO
 from initCase import initproblem
 from initCase import basisFileToArray
 import numpy as np
@@ -17,7 +18,7 @@ from pathlib import Path
 import array
 
 
-nev=5   #nombre de modes
+nev=3   #nombre de modes
 ns=10
 time=0.0 
 dimension=2
@@ -40,10 +41,13 @@ print("-----------------------------------")
     ##################################################
     # LOAD DATA FOR ONLINE
     ##################################################
+collectionProblemData = SIO.LoadState("collectionProblemData")
+snapshotCorrelationOperator = SIO.LoadState("snapshotCorrelationOperator")
 
-collectionProblemData = CPD.LoadState("mordicusState")
+R=collectionProblemData.GetDataCompressionData("Rectification")
+
 operatorCompressionData = collectionProblemData.GetOperatorCompressionData()
-snapshotCorrelationOperator = collectionProblemData.GetSnapshotCorrelationOperator("U")
+#snapshotCorrelationOperator = collectionProblemData.GetSnapshotCorrelationOperator("U")
 reducedOrderBasisU = collectionProblemData.GetReducedOrderBasis("U")
 
 #Fine mesh
@@ -128,13 +132,15 @@ solutionUH.CompressSnapshots(snapshotCorrelationOperator,reducedOrderBasisU)
 CompressedSolutionU = solutionUH.GetCompressedSnapshots()
 
 ###ajouter R
-
-#coef=np.zeros(nev)
-#for j in range(nev):
-#coef[i]+=R[i,j]*CompressedSolutionU[0][j]
-#reconstructedCompressedSolution = np.dot(coef, reducedOrderBasisU) #pas de tps 0
-
-reconstructedCompressedSolution = np.dot(CompressedSolutionU[0], reducedOrderBasisU) #pas de tps 0
+#print("mat rec ", R)
+coef=np.zeros(nev)
+for i in range(nev):
+    for j in range(nev):
+        coef[i]+=R[i,j]*CompressedSolutionU[0][j]
+reconstructedCompressedSolution = np.dot(coef, reducedOrderBasisU) #pas de tps 0
+print("coef sans modif ", CompressedSolutionU[0])
+print("coef avec modif ", coef)
+#reconstructedCompressedSolution = np.dot(CompressedSolutionU[0], reducedOrderBasisU) #pas de tps 0
     ##################################################
     # ONLINE ERRORS
     ##################################################
@@ -163,20 +169,16 @@ collectionProblemData.AddProblemData(problemData,mu1=110.0)
 exactSolution =solutionU.GetSnapshot(0)
 compressionErrors=[]
     
-norml2ExactSolution = np.linalg.norm(exactSolution)
+#norml2ExactSolution = np.linalg.norm(exactSolution)
 
-#norml2ExactSolution=np.sqrt(np.dot(l2ScalarProducMatrix.dot(exactSolution),exactSolution))
 t=l2ScalarProducMatrix.dot(exactSolution)
-norml2ExactSolution=np.sqrt(t.dot(exactSolution))
+norml2ExactSolution=np.sqrt(exactSolution@(l2ScalarProducMatrix@exactSolution))
     
 if norml2ExactSolution != 0:
-    t=l2ScalarProducMatrix.dot(reconstructedCompressedSolution-exactSolution)
-    relError=np.sqrt(t.dot(reconstructedCompressedSolution-exactSolution))/norml2ExactSolution
+    t=reconstructedCompressedSolution-exactSolution
+    
+    relError=np.sqrt(t@(l2ScalarProducMatrix@t))/norml2ExactSolution
         
-    #print("rec",np.linalg.norm(reconstructedCompressedSolution))
-    #print("rec",np.linalg.norm(exactSolution))
-    #relError = np.linalg.norm(reconstructedCompressedSolution-exactSolution)/norml2ExactSolution
-#    relError=np.sqrt(np.dot(l2ScalarProducMatrix.dot(reconstructedCompressedSolution-exactSolution),reconstructedCompressedSolution-exactSolution))/norml2ExactSolution
 else:
     relError = np.linalg.norm(reconstructedCompressedSolution-exactSolution)
 compressionErrors.append(relError)

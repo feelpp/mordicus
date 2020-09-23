@@ -128,12 +128,12 @@ for(int i=0;i<ns;i++){
 	//snapshots dans snapshot+i.vtu
 	[usnshP1,vsnshP1]=[usnsh[i],vsnsh[i]];
 	string file=snapFileVtu+i+".vtu";
-		int[int] order=[1];
+	int[int] order=[1];
     	savevtk(file, Th, [usnshP1, vsnshP1],order=order,dataname="u",bin=0);
 	//snapshots grossier dans shapshotsH+i+vtu
 	[usnshhP1,vsnshhP1]=[usnshh[i],vsnshh[i]]; //interpolation
 	string fileC=snapFileVtu+"H"+i+".vtu";
-	savevtk(fileC, Th2, [usnshhP1, vsnshhP1],order=order,dataname="u",bin=0);
+	savevtk(fileC, Th, [usnshhP1, vsnshhP1],order=order,dataname="u",bin=0);
 	//solution grossiere
 	snapshot<<usnshP1[];
 }
