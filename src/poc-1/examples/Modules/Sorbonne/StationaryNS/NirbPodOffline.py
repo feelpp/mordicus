@@ -12,6 +12,7 @@ from Mordicus.Core.DataCompressors import SnapshotPOD as SP
 from Mordicus.Modules.Safran.FE import FETools as FT
 from  Mordicus.Modules.CT.IO import VTKSolutionReader as VTKSR
 from Mordicus.Modules.sorbonne.IO import numpyToVTKWriter as NpVTK
+from Mordicus.Core.IO import StateIO as SIO
 #from tkinter.constants import CURRENT
 from initCase import initproblem
 from initCase import basisFileToArray
@@ -62,7 +63,7 @@ nev=5   #nombre de modes
 ns=10
 time=0.0
 dimension=2
-
+           
 ###  convert mesh to GMSH if necessary and read it with Basictools
 
 meshFileName = dataFolder + "/mesh1.msh"
@@ -107,7 +108,6 @@ for i in range(ns):
     u1_np_array=u1_np_array.flatten()
 
     solutionU=S.Solution("U",dimension,numberOfNodes,True)
- 
     ### Only one snapshot --> time 0
     solutionU.AddSnapshot(u1_np_array,0)
     problemData = PD.ProblemData(dataFolder+str(i))
@@ -140,10 +140,7 @@ reducedOrderBasisU = SP.ComputeReducedOrderBasisFromCollectionProblemData(collec
 
 collectionProblemData.AddReducedOrderBasis("U", reducedOrderBasisU)
 
-#print(np.shape(reducedOrderBasisU[0,:]))
-#for i in range(nev):
-#    namefile="PODbase"+str(i)+".vtu"
-#    test.numpyToVTKPODWrite("U", reducedOrderBasisU[i,:],namefile)
+collectionProblemData.CompressSolutions("U", l2ScalarProducMatrix)
 
 #base orthonorme?
 
