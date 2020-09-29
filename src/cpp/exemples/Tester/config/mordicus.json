@@ -1,0 +1,16 @@
+{
+    "modules": {
+        "containers": {
+            "mesh": [{
+                "type": "native",
+                "name": "SciMesh",
+                "library": "SciMesh"
+            }]
+        },
+        "io": [{
+            "type": "native",
+            "name": "SciMeshReader",
+            "library": "SciMeshReader"
+        }]
+    }
+}

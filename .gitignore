@@ -27,4 +27,7 @@ src/poc-1/coverageReports/*
 *_source*
 
 #Windows
+.vs/
 env/
+x64/
+*.vcxproj.user

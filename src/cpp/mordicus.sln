@@ -1,0 +1,73 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.1209
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "mordicus", "mordicus.vcxproj", "{3326DD63-C2BE-4113-BB2C-E52662D09796}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Tester", "exemples\Tester\Tester.vcxproj", "{32CBF149-2179-4054-B517-0BD98136D638}"
+	ProjectSection(ProjectDependencies) = postProject
+		{4DAE3618-74CD-4E2D-A3FB-0CD9EAFCB451} = {4DAE3618-74CD-4E2D-A3FB-0CD9EAFCB451}
+		{3326DD63-C2BE-4113-BB2C-E52662D09796} = {3326DD63-C2BE-4113-BB2C-E52662D09796}
+		{C0A33CD4-9589-4B44-943F-8C9F192DAC70} = {C0A33CD4-9589-4B44-943F-8C9F192DAC70}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SciMesh", "tests\Modules\ESIGroup\Containers\Meshes\SciMesh\SciMesh.vcxproj", "{C0A33CD4-9589-4B44-943F-8C9F192DAC70}"
+	ProjectSection(ProjectDependencies) = postProject
+		{3326DD63-C2BE-4113-BB2C-E52662D09796} = {3326DD63-C2BE-4113-BB2C-E52662D09796}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SciMeshReader", "tests\Modules\ESIGroup\IO\SciMeshReader\SciMeshReader.vcxproj", "{4DAE3618-74CD-4E2D-A3FB-0CD9EAFCB451}"
+	ProjectSection(ProjectDependencies) = postProject
+		{3326DD63-C2BE-4113-BB2C-E52662D09796} = {3326DD63-C2BE-4113-BB2C-E52662D09796}
+		{C0A33CD4-9589-4B44-943F-8C9F192DAC70} = {C0A33CD4-9589-4B44-943F-8C9F192DAC70}
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3326DD63-C2BE-4113-BB2C-E52662D09796}.Debug|x64.ActiveCfg = Debug|x64
+		{3326DD63-C2BE-4113-BB2C-E52662D09796}.Debug|x64.Build.0 = Debug|x64
+		{3326DD63-C2BE-4113-BB2C-E52662D09796}.Debug|x86.ActiveCfg = Debug|Win32
+		{3326DD63-C2BE-4113-BB2C-E52662D09796}.Debug|x86.Build.0 = Debug|Win32
+		{3326DD63-C2BE-4113-BB2C-E52662D09796}.Release|x64.ActiveCfg = Release|x64
+		{3326DD63-C2BE-4113-BB2C-E52662D09796}.Release|x64.Build.0 = Release|x64
+		{3326DD63-C2BE-4113-BB2C-E52662D09796}.Release|x86.ActiveCfg = Release|Win32
+		{3326DD63-C2BE-4113-BB2C-E52662D09796}.Release|x86.Build.0 = Release|Win32
+		{32CBF149-2179-4054-B517-0BD98136D638}.Debug|x64.ActiveCfg = Debug|x64
+		{32CBF149-2179-4054-B517-0BD98136D638}.Debug|x64.Build.0 = Debug|x64
+		{32CBF149-2179-4054-B517-0BD98136D638}.Debug|x86.ActiveCfg = Debug|Win32
+		{32CBF149-2179-4054-B517-0BD98136D638}.Debug|x86.Build.0 = Debug|Win32
+		{32CBF149-2179-4054-B517-0BD98136D638}.Release|x64.ActiveCfg = Release|x64
+		{32CBF149-2179-4054-B517-0BD98136D638}.Release|x64.Build.0 = Release|x64
+		{32CBF149-2179-4054-B517-0BD98136D638}.Release|x86.ActiveCfg = Release|Win32
+		{32CBF149-2179-4054-B517-0BD98136D638}.Release|x86.Build.0 = Release|Win32
+		{C0A33CD4-9589-4B44-943F-8C9F192DAC70}.Debug|x64.ActiveCfg = Debug|x64
+		{C0A33CD4-9589-4B44-943F-8C9F192DAC70}.Debug|x64.Build.0 = Debug|x64
+		{C0A33CD4-9589-4B44-943F-8C9F192DAC70}.Debug|x86.ActiveCfg = Debug|Win32
+		{C0A33CD4-9589-4B44-943F-8C9F192DAC70}.Debug|x86.Build.0 = Debug|Win32
+		{C0A33CD4-9589-4B44-943F-8C9F192DAC70}.Release|x64.ActiveCfg = Release|x64
+		{C0A33CD4-9589-4B44-943F-8C9F192DAC70}.Release|x64.Build.0 = Release|x64
+		{C0A33CD4-9589-4B44-943F-8C9F192DAC70}.Release|x86.ActiveCfg = Release|Win32
+		{C0A33CD4-9589-4B44-943F-8C9F192DAC70}.Release|x86.Build.0 = Release|Win32
+		{4DAE3618-74CD-4E2D-A3FB-0CD9EAFCB451}.Debug|x64.ActiveCfg = Debug|x64
+		{4DAE3618-74CD-4E2D-A3FB-0CD9EAFCB451}.Debug|x64.Build.0 = Debug|x64
+		{4DAE3618-74CD-4E2D-A3FB-0CD9EAFCB451}.Debug|x86.ActiveCfg = Debug|Win32
+		{4DAE3618-74CD-4E2D-A3FB-0CD9EAFCB451}.Debug|x86.Build.0 = Debug|Win32
+		{4DAE3618-74CD-4E2D-A3FB-0CD9EAFCB451}.Release|x64.ActiveCfg = Release|x64
+		{4DAE3618-74CD-4E2D-A3FB-0CD9EAFCB451}.Release|x64.Build.0 = Release|x64
+		{4DAE3618-74CD-4E2D-A3FB-0CD9EAFCB451}.Release|x86.ActiveCfg = Release|Win32
+		{4DAE3618-74CD-4E2D-A3FB-0CD9EAFCB451}.Release|x86.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {BFE4E695-63FB-4E73-BA5E-A1B787B21D59}
+	EndGlobalSection
+EndGlobal
