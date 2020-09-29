@@ -1,8 +1,8 @@
 Kernel Class Specification:
 ======================
 
-.. _arch-img-1:
-.. figure:: img/kernel_mordicus.png
+git push.. _arch-img-1:
+.. figure:: img/spec_kernel.png
     :align: center
     :figclass: align-center
 
