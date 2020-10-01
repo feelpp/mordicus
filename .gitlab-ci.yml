@@ -84,6 +84,14 @@ poc-1:
     paths:
       - pages/coverageReportCore
 
+cpp:
+  stage: test
+  image: python:3.7
+  before_script:
+    - apt-get update && apt-get install -y python3-dev g++ cmake
+  script:
+    - cmake -DCMAKE_INSTALL_PREFIX=~/.local src/cpp
+    - make install -j4
 
 pages:
   image: alpine:latest
