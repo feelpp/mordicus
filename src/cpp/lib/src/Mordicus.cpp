@@ -31,8 +31,8 @@ void Mordicus::deleteMordicusInstance()
 
 void Mordicus::registerModule(const std::string& type, const std::string& /*lang*/, const std::string& module, const std::string& library)
 {
-    std::string _type = Tools::toLower(type);
-    std::string _module = Tools::toLower(module);
+    const std::string _type = Tools::ToLower(type);
+    const std::string _module = Tools::ToLower(module);
     if (modules.find(_type) == modules.end())
     {
         modules[_type][_module] = "";
@@ -58,6 +58,8 @@ bool Mordicus::initialize(const std::string & configFile)
 {
     ///check file, blabla, ..
     std::ifstream config(configFile);
+    if (!config.is_open())
+      throw std::runtime_error("could not open " + configFile);
     json j;
     config >> j;
     if (j.contains("modules"))

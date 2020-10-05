@@ -2,17 +2,17 @@
 #include <string>
 
 //modicus kernel
-#include "Mordicus.hxx"
+#include "mordicus/core/Mordicus.hpp"
 
 //my adapted module
-#include "SciMeshReader.hxx"
-#include "SciMesh.hxx"
+#include "SciMeshReader.hpp"
+#include "SciMesh.hpp"
 
 int main() {
     mordicus::Mordicus* m = mordicus::Mordicus::getMordicusInstance();
     try
     {
-        m->initialize("../exemples/Tester/config/mordicus.json");
+        m->initialize("t_scimesh.json");
     }
     catch (std::exception& e)
     {

@@ -14,6 +14,7 @@ include (GNUInstallDirs)
 
 set (CMAKE_CXX_STANDARD 17)
 
+enable_testing()
 add_subdirectory (lib)
 
 if (BUILD_PYTHON)
@@ -23,3 +24,4 @@ if (BUILD_PYTHON)
     add_subdirectory (python)
   endif ()
 endif ()
+

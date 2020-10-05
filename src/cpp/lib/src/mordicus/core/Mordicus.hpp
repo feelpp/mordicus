@@ -30,8 +30,8 @@ public:
     template <class ...Args>
     ModuleBase* getModuleInstance(const std::string& type, const std::string& module, Args... args)
     {
-        std::string _type = Tools::toLower(type);
-        std::string _module = Tools::toLower(module);
+        std::string _type = Tools::ToLower(type);
+        std::string _module = Tools::ToLower(module);
 
         Module& m = getModule(_type);
         auto c = m.find(_module);
@@ -40,12 +40,12 @@ public:
             throw std::runtime_error("Module does not exist");
         }
 
-        std::string library = c->second;
+        const std::string library = c->second + Tools::GetSharedLibraryExtension();
 #ifdef _WIN32
         HMODULE hmod = LoadLibraryA(library.c_str());
         if (hmod == NULL)
         {
-            throw std::runtime_error("Library not found");
+            throw std::runtime_error("Library not found:" + library);
         }
 
         typedef ModuleBase* (*MODULE_INSTANCE)(Args...);
@@ -59,7 +59,7 @@ public:
         if (!hmod)
         {
           dlerror();
-          throw std::runtime_error("Library not found");
+          throw std::runtime_error("Library not found: " + library);
         }
         typedef ModuleBase* (*pf)(Args... args);
         pf getInstance = (pf) dlsym(hmod, "getInstance");	
@@ -76,8 +76,8 @@ public:
     {
         std::cout << "type: " << inst->getType() << std::endl;
         std::cout << "name: " << inst->getName() << std::endl;
-        std::string _type = Tools::toLower(type);
-        std::string _module = Tools::toLower(module);
+        const std::string _type = Tools::ToLower(type);
+        const std::string _module = Tools::ToLower(module);
 
         Module& m = getModule(_type);
         auto c = m.find(_module);
@@ -86,12 +86,12 @@ public:
             throw std::runtime_error("Module does not exist");
         }
 
-        std::string library = c->second;
+        const std::string library = c->second + Tools::GetSharedLibraryExtension();
 #ifdef _WIN32
         HMODULE hmod = LoadLibraryA(library.c_str());
         if (hmod == NULL)
         {
-            throw std::runtime_error("Library not found");
+            throw std::runtime_error("Library not found: " + library);
         }
         typedef ModuleBase* (*DELETE_INSTANCE)(T*);
         DELETE_INSTANCE deleteInstance = (DELETE_INSTANCE)GetProcAddress(hmod, "deleteInstance");
@@ -104,7 +104,7 @@ public:
         if (!hmod)
         {
           dlerror();
-          throw std::runtime_error("Library not found");
+          throw std::runtime_error("Library not found: " + library);
         }
         typedef ModuleBase* (*pf)(T*);
         pf deleteInstance = (pf) dlsym(hmod, "deleteInstance");	
@@ -119,7 +119,6 @@ public:
 
     bool initialize(const std::string& file);
     bool isInitialize() { return init; }
-
 private:
     Mordicus() : init(false) {/*init logger system, probably load config and pathbuilding, ...*/ }
     virtual ~Mordicus() {}

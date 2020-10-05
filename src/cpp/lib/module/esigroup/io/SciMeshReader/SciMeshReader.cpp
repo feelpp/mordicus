@@ -29,10 +29,10 @@ SciMeshReader::SciMeshReader(const std::string & _filename) : filename(_filename
 {
     //create a fake mesh (triforce)
     //     4
-    //     /\
+    //     /\         //
     //  2 /__\ 5
-    //   /\  /\
-    //  /__\/__\
+    //   /\  /\       //
+    //  /__\/__\      //
     // 1   3    6
 
     storage = new SciStorage();

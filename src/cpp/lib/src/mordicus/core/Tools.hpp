@@ -10,6 +10,9 @@ namespace mordicus
 class MORDICUS_EXPORT Tools
 {
 public:
-    static std::string toLower(const std::string& str);
+    static std::string ToLower(const std::string& str);
+
+    static std::string GetSharedLibraryExtension();
+
 };
 }

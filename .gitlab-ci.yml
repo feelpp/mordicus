@@ -90,8 +90,18 @@ cpp:
   before_script:
     - apt-get update && apt-get install -y python3-dev g++ cmake
   script:
-    - cmake -DCMAKE_INSTALL_PREFIX=~/.local src/cpp
+    - cmake -DCMAKE_CXX_FLAGS="-Wall -Wextra -Werror -D_GLIBCXX_ASSERTIONS" -DCMAKE_INSTALL_PREFIX=~/.local src/cpp
     - make install -j4
+    - ctest -j4 --output-on-failure --timeout 100
+
+cpp-mingw:
+  stage: test
+  image: openturns/archlinux-mingw
+  script:
+    - CXXFLAGS="-Wall -Wextra -Werror -D_GLIBCXX_ASSERTIONS -Wno-cast-function-type" x86_64-w64-mingw32-cmake -DCMAKE_INSTALL_PREFIX=~/.local src/cpp
+    - make install -j4
+    - cp ~/.local/bin/*.dll lib/test
+    - ctest -j4 --output-on-failure --timeout 100
 
 pages:
   image: alpine:latest

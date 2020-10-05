@@ -3,8 +3,15 @@ add_library (mordicus Mordicus.cpp Tools.cpp)
 generate_export_header (mordicus)
 file (COPY ${CMAKE_CURRENT_BINARY_DIR}/mordicus_export.h DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/mordicus)
 
-target_include_directories (mordicus PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
-target_include_directories (mordicus PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+find_library (LIBDL_LIBRARY NAMES dl)
+if (LIBDL_LIBRARY)
+  target_link_libraries(mordicus PUBLIC ${LIBDL_LIBRARY})
+endif ()
+
+target_include_directories(mordicus PUBLIC
+  "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR};${CMAKE_CURRENT_BINARY_DIR}>"
+  $<INSTALL_INTERFACE:include>
+)
 
 install(TARGETS mordicus
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
