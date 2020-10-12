@@ -28,6 +28,15 @@
     recommandation: create a compatible conda environment by typing:
 
     conda env create -f environment.yml
+    
+    to update the environement, go in the folder containing environment.yml (/src/poc-1) and type:
+
+    conda env update
+
+
+    When using a cluster with optimized mpi already installed, do not install mpi4py from conda, but using « pip install mpi4py » (having loaded the optimized mpi beforehand)
+
+
 
     REMARK for windows:
         mpi4py does not work on its own, requires MPICH https://docs.microsoft.com/en-us/message-passing-interface/microsoft-mpi?redirectedfrom=MSDN
