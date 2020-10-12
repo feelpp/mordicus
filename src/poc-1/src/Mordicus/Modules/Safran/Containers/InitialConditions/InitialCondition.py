@@ -2,6 +2,8 @@
 
 from Mordicus.Core.Containers.InitialConditions.InitialConditionBase import InitialConditionBase
 import numpy as np
+from mpi4py import MPI
+
 
 
 class InitialCondition(InitialConditionBase):
@@ -66,7 +68,16 @@ class InitialCondition(InitialConditionBase):
         else:
             initVector = self.initialSnapshot# pragma: no cover
 
-        self.SetReducedInitialSnapshot(np.dot(reducedOrderBasis,snapshotCorrelationOperator.dot(initVector)))# pragma: no cover
+
+        matVecProduct = snapshotCorrelationOperator.dot(initVector)
+
+        localScalarProduct = np.dot(reducedOrderBasis, matVecProduct)
+        globalScalarProduct = np.zeros(reducedOrderBasis.shape[0])
+        MPI.COMM_WORLD.Allreduce([localScalarProduct, MPI.DOUBLE], [globalScalarProduct, MPI.DOUBLE])
+
+
+        self.SetReducedInitialSnapshot(globalScalarProduct)# pragma: no cover
+
 
 
 
