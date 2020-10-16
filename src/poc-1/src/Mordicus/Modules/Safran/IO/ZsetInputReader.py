@@ -473,8 +473,21 @@ ddsddeNew = pyumat.umat(stress=stress,statev=statev,ddsdde=ddsdde,sse=sse,spd=sp
 
                 import sys
                 import subprocess
-                out = subprocess.run([sys.executable, "materialtest"+suffix+".py"], stdout=subprocess.PIPE).stdout.decode("utf-8")
+                import signal
 
+                def handler(signum, frame):
+                    raise Exception("end of time")
+
+                signal.signal(signal.SIGALRM, handler)
+
+                out = None
+                while out == None:
+                    try:
+                        signal.alarm(10)
+                        out = subprocess.run([sys.executable, "materialtest"+suffix+".py"], stdout=subprocess.PIPE).stdout.decode("utf-8")
+                    except:
+                        True
+                    signal.alarm(0)
 
                 outlines = out.split(u"\n")
 
