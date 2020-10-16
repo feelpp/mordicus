@@ -1,6 +1,7 @@
 from Mordicus.Modules.Safran.IO import ZsetInputReader as ZIR
 from Mordicus.Modules.Safran.IO import ZsetMeshReader as ZMR
 from Mordicus.Modules.Safran.IO import ZsetSolutionReader as ZSR
+from Mordicus.Modules.Safran.IO import ZsetSolutionWriter as ZSW
 from Mordicus.Core.Containers import ProblemData as PD
 from Mordicus.Core.Containers import CollectionProblemData as CPD
 from Mordicus.Core.Containers import Solution as S
@@ -92,6 +93,8 @@ def test():
     SP.CompressData(collectionProblemData, "U", 1.e-6, snapshotCorrelationOperator)
     for name in dualNames:
         SP.CompressData(collectionProblemData, name, 1.e-6)
+
+    ZSW.WriteZsetSolution(mesh, meshFileName, "reducedOrderBasis", collectionProblemData, problemData, "U", outputReducedOrderBasis = True)
 
 
     collectionProblemData.CompressSolutions("U", snapshotCorrelationOperator)

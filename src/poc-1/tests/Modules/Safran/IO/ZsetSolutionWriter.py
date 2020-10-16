@@ -43,6 +43,7 @@ def test():
 
 
     ZSW.WriteZsetSolution(mesh, os.path.relpath(meshFileName), "test", collectionProblemData, problemData, "U")
+    ZSW.WriteZsetSolution(mesh, os.path.relpath(meshFileName), "test", collectionProblemData, problemData, "U", outputReducedOrderBasis = True)
 
     os.system("rm -rf toto.ut toto.integ toto.node")
 

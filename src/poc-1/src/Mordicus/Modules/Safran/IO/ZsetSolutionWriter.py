@@ -14,7 +14,22 @@ import os
 primalSolutionComponents = {1:[""], 2:["1", "2"], 3:["1", "2", "3"]}
 
 
-def WriteZsetSolution(mesh, meshFileName, solutionFileName, collectionProblemData, onlineProblemData, solutionNameRef):
+
+
+
+def WriteZsetSolution(mesh, meshFileName, solutionFileName, collectionProblemData, problemData, solutionNameRef, outputReducedOrderBasis = False):
+
+    """
+    to write solution, set outputReducedOrderBasis = False
+    to write reducedOrderBasis, set outputReducedOrderBasis = True
+
+    in the current implementations, all reduced order basis are written in a Zset-lke format with the rank of the modes as the "time": the fields having less than the max number of modes have their last modes repeated
+    """
+
+    if outputReducedOrderBasis:
+        nameList = list(collectionProblemData.reducedOrderBases.keys())
+    else:
+        nameList = list(problemData.solutions.keys())
 
 
     folder = str(Path(solutionFileName).parents[0])
@@ -39,7 +54,14 @@ def WriteZsetSolution(mesh, meshFileName, solutionFileName, collectionProblemDat
     coef = {}
     nNodeVar = 0
     nIntegVar = 0
-    for name, solution in onlineProblemData.solutions.items():
+    maxNumberOfModes = 0
+
+    for name in nameList:
+        solution = problemData.GetSolution(name)
+
+        if outputReducedOrderBasis:
+            maxNumberOfModes = max(maxNumberOfModes, collectionProblemData.GetReducedOrderBasis(name).shape[0])
+
         if solution.primality == True:
             for component in primalSolutionComponents[solution.GetNbeOfComponents()]:
                 __stringNode += solution.solutionName+component+" "
@@ -88,9 +110,12 @@ def WriteZsetSolution(mesh, meshFileName, solutionFileName, collectionProblemDat
     nbTypeEl = len(numberElements)
 
 
-    timeSequence = onlineProblemData.GetSolution(solutionNameRef).GetTimeSequenceFromCompressedSnapshots()
+    if outputReducedOrderBasis:
+        timeSequence = np.arange(maxNumberOfModes)
+    else:
+        timeSequence = problemData.GetSolution(solutionNameRef).GetTimeSequenceFromCompressedSnapshots()
 
-    nbDofs = onlineProblemData.GetSolution(solutionNameRef).GetNumberOfDofs()
+    nbDofs = problemData.GetSolution(solutionNameRef).GetNumberOfDofs()
 
 
     count = 0
@@ -104,9 +129,16 @@ def WriteZsetSolution(mesh, meshFileName, solutionFileName, collectionProblemDat
         countNode = 0
         countInteg = 0
 
-        for name, solution in onlineProblemData.solutions.items():
 
-            res = np.dot(solution.GetCompressedSnapshotsAtTime(time), collectionProblemData.GetReducedOrderBasis(name))
+        for name in nameList:
+            solution = problemData.GetSolution(name)
+
+            if outputReducedOrderBasis:
+                locTime = min(time, collectionProblemData.GetReducedOrderBasis(name).shape[0]-1)
+                res = collectionProblemData.GetReducedOrderBasis(name)[locTime]
+
+            else:
+                res = np.dot(solution.GetCompressedSnapshotsAtTime(time), collectionProblemData.GetReducedOrderBasis(name))
 
             if solution.primality == True:
                 resNode[countNode*nbDofs:(countNode+1)*nbDofs] = res
@@ -139,4 +171,5 @@ def WriteZsetSolution(mesh, meshFileName, solutionFileName, collectionProblemDat
         with open(globalSolutionFileName+".cut", "w") as f:
             f.write(__string)
         f.close()
+
 
