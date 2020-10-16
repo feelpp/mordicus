@@ -475,7 +475,7 @@ ddsddeNew = pyumat.umat(stress=stress,statev=statev,ddsdde=ddsdde,sse=sse,spd=sp
                 import subprocess
                 import signal
 
-                def handler(signum, frame):
+                def handler(signum, frame):# pragma: no cover
                     raise Exception("end of time")
 
                 signal.signal(signal.SIGALRM, handler)
@@ -485,7 +485,7 @@ ddsddeNew = pyumat.umat(stress=stress,statev=statev,ddsdde=ddsdde,sse=sse,spd=sp
                     try:
                         signal.alarm(10)
                         out = subprocess.run([sys.executable, "materialtest"+suffix+".py"], stdout=subprocess.PIPE).stdout.decode("utf-8")
-                    except:
+                    except:# pragma: no cover
                         True
                     signal.alarm(0)
 
