@@ -490,17 +490,17 @@ def ReconstructDualQuantity(nameDualQuantity, operatorCompressionData, onlineCom
     onlineDualCompressedSolution = collections.OrderedDict()
 
     ModesAtMask = operatorCompressionData['gappyModesAtRedIntegPts'][nameDualQuantity]
-    fieldAtMask = np.empty(ModesAtMask.shape[1])
+    fieldAtMask = np.zeros(ModesAtMask.shape[1])
 
     localIndex = {}
     for tag in onlineCompressionData['IndicesOfIntegPointsPerMaterial'].keys():
-        localIndex[tag] = onlineCompressionData['dualVarOutputNames'][tag].index(nameDualQuantity)
+        if nameDualQuantity in onlineCompressionData['dualVarOutputNames'][tag]:
+          localIndex[tag] = onlineCompressionData['dualVarOutputNames'][tag].index(nameDualQuantity)
 
     for time in timeSequence:
-
         for tag, intPoints in onlineCompressionData['IndicesOfIntegPointsPerMaterial'].items():
-
-            fieldAtMask[intPoints] = onlineCompressionData['dualVarOutput'][tag][time][:,localIndex[tag]]
+            if tag in localIndex:
+                fieldAtMask[intPoints] = onlineCompressionData['dualVarOutput'][tag][time][:,localIndex[tag]]
 
         onlineDualCompressedSolution[time] = GP.Fit(ModesAtMask, fieldAtMask)
 
