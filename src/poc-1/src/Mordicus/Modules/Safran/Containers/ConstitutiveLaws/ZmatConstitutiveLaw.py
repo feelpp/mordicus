@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from Mordicus.Core.Containers.ConstitutiveLaws.ConstitutiveLawBase import ConstitutiveLawBase
+from Mordicus.Modules.Safran.External.pyumat import py3umat as pyumat
 import numpy as np
 
 
@@ -62,8 +63,6 @@ class ZmatConstitutiveLaw(ConstitutiveLawBase):
 
 
     def ComputeConstitutiveLaw(self, temperature, dtemp, stran, dstran, statev):
-
-        from Mordicus.Modules.Safran.External.pyumat import py3umat as pyumat
 
         nbIntPoints = stran.shape[0]
 
