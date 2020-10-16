@@ -28,13 +28,13 @@
     recommandation: create a compatible conda environment by typing:
 
     conda env create -f environment.yml
-    
+
     to update the environement, go in the folder containing environment.yml (/src/poc-1) and type:
 
     conda env update
 
 
-    When using a cluster with optimized mpi already installed, do not install mpi4py from conda, but using « pip install mpi4py » (having loaded the optimized mpi beforehand)
+    When using a cluster with optimized mpi already installed, do not install mpi4py from conda, but using « pip install mpi4py » (having loaded the optimized mpi beforehand: "which mpicc" should point to something). Deleting the pip cache can help (rm -rf ~/.cache/pip)
 
 
 
