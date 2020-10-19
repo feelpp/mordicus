@@ -132,5 +132,14 @@ def test():
 
 
 if __name__ == "__main__":
+
+    from BasicTools.Helpers import Profiler as P
+    p = P.Profiler()
+    p.Start()
+    
     test()
+    
+    p.Stop()
+    #print(p)
+    p.PlotStats("offlineProfiling")
 

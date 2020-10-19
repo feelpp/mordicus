@@ -84,9 +84,9 @@ def test():
     solutionReader = ZSR.ZsetSolutionReader(solutionFileName)
     solutionUExact = S.Solution("U", nbeOfComponentsPrimal, numberOfNodes, primality = True)
     outputTimeSequence = solutionReader.ReadTimeSequenceFromSolutionFile()
-    for time in outputTimeSequence:
-        U = solutionReader.ReadSnapshot("U", time, nbeOfComponentsPrimal, primality=True)
-        solutionUExact.AddSnapshot(U, time)
+    for t in outputTimeSequence:
+        U = solutionReader.ReadSnapshot("U", t, nbeOfComponentsPrimal, primality=True)
+        solutionUExact.AddSnapshot(U, t)
 
 
     ROMErrors = []
@@ -138,7 +138,16 @@ def test():
 
 
 if __name__ == "__main__":
+
+    from BasicTools.Helpers import Profiler as P
+    p = P.Profiler()
+    p.Start()
+    
     test()
+    
+    p.Stop()
+    #print(p)
+    p.PlotStats("onlineProfiling")
 
 
 
