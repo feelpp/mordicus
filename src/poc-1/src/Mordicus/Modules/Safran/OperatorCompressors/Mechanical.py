@@ -4,7 +4,7 @@ import os
 from mpi4py import MPI
 import collections
 from Mordicus.Modules.Safran.FE import FETools as FT
-from Mordicus.Modules.Safran.BasicAlgorithms import NNOMPA
+from Mordicus.Modules.Safran.OperatorCompressors import ReducedQuadratureProcedure as RQP
 from Mordicus.Modules.Safran.BasicAlgorithms import EIM
 from Mordicus.Modules.Safran.DataCompressors import FusedSnapshotPOD as SP
 
@@ -50,7 +50,6 @@ from Mordicus.Modules.Safran.DataCompressors import FusedSnapshotPOD as SP
 """
 
 secondOrderTensorOffDiagComponents = {1:[], 2:[(0,1)], 3:[(0,1), (1,2), (0,2)]}
-
 
 
 def PrepareOnline(onlineProblemData, operatorCompressionData):
@@ -301,7 +300,9 @@ def PreCompressOperator(mesh):
 
 
 def CompressOperator(
-    collectionProblemData, operatorPreCompressionData, mesh, tolerance, listNameDualVarOutput = None, listNameDualVarGappyIndicesforECM = None
+    collectionProblemData, operatorPreCompressionData, mesh, tolerance, \
+    listNameDualVarOutput = None, listNameDualVarGappyIndicesforECM = None, \
+    reducedQuadratureAlgorithmType = 'NNOMP'
 ):
     """
     Operator Compression for the POD and ECM for a mechanical problem
@@ -317,7 +318,11 @@ def CompressOperator(
     listNameDualVarOutput : list of strings
         names of dual quantities to reconstruct on complete mesh
     listNameDualVarGappyIndicesforECM : list of strings
-        names of dual quantities for which the indices of the POD are added to the reduced integration points list
+        names of dual quantities for which the indices of the POD are added to
+        the reduced integration points list
+    reducedQuadratureAlgorithmType : strings
+        Type of reducedQuadratureAlgorithm ot choose from
+        reducedQuadratureAlgorithm
 
     Returns
     -------
@@ -325,7 +330,6 @@ def CompressOperator(
         (fitted regressor, fitted scaler on the coefficients, fitted scaler on the parameters)
     """
     #BIEN APPELER "U", "sigma" et "epsilon" les quantités correspondantes
-
 
 
     print("CompressOperator starting...")
@@ -338,12 +342,12 @@ def CompressOperator(
     #integrator0 = operatorPreCompressionData["integrator0"]
     numberOfIntegrationPoints = operatorPreCompressionData["numberOfIntegrationPoints"]
 
-    reducedOrderBasis = collectionProblemData.GetReducedOrderBasis("U")
+
+    #reducedOrderBasis = collectionProblemData.GetReducedOrderBasis("U")
     operatorCompressionData = collectionProblemData.GetOperatorCompressionData()
 
-    numberOfModes = collectionProblemData.GetReducedOrderBasisNumberOfModes("U")
-    sigmaNumberOfComponents = collectionProblemData.GetSolutionsNumberOfComponents("sigma")
-
+    #numberOfModes = collectionProblemData.GetReducedOrderBasisNumberOfModes("U")
+    #sigmaNumberOfComponents = collectionProblemData.GetSolutionsNumberOfComponents("sigma")
 
 
     reducedIntegrator = ReduceIntegrator(collectionProblemData, mesh, integrator, numberOfIntegrationPoints)
@@ -368,7 +372,8 @@ def CompressOperator(
 
     sigmaEpsilon = ComputeSigmaEpsilon(collectionProblemData, reducedIntegrator, tolerance)
 
-    reducedIntegrationPoints, reducedIntegrationWeights = NNOMPA.ComputeReducedIntegrationScheme(integrationWeights, sigmaEpsilon, tolerance, imposedIndices = imposedIndices, reducedIntegrationPointsInitSet = operatorCompressionData["reducedIntegrationPoints"])
+
+    reducedIntegrationPoints, reducedIntegrationWeights = RQP.ComputeReducedIntegrationScheme(integrationWeights, sigmaEpsilon, tolerance, imposedIndices = imposedIndices, reducedIntegrationPointsInitSet = operatorCompressionData["reducedIntegrationPoints"])
 
     hyperReducedIntegrator = reducedIntegrator[:,reducedIntegrationPoints,:]
 

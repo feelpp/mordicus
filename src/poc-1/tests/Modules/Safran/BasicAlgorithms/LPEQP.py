@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import numpy as np
-from Mordicus.Modules.Safran.BasicAlgorithms import NNOMPA
+from Mordicus.Modules.Safran.BasicAlgorithms import LPEQP
 
 
 def test():
@@ -13,9 +13,8 @@ def test():
     
     tolerance = 1.e-6
 
-    s, x = NNOMPA.NNOMPA(integrationWeights, integrands, integrals,\
+    s, x = LPEQP.LPEQP(integrationWeights, integrands, integrals,\
         normIntegrals, tolerance, reducedIntegrationPointsInitSet)
-
 
 
     return "ok"
