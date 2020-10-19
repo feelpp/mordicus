@@ -31,3 +31,6 @@ src/poc-1/coverageReports/*
 env/
 x64/
 *.vcxproj.user
+
+#python profiling
+*.pstats
