@@ -7,6 +7,8 @@ from Mordicus.Core.IO.SolutionReaderBase import SolutionReaderBase
 from mpi4py import MPI
 from pathlib import Path
 import os
+from BasicTools.Containers import Filters
+
 
 
 primalSolutionComponents = {1:[""], 2:["1", "2"], 3:["1", "2", "3"]}
@@ -122,26 +124,24 @@ class VTKWriter(SolutionReaderBase):
 
 
         
-    def numpyToVTKSanpWrite(self, solutionName, SnapshotsList):
+    def numpyToVTKSanpWrite(self, SnapshotsList, solutionName="RecSol.vtu"):
 
-        numpySnap_array = SnapshotsList[0]
-        
+        numpySnap_array = SnapshotsList#[0]
+        print("shape vtkfile", np.shape(numpySnap_array))
         p = self.VTKBase.GetPointData()
-
-        VTK_data = numpy_support.numpy_to_vtk(num_array=numpySnap_array.ravel(), deep=True, array_type=vtk.VTK_FLOAT)
-        VTK_data.SetName("RecSol"+str(solutionName))
-        name = VTK_data.GetName()
+             #VTK_data = numpy_support.numpy_to_vtk(num_array=numpySnap_array.ravel(), deep=True, array_type=vtk.VTK_FLOAT)
+        VTK_data = numpy_support.numpy_to_vtk(num_array=numpySnap_array, deep=True, array_type=vtk.VTK_FLOAT)
         size = VTK_data.GetSize()
-        
+        print("size array", size)
+        VTK_data.SetName("Velocity")
+        name = VTK_data.GetName()
         p.AddArray(VTK_data)
         
-        out_fname = 'RecSol.vtu'
+        out_fname = solutionName#'RecSol.vtu'
+
         writer = vtk.vtkXMLUnstructuredGridWriter()
         writer.SetFileName(out_fname)
         writer.SetInputData(self.VTKBase)
         writer.SetDataModeToAscii()
         writer.Write()
         print('\nfile ', out_fname, ' written\n' )
-
-    
-

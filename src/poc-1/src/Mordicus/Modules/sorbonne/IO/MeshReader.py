@@ -22,9 +22,9 @@ def ReadMesh(meshFileName):
     BasicToolsUnstructuredMesh
         mesh of the HF computation
     """
-    print("ici")
+
     reader = MeshReader(meshFileName=meshFileName)
-    print("reader created")
+
     return reader.ReadMesh()
 
 def ReadVTKBase(meshFileName):
@@ -66,7 +66,8 @@ class MeshReader(MeshReaderBase):
         """
         
         super(MeshReader, self).__init__()
-        print("init")
+        
+
         assert isinstance(meshFileName, str)
             
 
@@ -100,11 +101,11 @@ class MeshReader(MeshReaderBase):
             raise ("FileName error!")
 
         data = Read(LoadVtuWithVTK(self.meshFileName))
-        print("on a lu les maillages")
+        print(data)
         from Mordicus.Modules.Safran.Containers.Meshes import BasicToolsUnstructuredMesh as BTUM
 
         mesh = BTUM.BasicToolsUnstructuredMesh(data)
-        print("mesh oyé")
+        
         return mesh
 
     def ReadVTKBase(self):
