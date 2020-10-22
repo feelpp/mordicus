@@ -45,3 +45,10 @@ def TruncatedSVDSymLower(matrix, epsilon):
     id_max = max(id_max, id_max2)
 
     return eigenValues[0:id_max], eigenVectors[:, 0:id_max]
+
+
+if __name__ == "__main__":# pragma: no cover
+
+    from Mordicus import RunTestFile
+    RunTestFile(__file__)
+

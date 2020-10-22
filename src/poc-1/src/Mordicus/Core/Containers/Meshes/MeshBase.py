@@ -92,7 +92,7 @@ class MeshBase(object):
 
         Arguments:
             node_rk {int} -- the rank of the node
-        
+
         Returns:
             list -- the list of all elements attach to the input node
         """
@@ -101,15 +101,24 @@ class MeshBase(object):
     def GetElemContaining(self, ip_rk: int) -> int:
         """
         Return the rank of the element containint the given integration point
-        
+
         Arguments:
             ip_rk {int} -- the rank of the integration point to locate, i.e. the index of this integration point in the full list of ip.
-        
+
         Returns:
-            int -- the rank of the element containing the input integration point 
+            int -- the rank of the element containing the input integration point
         """
         raise Exception("Not implemented in mesh base") # pragma: no cover
 
     def __str__(self):
         res = "I am a MeshBase, try instanciating a particular mesh instead"
         return res
+
+
+
+if __name__ == "__main__":# pragma: no cover
+
+    from Mordicus import RunTestFile
+    RunTestFile(__file__)
+
+

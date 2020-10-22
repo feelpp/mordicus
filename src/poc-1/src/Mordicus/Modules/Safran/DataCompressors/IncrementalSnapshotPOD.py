@@ -133,3 +133,7 @@ def CompressData(
         collectionProblemData.CompressSolutions(solutionName, snapshotCorrelationOperator)
 
 
+if __name__ == "__main__":# pragma: no cover
+
+    from Mordicus import RunTestFile
+    RunTestFile(__file__)

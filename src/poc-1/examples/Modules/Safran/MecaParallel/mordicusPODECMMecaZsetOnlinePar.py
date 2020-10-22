@@ -3,10 +3,8 @@ from Mordicus.Modules.Safran.IO import ZsetMeshReader as ZMR
 from Mordicus.Modules.Safran.IO import ZsetSolutionReader as ZSR
 from Mordicus.Modules.Safran.IO import ZsetSolutionWriter as ZSW
 from Mordicus.Core.Containers import ProblemData as PD
-from Mordicus.Core.Containers import CollectionProblemData as CPD
 from Mordicus.Core.Containers import Solution as S
 from Mordicus.Modules.Safran.FE import FETools as FT
-from Mordicus.Core.DataCompressors import SnapshotPOD as SP
 from Mordicus.Modules.Safran.IO import PXDMFWriter as PW
 from Mordicus.Modules.Safran.OperatorCompressors import Mechanical as Meca
 from Mordicus.Core.IO import StateIO as SIO
@@ -142,9 +140,9 @@ if __name__ == "__main__":
     from BasicTools.Helpers import Profiler as P
     p = P.Profiler()
     p.Start()
-    
+
     test()
-    
+
     p.Stop()
     #print(p)
     p.PlotStats("onlineProfiling")

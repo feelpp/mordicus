@@ -1,5 +1,5 @@
 from Mordicus.Modules.Safran.External.pyumat import py3umat
-from Mordicus.Core import GetTestPath
+from Mordicus import GetTestPath
 
 import numpy as np
 import pickle

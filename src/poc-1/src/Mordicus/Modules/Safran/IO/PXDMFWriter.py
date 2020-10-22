@@ -196,5 +196,9 @@ class PXDMFWriter(object):
             writer.Close()
 
 
+if __name__ == "__main__":# pragma: no cover
+
+    from Mordicus import RunTestFile
+    RunTestFile(__file__)
 
 

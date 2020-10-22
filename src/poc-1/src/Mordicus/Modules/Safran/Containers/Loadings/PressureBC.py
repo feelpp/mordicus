@@ -178,3 +178,10 @@ class PressureBC(LoadingBase):
     def __str__(self):
         res = "Pressure Loading with set "+self.GetSet()
         return res
+
+
+
+if __name__ == "__main__":# pragma: no cover
+
+    from Mordicus import RunTestFile
+    RunTestFile(__file__)

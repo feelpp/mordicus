@@ -27,6 +27,7 @@ def test():
     PW.WriteReducedOrderBasisToPXDMF(mesh, modes, "test")
 
     os.system("rm -rf test0.bin test.pxdmf")
+    os.system("rm -rf ReducedOrderBasis_test0.bin ReducedOrderBasis_test.pxdmf")
 
     return "ok"
 

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import numpy as np
+
 from Mordicus.Core.IO import SolutionReaderBase as SRB
 
 

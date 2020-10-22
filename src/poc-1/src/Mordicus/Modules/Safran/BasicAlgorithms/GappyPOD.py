@@ -1,6 +1,7 @@
  # -*- coding: utf-8 -*-
-import numpy as np
+
 from scipy.optimize import lsq_linear as lsq_linear
+
 
 def Fit(ModesAtMask, fieldAtMask):
     """
@@ -24,3 +25,9 @@ def FitAndCost(ModesAtMask, fieldAtMask):
     lstqr = lsq_linear(ModesAtMask.T, fieldAtMask)
 
     return lstqr['x'], lstqr['cost']
+
+
+if __name__ == "__main__":# pragma: no cover
+
+    from Mordicus import RunTestFile
+    RunTestFile(__file__)

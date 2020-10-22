@@ -136,3 +136,10 @@ class ConvectionHeatFlux(LoadingBase):
     def __str__(self):
         res = "ConvectionHeatFlux Loading with set "+self.GetSet()
         return res
+
+
+if __name__ == "__main__":# pragma: no cover
+
+    from Mordicus import RunTestFile
+    RunTestFile(__file__)
+

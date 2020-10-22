@@ -39,3 +39,12 @@ class FolderHandler(object):
         Changes working directory to self.executionFolder
         """
         os.chdir(self.executionFolder)
+
+
+
+if __name__ == "__main__":# pragma: no cover
+
+    from Mordicus import RunTestFile
+    RunTestFile(__file__)
+
+

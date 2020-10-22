@@ -9,12 +9,11 @@ def test():
     integrands = np.random.rand(10,20)
     integrals = np.dot(integrands, integrationWeights)
     normIntegrals = np.linalg.norm(integrals)
-    reducedIntegrationPointsInitSet = []
-    
+
     tolerance = 1.e-6
 
-    s, x = LPEQP.LPEQP(integrationWeights, integrands, integrals,\
-        normIntegrals, tolerance, reducedIntegrationPointsInitSet)
+    LPEQP.LPEQP(integrationWeights, integrands, integrals,\
+                normIntegrals, tolerance)
 
 
     return "ok"
@@ -22,5 +21,5 @@ def test():
 
 if __name__ == "__main__":
     print(test())  # pragma: no cover
-    
-    
+
+

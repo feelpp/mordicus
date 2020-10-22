@@ -8,7 +8,7 @@ from Mordicus.Core.Containers import CollectionProblemData as CPD
 from Mordicus.Modules.Safran.IO import ZsetSolutionWriter as ZSW
 from Mordicus.Modules.Safran.IO import ZsetMeshReader as ZMR
 from Mordicus.Modules.Safran.FE import FETools as FE
-from Mordicus.Core import GetTestDataPath
+from Mordicus import GetTestDataPath
 
 
 def test():
@@ -41,11 +41,16 @@ def test():
     problemData.AddSolution(solutionP)
 
 
+    curDir = os.getcwd() + os.sep
 
-    ZSW.WriteZsetSolution(mesh, os.path.relpath(meshFileName), "test", collectionProblemData, problemData, "U")
-    ZSW.WriteZsetSolution(mesh, os.path.relpath(meshFileName), "test", collectionProblemData, problemData, "U", outputReducedOrderBasis = True)
+    ZSW.WriteZsetSolution(mesh, os.path.relpath(meshFileName), curDir+"test",\
+       collectionProblemData, problemData, "U")
 
-    os.system("rm -rf toto.ut toto.integ toto.node")
+    ZSW.WriteZsetSolution(mesh, os.path.relpath(meshFileName), curDir+"test",\
+       collectionProblemData, problemData, "U", outputReducedOrderBasis = True)
+
+    os.system("rm -rf "+curDir+"test.ut "+curDir+"test.integ "+curDir+"test.node")
+
 
 
     return "ok"

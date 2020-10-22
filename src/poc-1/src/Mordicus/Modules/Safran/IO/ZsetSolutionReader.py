@@ -6,7 +6,6 @@ from mpi4py import MPI
 from pathlib import Path
 from BasicTools.IO import UtReader as UR
 import os
-import numpy as np
 
 primalSolutionComponents = {1:[""], 2:["1", "2"], 3:["1", "2", "3"]}
 
@@ -99,11 +98,9 @@ class ZsetSolutionReader(SolutionReaderBase):
 
         solutionComponentNames = []
         if primality == True:
-            atIntegrationPoints = False
             for suffix in primalSolutionComponents[numberOfComponents]:
                 solutionComponentNames.append(fieldName+suffix)
         else:
-            atIntegrationPoints = True  # pragma: no cover
             for suffix in dualSolutionComponents[numberOfComponents]:
                 solutionComponentNames.append(fieldName+suffix)
 
@@ -128,3 +125,9 @@ class ZsetSolutionReader(SolutionReaderBase):
 
         UTMetaData = UR.ReadUTMetaData(self.solutionFileName)
         return UTMetaData["time"][:, 4]
+
+
+if __name__ == "__main__":# pragma: no cover
+
+    from Mordicus import RunTestFile
+    RunTestFile(__file__)

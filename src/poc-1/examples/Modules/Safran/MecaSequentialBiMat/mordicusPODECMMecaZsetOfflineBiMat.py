@@ -1,4 +1,3 @@
-from Mordicus.Modules.Safran.IO import ZsetInputReader as ZIR
 from Mordicus.Modules.Safran.IO import ZsetMeshReader as ZMR
 from Mordicus.Modules.Safran.IO import ZsetSolutionReader as ZSR
 from Mordicus.Core.Containers import ProblemData as PD
@@ -7,7 +6,6 @@ from Mordicus.Core.Containers import Solution as S
 from Mordicus.Modules.Safran.FE import FETools as FT
 from Mordicus.Modules.Safran.DataCompressors import FusedSnapshotPOD as SP
 from Mordicus.Modules.Safran.OperatorCompressors import Mechanical
-from Mordicus.Modules.Safran.IO import PXDMFWriter as PW
 from Mordicus.Core.IO import StateIO as SIO
 from Mordicus.Core.Helpers import FolderHandler as FH
 import numpy as np
@@ -22,12 +20,11 @@ def test():
 
     folder = "MecaSequentialBiMat/"
 
-    inputFileName = folder + "cube.inp"
+
     meshFileName = folder + "cube.geof"
     solutionFileName = folder + "cube.ut"
 
     meshReader = ZMR.ZsetMeshReader(meshFileName)
-    inputReader = ZIR.ZsetInputReader(inputFileName)
     solutionReader = ZSR.ZsetSolutionReader(solutionFileName)
 
 

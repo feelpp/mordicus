@@ -7,35 +7,38 @@ from Mordicus.Modules.Safran.BasicAlgorithms import LPEQP
 
 
 def ComputeReducedIntegrationScheme(integrationWeights, integrands, tolerance,\
-        imposedIndices, reducedIntegrationPointsInitSet):
+        imposedIndices, reducedIntegrationPointsInitSet, initByLPEQP = False):
     """
     Parameters
     ----------
     integrationWeights : np.ndarray
         of size (numberOfIntegrationPoints,), dtype = float.
         Weights of the truth quadrature
-    
+
     integrands : np.ndarray
         of size (numberOfIntegrands,numberOfIntegrationPoints), dtype = float.
         Functions we look to integrated accurately with fewer integration
         points. Usually, the integrands are already reduced, and
         numberOfIntegrands is the product of the number of reduced integrand
         modes and the number of modes of the ReducedOrderBasis
-    
+
     tolerance : float
         upper bound for the accuracy of the reduced integration scheme on the
         provided integrands
-    
+
     imposedIndices : np.ndarray
         of size (numberOfImposedIndices,), dtype = int.
         Optional.
         Indicies required to be selected in the reduced integration scheme
-    
-    reducedIntegrationPointsInitSet : 
+
+    reducedIntegrationPointsInitSet : np.ndarray
         of size (numberOfInitReducedIntegratonPoints,), dtype = int.
-        Optional.
         Initial guess for the indices of the reducedIntegrationScheme.
-                
+
+    initByLPEQP : bool
+        Optional.
+        Runs a preliminary LPEQP stage if True
+
 
     Returns
     -------
@@ -46,31 +49,44 @@ def ComputeReducedIntegrationScheme(integrationWeights, integrands, tolerance,\
         (reducedIntegrationWeights)
     """
 
-    
-    
+
+    print(TFormat.InGreen("Starting computing reduced integration scheme "\
+    "for "+str(integrands.shape[0])+" integrands having "\
+    +str(integrands.shape[1])+" integration points"))
+
+    # add the unity integrand for volume computation
+    #numberOfIntegrationPoints = integrands.shape[1]
+    #integrands = np.vstack((integrands, np.ones(numberOfIntegrationPoints)))
+
     # compute the integrations using the exact quadrature
     integrals = np.dot(integrands, integrationWeights)
+
+
     normIntegrals = np.linalg.norm(integrals)
 
-    
 
-    # initialise reducedIntegrationPoints
-    if len(reducedIntegrationPointsInitSet) == 0:
-        reducedIntegrationPointsInitSet = np.empty(0, dtype = int)
-    
+    if initByLPEQP == True:
 
-    # one step of LPEQP    
-    s, x = LPEQP.LPEQP(integrationWeights,integrands,integrals,normIntegrals,\
-                       tolerance,reducedIntegrationPointsInitSet)
-    PrintReducedSchemeStatistics(s, x, integrands, integrals, normIntegrals)
-    # step ended
+        # LPEQP stage
+        print(TFormat.InGreen("LPEQP stage"))
+        s, x = LPEQP.LPEQP(integrationWeights,integrands,integrals,\
+                           normIntegrals,tolerance)
+        PrintReducedSchemeStatistics(s, x, integrands, integrals, normIntegrals)
+
+    else:
+        if len(reducedIntegrationPointsInitSet) == 0:
+            s = np.empty(0, dtype = int)
+        else:
+            s = reducedIntegrationPointsInitSet
 
 
-    # one step of NNOMPA
+    # NNOMPA stage
+    print(TFormat.InGreen("NNOMPA stage"))
+
     s, x = NNOMPA.NNOMPA(integrationWeights,integrands,integrals,normIntegrals,\
                        tolerance, s)
     PrintReducedSchemeStatistics(s, x, integrands, integrals, normIntegrals)
-    # step ended
+
 
 
     # add imposed indices
@@ -78,25 +94,40 @@ def ComputeReducedIntegrationScheme(integrationWeights, integrands, tolerance,\
     s = np.array(list(s) + list(set(imposedIndices) - set(s)))
     dlength = s.shape[0] - l1
     x = np.hstack((x,np.zeros(dlength)))
-            
+
 
     return s, x
 
 
 
 
-def PrintReducedSchemeStatistics(s, x, integrands, integrals, normy):
-    
-    numberOfIntegrationPoints = integrands.shape[1]
-    
-    integrands_s = integrands[:,s]
-    r = integrals - np.dot(integrands_s, x)
-    err0 = np.linalg.norm(r)/normy
+def PrintReducedSchemeStatistics(s, x, integrands, integrals, normIntegrals):
+
 
     print(TFormat.InRed("Reduced Integration Scheme Constructed:"))
-    print(TFormat.InRed("Relative error = "+str(err0)+" obtained with " + \
-    str(len(s))+" integration points (corresponding to " + \
-    str(round(100*len(s)/numberOfIntegrationPoints, 5)) + "% of the total)"))    
-    print(TFormat.InRed("L0 norm for weight vector: " + str(len(s))))
-    print(TFormat.InRed("L1 norm for weight vector: " + str(np.linalg.norm(x, 1))))
-    print(TFormat.InRed("L2 norm for weight vector: " + str(np.linalg.norm(x, 2))))
+
+    if len(s) > 0:
+
+        numberOfIntegrationPoints = integrands.shape[1]
+
+        integrands_s = integrands[:,s]
+        r = integrals - np.dot(integrands_s, x)
+        err = np.linalg.norm(r)/normIntegrals
+
+        print(TFormat.InRed("Relative error = "+str(err)+" obtained with " + \
+        str(len(s))+" integration points (corresponding to " + \
+        str(round(100*len(s)/numberOfIntegrationPoints, 5)) + "% of the total)"))
+        print(TFormat.InRed("L0 norm for weight vector: " + str(len(s))))
+        print(TFormat.InRed("L1 norm for weight vector: " + str(np.linalg.norm(x, 1))))
+        print(TFormat.InRed("L2 norm for weight vector: " + str(np.linalg.norm(x, 2))))
+
+    else:
+
+        print("empty reduced integration scheme")
+
+
+if __name__ == "__main__":# pragma: no cover
+
+    from Mordicus import RunTestFile
+    RunTestFile(__file__)
+

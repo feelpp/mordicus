@@ -2,13 +2,10 @@ from Mordicus.Modules.Safran.IO import ZsetMeshReader as ZMR
 from Mordicus.Modules.Safran.IO import PXDMFWriter as PW
 from Mordicus.Core.Containers import ProblemData as PD
 from Mordicus.Core.OperatorCompressors import Regression
-from Mordicus.Core.Containers import CollectionProblemData as CPD
 from Mordicus.Core.Containers import Solution as S
 from Mordicus.Core.IO import StateIO as SIO
 from Mordicus.Core.Helpers import FolderHandler as FH
 import numpy as np
-from pathlib import Path
-import os
 
 
 def test():

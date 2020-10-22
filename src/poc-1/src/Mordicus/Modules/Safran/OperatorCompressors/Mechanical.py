@@ -513,3 +513,8 @@ def ReconstructDualQuantity(nameDualQuantity, operatorCompressionData, onlineCom
     return onlineDualCompressedSolution
 
 
+if __name__ == "__main__":# pragma: no cover
+
+    from Mordicus import RunTestFile
+    RunTestFile(__file__)
+

@@ -31,7 +31,7 @@ def test():
     for val in vals:
         res.append(TI.PieceWiseLinearInterpolation(val, timeIndices, coefficients))
 
-    res2 = TI.PieceWiseLinearInterpolationVectorized(np.array(vals), timeIndices, coefficients)
+    TI.PieceWiseLinearInterpolationVectorized(np.array(vals), timeIndices, coefficients)
 
 
 
@@ -42,7 +42,7 @@ def test():
     for i, val in enumerate(valList):
         res[i] = TI.BinarySearch(testlist, val)
 
-    res2 = TI.BinarySearchVectorized(testlist, valList)
+    TI.BinarySearchVectorized(testlist, valList)
 
     return "ok"
 

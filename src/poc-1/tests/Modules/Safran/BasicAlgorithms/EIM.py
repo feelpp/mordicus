@@ -7,7 +7,7 @@ def test():
 
     basis = np.array([[1., 0.], [0., 1.]])
 
-    indices = EIM.QDEIM(basis)
+    EIM.QDEIM(basis)
 
     return "ok"
 

@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 from Mordicus.Modules.Safran.Containers.ConstitutiveLaws import ZmatConstitutiveLaw as ZCL
-import numpy as np
 
 
 def test():

@@ -2,26 +2,25 @@
 
 
 from Mordicus.Modules.Safran.IO import ZsetInputReader as ZIR
-from Mordicus.Core import GetTestDataPath
-import os
+from Mordicus import GetTestDataPath
 
 def test():
 
-    #MECA
+    #Meca
     folder = GetTestDataPath() + "Zset/MecaSequential/"
 
     inputFileName = folder + "cube.inp"
 
     reader = ZIR.ZsetInputReader(inputFileName)
 
-    inputTimeSequence = reader.ReadInputTimeSequence()
-    inputTimeSequence = ZIR.ReadInputTimeSequence(inputFileName)
+    reader.ReadInputTimeSequence()
+    ZIR.ReadInputTimeSequence(inputFileName)
 
-    loadings = reader.ConstructLoadingsList()
-    loadings = ZIR.ConstructLoadingsList(inputFileName)
+    reader.ConstructLoadingsList()
+    ZIR.ConstructLoadingsList(inputFileName)
 
-    constitutiveLaws = reader.ConstructConstitutiveLawsList()
-    constitutiveLaws = ZIR.ConstructConstitutiveLawsList(inputFileName)
+    reader.ConstructConstitutiveLawsList()
+    ZIR.ConstructConstitutiveLawsList(inputFileName)
 
 
     #Thermal
@@ -31,14 +30,14 @@ def test():
 
     reader = ZIR.ZsetInputReader(inputFileName)
 
-    inputTimeSequence = reader.ReadInputTimeSequence()
-    inputTimeSequence = ZIR.ReadInputTimeSequence(inputFileName)
+    reader.ReadInputTimeSequence()
+    ZIR.ReadInputTimeSequence(inputFileName)
 
-    loadings = reader.ConstructLoadingsList()
-    loadings = ZIR.ConstructLoadingsList(inputFileName)
+    reader.ConstructLoadingsList()
+    ZIR.ConstructLoadingsList(inputFileName)
 
-    constitutiveLaws = reader.ConstructConstitutiveLawsList()
-    constitutiveLaws = ZIR.ConstructConstitutiveLawsList(inputFileName)
+    reader.ConstructConstitutiveLawsList()
+    ZIR.ConstructConstitutiveLawsList(inputFileName)
 
 
     return "ok"

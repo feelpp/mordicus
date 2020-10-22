@@ -143,3 +143,10 @@ class Centrifugal(LoadingBase):
         res += "center : "+str(self.center)+"\n"
         res += "direction : "+str(self.direction)
         return res
+
+
+if __name__ == "__main__":# pragma: no cover
+
+    from Mordicus import RunTestFile
+    RunTestFile(__file__)
+

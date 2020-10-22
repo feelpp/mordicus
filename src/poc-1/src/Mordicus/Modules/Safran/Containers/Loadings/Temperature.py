@@ -141,3 +141,9 @@ class Temperature(LoadingBase):
         res += "fieldsMap : "+str(self.fieldsMap)+"\n"
         res += "fields : "+str(self.fields)
         return res
+
+
+if __name__ == "__main__":# pragma: no cover
+
+    from Mordicus import RunTestFile
+    RunTestFile(__file__)

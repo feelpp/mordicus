@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import numpy as np
-import collections
 from Mordicus.Core.Containers.InitialConditions import InitialConditionBase as ICB
 
 

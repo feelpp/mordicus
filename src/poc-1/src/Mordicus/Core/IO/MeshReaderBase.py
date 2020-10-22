@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import numpy as np
 
 
 class MeshReaderBase(object):
@@ -13,7 +12,7 @@ class MeshReaderBase(object):
     def ReadMesh(self):
         """
         Reads the mesh of the HF computation
-                    
+
         Returns
         -------
         MeshBase
@@ -24,3 +23,11 @@ class MeshReaderBase(object):
     def __str__(self):
         res = "I am a MeshReaderBase, try instanciating a particular reader instead"
         return res
+
+
+if __name__ == "__main__":# pragma: no cover
+
+    from Mordicus import RunTestFile
+    RunTestFile(__file__)
+
+

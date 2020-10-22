@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import numpy as np
 
-from BasicTools.IO import UtWriter as UW
 from BasicTools.FE import FETools as FT
 from BasicTools.Containers import Filters
 from BasicTools.FE.IntegrationsRules import Lagrange as Lagrange
@@ -51,7 +50,7 @@ def WriteZsetSolution(mesh, meshFileName, solutionFileName, collectionProblemDat
     __stringNode = "**node "
     __stringInteg = "**integ "
 
-    coef = {}
+
     nNodeVar = 0
     nIntegVar = 0
     maxNumberOfModes = 0
@@ -88,12 +87,17 @@ def WriteZsetSolution(mesh, meshFileName, solutionFileName, collectionProblemDat
     resFileNode = open(solutionFileName+".node", "a")
     resFileInteg = open(solutionFileName+".integ", "a")
 
+
+
+    print("solutionFileName =", solutionFileName)
+
+
+
     resFile.write(__string)
 
 
     spaces, numberings, offset, nbIntegPoints = FT.PrepareFEComputation(mesh.GetInternalStorage())
 
-    arange = np.arange(nbIntegPoints)
 
 
     numberElements = []
@@ -173,3 +177,7 @@ def WriteZsetSolution(mesh, meshFileName, solutionFileName, collectionProblemDat
         f.close()
 
 
+if __name__ == "__main__":# pragma: no cover
+
+    from Mordicus import RunTestFile
+    RunTestFile(__file__)

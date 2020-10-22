@@ -6,7 +6,7 @@ from Mordicus.Core.Containers import ProblemData
 from Mordicus.Core.Containers import CollectionProblemData
 from Mordicus.Core.Containers import Solution
 from Mordicus.Modules.Safran.DataCompressors import FusedSnapshotPOD as SP
-from Mordicus.Core import GetTestDataPath
+from Mordicus import GetTestDataPath
 from Mordicus.Modules.Safran.IO import ZsetInputReader as ZIR
 from Mordicus.Modules.Safran.IO import ZsetSolutionReader as ZSR
 from Mordicus.Modules.Safran.IO import ZsetMeshReader as ZMR

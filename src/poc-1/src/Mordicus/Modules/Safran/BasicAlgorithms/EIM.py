@@ -1,5 +1,5 @@
  # -*- coding: utf-8 -*-
-import numpy as np
+
 import scipy.linalg as sla
 
 
@@ -31,3 +31,9 @@ def QDEIM(basis):
 
     Q, R, P = sla.qr(basis, pivoting=True)
     return P[:basis.shape[0]] 
+
+
+if __name__ == "__main__":# pragma: no cover
+
+    from Mordicus import RunTestFile
+    RunTestFile(__file__)

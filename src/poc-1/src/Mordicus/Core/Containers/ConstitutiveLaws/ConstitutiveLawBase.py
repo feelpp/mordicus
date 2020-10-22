@@ -54,3 +54,12 @@ class ConstitutiveLawBase(object):
     def __str__(self):
         res = "I am a ConstitutiveLawBase, try instanciating a particular physical constitutive law instead"
         return res
+
+
+
+
+if __name__ == "__main__":# pragma: no cover
+
+    from Mordicus import RunTestFile
+    RunTestFile(__file__)
+

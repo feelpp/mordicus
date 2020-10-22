@@ -1,4 +1,3 @@
-from Mordicus.Modules.Safran.IO import ZsetInputReader as ZIR
 from Mordicus.Modules.Safran.IO import ZsetMeshReader as ZMR
 from Mordicus.Modules.Safran.IO import ZsetSolutionReader as ZSR
 from Mordicus.Core.Containers import ProblemData as PD
@@ -19,12 +18,10 @@ def test():
 
     folder = "Computation1/"
 
-    inputFileName = folder + "cube.inp"
     meshFileName = folder + "cube.geof"
     solutionFileName = folder + "cube.ut"
 
     meshReader = ZMR.ZsetMeshReader(meshFileName)
-    inputReader = ZIR.ZsetInputReader(inputFileName)
     solutionReader = ZSR.ZsetSolutionReader(solutionFileName)
 
     mesh = meshReader.ReadMesh()

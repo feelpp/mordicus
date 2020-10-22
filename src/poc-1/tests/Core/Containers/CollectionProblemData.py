@@ -2,7 +2,6 @@
 
 import numpy as np
 import os
-from scipy import sparse
 from Mordicus.Core.Containers import ProblemData
 from Mordicus.Core.Containers import Solution
 from Mordicus.Core.Containers import CollectionProblemData as CPD

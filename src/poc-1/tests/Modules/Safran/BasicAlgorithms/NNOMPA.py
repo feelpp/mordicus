@@ -10,12 +10,11 @@ def test():
     integrals = np.dot(integrands, integrationWeights)
     normIntegrals = np.linalg.norm(integrals)
     reducedIntegrationPointsInitSet = []
-    
+
     tolerance = 1.e-6
 
-    s, x = NNOMPA.NNOMPA(integrationWeights, integrands, integrals,\
-        normIntegrals, tolerance, reducedIntegrationPointsInitSet)
-
+    NNOMPA.NNOMPA(integrationWeights, integrands, integrals,\
+                  normIntegrals, tolerance, reducedIntegrationPointsInitSet)
 
 
     return "ok"
@@ -23,5 +22,5 @@ def test():
 
 if __name__ == "__main__":
     print(test())  # pragma: no cover
-    
-    
+
+

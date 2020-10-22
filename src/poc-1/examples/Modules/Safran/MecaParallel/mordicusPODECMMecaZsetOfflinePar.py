@@ -1,4 +1,3 @@
-from Mordicus.Modules.Safran.IO import ZsetInputReader as ZIR
 from Mordicus.Modules.Safran.IO import ZsetMeshReader as ZMR
 from Mordicus.Modules.Safran.IO import ZsetSolutionReader as ZSR
 from Mordicus.Modules.Safran.IO import ZsetSolutionWriter as ZSW
@@ -8,7 +7,6 @@ from Mordicus.Core.Containers import Solution as S
 from Mordicus.Modules.Safran.FE import FETools as FT
 from Mordicus.Modules.Safran.DataCompressors import FusedSnapshotPOD as SP
 from Mordicus.Modules.Safran.OperatorCompressors import Mechanical
-from Mordicus.Modules.Safran.IO import PXDMFWriter as PW
 from Mordicus.Core.IO import StateIO as SIO
 from Mordicus.Core.Helpers import FolderHandler as FH
 import numpy as np
@@ -24,12 +22,10 @@ def test():
 
     folder = "MecaParallel/"
 
-    inputFileName = folder + "cube.inp"
     meshFileName = folder + "cube.geof"
     solutionFileName = folder + "cube.ut"
 
     meshReader = ZMR.ZsetMeshReader(meshFileName)
-    inputReader = ZIR.ZsetInputReader(inputFileName)
     solutionReader = ZSR.ZsetSolutionReader(solutionFileName)
 
 
@@ -136,9 +132,9 @@ if __name__ == "__main__":
     from BasicTools.Helpers import Profiler as P
     p = P.Profiler()
     p.Start()
-    
+
     test()
-    
+
     p.Stop()
     #print(p)
     p.PlotStats("offlineProfiling")

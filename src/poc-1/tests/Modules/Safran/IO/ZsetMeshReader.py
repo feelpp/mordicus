@@ -2,7 +2,7 @@
 
 
 from Mordicus.Modules.Safran.IO import ZsetMeshReader as ZMR
-from Mordicus.Core import GetTestDataPath
+from Mordicus import GetTestDataPath
 
 
 def test():
@@ -12,9 +12,9 @@ def test():
     meshFileName = folder + "cube.geof"
 
     reader = ZMR.ZsetMeshReader(meshFileName)
-    mesh = reader.ReadMesh()
-    
-    mesh = ZMR.ReadMesh(meshFileName)
+    reader.ReadMesh()
+
+    ZMR.ReadMesh(meshFileName)
 
     return "ok"
 

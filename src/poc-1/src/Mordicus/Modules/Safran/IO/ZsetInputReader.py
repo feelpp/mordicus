@@ -390,7 +390,6 @@ class ZsetInputReader(InputReaderBase):
 
             if behavior == "gen_evp":
 
-                from Mordicus.Modules.Safran.External.pyumat import py3umat as pyumat
                 from Mordicus.Modules.Safran.Containers.ConstitutiveLaws import ZmatConstitutiveLaw as ZCL
 
                 constitutiveLaw = ZCL.ZmatConstitutiveLaw(set)
@@ -471,7 +470,6 @@ ddsddeNew = pyumat.umat(stress=stress,statev=statev,ddsdde=ddsdde,sse=sse,spd=sp
                 f.write(code)
                 f.close()
 
-                import sys
                 import subprocess
                 import signal
 
@@ -609,3 +607,7 @@ ddsddeNew = pyumat.umat(stress=stress,statev=statev,ddsdde=ddsdde,sse=sse,spd=sp
                 raise ValueError("behavior law of type "+behavior+" not known")#pragma: no cover
 
 
+if __name__ == "__main__":# pragma: no cover
+
+    from Mordicus import RunTestFile
+    RunTestFile(__file__)

@@ -27,9 +27,9 @@ def test():
         resA2.append(constitutiveLaw.ComputeConductivity(4.))
         resA3.append(constitutiveLaw.ComputeInternalEnergy(22.))
 
-    resB1 = constitutiveLaw.ComputeCapacityVectorized(vals)
-    resB2 = constitutiveLaw.ComputeConductivityVectorized(vals)
-    resB3 = constitutiveLaw.ComputeInternalEnergyVectorized(vals)
+    constitutiveLaw.ComputeCapacityVectorized(vals)
+    constitutiveLaw.ComputeConductivityVectorized(vals)
+    constitutiveLaw.ComputeInternalEnergyVectorized(vals)
 
 
     print(constitutiveLaw)

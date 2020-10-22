@@ -41,3 +41,12 @@ def LoadState(fileName):
     inputName = UpdateFileName(fileName) + ".pkl"
 
     return pickle.load(open(inputName, "rb"))
+
+
+
+if __name__ == "__main__":# pragma: no cover
+
+    from Mordicus import RunTestFile
+    RunTestFile(__file__)
+
+

@@ -437,3 +437,10 @@ class Solution(object):
             res += "Compressed"  # pragma: no cover
         return res
 
+
+if __name__ == "__main__":# pragma: no cover
+
+    from Mordicus import RunTestFile
+    RunTestFile(__file__)
+
+

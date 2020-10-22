@@ -69,3 +69,12 @@ class LoadingBase(object):
     def __str__(self):
         res = "I am a LoadingBase, try instanciating a particular physical loading instead"
         return res
+
+
+
+if __name__ == "__main__":# pragma: no cover
+
+    from Mordicus import RunTestFile
+    RunTestFile(__file__)
+
+

@@ -1,9 +1,6 @@
 # -*- coding: utf-8 -*-
 from BasicTools.FE import FETools as FT
-from BasicTools.Containers import Filters
-from BasicTools.FE.IntegrationsRules import Lagrange as Lagrange
 from Mordicus.Modules.Safran.Containers.Meshes import BasicToolsUnstructuredMesh as BTUM
-import numpy as np
 
 
 def ComputeL2ScalarProducMatrix(mesh, numberOfComponents):
@@ -139,3 +136,9 @@ def ConvertMeshToUnstructuredMesh(mesh):
         unstructuredMesh = mesh.GetInternalStorage()
 
     return unstructuredMesh
+
+
+if __name__ == "__main__":# pragma: no cover
+
+    from Mordicus import RunTestFile
+    RunTestFile(__file__)

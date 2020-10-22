@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
 
 from Mordicus.Core.Containers.Meshes.MeshBase import MeshBase
-import numpy as np
 
 
 class BasicToolsUnstructuredMesh(MeshBase):
     """
     Class containing a wrapper for the format BasicTools.Containers.UnstructuredMesh
-    
+
     Attributes
     ----------
     __storage : BasicTools.Containers.UnstructuredMesh
@@ -29,7 +28,7 @@ class BasicToolsUnstructuredMesh(MeshBase):
 
     def GetNodes(self):
         return self.GetInternalStorage().nodes
-    
+
     def AllElementsIterator(self):
         class iterator:
             def __init__(self, elements):
@@ -46,3 +45,9 @@ class BasicToolsUnstructuredMesh(MeshBase):
     def __str__(self):
         res = str(self.GetInternalStorage())
         return res
+
+
+if __name__ == "__main__":# pragma: no cover
+
+    from Mordicus import RunTestFile
+    RunTestFile(__file__)

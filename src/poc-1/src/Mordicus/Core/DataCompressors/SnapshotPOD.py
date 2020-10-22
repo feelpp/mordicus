@@ -60,7 +60,6 @@ def ComputeReducedOrderBasis(snapshotsIterator, snapshotCorrelationOperator, tol
 
     snapshots = np.array(snapshots)
 
-    numberOfDOFs = snapshots.shape[1]
     numberOfSnapshots = snapshots.shape[0]
 
 
@@ -93,6 +92,13 @@ def ComputeReducedOrderBasis(snapshotsIterator, snapshotCorrelationOperator, tol
 
 
     return reducedOrderBasis
+
+
+
+if __name__ == "__main__":# pragma: no cover
+
+    from Mordicus import RunTestFile
+    RunTestFile(__file__)
 
 
 

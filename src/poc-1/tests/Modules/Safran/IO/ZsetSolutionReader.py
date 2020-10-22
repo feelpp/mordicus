@@ -2,7 +2,7 @@
 
 
 from Mordicus.Modules.Safran.IO import ZsetSolutionReader as ZSR
-from Mordicus.Core import GetTestDataPath
+from Mordicus import GetTestDataPath
 
 
 def test():
@@ -13,11 +13,11 @@ def test():
 
     reader = ZSR.ZsetSolutionReader(solutionFileName)
 
-    snapshot = reader.ReadSnapshotComponent("U1", 0.0, primality=True)
-    snapshot = ZSR.ReadSnapshotComponent(solutionFileName, "U1", 0.0, primality=True)
+    reader.ReadSnapshotComponent("U1", 0.0, primality=True)
+    ZSR.ReadSnapshotComponent(solutionFileName, "U1", 0.0, primality=True)
 
-    outputTimeSequence = reader.ReadTimeSequenceFromSolutionFile()
-    outputTimeSequence = ZSR.ReadTimeSequenceFromSolutionFile(solutionFileName)
+    reader.ReadTimeSequenceFromSolutionFile()
+    ZSR.ReadTimeSequenceFromSolutionFile(solutionFileName)
 
     return "ok"
 

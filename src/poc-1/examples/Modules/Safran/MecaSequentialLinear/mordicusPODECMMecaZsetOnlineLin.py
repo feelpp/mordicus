@@ -2,10 +2,7 @@ from Mordicus.Modules.Safran.IO import ZsetInputReader as ZIR
 from Mordicus.Modules.Safran.IO import ZsetMeshReader as ZMR
 from Mordicus.Modules.Safran.IO import ZsetSolutionReader as ZSR
 from Mordicus.Core.Containers import ProblemData as PD
-from Mordicus.Core.Containers import CollectionProblemData as CPD
 from Mordicus.Core.Containers import Solution as S
-from Mordicus.Modules.Safran.FE import FETools as FT
-from Mordicus.Core.DataCompressors import SnapshotPOD as SP
 from Mordicus.Modules.Safran.IO import PXDMFWriter as PW
 from Mordicus.Modules.Safran.OperatorCompressors import Mechanical as Meca
 from Mordicus.Core.IO import StateIO as SIO
@@ -83,9 +80,9 @@ def test():
     solutionReader = ZSR.ZsetSolutionReader(solutionFileName)
     solutionUExact = S.Solution("U", nbeOfComponentsPrimal, numberOfNodes, primality = True)
     outputTimeSequence = solutionReader.ReadTimeSequenceFromSolutionFile()
-    for time in outputTimeSequence:
-        U = solutionReader.ReadSnapshot("U", time, nbeOfComponentsPrimal, primality=True)
-        solutionUExact.AddSnapshot(U, time)
+    for t in outputTimeSequence:
+        U = solutionReader.ReadSnapshot("U", t, nbeOfComponentsPrimal, primality=True)
+        solutionUExact.AddSnapshot(U, t)
 
 
     ROMErrors = []
