@@ -12,7 +12,7 @@ from BasicTools.Helpers.TextFormatHelper import TFormat
 
 
 def NNOMPA(integrationWeights, integrands, integrals, normIntegrals, tolerance,\
-          reducedIntegrationPointsInitSet, maxIter = 1000):
+          reducedIntegrationPointsInitSet, maxIter = 10000):
     """
     NonNegative Othogonal Matching Pursuit Algorithm [1].
     Modified with possibility to add random integration points.
@@ -95,7 +95,7 @@ def NNOMPA(integrationWeights, integrands, integrals, normIntegrals, tolerance,\
             integrands_s = integrands[:,sTemp]
 
 
-            optimRes = CallOptimizer(integrands_s, integrals, max_iter = 500)
+            optimRes = CallOptimizer(integrands_s, integrals, max_iter = None)
 
 
 
