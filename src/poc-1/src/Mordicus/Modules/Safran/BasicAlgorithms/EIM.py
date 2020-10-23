@@ -1,4 +1,10 @@
- # -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
+import os
+os.environ["OMP_NUM_THREADS"] = "1"
+os.environ["OPENBLAS_NUM_THREADS"] = "1"
+os.environ["MKL_NUM_THREADS"] = "1"
+os.environ["VECLIB_MAXIMUM_THREADS"] = "1"
+os.environ["NUMEXPR_NUM_THREADS"] = "1"
 
 import scipy.linalg as sla
 
@@ -30,7 +36,7 @@ def QDEIM(basis):
     """
 
     Q, R, P = sla.qr(basis, pivoting=True)
-    return P[:basis.shape[0]] 
+    return P[:basis.shape[0]]
 
 
 if __name__ == "__main__":# pragma: no cover

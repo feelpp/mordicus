@@ -1,9 +1,15 @@
 # -*- coding: utf-8 -*-
+import os
+os.environ["OMP_NUM_THREADS"] = "1"
+os.environ["OPENBLAS_NUM_THREADS"] = "1"
+os.environ["MKL_NUM_THREADS"] = "1"
+os.environ["VECLIB_MAXIMUM_THREADS"] = "1"
+os.environ["NUMEXPR_NUM_THREADS"] = "1"
+import numpy as np
 
 from Mordicus.Core.Containers.ConstitutiveLaws.ConstitutiveLawBase import ConstitutiveLawBase
-import numpy as np
 from Mordicus.Core.BasicAlgorithms import Interpolation as TI
-from scipy import integrate,interpolate
+from scipy import integrate, interpolate
 
 class ThermalConstitutiveLaw(ConstitutiveLawBase):
     """

@@ -1,11 +1,17 @@
 # -*- coding: utf-8 -*-
+
+import os
+os.environ["OMP_NUM_THREADS"] = "1"
+os.environ["OPENBLAS_NUM_THREADS"] = "1"
+os.environ["MKL_NUM_THREADS"] = "1"
+os.environ["VECLIB_MAXIMUM_THREADS"] = "1"
+os.environ["NUMEXPR_NUM_THREADS"] = "1"
 import numpy as np
+
 import collections
 from mpi4py import MPI
-import collections
 
 from BasicTools.IO import XdmfWriter as XW
-from Mordicus.Modules.Safran.Containers.Meshes import BasicToolsUnstructuredMesh as BTUM
 from Mordicus.Modules.Safran.FE import FETools as FT
 
 

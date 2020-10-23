@@ -1,9 +1,14 @@
-
-
+# -*- coding: utf-8 -*-
+import os
+os.environ["OMP_NUM_THREADS"] = "1"
+os.environ["OPENBLAS_NUM_THREADS"] = "1"
+os.environ["MKL_NUM_THREADS"] = "1"
+os.environ["VECLIB_MAXIMUM_THREADS"] = "1"
+os.environ["NUMEXPR_NUM_THREADS"] = "1"
 import numpy as np
+
 from scipy import sparse
 from Mordicus.Core.Containers import ProblemData
-from Mordicus.Core.Containers import Solution
 from mpi4py import MPI
 
 class CollectionProblemData(object):

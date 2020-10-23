@@ -1,11 +1,18 @@
 # -*- coding: utf-8 -*-
+
+import os
+os.environ["OMP_NUM_THREADS"] = "1"
+os.environ["OPENBLAS_NUM_THREADS"] = "1"
+os.environ["MKL_NUM_THREADS"] = "1"
+os.environ["VECLIB_MAXIMUM_THREADS"] = "1"
+os.environ["NUMEXPR_NUM_THREADS"] = "1"
 import numpy as np
 
 from Mordicus.Core.IO.SolutionReaderBase import SolutionReaderBase
 from mpi4py import MPI
 from pathlib import Path
 from BasicTools.IO import UtReader as UR
-import os
+
 
 primalSolutionComponents = {1:[""], 2:["1", "2"], 3:["1", "2", "3"]}
 

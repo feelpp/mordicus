@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
+
 from Mordicus.Core.IO.MeshReaderBase import MeshReaderBase
 from mpi4py import MPI
 from pathlib import Path
 import os
-
 
 def ReadMesh(meshFileName):
     """

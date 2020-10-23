@@ -1,9 +1,14 @@
 # -*- coding: utf-8 -*-
+import os
+os.environ["OMP_NUM_THREADS"] = "1"
+os.environ["OPENBLAS_NUM_THREADS"] = "1"
+os.environ["MKL_NUM_THREADS"] = "1"
+os.environ["VECLIB_MAXIMUM_THREADS"] = "1"
+os.environ["NUMEXPR_NUM_THREADS"] = "1"
+import numpy as np
 
 from Mordicus.Core.Containers.InitialConditions.InitialConditionBase import InitialConditionBase
-import numpy as np
 from mpi4py import MPI
-
 
 
 class InitialCondition(InitialConditionBase):
@@ -54,8 +59,6 @@ class InitialCondition(InitialConditionBase):
     def ReduceInitialSnapshot(self, reducedOrderBasis, snapshotCorrelationOperator):
 
         assert isinstance(reducedOrderBasis, np.ndarray)
-
-        from Mordicus.Modules.Safran.FE import FETools as FT
 
         if self.dataType == "scalar":
             if self.initialSnapshot == 0.:

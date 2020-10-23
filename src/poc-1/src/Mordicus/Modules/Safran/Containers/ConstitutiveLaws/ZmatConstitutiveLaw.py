@@ -1,8 +1,14 @@
 # -*- coding: utf-8 -*-
+import os
+os.environ["OMP_NUM_THREADS"] = "1"
+os.environ["OPENBLAS_NUM_THREADS"] = "1"
+os.environ["MKL_NUM_THREADS"] = "1"
+os.environ["VECLIB_MAXIMUM_THREADS"] = "1"
+os.environ["NUMEXPR_NUM_THREADS"] = "1"
+import numpy as np
 
 from Mordicus.Core.Containers.ConstitutiveLaws.ConstitutiveLawBase import ConstitutiveLawBase
 from Mordicus.Modules.Safran.External.pyumat import py3umat as pyumat
-import numpy as np
 
 
 class ZmatConstitutiveLaw(ConstitutiveLawBase):

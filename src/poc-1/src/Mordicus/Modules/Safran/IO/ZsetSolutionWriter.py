@@ -1,4 +1,11 @@
 # -*- coding: utf-8 -*-
+
+import os
+os.environ["OMP_NUM_THREADS"] = "1"
+os.environ["OPENBLAS_NUM_THREADS"] = "1"
+os.environ["MKL_NUM_THREADS"] = "1"
+os.environ["VECLIB_MAXIMUM_THREADS"] = "1"
+os.environ["NUMEXPR_NUM_THREADS"] = "1"
 import numpy as np
 
 from BasicTools.FE import FETools as FT
@@ -7,7 +14,6 @@ from BasicTools.FE.IntegrationsRules import Lagrange as Lagrange
 
 from mpi4py import MPI
 from pathlib import Path
-import os
 
 
 primalSolutionComponents = {1:[""], 2:["1", "2"], 3:["1", "2", "3"]}
