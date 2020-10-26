@@ -473,7 +473,12 @@ kinc  = 1
 ddsddeNew = pyumat.umat(stress=stress,statev=statev,ddsdde=ddsdde,sse=sse,spd=spd,scd=scd,rpl=rpl,ddsddt=ddsddt,drplde=drplde,drpldt=drpldt,stran=stran,dstran=dstran,time=timesim,dtime=dtime,
                         temp=temperature,dtemp=dtemp,predef=predef,dpred=dpred,cmname=cmname,ndi=ndi,nshr=nshr,ntens=ntens,nstatv=nstatv,props=props,nprops=nprops,coords=coords,drot=drot,pnewdt=pnewdt,celent=celent,dfgrd0=dfgrd0,
         dfgrd1=dfgrd1,noel=noel,npt=npt,kslay=kslay,kspt=kspt,kstep=kstep,kinc=kinc)"""
-                f = open("materialtest"+suffix+".py","w")
+
+                import tempfile
+                tmpFile = tempfile.gettempdir()+os.sep
+
+
+                f = open(tmpFile+"materialtest"+suffix+".py","w")
                 f.write(code)
                 f.close()
 
@@ -489,7 +494,7 @@ ddsddeNew = pyumat.umat(stress=stress,statev=statev,ddsdde=ddsdde,sse=sse,spd=sp
                 while out == None:
                     try:
                         signal.alarm(10)
-                        out = subprocess.run([sys.executable, "materialtest"+suffix+".py"], stdout=subprocess.PIPE).stdout.decode("utf-8")
+                        out = subprocess.run([sys.executable, tmpFile+"materialtest"+suffix+".py"], stdout=subprocess.PIPE).stdout.decode("utf-8")
                     except:# pragma: no cover
                         True
                     signal.alarm(0)
@@ -538,7 +543,7 @@ ddsddeNew = pyumat.umat(stress=stress,statev=statev,ddsdde=ddsdde,sse=sse,spd=sp
                 #print("constitutiveLawVariables['var_int']   =", constitutiveLawVariables['var_int'])
                 #print("constitutiveLawVariables['var_aux']   =", constitutiveLawVariables['var_aux'])
                 #print("constitutiveLawVariables['var_extra'] =", constitutiveLawVariables['var_extra'])
-                os.system("rm -rf materialtest"+suffix+".py")
+                os.system("rm -rf "+tmpFile+"materialtest"+suffix+".py")
 
                 constitutiveLawVariables['var'] = constitutiveLawVariables['grad'] + constitutiveLawVariables['flux'] + constitutiveLawVariables['var_int'] + constitutiveLawVariables['var_aux'] + constitutiveLawVariables['var_extra']
 
