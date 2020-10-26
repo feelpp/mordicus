@@ -12,11 +12,7 @@ cd Modules/Sorbonne/StationaryNS/
 
 ###NIRB Greedy algorithm
 
-#interpolation with basictools
-python3 NirbGreedyOffline_Basictools.py $nev 
-python3 NirbGreedyOnline_Basictools.py 
-
-#interpolation with FreeFem++
+#interpolation with FreeFem++ or Basictools
 python3 NirbGreedyOffline.py $nev
 python3 NirbGreedyOnline.py 
 
@@ -31,11 +27,8 @@ cd ../3Dcase/
 
 ###NIRB Greedy algorithm
 
-#interpolation with basictools
-python3 NirbGreedyOffline_3D_Basictools.py $nev
-python3 NirbGreedyOnline_3D_Basictools.py 
 
-#interpolation with FreeFem++
+#interpolation with FreeFem++ or Basictools
 python3 NirbGreedyOffline_3D.py $nev
 python3 NirbGreedyOnline_3D.py 
 
