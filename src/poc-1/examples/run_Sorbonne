@@ -1,0 +1,46 @@
+#! /bin/bash
+
+nev=3 #number of modes
+
+
+###### 2D #######################################
+cd Modules/Sorbonne/StationaryNS/
+
+#for nev in `seq 1 20`;
+#do
+#done
+
+###NIRB Greedy algorithm
+
+#interpolation with basictools
+python3 NirbGreedyOffline_Basictools.py $nev 
+python3 NirbGreedyOnline_Basictools.py 
+
+#interpolation with FreeFem++
+python3 NirbGreedyOffline.py $nev
+python3 NirbGreedyOnline.py 
+
+###NIRB POD algorithm
+
+python3 NirbPodOffline.py
+python3 NirbPodOnline.py 
+
+
+###### 3D #######################################"
+cd ../3Dcase/
+
+###NIRB Greedy algorithm
+
+#interpolation with basictools
+python3 NirbGreedyOffline_3D_Basictools.py $nev
+python3 NirbGreedyOnline_3D_Basictools.py 
+
+#interpolation with FreeFem++
+python3 NirbGreedyOffline_3D.py $nev
+python3 NirbGreedyOnline_3D.py 
+
+###NIRB POD algorithm
+
+python3 NirbPodOffline_3D.py 
+python3 NirbPodOnline_3D.py
+
