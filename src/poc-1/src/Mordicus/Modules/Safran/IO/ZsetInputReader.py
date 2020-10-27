@@ -136,6 +136,8 @@ class ZsetInputReader(InputReaderBase):
     def ConstructLoadingsList(self):
 
         self.SetInputFile()
+        inputTimeSequence = self.ReadInputTimeSequence()
+
         tables = ZIO.GetTables(self.inputFile)
         zSetLoadings = ZIO.GetLoadings(self.inputFile)
 
@@ -144,7 +146,7 @@ class ZsetInputReader(InputReaderBase):
             if key in knownLoadingTags:
                 for loadList in zSetLoadings[key]:
                     for load in loadList:
-                        loadings.append(self.ConstructOneLoading(key, load, tables))
+                        loadings.append(self.ConstructOneLoading(key, load, tables, inputTimeSequence))
             else:
                 print(
                     "Loading '"
@@ -156,7 +158,7 @@ class ZsetInputReader(InputReaderBase):
         return loadings
 
 
-    def ConstructOneLoading(self, key, load, tables):
+    def ConstructOneLoading(self, key, load, tables, inputTimeSequence):
         """
         Constructs one loading from the Zset input file
 
@@ -189,9 +191,16 @@ class ZsetInputReader(InputReaderBase):
 
             coefficients = collections.OrderedDict()
             fieldsMap = collections.OrderedDict()
-            for i, time in enumerate(sequence["time"]):
-                coefficients[float(time)] = sequence["value"][i]
-                fieldsMap[float(time)] = name
+
+            coefficients[float(sequence["time"][0])] = sequence["value"][0]
+            fieldsMap[sequence["time"][0]] = name
+
+            lastTimeCycleLoading = float(sequence["time"][-1])
+            nbeLoadingCycles = int(inputTimeSequence[-1]/lastTimeCycleLoading)
+            for j in range(nbeLoadingCycles):
+                for i, time in enumerate(sequence["time"][1:]):
+                    coefficients[float(time) + j*lastTimeCycleLoading] = sequence["value"][i+1]
+                    fieldsMap[float(time) + j*lastTimeCycleLoading] = name
 
             loading.SetCoefficients(coefficients)
             loading.SetFieldsMap(fieldsMap)
@@ -209,6 +218,7 @@ class ZsetInputReader(InputReaderBase):
             loading.SetFields(fields)
 
             return loading
+
 
         if key == "centrifugal":
 
@@ -232,21 +242,35 @@ class ZsetInputReader(InputReaderBase):
             count += 1
             sequence = tables[load[count]]
 
-            rotationVelocity = collections.OrderedDict()
-            for i, time in enumerate(sequence["time"]):
-                rotationVelocity[float(time)] = sequence["value"][i]
 
-            centrifugalDirection = np.array([1.,0.,0.]*(indexRotationAxis==1)+[0.,1.,0.]*(indexRotationAxis==2)+[0.,0.,1.]*(indexRotationAxis==3))
+            rotationVelocity = collections.OrderedDict()
+
+            rotationVelocity[float(sequence["time"][0])] = sequence["value"][0]
+
+
+            lastTimeCycleLoading = float(sequence["time"][-1])
+            nbeLoadingCycles = int(inputTimeSequence[-1]/lastTimeCycleLoading)
+
+            for j in range(nbeLoadingCycles):
+                for i, time in enumerate(sequence["time"][1:]):
+                    rotationVelocity[float(time) + j*lastTimeCycleLoading] = sequence["value"][i+1]
+
+
+            centrifugalDirection = np.array([1.,0.,0.]*(indexRotationAxis==1)+\
+                                            [0.,1.,0.]*(indexRotationAxis==2)+\
+                                            [0.,0.,1.]*(indexRotationAxis==3))
 
             loading.SetCenter(center)
             loading.SetDirection(centrifugalDirection)
             loading.SetCoefficient(centrifugalCoefficient)
             loading.SetRotationVelocity(rotationVelocity)
 
+
             return loading
 
 
         if key == "radiation":
+            #cycles not taken into account yet
 
             from Mordicus.Modules.Safran.Containers.Loadings import Radiation
 
@@ -268,6 +292,7 @@ class ZsetInputReader(InputReaderBase):
 
 
         if key == "convection_heat_flux":
+            #cycles not taken into account yet
 
             from Mordicus.Modules.Safran.Containers.Loadings import ConvectionHeatFlux
 
@@ -304,8 +329,18 @@ class ZsetInputReader(InputReaderBase):
 
 
             fieldsMap = collections.OrderedDict()
+
+            lastTimeCycleLoading = float(timeTable[-1])
+            nbeLoadingCycles = int(inputTimeSequence[-1]/lastTimeCycleLoading)
+
+
+            fieldsMap[float(timeTable[0])] = fileTable[0]
             for time, file in zip(timeTable, fileTable):
                 fieldsMap[time] = file
+
+            for j in range(nbeLoadingCycles):
+                for i, time in enumerate(timeTable[1:]):
+                    fieldsMap[time + j*lastTimeCycleLoading] = fileTable[i+1]
 
 
             folder = os.path.dirname(self.inputFileName) + os.sep

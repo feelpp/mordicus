@@ -123,6 +123,8 @@ def ComputeOnline(onlineProblemData, initOnlineCompressedSnapshot, timeSequence,
     onlineCompressionData = PrepareOnline(onlineProblemData, operatorCompressionData)
     IndicesOfIntegPointsPerMaterial = onlineCompressionData['IndicesOfIntegPointsPerMaterial']
 
+    for tag, intPoints in IndicesOfIntegPointsPerMaterial.items():
+        onlineCompressionData['dualVarOutput'][tag][0] = np.hstack((onlineCompressionData['stranIntForces'][intPoints], onlineCompressionData['sigIntForces'][intPoints], onlineCompressionData['statevIntForces'][tag]))
 
 
     for timeStep in range(1, len(timeSequence)):
@@ -186,7 +188,7 @@ def ComputeOnline(onlineProblemData, initOnlineCompressedSnapshot, timeSequence,
                 raise RuntimeError("problem could not converge after 20 iterations") # pragma: no cover
 
 
-        #solution is set: nowupdate Internal Variables:
+        #solution is set: now update Internal Variables:
         for tag, intPoints in IndicesOfIntegPointsPerMaterial.items():
 
             onlineCompressionData['statevIntForces'][tag] = np.copy(onlineCompressionData['statevIntForcesTemp'][tag])
@@ -508,6 +510,7 @@ def ReconstructDualQuantity(nameDualQuantity, operatorCompressionData, onlineCom
     for tag in onlineCompressionData['IndicesOfIntegPointsPerMaterial'].keys():
         if nameDualQuantity in onlineCompressionData['dualVarOutputNames'][tag]:
           localIndex[tag] = onlineCompressionData['dualVarOutputNames'][tag].index(nameDualQuantity)
+
 
     for time in timeSequence:
         for tag, intPoints in onlineCompressionData['IndicesOfIntegPointsPerMaterial'].items():
