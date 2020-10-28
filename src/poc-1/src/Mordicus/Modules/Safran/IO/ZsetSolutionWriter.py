@@ -22,7 +22,9 @@ primalSolutionComponents = {1:[""], 2:["1", "2"], 3:["1", "2", "3"]}
 
 
 
-def WriteZsetSolution(mesh, meshFileName, solutionFileName, collectionProblemData, problemData, solutionNameRef, outputReducedOrderBasis = False):
+def WriteZsetSolution(mesh, meshFileName, solutionFileName,\
+                      collectionProblemData, problemData, solutionNameRef,\
+                      timeSequence = [], outputReducedOrderBasis = False):
 
     """
     to write solution, set outputReducedOrderBasis = False
@@ -122,8 +124,9 @@ def WriteZsetSolution(mesh, meshFileName, solutionFileName, collectionProblemDat
 
     if outputReducedOrderBasis:
         timeSequence = np.arange(maxNumberOfModes)
-    else:
+    elif len(timeSequence) == 0:
         timeSequence = problemData.GetSolution(solutionNameRef).GetTimeSequenceFromCompressedSnapshots()
+
 
     nbDofs = problemData.GetSolution(solutionNameRef).GetNumberOfDofs()
 
