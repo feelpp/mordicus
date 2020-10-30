@@ -78,7 +78,7 @@ def NNOMPA(integrationWeights, integrands, integrals, normIntegrals, tolerance,\
     # iterations
     while err > tolerance and count0 < maxIter:
 
-        nRandom = 0#numberOfIntegrationPointsToSelect - len(s)
+        nRandom = 1#numberOfIntegrationPointsToSelect - len(s)
         notSelectedIndices = np.array(list((set(np.arange(numberOfIntegrationPoints))-set(s))))
 
         count = 0
