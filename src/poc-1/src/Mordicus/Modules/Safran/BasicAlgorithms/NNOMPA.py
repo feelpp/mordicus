@@ -135,15 +135,15 @@ def NNOMPA(integrationWeights, integrands, integrals, normIntegrals, tolerance,\
 def CallOptimizer(integrands_s, integrals, max_iter):
 
 
-    from scipy.optimize import nnls as nnls
-    optimRes = {}
-    optimRes['x'] = nnls(integrands_s, integrals, maxiter=max_iter)[0]
+    #from scipy.optimize import nnls as nnls
+    #optimRes = {}
+    #optimRes['x'] = nnls(integrands_s, integrals, maxiter=max_iter)[0]
 
 
-    #from scipy.optimize import lsq_linear as lsq_linear
-    #optimRes = lsq_linear(integrands_s, integrals, bounds=(0.,np.inf), method=\
-    #                  'bvls', lsmr_tol='auto', verbose = 0, \
-    #                  lsq_solver='exact', max_iter = max_iter, tol = 1e-8)
+    from scipy.optimize import lsq_linear as lsq_linear
+    optimRes = lsq_linear(integrands_s, integrals, bounds=(0.,np.inf), method=\
+                      'bvls', lsmr_tol='auto', verbose = 0, \
+                      lsq_solver='exact', max_iter = max_iter, tol = 1e-8)
 
     return optimRes
 
