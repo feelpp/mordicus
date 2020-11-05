@@ -249,7 +249,8 @@ class ZsetInputReader(InputReaderBase):
 
 
             lastTimeCycleLoading = float(sequence["time"][-1])
-            nbeLoadingCycles = int(inputTimeSequence[-1]/lastTimeCycleLoading)
+            nbeLoadingCycles = int(inputTimeSequence[-1]/lastTimeCycleLoading)+1
+
 
             for j in range(nbeLoadingCycles):
                 for i, time in enumerate(sequence["time"][1:]):
