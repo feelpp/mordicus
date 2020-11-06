@@ -10,7 +10,7 @@ import numpy as np
 
 from BasicTools.FE import FETools as FT
 from BasicTools.Containers import Filters
-from BasicTools.FE.IntegrationsRules import Lagrange as Lagrange
+from BasicTools.FE.IntegrationsRules import LagrangeIsoParam
 
 from mpi4py import MPI
 from pathlib import Path
@@ -115,7 +115,7 @@ def WriteZsetSolution(mesh, meshFileName, solutionFileName,\
     ff = Filters.ElementFilter(mesh.GetInternalStorage())
     ff.SetDimensionality(mesh.GetInternalStorage().GetDimensionality())
     for name,data,ids in ff:
-        p,w =  Lagrange(name)
+        p,w =  LagrangeIsoParam[name]
         numberElements.append(data.GetNumberOfElements())
         nbPtIntPerElement.append(len(w))
 
