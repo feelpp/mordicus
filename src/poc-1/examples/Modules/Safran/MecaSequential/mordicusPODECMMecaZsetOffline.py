@@ -131,7 +131,8 @@ if __name__ == "__main__":
     test()
 
     p.Stop()
-    #print(p)
-    p.PlotStats("offlineProfiling")
+    p.SortStats()
+    print(p)
+
 
 

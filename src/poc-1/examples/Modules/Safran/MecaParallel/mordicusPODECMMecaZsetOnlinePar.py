@@ -144,8 +144,9 @@ if __name__ == "__main__":
     test()
 
     p.Stop()
-    #print(p)
-    p.PlotStats("onlineProfiling")
+    p.SortStats()
+    print(p)
+
 
 
 
