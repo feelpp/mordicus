@@ -18,13 +18,13 @@ from Mordicus.Modules.CT.IO import VTKSolutionReader as VTKSR
 from Mordicus.Modules.sorbonne.IO import numpyToVTKWriter as NpVTK
 from Mordicus.Modules.sorbonne.IO import InterpolationOperatorWriter as IOW
 from Mordicus.Core.IO import StateIO as SIO
-from initCase import initproblem
-from initCase import basisFileToArray
+#from initCase import initproblem
+#from initCase import basisFileToArray
 import numpy as np
 from pathlib import Path
 import array
 
-ns=22 #number of snapshots
+ns=3 #number of snapshots
 time=0.0 
 dimension=3
 print("NIRB online...")
@@ -44,8 +44,8 @@ print("-----------------------------------")
     # LOAD DATA FOR ONLINE
     ##################################################
 collectionProblemData = SIO.LoadState(dataFolder+"/OFFLINE_RESU/collectionProblemData")
-snapshotCorrelationOperator = SIO.LoadState(dataFolder+"/Matrices/snapshotCorrelationOperator")
-h1ScalarProducMatrix=SIO.LoadState(dataFolder+"/Matrices/h1ScalarProducMatrix")
+#snapshotCorrelationOperator = SIO.LoadState(dataFolder+"/Matrices/snapshotCorrelationOperator")
+#h1ScalarProducMatrix=SIO.LoadState(dataFolder+"/Matrices/h1ScalarProducMatrix")
 nev=collectionProblemData.GetReducedOrderBasisNumberOfModes("U")
 operatorCompressionData = collectionProblemData.GetOperatorCompressionData()
 reducedOrderBasisU = collectionProblemData.GetReducedOrderBasis("U")
@@ -62,6 +62,9 @@ print("Mesh defined in " + meshFileName + " has been read")
 
 nbeOfComponentsPrimal = 3 # vitesses 3D
 numberOfNodes = mesh.GetNumberOfNodes()
+l2ScalarProducMatrix = FT.ComputeL2ScalarProducMatrix(mesh, 3)
+h1ScalarProducMatrix = FT.ComputeH10ScalarProductMatrix(mesh, 3)
+snapshotCorrelationOperator=l2ScalarProducMatrix
 
 #### LOAD COARSE MESH
 VTKmesh2 = dataFolder + "/CoarseMesh/mesh2.vtu"
@@ -81,13 +84,13 @@ coarsemesh=dataFolder+"/CoarseMesh/mesh2.vtu"
 #outputmesh=dataFolder + "/CoarseMesh/mesh2.vtk"
 option="basictools" #ff or basictools
 
-#IOW.InterpolationOperator(dataFolder,finemesh,coarsemesh,option=option)
-operator=SIO.LoadState(dataFolder+"/Matrices/operator")
+operator=IOW.InterpolationOperator(dataFolder,finemesh,coarsemesh,option=option)
+#operator=SIO.LoadState(dataFolder+"/Matrices/operator")
 
 #reading coarse solution
 test=VTKSR.VTKSolutionReader("Velocity");
 coarseFile=dataFolder+"/uHgrossier"+str(0)
-u1_np_array_coarse =test.VTKReadToNp(dataFolder+"/CoarseSolution/uHgrossier",0) #solution sous la forme uHgrossier0.vtu
+u1_np_array_coarse =test.VTKReadToNp(dataFolder+"/CoarseSolution/snapshotH",0) #solution sous la forme uHgrossier0.vtu
 
 print("coarse solution in "+ coarseFile + "has been read ")
 print("coarse solution shape ", np.shape(u1_np_array_coarse))
@@ -102,6 +105,7 @@ print("interpolated solution shape " , np.shape(newdata))
 if option=="ff":
    newdata=newdata.reshape((numberOfNodes, 3)) #if ff
 
+"""  
 #save interpolated solution
 VTKBase = MR.ReadVTKBase(dataFolder+"/FineMesh/mesh1.vtu")
 SnapWrite=NpVTK.VTKWriter(VTKBase)
@@ -110,8 +114,10 @@ SnapWrite.numpyToVTKSanpWrite(newdata,dataFolder+"/CoarseSolutionInterp/uH0.vtu"
 #read interpolated solution
 test=VTKSR.VTKSolutionReader("Velocity");
 newdata =test.VTKReadToNp(dataFolder+"/CoarseSolutionInterp/uH",0)
-newdata=newdata.flatten()
 
+
+"""
+newdata=newdata.flatten()
 solutionUH=S.Solution("U",dimension,numberOfNodes,True)
 solutionUH.AddSnapshot(newdata,0)
 onlineproblemData = PD.ProblemData("Online")
@@ -147,7 +153,8 @@ reconstructedCompressedSolution = np.dot(coef, reducedOrderBasisU) #with rectif
 
 VTKBase = MR.ReadVTKBase(dataFolder+"/FineMesh/mesh1.vtu")
 SnapWrite=NpVTK.VTKWriter(VTKBase)
-SnapWrite.numpyToVTKSanpWrite(reconstructedCompressedSolution,dataFolder+"/ONLINE_RESU/approximation"+str(nev)+".vtu")
+savedata=reconstructedCompressedSolution.reshape((numberOfNodes, 3)) #if ff
+SnapWrite.numpyToVTKSanpWrite(savedata,dataFolder+"/ONLINE_RESU/approximation"+str(nev)+".vtu")
 
     ##################################################
     # ONLINE ERRORS
@@ -158,7 +165,7 @@ print("-----------------------------------")
 
 print("reading exact solution...")
 test=VTKSR.VTKSolutionReader("Velocity");
-u1_np_array =test.VTKReadToNp(dataFolder+"/FineSolution/snapshot",ns)
+u1_np_array =test.VTKReadToNp(dataFolder+"/FineSolution/snapshot",0)
 u1_np_array=u1_np_array.flatten()
 
 solutionU=S.Solution("U",dimension,numberOfNodes,True)

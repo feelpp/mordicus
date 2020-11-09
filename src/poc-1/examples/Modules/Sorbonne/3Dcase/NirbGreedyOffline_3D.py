@@ -15,8 +15,8 @@ from Mordicus.Modules.CT.IO import VTKSolutionReader as VTKSR
 from Mordicus.Modules.sorbonne.IO import numpyToVTKWriter as NpVTK
 from Mordicus.Modules.sorbonne.IO import InterpolationOperatorWriter as IOW
 #from tkinter.constants import CURRENT
-from initCase import initproblem
-from initCase import basisFileToArray
+#from initCase import initproblem
+#from initCase import basisFileToArray
 import numpy as np
 from pathlib import Path
 import array
@@ -62,7 +62,7 @@ import numpy as np
 from vtk.util.numpy_support import vtk_to_numpy
 nev=int(sys.argv[1])#11   #nombre de modes
 print("number of modes: ",nev)
-ns=22#number of snapshots
+ns=3#number of snapshots
 time=0.0 
 dimension=3
            
@@ -93,8 +93,8 @@ print(" STEP0bis: read snapshots             ")
 print("-----------------------------------")
 # interpolation
 option="basictools" #ff or basictools
-#IOW.InterpolationOperator(dataFolder,meshFileName,meshFileName2,option=option)
-operator=SIO.LoadState(dataFolder+"/Matrices/operator")
+operator=IOW.InterpolationOperator(dataFolder,meshFileName,meshFileName2,option=option)
+#operator=SIO.LoadState(dataFolder+"/Matrices/operator")
 
 
 
@@ -105,8 +105,9 @@ collectionProblemData.defineQuantity("UH", full_name="Velocity", unit="m/s")
 parameters = [float(1+15*i) for i in range(ns)]   ###Reynolds
 
 for i in range(ns):
-    
+    print(i)
     test=VTKSR.VTKSolutionReader("Velocity");
+    print(dataFolder)
     u1_np_array =test.VTKReadToNp(dataFolder+"/FineSnapshots/snapshot",i)
     u1_np_arrayH=test.VTKReadToNp(dataFolder+"/CoarseSnapshots/snapshotH",i) #Snapshots grossiers
     newdata=operator.dot(u1_np_arrayH)
@@ -137,11 +138,11 @@ print(" STEP1: Greedy Offline             ")
 print("-----------------------------------")
 print("ComputeL2ScalarProducMatrix...")
 #from scipy import sparse
-l2ScalarProducMatrix = SIO.LoadState(dataFolder+"/Matrices/snapshotCorrelationOperator")
+#l2ScalarProducMatrix = SIO.LoadState(dataFolder+"/Matrices/snapshotCorrelationOperator")
 #l2ScalarProducMatrix=sparse.eye(numberOfNodes*3)
-#l2ScalarProducMatrix = FT.ComputeL2ScalarProducMatrix(mesh, 3)
-h1ScalarProducMatrix = SIO.LoadState(dataFolder+"/Matrices/h1ScalarProducMatrix")
-#h1ScalarProducMatrix = FT.ComputeH10ScalarProducMatrix(mesh, 3)
+l2ScalarProducMatrix = FT.ComputeL2ScalarProducMatrix(mesh, 3)
+#h1ScalarProducMatrix = SIO.LoadState(dataFolder+"/Matrices/h1ScalarProducMatrix")
+h1ScalarProducMatrix = FT.ComputeH10ScalarProductMatrix(mesh, 3)
 
 
 ListeNorm=[]
@@ -261,7 +262,7 @@ collectionProblemData.SetDataCompressionData("Rectification",R)
 print("-----------------------------------")
 print(" STEP1bis: Offline  errors ")
 print("-----------------------------------")
-"""
+
 compressionErrors=[]
 h1compressionErrors=[]
 
@@ -284,7 +285,7 @@ for _, problemData in collectionProblemData.GetProblemDatas().items():
     h1compressionErrors.append(relh1Error)
 print("compressionErrors =", compressionErrors)
 print("compressionErrorsh1 =", h1compressionErrors)
-"""
+
 print("Offline termine")
 SIO.SaveState(dataFolder+"/OFFLINE_RESU/collectionProblemData", collectionProblemData)
 #SIO.SaveState("h1ScalarProducMatrix", h1ScalarProducMatrix)
