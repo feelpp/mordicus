@@ -8,6 +8,7 @@ os.environ["NUMEXPR_NUM_THREADS"] = "1"
 import numpy as np
 
 from Mordicus.Core.Containers.Loadings.LoadingBase import LoadingBase
+from Mordicus.Core.BasicAlgorithms import Interpolation as TI
 import collections
 
 
@@ -33,8 +34,16 @@ class ConvectionHeatFlux(LoadingBase):
 
         self.h = collections.OrderedDict
         self.Text = collections.OrderedDict
+
+        self.hTimes = None
+        self.hValues = None
+
+        self.TextTimes = None
+        self.TextValues = None
+
         self.assembledReducedOrderBasisOnSet = None
         self.assembledReducedOrderBasisOrderTwoOnSet = None
+
 
     def SetH(self, h):
         """
@@ -58,6 +67,11 @@ class ConvectionHeatFlux(LoadingBase):
 
         self.h = h
 
+        self.hTimes = np.array(list(self.h.keys()), dtype = float)
+        self.hValues = np.array(list(self.h.values()), dtype = float)
+
+
+
     def SetText(self, Text):
         """
         Sets the Text attribute of the class
@@ -80,8 +94,11 @@ class ConvectionHeatFlux(LoadingBase):
 
         self.Text = Text
 
+        self.TextTimes = np.array(list(self.Text.keys()), dtype = float)
+        self.TextValues = np.array(list(self.Text.values()), dtype = float)
 
-    def GetCoefficientsAtTime(self, time):
+
+    def GetCoefficientsAtTime(self, time: float)-> (float, float):
         """
         Computes h and Text at time, using PieceWiseLinearInterpolation
 
@@ -95,16 +112,11 @@ class ConvectionHeatFlux(LoadingBase):
             (h, Text) at time
         """
 
-        # assert type of time
-        assert isinstance(time, (float, np.float64))
-
-        from Mordicus.Core.BasicAlgorithms import Interpolation as TI
-
         h = TI.PieceWiseLinearInterpolation(
-            time, list(self.h.keys()), list(self.h.values())
+            time, self.hTimes, self.hValues
         )
         Text = TI.PieceWiseLinearInterpolation(
-            time, list(self.Text.keys()), list(self.Text.values())
+            time, self.TextTimes, self.TextValues
         )
         return h, Text
 

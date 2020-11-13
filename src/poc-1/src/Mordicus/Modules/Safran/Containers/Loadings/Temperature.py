@@ -90,7 +90,7 @@ class Temperature(LoadingBase):
         from Mordicus.Core.BasicAlgorithms import Interpolation as TI
 
         # compute fieldsAtReducedIntegrationPoints at time
-        temperatureAtReducedIntegrationPoints = TI.PieceWiseLinearInterpolation(
+        temperatureAtReducedIntegrationPoints = TI.PieceWiseLinearInterpolationWithMap(
             time,
             list(self.fieldsMap.keys()),
             self.fieldsAtReducedIntegrationPoints,

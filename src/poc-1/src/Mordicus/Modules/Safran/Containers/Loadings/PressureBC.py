@@ -127,7 +127,7 @@ class PressureBC(LoadingBase):
         )
 
         # compute vector field at time
-        vectorField = TI.PieceWiseLinearInterpolation(
+        vectorField = TI.PieceWiseLinearInterpolationWithMap(
             time,
             list(self.fieldsMap.keys()),
             self.assembledReducedFields,

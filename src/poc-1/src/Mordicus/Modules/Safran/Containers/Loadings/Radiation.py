@@ -8,6 +8,7 @@ os.environ["NUMEXPR_NUM_THREADS"] = "1"
 import numpy as np
 
 from Mordicus.Core.Containers.Loadings.LoadingBase import LoadingBase
+from Mordicus.Core.BasicAlgorithms import Interpolation as TI
 import collections
 
 
@@ -32,6 +33,10 @@ class Radiation(LoadingBase):
 
         self.StefanBoltzmannConstant = None
         self.Text = collections.OrderedDict
+
+        self.TextTimes = None
+        self.TextValues = None
+
         self.assembledReducedOrderBasisOnSet = None
 
 
@@ -57,6 +62,9 @@ class Radiation(LoadingBase):
 
         self.Text = Text
 
+        self.TextTimes = np.array(list(self.Text.keys()), dtype = float)
+        self.TextValues = np.array(list(self.Text.values()), dtype = float)
+
 
     def SetStefanBoltzmannConstant(self, stefanBoltzmannConstant):
         """
@@ -72,7 +80,7 @@ class Radiation(LoadingBase):
         self.stefanBoltzmannConstant = stefanBoltzmannConstant
 
 
-    def GetTextAtTime(self, time):
+    def GetTextAtTime(self, time: float)-> float:
         """
         Computes Text at time, using PieceWiseLinearInterpolation
 
@@ -86,14 +94,9 @@ class Radiation(LoadingBase):
             Text at time
         """
 
-        # assert type of time
-        assert isinstance(time, (float, np.float64))
-
-        from Mordicus.Core.BasicAlgorithms import Interpolation as TI
-
         # compute coefficient at time
         Text = TI.PieceWiseLinearInterpolation(
-            time, list(self.Text.keys()), list(self.Text.values())
+            time, self.TextTimes, self.TextValues
         )
         return Text
 
