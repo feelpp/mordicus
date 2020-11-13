@@ -11,6 +11,8 @@ from Mordicus.Core.Containers.ConstitutiveLaws.ConstitutiveLawBase import Consti
 from Mordicus.Core.BasicAlgorithms import Interpolation as TI
 from scipy import integrate, interpolate
 
+
+
 class ThermalConstitutiveLaw(ConstitutiveLawBase):
     """
     Class containing a ThermalConstitutiveLaw
@@ -28,11 +30,10 @@ class ThermalConstitutiveLaw(ConstitutiveLawBase):
 
         super(ThermalConstitutiveLaw, self).__init__(set, "thermal")
         self.capacityTemp = None
-        self.capacityVal = None
+        self.capacityFunction = None
         self.internalEnergyFunctions = None
         self.internalEnergyConstants = None
-        self.conductivityTemp = None
-        self.conductivityVal = None
+        self.conductivityFunction = None
         self.behavior = None
 
 
@@ -43,7 +44,6 @@ class ThermalConstitutiveLaw(ConstitutiveLawBase):
     def SetThermalCapacity(self, capacityTemp, capacityVal):
 
         self.capacityTemp = capacityTemp
-        self.capacityVal = capacityVal
 
         self.internalEnergyFunctions = []
         self.internalEnergyConstants = []
@@ -59,31 +59,25 @@ class ThermalConstitutiveLaw(ConstitutiveLawBase):
 
             constant += y_int[-1]
 
+
+        self.capacityFunction = interpolate.interp1d(capacityTemp, capacityVal, kind='linear',  copy=True, bounds_error=False, assume_sorted=True)
+
+
+
     def SetThermalConductivity(self, conductivityTemp, conductivityVal):
 
-        self.conductivityTemp = conductivityTemp
-        self.conductivityVal = conductivityVal
+        self.conductivityFunction = interpolate.interp1d(conductivityTemp, conductivityVal, kind='linear',  copy=True, bounds_error=False, assume_sorted=True)
+
 
 
     def ComputeCapacity(self, temperature):
 
-        return TI.PieceWiseLinearInterpolation(temperature, self.capacityTemp, self.capacityVal)
-
-
-
-    def ComputeCapacityVectorized(self, temperature):
-
-        return TI.PieceWiseLinearInterpolationVectorized(temperature, self.capacityTemp, self.capacityVal)
+        return self.capacityFunction(temperature)
 
 
     def ComputeConductivity(self, temperature):
 
-        return TI.PieceWiseLinearInterpolation(temperature, self.conductivityTemp, self.conductivityVal)
-
-
-    def ComputeConductivityVectorized(self, temperature):
-
-        return TI.PieceWiseLinearInterpolationVectorized(temperature, self.conductivityTemp, self.conductivityVal)
+        return self.conductivityFunction(temperature)
 
 
     def ComputeInternalEnergy(self, temperature):
@@ -108,7 +102,6 @@ class ThermalConstitutiveLaw(ConstitutiveLawBase):
 
         previousTempStep[underOutOfBoundsInidices]  = -1
         previousTempStep[overOutOfBoundsInidices] = -1
-
 
         res = np.empty(temperature.size)
 
