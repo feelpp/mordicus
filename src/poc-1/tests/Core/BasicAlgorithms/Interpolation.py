@@ -19,6 +19,7 @@ def test():
     TI.PieceWiseLinearInterpolation(0.4, timeIndices, vectors)
     TI.PieceWiseLinearInterpolation(1.4, timeIndices, vectors)
     TI.PieceWiseLinearInterpolationWithMap(0.6, timeIndices, vectorsDic, vectorsMap)
+    TI.PieceWiseLinearInterpolationVectorizedWithMap(np.array([-0.1, 2.0, 3.0]), timeIndices, vectorsDic, vectorsMap)
 
 
     timeIndices = np.array([0., 100., 200.,  300.,  400.,  500.,  600.,  700.,\
