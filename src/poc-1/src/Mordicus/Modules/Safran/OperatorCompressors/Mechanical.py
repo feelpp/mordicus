@@ -311,7 +311,7 @@ def PreCompressOperator(mesh):
 def CompressOperator(
     collectionProblemData, operatorPreCompressionData, mesh, tolerance, \
     listNameDualVarOutput = None, listNameDualVarGappyIndicesforECM = None, \
-    reducedQuadratureAlgorithmType = 'NNOMP'
+    toleranceCompressSnapshotsForRedQuad = 0.
 ):
     """
     Operator Compression for the POD and ECM for a mechanical problem
@@ -329,9 +329,6 @@ def CompressOperator(
     listNameDualVarGappyIndicesforECM : list of strings
         names of dual quantities for which the indices of the POD are added to
         the reduced integration points list
-    reducedQuadratureAlgorithmType : strings
-        Type of reducedQuadratureAlgorithm ot choose from
-        reducedQuadratureAlgorithm
 
     Returns
     -------
@@ -343,6 +340,8 @@ def CompressOperator(
 
     print("CompressOperator starting...")
 
+    if toleranceCompressSnapshotsForRedQuad > 0:
+        collectionProblemData.defineQuantity("SigmaECM")
 
     listOfTags = operatorPreCompressionData["listOfTags"]
 
@@ -379,7 +378,7 @@ def CompressOperator(
 
 
 
-    sigmaEpsilon = ComputeSigmaEpsilon(collectionProblemData, reducedIntegrator, tolerance)
+    sigmaEpsilon = ComputeSigmaEpsilon(collectionProblemData, reducedIntegrator, tolerance, toleranceCompressSnapshotsForRedQuad)
 
 
     reducedIntegrationPoints, reducedIntegrationWeights = RQP.ComputeReducedIntegrationScheme(integrationWeights, sigmaEpsilon, tolerance, imposedIndices = imposedIndices, reducedIntegrationPointsInitSet = operatorCompressionData["reducedIntegrationPoints"])
@@ -406,13 +405,11 @@ def CompressOperator(
 
 
 
-def ComputeSigmaEpsilon(collectionProblemData, reducedIntegrator, tolerance):
+def ComputeSigmaEpsilon(collectionProblemData, reducedIntegrator, tolerance, toleranceCompressSnapshotsForRedQuad):
 
     """
     computes sigma(u_i):epsilon(Psi)(x_k)
     """
-    collectionProblemData.defineQuantity("sigma")
-    collectionProblemData.defineQuantity("SigmaECM")
 
     redIntegratorShape = reducedIntegrator.shape
     sigmaNumberOfComponents = redIntegratorShape[0]
@@ -421,21 +418,44 @@ def ComputeSigmaEpsilon(collectionProblemData, reducedIntegrator, tolerance):
 
     snapshotsSigma = collectionProblemData.GetSnapshots("sigma", skipFirst = True)
 
-    SP.CompressData(collectionProblemData, "SigmaECM", tolerance, snapshots = snapshotsSigma)
-    reducedOrderBasisSigmaEspilon = collectionProblemData.GetReducedOrderBasis("SigmaECM")
+    if toleranceCompressSnapshotsForRedQuad > 0.:
 
-    reducedOrderBasisSigmaEspilonShape = reducedOrderBasisSigmaEspilon.shape
+        SP.CompressData(collectionProblemData, "SigmaECM", tolerance, snapshots = snapshotsSigma)
+        reducedOrderBasisSigmaEspilon = collectionProblemData.GetReducedOrderBasis("SigmaECM")
 
-    numberOfSigmaModes = reducedOrderBasisSigmaEspilonShape[0]
-    reducedOrderBasisSigmaEspilon.shape = (numberOfSigmaModes,sigmaNumberOfComponents,numberOfIntegrationPoints)
+        reducedOrderBasisSigmaEspilonShape = reducedOrderBasisSigmaEspilon.shape
 
-    sigmaEpsilon = np.einsum('mlk,pml->pkl', reducedIntegrator, reducedOrderBasisSigmaEspilon, optimize = True).reshape(numberOfModes*numberOfSigmaModes,numberOfIntegrationPoints)
+        numberOfSigmaModes = reducedOrderBasisSigmaEspilonShape[0]
+        reducedOrderBasisSigmaEspilon.shape = (numberOfSigmaModes,sigmaNumberOfComponents,numberOfIntegrationPoints)
+
+        sigmaEpsilon = np.einsum('mlk,pml->pkl', reducedIntegrator, reducedOrderBasisSigmaEspilon, optimize = True).reshape(numberOfModes*numberOfSigmaModes,numberOfIntegrationPoints)
+
+        reducedOrderBasisSigmaEspilon.shape = reducedOrderBasisSigmaEspilonShape
 
 
-    reducedOrderBasisSigmaEspilon.shape = reducedOrderBasisSigmaEspilonShape
+
+    else:
+
+        print("snapshotsSigma.shape =", snapshotsSigma.shape)
+
+        snapshotsSigmaShape = snapshotsSigma.shape
+        numberOfSigmaSnapshots = snapshotsSigmaShape[0]
+
+        snapshotsSigma.shape = (numberOfSigmaSnapshots,sigmaNumberOfComponents,numberOfIntegrationPoints)
+
+
+        sigmaEpsilon = np.einsum('mlk,pml->pkl', reducedIntegrator, snapshotsSigma, optimize = True).reshape(numberOfModes*numberOfSigmaSnapshots,numberOfIntegrationPoints)
+
+        snapshotsSigma.shape = snapshotsSigmaShape
 
 
     return sigmaEpsilon
+
+
+
+
+
+
 
 
 
