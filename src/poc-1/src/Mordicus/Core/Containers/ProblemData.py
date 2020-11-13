@@ -123,9 +123,9 @@ class ProblemData(object):
         for law in constitutiveLaw:
             if law.GetIdentifier() in self.constitutiveLaws:
                 print(
-                    "Solution "
+                    "ConstitutiveLaw "
                     + str(law.GetIdentifier())
-                    + " already in problemData.loadings. Replacing it anyway."
+                    + " already in problemData.constitutiveLaws. Replacing it anyway."
                 )  # pragma: no cover
 
             self.constitutiveLaws[law.GetIdentifier()] = law
@@ -168,7 +168,7 @@ class ProblemData(object):
         for load in loading:
             if load.GetIdentifier() in self.loadings:
                 print(
-                    "Solution "
+                    "Loading "
                     + str(load.GetIdentifier())
                     + " already in problemData.loadings. Replacing it anyway."
                 )
