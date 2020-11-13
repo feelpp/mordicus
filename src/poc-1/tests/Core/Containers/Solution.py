@@ -38,6 +38,7 @@ def test():
     solution.GetCompressedSnapshotsList()
     solution.GetTimeSequenceFromCompressedSnapshots()
     solution.GetCompressedSnapshotsAtTime(0.5)
+    solution.GetCompressedSnapshotsAtTimes([0.5, 0.6])
     print(solution)
     return "ok"
 

@@ -332,7 +332,6 @@ class Solution(object):
         """
 
         numberOfModes = reducedOrderBasis.shape[0]
-        nNodes = self.GetNumberOfNodes()
 
         for time, snapshot in self.snapshots.items():
 
@@ -404,12 +403,12 @@ class Solution(object):
         Parameters
         ----------
         time : float
-            time at which the snapshot is retrieved
+            time at which the compressed snapshot is retrieved
 
         Returns
         -------
         np.ndarray
-            compressedSnapshots value at time, of size (numberOfModes), using PieceWiseLinearInterpolation
+            compressedSnapshot value at time, of size (numberOfModes), using PieceWiseLinearInterpolation
         """
         # assert type of time
         time = float(time)
@@ -417,6 +416,26 @@ class Solution(object):
         return TI.PieceWiseLinearInterpolation(
             time, self.GetTimeSequenceFromCompressedSnapshots(), self.GetCompressedSnapshotsList()
         )
+
+
+
+    def GetCompressedSnapshotsAtTimes(self, times):
+        """
+        Parameters
+        ----------
+        times : list or 1D ndarray of floats
+            times at which the compressed snapshot are retrieved
+
+        Returns
+        -------
+        np.ndarray
+            compressedSnapshots values at times, of size (numberOfModes), using PieceWiseLinearInterpolationVectorized
+        """
+
+        return TI.PieceWiseLinearInterpolationVectorized(
+            times, self.GetTimeSequenceFromCompressedSnapshots(), self.GetCompressedSnapshotsList()
+        )
+
 
 
     def __getstate__(self):
