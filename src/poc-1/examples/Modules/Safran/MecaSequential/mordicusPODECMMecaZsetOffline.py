@@ -37,8 +37,6 @@ def test():
     nbeOfComponentsPrimal = 3
     nbeOfComponentsDual = 6
 
-
-
     print("PreCompressOperator...")
     operatorPreCompressionData = Mechanical.PreCompressOperator(mesh)
     print("...done")
@@ -74,7 +72,7 @@ def test():
                                                 str,
                                                 description="dummy variability")
     collectionProblemData.defineQuantity("U", "displacement", "m")
-    collectionProblemData.defineQuantity("sig", "stress", "Pa")
+    collectionProblemData.defineQuantity("sigma", "stress", "Pa")
     for i, name in enumerate(dualNames):
         collectionProblemData.defineQuantity(name)
     collectionProblemData.AddProblemData(problemData, config="case-1")

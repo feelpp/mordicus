@@ -51,7 +51,7 @@ def test():
                                              str,
                                              description="dummy variability")
       collectionProblemData.defineQuantity("U", "displacement", "m")
-      collectionProblemData.defineQuantity("sig", "stress", "Pa")
+      collectionProblemData.defineQuantity("sigma", "stress", "Pa")
 
 
       collectionProblemDatas.append(collectionProblemData)

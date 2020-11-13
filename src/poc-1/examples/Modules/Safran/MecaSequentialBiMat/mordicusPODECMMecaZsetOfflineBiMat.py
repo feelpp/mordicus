@@ -75,7 +75,7 @@ def test():
                                                 str,
                                                 description="dummy variability")
     collectionProblemData.defineQuantity("U", "displacement", "m")
-    collectionProblemData.defineQuantity("sig", "stress", "Pa")
+    collectionProblemData.defineQuantity("sigma", "stress", "Pa")
     for i, name in enumerate(dualNames):
         collectionProblemData.defineQuantity(name)
     collectionProblemData.AddProblemData(problemData, config="case-1")
