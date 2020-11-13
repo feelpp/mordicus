@@ -76,6 +76,7 @@ def CompressData(
 
 
     else:
+        print("detecting existing POD basis")
 
         snapshots = np.append(previousReducedOrderBasis, reducedOrderBasis, axis=0)
 
@@ -105,6 +106,9 @@ def CompressData(
 
     if compressSolutions == True:
         collectionProblemData.CompressSolutions(solutionName, snapshotCorrelationOperator)
+
+
+    print("Number of POD modes for "+solutionName+" : "+str(nbePODModes))
 
 
 if __name__ == "__main__":# pragma: no cover
