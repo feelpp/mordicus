@@ -108,7 +108,7 @@ def CompressData(
         collectionProblemData.CompressSolutions(solutionName, snapshotCorrelationOperator)
 
 
-    print("Number of POD modes for "+solutionName+" : "+str(nbePODModes))
+    print("POD for "+solutionName+" : number of snapshots = "+str(numberOfSnapshots)+", number of modes = "+str(nbePODModes))
 
 
 if __name__ == "__main__":# pragma: no cover
