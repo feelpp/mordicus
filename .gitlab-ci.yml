@@ -4,13 +4,11 @@ variables:
   MYPROJECT : 'mordicus'
 
 stages:
-#  - srcBasicTools
-#  - docLatex
-#  - docWebsite
-#  - test
-#  - deploy
-  - feelpp
-
+  - srcBasicTools
+  - docLatex
+  - docWebsite
+  - test
+  - deploy
 
 srcBasicTools:
   stage: srcBasicTools
@@ -107,8 +105,7 @@ cpp-mingw:
     - ctest -j4 --output-on-failure --timeout 100
 
 feelpp:
-#  stage: test
-  stage: feelpp
+  stage: test
   image: python:3.7
   before_script:
     - echo lsb_release -a
