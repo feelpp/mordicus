@@ -109,9 +109,9 @@ feelpp:
   image: python:3.7
   before_script:
     - apt-get update
-    - apt-get install lsb_release software-properties-common
-    - echo lsb_release -a
-    - add-apt-repository "deb https://dl.bintray.com/feelpp/ubuntu $(lsb_release -cs) latest"
+    - apt-get install wget gnupg
+    - echo "deb https://dl.bintray.com/feelpp/debian buster latest" | sudo tee -a /etc/apt/sources.list
+    - wget -qO - https://bintray.com/user/downloadSubjectPublicKey?username=bintray | apt-key add -
     - apt-get update
     - apt-get install -y python3-venv python3-feelpp python3-feelpp-toolboxes
   script:
