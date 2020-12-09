@@ -72,7 +72,7 @@ def WriteZsetSolution(mesh, meshFileName, solutionFileName,\
         if solution.primality == True:
             for component in primalSolutionComponents[solution.GetNbeOfComponents()]:
                 __stringNode += solution.solutionName+component+" "
-            nNodeVar += 1
+                nNodeVar += 1
         else:
             nIntegVar += 1
             __stringInteg += solution.solutionName+" "
@@ -96,8 +96,6 @@ def WriteZsetSolution(mesh, meshFileName, solutionFileName,\
     resFileInteg = open(solutionFileName+".integ", "a")
 
 
-
-    print("solutionFileName =", solutionFileName)
 
 
 
@@ -128,14 +126,18 @@ def WriteZsetSolution(mesh, meshFileName, solutionFileName,\
         timeSequence = problemData.GetSolution(solutionNameRef).GetTimeSequenceFromCompressedSnapshots()
 
 
-    nbDofs = problemData.GetSolution(solutionNameRef).GetNumberOfDofs()
+
+
+    #nbDofs = problemData.GetSolution(solutionNameRef).GetNumberOfDofs()
+    nbNodes = mesh.GetNumberOfNodes()
+
 
 
     count = 0
     for time in timeSequence:
         resFile.write(str(count+1)+" "+str(count)+" "+str(1)+" "+str(1)+" "+str(time)+"\n")
 
-        resNode  = np.empty(nNodeVar*nbDofs)
+        resNode  = np.empty(nNodeVar*nbNodes)
         fieldInteg = np.empty((nIntegVar,nbIntegPoints))
         resInteg = np.empty(nIntegVar*nbIntegPoints)
 
@@ -154,8 +156,11 @@ def WriteZsetSolution(mesh, meshFileName, solutionFileName,\
                 res = np.dot(solution.GetCompressedSnapshotsAtTime(time), collectionProblemData.GetReducedOrderBasis(name))
 
             if solution.primality == True:
-                resNode[countNode*nbDofs:(countNode+1)*nbDofs] = res
-                countNode += 1
+                loccountNode = 0
+                for c in range(solution.GetNbeOfComponents()):
+                    resNode[countNode*nbNodes:(countNode+1)*nbNodes] = res[loccountNode*nbNodes:(loccountNode+1)*nbNodes]
+                    countNode += 1
+                    loccountNode += 1
             else:
                 fieldInteg[countInteg,:] = res
                 countInteg += 1
