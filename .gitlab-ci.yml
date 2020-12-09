@@ -114,9 +114,23 @@ feelpp:
     - wget -qO - https://bintray.com/user/downloadSubjectPublicKey?username=bintray | apt-key add -
     - apt-get update
     - apt-get install -y python3-venv python3-feelpp feelpp-tools python3-mpi4py python3-sympy python3-feelpp-toolboxes
+    - pip install --upgrade pip
+    - pip install -r ./src/poc-1/requirements.txt
+    - export PYTHONPATH=$PWD/src/poc-1/src:$PYTHONPATH
+    - export PYTHONPATH=$PWD/../basic-tools/src:$PYTHONPATH
   script:
     - echo 'Starting Feel++ tests...'
 
+feelpp-docker:
+  stage: test
+  image: feelpp/feelpp-toolboxes:buster
+  before_script:
+    - pip install --upgrade pip
+    - pip install -r ./src/poc-1/requirements.txt
+    - export PYTHONPATH=$PWD/src/poc-1/src:$PYTHONPATH
+    - export PYTHONPATH=$PWD/../basic-tools/src:$PYTHONPATH
+  script:
+    - echo 'Starting Feel++ tests...'
 
 pages:
   image: alpine:latest
