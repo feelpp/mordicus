@@ -108,8 +108,10 @@ feelpp:
   stage: test
   image: python:3.7
   before_script:
+    - apt-get update
+    - apt-get install lsb_release software-properties-common
     - echo lsb_release -a
-    - sudo add-apt-repository "deb https://dl.bintray.com/feelpp/ubuntu $(lsb_release -cs) latest"
+    - add-apt-repository "deb https://dl.bintray.com/feelpp/ubuntu $(lsb_release -cs) latest"
     - apt-get update
     - apt-get install -y python3-venv python3-feelpp python3-feelpp-toolboxes
   script:
