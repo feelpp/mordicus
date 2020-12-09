@@ -51,18 +51,19 @@ def ComputeH10ScalarProductMatrix(mesh, numberOfComponents):
     return FT.ComputeH10ScalarProductMatrix(unstructuredMesh, numberOfComponents)
 
 
-def ComputeFEInterpMatAtGaussPoint(mesh):
+def ComputePhiAtIntegPoint(mesh, elementSets = None, relativeDimension = 0):
 
     unstructuredMesh = ConvertMeshToUnstructuredMesh(mesh)
 
-    return FT.ComputeFEInterpMatAtGaussPoint(unstructuredMesh)
+    return FT.ComputePhiAtIntegPoint(unstructuredMesh, elementSets, relativeDimension)
 
 
-def ComputeFEInterpGradMatAtGaussPoint(mesh):
+
+def ComputeGradPhiAtIntegPoint(mesh, elementSets = None, relativeDimension = 0):
 
     unstructuredMesh = ConvertMeshToUnstructuredMesh(mesh)
 
-    return FT.ComputeFEInterpGradMatAtGaussPoint(unstructuredMesh)
+    return FT.ComputeGradPhiAtIntegPoint(unstructuredMesh, elementSets, relativeDimension)
 
 
 def ComputeMecaIntegrator(mesh, elementSet = "ALLELEMENT"):
