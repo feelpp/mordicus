@@ -26,50 +26,50 @@ class InitialCondition(InitialConditionBase):
 
         super(InitialCondition, self).__init__()
 
-        self.dataType = ""
-        self.initialSnapshot = None
-        self.reducedInitialSnapshot = None
+        self.dataType = {}
+        self.initialSnapshot = {}
+        self.reducedInitialSnapshot = {}
 
 
-    def SetDataType(self, dataType):
+    def SetDataType(self, solutionName, dataType):
 
-        self.dataType = dataType
-
-
-    def GetDataType(self):
-
-        return self.dataType
+        self.dataType[solutionName] = dataType
 
 
-    def SetInitialSnapshot(self, initialSnapshot):
+    def GetDataType(self, solutionName):
 
-        self.initialSnapshot = initialSnapshot
-
-
-    def SetReducedInitialSnapshot(self, reducedInitialSnapshot):
-
-        self.reducedInitialSnapshot = reducedInitialSnapshot
+        return self.dataType[solutionName]
 
 
-    def GetReducedInitialSnapshot(self):
+    def SetInitialSnapshot(self, solutionName, initialSnapshot):
 
-        return self.reducedInitialSnapshot
+        self.initialSnapshot[solutionName] = initialSnapshot
 
 
-    def ReduceInitialSnapshot(self, reducedOrderBasis, snapshotCorrelationOperator):
+    def SetReducedInitialSnapshot(self, solutionName, reducedInitialSnapshot):
+
+        self.reducedInitialSnapshot[solutionName] = reducedInitialSnapshot
+
+
+    def GetReducedInitialSnapshot(self, solutionName):
+
+        return self.reducedInitialSnapshot[solutionName]
+
+
+    def ReduceInitialSnapshot(self, solutionName, reducedOrderBasis, snapshotCorrelationOperator):
 
         assert isinstance(reducedOrderBasis, np.ndarray)
 
-        if self.dataType == "scalar":
-            if self.initialSnapshot == 0.:
-                self.SetReducedInitialSnapshot(np.zeros(reducedOrderBasis.shape[0]))
+        if self.dataType[solutionName] == "scalar":
+            if self.initialSnapshot[solutionName] == 0.:
+                self.SetReducedInitialSnapshot(solutionName, np.zeros(reducedOrderBasis.shape[0]))
                 return
 
             else:
-                initVector = self.initialSnapshot * np.ones(reducedOrderBasis.shape[1])
+                initVector = self.initialSnapshot[solutionName] * np.ones(reducedOrderBasis.shape[1])
 
         else:
-            initVector = self.initialSnapshot# pragma: no cover
+            initVector = self.initialSnapshot[solutionName]# pragma: no cover
 
 
         matVecProduct = snapshotCorrelationOperator.dot(initVector)
@@ -78,8 +78,7 @@ class InitialCondition(InitialConditionBase):
         globalScalarProduct = np.zeros(reducedOrderBasis.shape[0])
         MPI.COMM_WORLD.Allreduce([localScalarProduct, MPI.DOUBLE], [globalScalarProduct, MPI.DOUBLE])
 
-
-        self.SetReducedInitialSnapshot(globalScalarProduct)# pragma: no cover
+        self.SetReducedInitialSnapshot(solutionName, globalScalarProduct)# pragma: no cover
 
 
 

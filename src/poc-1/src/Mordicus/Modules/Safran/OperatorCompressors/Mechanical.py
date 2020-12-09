@@ -66,8 +66,8 @@ def PrepareOnline(onlineProblemData, operatorCompressionData):
 
     onlineCompressionData = {}
 
-    nReducedIntegrationPoints = operatorCompressionData["hyperReducedIntegrator"].shape[1]
-    nSigmaComponents = operatorCompressionData["hyperReducedIntegrator"].shape[0]
+    nReducedIntegrationPoints = operatorCompressionData["reducedEpsilonAtReducedIntegPoints"].shape[1]
+    nSigmaComponents = operatorCompressionData["reducedEpsilonAtReducedIntegPoints"].shape[0]
 
     onlineCompressionData["stranIntForces0"] =  np.zeros((nReducedIntegrationPoints,nSigmaComponents))
     onlineCompressionData["stranIntForces"] = np.zeros((nReducedIntegrationPoints,nSigmaComponents))
@@ -225,15 +225,16 @@ def PrepareNewtonIterations(onlineProblemData, onlineCompressionData, time, dtim
 def ComputeReducedInternalForcesAndTangentMatrix(onlineProblemData, opCompDat, onlineCompressionData, IndicesOfIntegPointsPerMaterial, before, after):
 
 
-    hyperReducedIntegrator = opCompDat['hyperReducedIntegrator']
-    nbOfComponents = opCompDat['hyperReducedIntegrator'].shape[0]
+    reducedEpsilonAtReducedIntegPoints = opCompDat['reducedEpsilonAtReducedIntegPoints']
+
+    nbOfComponents = opCompDat['reducedEpsilonAtReducedIntegPoints'].shape[0]
     nbOfReducedIntPoints = len(opCompDat["reducedIntegrationPoints"])
 
     onlineCompressionData['sigIntForces'] = np.zeros((nbOfReducedIntPoints,nbOfComponents))
 
-    onlineCompressionData['stranIntForces0'] = np.dot(opCompDat['hyperReducedIntegrator'], before).T
+    onlineCompressionData['stranIntForces0'] = np.dot(opCompDat['reducedEpsilonAtReducedIntegPoints'], before).T
 
-    onlineCompressionData['stranIntForces'] = np.dot(opCompDat['hyperReducedIntegrator'], after).T
+    onlineCompressionData['stranIntForces'] = np.dot(opCompDat['reducedEpsilonAtReducedIntegPoints'], after).T
 
 
     constLaws = onlineProblemData.GetConstitutiveLaws()
@@ -279,12 +280,11 @@ def ComputeReducedInternalForcesAndTangentMatrix(onlineProblemData, opCompDat, o
         onlineCompressionData['stranIntForces'][intPoints,3:6] = 0.5*stran[:,3:6]
 
 
-    reducedInternalForces = np.einsum('l,mlk,lm->k', opCompDat['reducedIntegrationWeights'], hyperReducedIntegrator, sigma, optimize = True)
+    reducedInternalForces = np.einsum('l,mlk,lm->k', opCompDat['reducedIntegrationWeights'], reducedEpsilonAtReducedIntegPoints, sigma, optimize = True)
 
-    reducedTangentMatrix = np.einsum('l,mlk,lmn,nlo->ko', opCompDat['reducedIntegrationWeights'], hyperReducedIntegrator, localTgtMat, hyperReducedIntegrator, optimize = True)
+    reducedTangentMatrix = np.einsum('l,mlk,lmn,nlo->ko', opCompDat['reducedIntegrationWeights'], reducedEpsilonAtReducedIntegPoints, localTgtMat, reducedEpsilonAtReducedIntegPoints, optimize = True)
 
     return reducedInternalForces, reducedTangentMatrix
-
 
 
 
@@ -293,14 +293,14 @@ def PreCompressOperator(mesh):
 
     listOfTags = FT.ComputeIntegrationPointsTags(mesh, mesh.GetDimensionality())
 
-    integrationWeights, integrator = FT.ComputeFEInterpGradMatAtGaussPoint(mesh)
+    integrationWeights, gradPhiAtIntegPoint = FT.ComputeGradPhiAtIntegPoint(mesh)
 
     operatorPreCompressionData = {}
     operatorPreCompressionData["listOfTags"] = listOfTags
 
     operatorPreCompressionData["numberOfIntegrationPoints"] = len(integrationWeights)
     operatorPreCompressionData["integrationWeights"] = integrationWeights
-    operatorPreCompressionData["integrator"] = integrator
+    operatorPreCompressionData["gradPhiAtIntegPoint"] = gradPhiAtIntegPoint
 
 
     return operatorPreCompressionData
@@ -346,7 +346,7 @@ def CompressOperator(
     listOfTags = operatorPreCompressionData["listOfTags"]
 
     integrationWeights = operatorPreCompressionData["integrationWeights"]
-    integrator = operatorPreCompressionData["integrator"]
+    gradPhiAtIntegPoint = operatorPreCompressionData["gradPhiAtIntegPoint"]
     #integrator0 = operatorPreCompressionData["integrator0"]
     numberOfIntegrationPoints = operatorPreCompressionData["numberOfIntegrationPoints"]
 
@@ -358,7 +358,7 @@ def CompressOperator(
     #sigmaNumberOfComponents = collectionProblemData.GetSolutionsNumberOfComponents("sigma")
 
 
-    reducedIntegrator = ReduceIntegrator(collectionProblemData, mesh, integrator, numberOfIntegrationPoints)
+    reducedEpsilonAtIntegPoints = ReduceIntegrator(collectionProblemData, mesh, gradPhiAtIntegPoint, numberOfIntegrationPoints)
 
 
     if listNameDualVarOutput is None:
@@ -376,14 +376,12 @@ def CompressOperator(
         imposedIndices += list(EIM.QDEIM(collectionProblemData.GetReducedOrderBasis(name)))
     imposedIndices = list(set(imposedIndices))
 
-
-
-    sigmaEpsilon = ComputeSigmaEpsilon(collectionProblemData, reducedIntegrator, tolerance, toleranceCompressSnapshotsForRedQuad)
-
+    sigmaEpsilon = ComputeSigmaEpsilon(collectionProblemData, reducedEpsilonAtIntegPoints, tolerance, toleranceCompressSnapshotsForRedQuad)
 
     reducedIntegrationPoints, reducedIntegrationWeights = RQP.ComputeReducedIntegrationScheme(integrationWeights, sigmaEpsilon, tolerance, imposedIndices = imposedIndices, reducedIntegrationPointsInitSet = operatorCompressionData["reducedIntegrationPoints"])
 
-    hyperReducedIntegrator = reducedIntegrator[:,reducedIntegrationPoints,:]
+    #hyperreduced operator
+    reducedEpsilonAtReducedIntegPoints = reducedEpsilonAtIntegPoints[:,reducedIntegrationPoints,:]
 
     reducedListOTags = [listOfTags[intPoint] for intPoint in reducedIntegrationPoints]
     for i, listOfTags in enumerate(reducedListOTags):
@@ -398,7 +396,7 @@ def CompressOperator(
     operatorCompressionData["reducedIntegrationPoints"] = reducedIntegrationPoints
     operatorCompressionData["reducedIntegrationWeights"] = reducedIntegrationWeights
     operatorCompressionData["reducedListOTags"] = reducedListOTags
-    operatorCompressionData["hyperReducedIntegrator"] = hyperReducedIntegrator
+    operatorCompressionData["reducedEpsilonAtReducedIntegPoints"] = reducedEpsilonAtReducedIntegPoints
     operatorCompressionData["gappyModesAtRedIntegPts"] = gappyModesAtRedIntegPts
 
     collectionProblemData.SetOperatorCompressionData(operatorCompressionData)
@@ -454,11 +452,6 @@ def ComputeSigmaEpsilon(collectionProblemData, reducedIntegrator, tolerance, tol
 
 
 
-
-
-
-
-
 def ComputeIndicesOfIntegPointsPerMaterial(listOfTags, keysConstitutiveLaws):
     """
     1.
@@ -481,9 +474,9 @@ def ComputeIndicesOfIntegPointsPerMaterial(listOfTags, keysConstitutiveLaws):
     return IndicesOfIntegPointsPerMaterial
 
 
-def ReduceIntegrator(collectionProblemData, mesh, integrator, numberOfIntegrationPoints):
 
-    reducedIntegrator = []
+def ReduceIntegrator(collectionProblemData, mesh, gradPhiAtIntegPoint, numberOfIntegrationPoints):
+
 
     uNumberOfComponents = collectionProblemData.GetSolutionsNumberOfComponents("U")
     sigNumberOfComponents = collectionProblemData.GetSolutionsNumberOfComponents("sigma")
@@ -497,19 +490,19 @@ def ReduceIntegrator(collectionProblemData, mesh, integrator, numberOfIntegratio
         componentReducedOrderBasis.append(reducedOrderBasis[:,i*numberOfNodes:(i+1)*numberOfNodes].T)
 
 
-    reducedIntegrator = np.empty((sigNumberOfComponents, numberOfIntegrationPoints, numberOfModes))
+    reducedEpsilonAtIntegPoints = np.empty((sigNumberOfComponents, numberOfIntegrationPoints, numberOfModes))
     count = 0
     for i in range(uNumberOfComponents):
-        reducedIntegrator[count,:,:] = integrator[i].dot(componentReducedOrderBasis[i])
+        reducedEpsilonAtIntegPoints[count,:,:] = gradPhiAtIntegPoint[i].dot(componentReducedOrderBasis[i])
         count += 1
 
     for ind in secondOrderTensorOffDiagComponents[uNumberOfComponents]:
         i = ind[0]
         j = ind[1]
-        reducedIntegrator[count,:,:] = integrator[i].dot(componentReducedOrderBasis[j]) + integrator[j].dot(componentReducedOrderBasis[i])
+        reducedEpsilonAtIntegPoints[count,:,:] = gradPhiAtIntegPoint[i].dot(componentReducedOrderBasis[j]) + gradPhiAtIntegPoint[j].dot(componentReducedOrderBasis[i])
         count += 1
 
-    return reducedIntegrator
+    return reducedEpsilonAtIntegPoints
 
 
 

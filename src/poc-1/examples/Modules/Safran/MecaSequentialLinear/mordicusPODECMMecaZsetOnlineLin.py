@@ -55,11 +55,11 @@ def test():
     onlineProblemData.AddLoading(loadingList)
 
     initialCondition = inputReader.ConstructInitialCondition()
-    initialCondition.ReduceInitialSnapshot(reducedOrderBasisU, snapshotCorrelationOperator)
+    initialCondition.ReduceInitialSnapshot("U", reducedOrderBasisU, snapshotCorrelationOperator)
 
     onlineProblemData.SetInitialCondition(initialCondition)
 
-    initOnlineCompressedSnapshot = initialCondition.GetReducedInitialSnapshot()
+    initOnlineCompressedSnapshot = initialCondition.GetReducedInitialSnapshot("U")
 
 
     import time

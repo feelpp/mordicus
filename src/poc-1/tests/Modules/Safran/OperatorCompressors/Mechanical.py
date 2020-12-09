@@ -132,9 +132,9 @@ def test():
     initialCondition = inputReader.ConstructInitialCondition()
     onlineProblemData.SetInitialCondition(initialCondition)
 
-    initialCondition.ReduceInitialSnapshot(reducedOrderBasisU, snapshotCorrelationOperator)
+    initialCondition.ReduceInitialSnapshot("U", reducedOrderBasisU, snapshotCorrelationOperator)
 
-    initOnlineCompressedSnapshot = initialCondition.GetReducedInitialSnapshot()
+    initOnlineCompressedSnapshot = initialCondition.GetReducedInitialSnapshot("U")
 
     onlineCompressedSolution, onlineCompressionData = Meca.ComputeOnline(onlineProblemData, initOnlineCompressedSnapshot, timeSequence, reducedOrderBasisU, operatorCompressionData, 1.e-6)
 
@@ -175,7 +175,7 @@ def test():
     onlineCompressedSolution = Meca.ComputeOnline(onlineProblemData, initOnlineCompressedSnapshot, timeSequence, reducedOrderBasisU, operatorCompressionData, 1.e-6)
 
 
-    elasConsitutiveLaw = inputReader.ConstructOneConstitutiveLaw("elas", 'ALLELEMENT', "mechanical")
+    elasConsitutiveLaw = inputReader.ConstructOneConstitutiveLaw("elas", 'ALLELEMENT')
     onlineProblemData.AddConstitutiveLaw(elasConsitutiveLaw)
     onlineCompressedSolution = Meca.ComputeOnline(onlineProblemData, initOnlineCompressedSnapshot, timeSequence, reducedOrderBasisU, operatorCompressionData, 1.e-6)
 

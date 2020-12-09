@@ -53,7 +53,7 @@ def test():
     onlineProblemData.AddLoading(loadingList)
 
     initialCondition = inputReader.ConstructInitialCondition()
-    initialCondition.ReduceInitialSnapshot(reducedOrderBasis[0], snapshotCorrelationOperator)
+    initialCondition.ReduceInitialSnapshot("U", reducedOrderBasis[0], snapshotCorrelationOperator)
 
     onlineProblemData.SetInitialCondition(initialCondition)
 
@@ -61,10 +61,11 @@ def test():
     timeSequences = [timeSequence[:len(timeSequence)//2], timeSequence[len(timeSequence)//2-1:]]
 
 
-    onlinesolution = S.Solution("U", 1, mesh.GetNumberOfNodes(), primality = True)
+    nbeOfComponentsPrimal = 3
+    onlinesolution = S.Solution("U", nbeOfComponentsPrimal, mesh.GetNumberOfNodes(), primality = True)
     onlineProblemData.AddSolution(onlinesolution)
 
-    initOnlineCompressedSnapshot = initialCondition.GetReducedInitialSnapshot()
+    initOnlineCompressedSnapshot = initialCondition.GetReducedInitialSnapshot("U")
 
 
     start = time.time()

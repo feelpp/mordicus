@@ -18,8 +18,6 @@ def test():
 
     FT.ComputeL2ScalarProducMatrix(mesh, 1)
     FT.ComputeH10ScalarProductMatrix(mesh, 1)
-    FT.ComputeFEInterpMatAtGaussPoint(mesh)
-    FT.ComputeMecaIntegrator(mesh)
     FT.ComputeNumberOfIntegrationPoints(mesh)
     FT.ComputeIntegrationPointsTags(mesh, 3)
 

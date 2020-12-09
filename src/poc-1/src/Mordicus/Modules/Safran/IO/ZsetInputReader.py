@@ -17,6 +17,7 @@ from BasicTools.IO import ZebulonIO as ZIO
 
 knownLoadingTags = ["pressure", "centrifugal", "temperature", "radiation", "convection_heat_flux"]
 knownProblemTypes = ["mechanical", "thermal_transient"]
+solutionNames = {"mechanical":"U", "thermal_transient":"T"}
 
 
 def ReadInputTimeSequence(inputFileName):
@@ -88,32 +89,32 @@ class ZsetInputReader(InputReaderBase):
         assert isinstance(inputFileName, str)
 
         self.inputFileName = inputFileName
-        self.inputFile = None
+        self.inputFile = ZIO.ReadInp2(self.inputFileName)
+        self.problemType = ZIO.GetProblemType(self.inputFile)
+        assert self.problemType in  knownProblemTypes, "problemType "+self.problemType+" must refer be among "+str(knownProblemTypes)
 
 
 
-    def SetInputFile(self):
-        """
-        Sets the inputFile using the parser in BasicTools.IO.ZebulonIO
-        """
-        if self.inputFile == None:
-            self.inputFile = ZIO.ReadInp2(self.inputFileName)
-            self.problemType = None
-        else:
-            return
 
 
     def ReadInputTimeSequence(self):
         """
         Reads the time sequence form the inputFile using the parser in BasicTools.IO.ZebulonIO
         """
-        self.SetInputFile()
+
         return ZIO.GetInputTimeSequence(self.inputFile)
+
+
+
 
 
     def ConstructInitialCondition(self):
 
+
         zSetInitialCondition = ZIO.GetInitDofValues(self.inputFile)
+
+        solutionName = solutionNames[self.problemType]
+
 
         from Mordicus.Modules.Safran.Containers.InitialConditions import InitialCondition
 
@@ -127,15 +128,16 @@ class ZsetInputReader(InputReaderBase):
             dataType = "vector"
             data = ZIO.ReadBinaryFile(os.path.dirname(self.inputFileName) + os.sep + zSetInitialCondition[1])
 
-        initialCondition.SetDataType(dataType)
-        initialCondition.SetInitialSnapshot(data)
+        initialCondition.SetDataType(solutionName, dataType)
+        initialCondition.SetInitialSnapshot(solutionName, data)
 
         return initialCondition
 
 
+
     def ConstructLoadingsList(self):
 
-        self.SetInputFile()
+
         inputTimeSequence = self.ReadInputTimeSequence()
 
         tables = ZIO.GetTables(self.inputFile)
@@ -366,25 +368,19 @@ class ZsetInputReader(InputReaderBase):
 
     def ConstructConstitutiveLawsList(self):
 
-        self.SetInputFile()
-
-        problemType = ZIO.GetProblemType(self.inputFile)
-
-        assert problemType in  knownProblemTypes, "problemType "+problemType+" must refer be among "+str(knownProblemTypes)
-
 
         materialFiles = ZIO.GetMaterialFiles(self.inputFile)
 
         constitutiveLawsList = []
 
         for set, matFile in materialFiles.items():
-            constitutiveLawsList.append(self.ConstructOneConstitutiveLaw(matFile, set, problemType))
+            constitutiveLawsList.append(self.ConstructOneConstitutiveLaw(matFile, set))
 
         return constitutiveLawsList
 
 
 
-    def ConstructOneConstitutiveLaw(self, materialFileName, set, problemType):
+    def ConstructOneConstitutiveLaw(self, materialFileName, set):
         """
         1
         """
@@ -396,7 +392,7 @@ class ZsetInputReader(InputReaderBase):
         behavior = ZIO.GetBehavior(folder + materialFileName)
 
 
-        if problemType == "thermal_transient":
+        if self.problemType == "thermal_transient":
 
             from Mordicus.Modules.Safran.Containers.ConstitutiveLaws import ThermalConstitutiveLaw as TCL
 
@@ -425,7 +421,7 @@ class ZsetInputReader(InputReaderBase):
             return constitutiveLaw
 
 
-        if problemType == "mechanical":
+        if self.problemType == "mechanical":
 
 
             behavior = ZIO.GetBehavior(folder + materialFileName)
