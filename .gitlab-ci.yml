@@ -4,11 +4,12 @@ variables:
   MYPROJECT : 'mordicus'
 
 stages:
-  - srcBasicTools
-  - docLatex
-  - docWebsite
-  - test
-  - deploy
+#  - srcBasicTools
+#  - docLatex
+#  - docWebsite
+#  - test
+#  - deploy
+  - feelpp
 
 
 srcBasicTools:
@@ -106,10 +107,12 @@ cpp-mingw:
     - ctest -j4 --output-on-failure --timeout 100
 
 feelpp:
-  stage: test
+#  stage: test
+  stage: feelpp
   image: python:3.7
   before_script:
-    - sudo add-apt-repository "deb https://dl.bintray.com/feelpp/ubuntu $(lsb_release -cs) latest
+    - echo lsb_release -a
+    - sudo add-apt-repository "deb https://dl.bintray.com/feelpp/ubuntu $(lsb_release -cs) latest"
     - apt-get update
     - apt-get install -y python3-venv python3-feelpp python3-feelpp-toolboxes
   script:
