@@ -107,12 +107,12 @@ class Temperature(LoadingBase):
 
         from Mordicus.Modules.Safran.FE import FETools as FT
 
-        FEInterpAtIntegPointMatrix = FT.ComputeFEInterpMatAtGaussPoint(mesh)
+        _, PhiAtIntegPoint = FT.ComputePhiAtIntegPoint(mesh)
 
         self.fieldsAtReducedIntegrationPoints = {}
         for key, field in self.fields.items():
 
-            self.fieldsAtReducedIntegrationPoints[key] = FEInterpAtIntegPointMatrix.dot(field)[operatorCompressionData["reducedIntegrationPoints"]]
+            self.fieldsAtReducedIntegrationPoints[key] = PhiAtIntegPoint.dot(field)[operatorCompressionData["reducedIntegrationPoints"]]
 
 
 
