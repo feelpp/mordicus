@@ -131,8 +131,8 @@ feelpp-docker:
     - export PATH=$HOME/.local/bin:$PATH
   script:
     - echo 'Starting Feel++ MOR tests...'
-    - mpirun -np 1 python3 src/poc-1/examples/Modules/Cemosis/test_import_feelpp_mor.py 
-    - mpirun -np 3 python3 src/poc-1/examples/Modules/Cemosis/test_import_feelpp_mor.py 
+    - mpirun -np 1 python3 src/poc-1/examples/Modules/Cemosis/test_feelpp_mor.py 
+    - mpirun -np 3 python3 src/poc-1/examples/Modules/Cemosis/test_feelpp_mor.py 
 
 
 pages:
