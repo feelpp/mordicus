@@ -15,10 +15,12 @@ def test():
     initialCondition.SetInitialSnapshot("U", 0.)
     initialCondition.SetReducedInitialSnapshot("U", np.zeros(2))
     initialCondition.GetReducedInitialSnapshot("U")
-    initialCondition.ReduceInitialSnapshot("U", np.random.rand(2,3), np.eye(3))
+    reducedOrderBases = {"U":np.random.rand(2,3)}
+    snapshotCorrelationOperator = {"U":np.eye(3)}
+    initialCondition.ReduceInitialSnapshot(reducedOrderBases, snapshotCorrelationOperator)
 
     initialCondition.SetInitialSnapshot("U", 1.)
-    initialCondition.ReduceInitialSnapshot("U", np.random.rand(2,3), np.eye(3))
+    initialCondition.ReduceInitialSnapshot(reducedOrderBases, snapshotCorrelationOperator)
 
     initialCondition.__getstate__()
 

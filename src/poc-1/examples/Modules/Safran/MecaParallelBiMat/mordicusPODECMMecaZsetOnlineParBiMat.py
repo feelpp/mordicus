@@ -29,7 +29,7 @@ def test():
     snapshotCorrelationOperator = SIO.LoadState("snapshotCorrelationOperator")
 
     operatorCompressionData = collectionProblemData.GetOperatorCompressionData()
-    reducedOrderBasisU = collectionProblemData.GetReducedOrderBasis("U")
+    reducedOrderBases = collectionProblemData.GetReducedOrderBases()
 
 
     ##################################################
@@ -52,21 +52,19 @@ def test():
     onlineProblemData.AddConstitutiveLaw(constitutiveLawsList)
 
     loadingList = inputReader.ConstructLoadingsList()
-    for loading in loadingList:
-        loading.ReduceLoading(mesh, onlineProblemData, reducedOrderBasisU, operatorCompressionData)
     onlineProblemData.AddLoading(loadingList)
+    for loading in onlineProblemData.GetLoadingsForSolution("U"):
+        loading.ReduceLoading(mesh, onlineProblemData, reducedOrderBases, operatorCompressionData) 
 
     initialCondition = inputReader.ConstructInitialCondition()
-    initialCondition.ReduceInitialSnapshot("U", reducedOrderBasisU, snapshotCorrelationOperator)
-
     onlineProblemData.SetInitialCondition(initialCondition)
 
-    initOnlineCompressedSnapshot = initialCondition.GetReducedInitialSnapshot("U")
+    initialCondition.ReduceInitialSnapshot(reducedOrderBases, snapshotCorrelationOperator)
 
 
     import time
     start = time.time()
-    onlineCompressedSolution, onlineCompressionData = Meca.ComputeOnline(onlineProblemData, initOnlineCompressedSnapshot, timeSequence, reducedOrderBasisU, operatorCompressionData, 1.e-8)
+    onlineCompressedSolution, onlineCompressionData = Meca.ComputeOnline(onlineProblemData, timeSequence, operatorCompressionData, 1.e-8)
     print(">>>> DURATION ONLINE =", time.time() - start)
 
 
@@ -76,7 +74,7 @@ def test():
 
     solutionUApprox = S.Solution("U", nbeOfComponentsPrimal, numberOfNodes, primality = True)
     solutionUApprox.SetCompressedSnapshots(onlineCompressedSolution)
-    solutionUApprox.UncompressSnapshots(reducedOrderBasisU)
+    solutionUApprox.UncompressSnapshots(reducedOrderBases["U"])
 
     solutionFileName = folder + "cube.ut"
     solutionReader = ZSR.ZsetSolutionReader(solutionFileName)
@@ -102,7 +100,7 @@ def test():
 
     print("onlineCompressionData.keys() =", list(onlineCompressionData.keys()))
 
-    PW.WritePXDMF(mesh, onlineCompressedSolution, reducedOrderBasisU, "U")
+    PW.WritePXDMF(mesh, onlineCompressedSolution, reducedOrderBases["U"], "U")
     print("The compressed solution has been written in PXDMF Format")
 
 
@@ -136,8 +134,12 @@ def test():
 
 
 if __name__ == "__main__":
+
+    from BasicTools.Helpers import Profiler as P
+    p = P.Profiler()
+    p.Start()
+
     test()
 
-
-
-
+    p.Stop()
+    print(p)

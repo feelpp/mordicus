@@ -80,6 +80,18 @@ class CollectionProblemData(object):
             return None # pragma: no cover
         else:
             return self.reducedOrderBases[solutionName]
+        
+
+    def GetReducedOrderBases(self):
+        """
+        Get the dictionary of precomputed reducedOrderBases
+
+        Returns
+        -------
+        reducedOrderBases : dict
+            dictionary with solutionNames (str) as keys and reducedOrderBases (np.ndarray of size (numberOfModes, numberOfDOFs)) as values
+        """
+        return self.reducedOrderBases        
 
 
     def GetReducedOrderBasisNumberOfModes(self, solutionName):

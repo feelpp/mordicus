@@ -17,7 +17,7 @@ def test():
     fields["temperature1"] = np.zeros(10)
     fields["temperature2"] = np.ones(10)
 
-    loading = T.Temperature("set1")
+    loading = T.Temperature("U", "set1")
     loading.SetFieldsMap(fieldsMap)
     loading.SetFields(fields)
 

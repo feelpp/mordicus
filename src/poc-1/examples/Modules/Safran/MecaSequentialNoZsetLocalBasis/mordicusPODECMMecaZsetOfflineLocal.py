@@ -28,7 +28,9 @@ def test():
     print("...done")
 
     print("ComputeL2ScalarProducMatrix...")
-    snapshotCorrelationOperator = FT.ComputeL2ScalarProducMatrix(mesh, 3)
+    snapshotCorrelationOperator = {}
+    snapshotCorrelationOperator["U"] = FT.ComputeL2ScalarProducMatrix(mesh, 3)
+
     SIO.SaveState("snapshotCorrelationOperator", snapshotCorrelationOperator)
     print("...done")
 
@@ -87,13 +89,13 @@ def test():
             sigma = solutionReader.ReadSnapshot("sig", time, nbeOfComponentsDual, primality=False)
             solutionSigma.AddSnapshot(sigma, time)
 
-        SP.CompressData(collectionProblemData, "U", 1.e-4, snapshotCorrelationOperator)
+        SP.CompressData(collectionProblemData, "U", 1.e-4, snapshotCorrelationOperator["U"] )
 
         Mechanical.CompressOperator(collectionProblemData, operatorPreCompressionData, mesh, 1.e-3)
 
         print("check compression...")
         reducedOrderBasis = collectionProblemData.GetReducedOrderBasis("U")
-        collectionProblemData.CompressSolutions("U", snapshotCorrelationOperator)
+        collectionProblemData.CompressSolutions("U", snapshotCorrelationOperator["U"])
         CompressedsolutionU = solutionU.GetCompressedSnapshots()
         compressionErrors = []
         for t in outputTimeSequence:
@@ -111,7 +113,7 @@ def test():
     for i in range(2):
         for j in [j for j in range(2) if j != i]:
             reducedOrderBasisJ = collectionProblemDatas[j].GetReducedOrderBasis("U")
-            projectedReducedOrderBasis = collectionProblemDatas[i].ComputeReducedOrderBasisProjection("U", reducedOrderBasisJ, snapshotCorrelationOperator)
+            projectedReducedOrderBasis = collectionProblemDatas[i].ComputeReducedOrderBasisProjection("U", reducedOrderBasisJ, snapshotCorrelationOperator["U"])
             collectionProblemDatas[i].SetDataCompressionData("projectedReducedOrderBasis_"+str(j), projectedReducedOrderBasis)
 
         SIO.SaveState("mordicusState_Basis_"+str(i), collectionProblemDatas[i])
@@ -123,4 +125,12 @@ def test():
 
 
 if __name__ == "__main__":
+
+    from BasicTools.Helpers import Profiler as P
+    p = P.Profiler()
+    p.Start()
+
     test()
+
+    p.Stop()
+    print(p)

@@ -59,6 +59,7 @@ def ComputePhiAtIntegPoint(mesh, elementSets = None, relativeDimension = 0):
 
 
 
+
 def ComputeGradPhiAtIntegPoint(mesh, elementSets = None, relativeDimension = 0):
 
     unstructuredMesh = ConvertMeshToUnstructuredMesh(mesh)
@@ -66,11 +67,20 @@ def ComputeGradPhiAtIntegPoint(mesh, elementSets = None, relativeDimension = 0):
     return FT.ComputeGradPhiAtIntegPoint(unstructuredMesh, elementSets, relativeDimension)
 
 
-def ComputeMecaIntegrator(mesh, elementSet = "ALLELEMENT"):
+
+def ComputeNormalsAtIntegPoint(mesh, elementSets = None):
 
     unstructuredMesh = ConvertMeshToUnstructuredMesh(mesh)
 
-    return FT.ComputeMecaIntegrator(unstructuredMesh)
+    return FT.ComputeNormalsAtIntegPoint(unstructuredMesh, elementSets)
+
+
+
+"""def ComputeMecaIntegrator(mesh, elementSet = "ALLELEMENT"):
+
+    unstructuredMesh = ConvertMeshToUnstructuredMesh(mesh)
+
+    return FT.ComputeMecaIntegrator(unstructuredMesh)"""
 
 
 

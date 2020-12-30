@@ -266,11 +266,24 @@ class ProblemData(object):
             list loadings of type type
         """
         li = []
-        for key, value in self.GetLoadings().items():
-            if key[0] == type:
-                li.append(value)# pragma: no cover
+        for loading in self.GetLoadings().values():
+            if loading.GetType() == type:
+                li.append(loading)# pragma: no cover
         return li
+    
 
+    def GetLoadingsForSolution(self, solutionName):
+        """
+        Returns
+        -------
+        list
+            list loadings of type type
+        """
+        li = []
+        for loading in self.GetLoadings().values():
+            if loading.GetSolutionName() == solutionName:
+                li.append(loading)# pragma: no cover
+        return li
 
 
     def GetConstitutiveLaws(self):
@@ -281,6 +294,35 @@ class ProblemData(object):
             constitutive laws of the problem
         """
         return self.constitutiveLaws
+
+
+
+    def GetConstitutiveOfType(self, type):
+        """
+        Returns
+        -------
+        list
+            list loadings of type type
+        """
+        li = []
+        for law in self.GetConstitutiveLaws().values():
+            if law.GetType() == type:
+                li.append(law)# pragma: no cover
+        return li
+    
+
+
+    def GetSetsOfConstitutiveOfType(self, type):
+        """
+        Returns
+        -------
+        set
+            set of strings of elementSets
+        """
+        se = []
+        for law in self.GetConstitutiveOfType(type):
+            se.append(law.GetSet())
+        return set(se)
 
 
     def GetSolution(self, solutionName):

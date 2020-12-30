@@ -12,7 +12,7 @@ from Mordicus.Core.Containers.ConstitutiveLaws import ConstitutiveLawBase as CL
 def test():
 
     solution = Solution.Solution("U", 2, 10, True)
-    loading = LB.LoadingBase("set1", "type1")
+    loading = LB.LoadingBase("U", "set1", "type1")
     init = ICB.InitialConditionBase()
     #remark: LoadingBase should not be used in use cases
     constitutiveLaw = CL.ConstitutiveLawBase("set1", "type1")
@@ -26,7 +26,7 @@ def test():
     problemData.AddLoading(loading)
     problemData.AddLoading(loading)
     problemData.GetLoadings()
-    problemData.GetLoadingsOfType("toto")
+    problemData.GetLoadingsOfType("type1")
     problemData.AddConstitutiveLaw(constitutiveLaw)
     problemData.AddConstitutiveLaw(constitutiveLaw)
     problemData.GetConstitutiveLaws()
@@ -38,6 +38,9 @@ def test():
     problemData.GetParametersTimeSequence()
     problemData.GetParametersList()
     problemData.GetDataFolder()
+    problemData.GetLoadingsForSolution("U")
+    problemData.GetConstitutiveOfType("type1")
+    problemData.GetSetsOfConstitutiveOfType("type1")
 
     import collections
     compressedSnapshots = collections.OrderedDict()

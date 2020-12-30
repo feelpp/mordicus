@@ -20,6 +20,7 @@ def test():
     FT.ComputeH10ScalarProductMatrix(mesh, 1)
     FT.ComputeNumberOfIntegrationPoints(mesh)
     FT.ComputeIntegrationPointsTags(mesh, 3)
+    FT.ComputeNormalsAtIntegPoint(mesh)
 
     length = len(mesh.GetInternalStorage().elements["quad4"].tags["x0"].GetIds())
     FT.IntegrateVectorNormalComponentOnSurface(mesh, "x0", np.ones(length))

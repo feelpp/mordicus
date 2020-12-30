@@ -8,7 +8,7 @@ from Mordicus import GetTestDataPath
 
 def test():
 
-    loading = CHF.ConvectionHeatFlux("set1")
+    loading = CHF.ConvectionHeatFlux("T", "set1")
 
     h = collections.OrderedDict()
     Text = collections.OrderedDict()
@@ -27,8 +27,10 @@ def test():
 
     mesh = ZMR.ReadMesh(meshFileName)
 
+
+    reducedOrderBases = {"T":np.random.rand(2,3)}
     dummy = 1
-    loading.ReduceLoading(mesh, dummy, np.ones((2,3)), dummy)
+    loading.ReduceLoading(mesh, dummy, reducedOrderBases, dummy)
 
     loading.ComputeContributionToReducedExternalForces(0.2)
 

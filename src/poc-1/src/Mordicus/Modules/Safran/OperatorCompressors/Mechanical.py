@@ -74,10 +74,11 @@ def PrepareOnline(onlineProblemData, operatorCompressionData):
     onlineCompressionData["sigIntForces"] =  np.zeros((nReducedIntegrationPoints,nSigmaComponents))
 
 
-    keysConstitutiveLaws = set(onlineProblemData.GetConstitutiveLaws().keys())
+    #keysConstitutiveLaws = set(onlineProblemData.GetConstitutiveLaws().keys())
+    constitutiveLawSets = onlineProblemData.GetSetsOfConstitutiveOfType("mechanical")
 
     reducedListOTags = operatorCompressionData['reducedListOTags']
-    IndicesOfIntegPointsPerMaterial = ComputeIndicesOfIntegPointsPerMaterial(reducedListOTags, keysConstitutiveLaws)
+    IndicesOfIntegPointsPerMaterial = ComputeIndicesOfIntegPointsPerMaterial(reducedListOTags, constitutiveLawSets)
 
 
     onlineCompressionData["statevIntForces"] = {}
@@ -88,8 +89,10 @@ def PrepareOnline(onlineProblemData, operatorCompressionData):
     for tag, intPoints in IndicesOfIntegPointsPerMaterial.items():
 
         localNbIntPoints = len(intPoints)
+        
+        lawTag = ('mechanical', tag)
 
-        law = onlineProblemData.GetConstitutiveLaws()[tag]
+        law = onlineProblemData.GetConstitutiveLaws()[lawTag]
 
         nstatv = law.GetOneConstitutiveLawVariable("nstatv")
 
@@ -105,7 +108,7 @@ def PrepareOnline(onlineProblemData, operatorCompressionData):
 
 
 
-def ComputeOnline(onlineProblemData, initOnlineCompressedSnapshot, timeSequence, reducedOrderBasis, operatorCompressionData, tolerance):
+def ComputeOnline(onlineProblemData, timeSequence, operatorCompressionData, tolerance):
     """
     Compute the online stage using the method POD and ECM for a mechanical problem
 
@@ -116,8 +119,11 @@ def ComputeOnline(onlineProblemData, initOnlineCompressedSnapshot, timeSequence,
     folder = currentFolder + os.sep + onlineProblemData.GetDataFolder()
     os.chdir(folder)
 
+
+    initialCondition = onlineProblemData.GetInitialCondition()
+
     onlineCompressedSolution = collections.OrderedDict()
-    onlineCompressedSolution[timeSequence[0]] = initOnlineCompressedSnapshot
+    onlineCompressedSolution[timeSequence[0]] = initialCondition.GetReducedInitialSnapshot("U")
 
 
     onlineCompressionData = PrepareOnline(onlineProblemData, operatorCompressionData)
@@ -207,16 +213,18 @@ def ComputeOnline(onlineProblemData, initOnlineCompressedSnapshot, timeSequence,
 def PrepareNewtonIterations(onlineProblemData, onlineCompressionData, time, dtime):
 
     for law in onlineProblemData.GetConstitutiveLaws().values():
-        law.SetOneConstitutiveLawVariable('dtime', dtime)
+        if law.GetType() == "mechanical":
+            law.SetOneConstitutiveLawVariable('dtime', dtime)
 
-    if ('temperature', 'ALLNODE') in onlineProblemData.loadings:
-        onlineCompressionData["temperatureAtReducedIntegrationPoints0"] = onlineProblemData.loadings[('temperature', 'ALLNODE')].GetTemperatureAtReducedIntegrationPointsAtTime(time-dtime)
+    if ('U', 'temperature', 'ALLNODE') in onlineProblemData.loadings:
+        onlineCompressionData["temperatureAtReducedIntegrationPoints0"] = onlineProblemData.loadings[('U', 'temperature', 'ALLNODE')].GetTemperatureAtReducedIntegrationPointsAtTime(time-dtime)
 
-        onlineCompressionData["temperatureAtReducedIntegrationPoints"] = onlineProblemData.loadings[('temperature', 'ALLNODE')].GetTemperatureAtReducedIntegrationPointsAtTime(time)
+        onlineCompressionData["temperatureAtReducedIntegrationPoints"] = onlineProblemData.loadings[('U', 'temperature', 'ALLNODE')].GetTemperatureAtReducedIntegrationPointsAtTime(time)
 
     reducedExternalForces = 0.
-    for l in onlineProblemData.loadings.values():
-        reducedExternalForces += l.ComputeContributionToReducedExternalForces(time)
+    for loading in onlineProblemData.GetLoadings().values():
+        if loading.GetSolutionName() == "U":
+            reducedExternalForces += loading.ComputeContributionToReducedExternalForces(time)
 
     return reducedExternalForces
 
@@ -248,7 +256,7 @@ def ComputeReducedInternalForcesAndTangentMatrix(onlineProblemData, opCompDat, o
 
     for tag, intPoints in IndicesOfIntegPointsPerMaterial.items():
 
-        if ('temperature', 'ALLNODE') in onlineProblemData.loadings:
+        if ('U', 'temperature', 'ALLNODE') in onlineProblemData.loadings:
 
             temperature = onlineCompressionData["temperatureAtReducedIntegrationPoints0"][intPoints]
             dtemp = onlineCompressionData["temperatureAtReducedIntegrationPoints"][intPoints] - onlineCompressionData["temperatureAtReducedIntegrationPoints0"][intPoints]
@@ -263,8 +271,8 @@ def ComputeReducedInternalForcesAndTangentMatrix(onlineProblemData, opCompDat, o
 
         statev = np.copy(onlineCompressionData['statevIntForces'][tag])
 
-
-        ddsdde, stress = constLaws[tag].ComputeConstitutiveLaw(temperature, dtemp, stran, dstran, statev)
+        lawTag = ('mechanical', tag)
+        ddsdde, stress = constLaws[lawTag].ComputeConstitutiveLaw(temperature, dtemp, stran, dstran, statev)
 
 
         sigma[intPoints,:] = stress
@@ -434,7 +442,6 @@ def ComputeSigmaEpsilon(collectionProblemData, reducedIntegrator, tolerance, tol
 
     else:
 
-        print("snapshotsSigma.shape =", snapshotsSigma.shape)
 
         snapshotsSigmaShape = snapshotsSigma.shape
         numberOfSigmaSnapshots = snapshotsSigmaShape[0]
@@ -521,6 +528,7 @@ def ReconstructDualQuantity(nameDualQuantity, operatorCompressionData, onlineCom
 
     localIndex = {}
     for tag in onlineCompressionData['IndicesOfIntegPointsPerMaterial'].keys():
+ 
         if nameDualQuantity in onlineCompressionData['dualVarOutputNames'][tag]:
           localIndex[tag] = onlineCompressionData['dualVarOutputNames'][tag].index(nameDualQuantity)
 

@@ -30,6 +30,7 @@ class TestMecaConstitutiveLaw(ConstitutiveLawBase):
         assert isinstance(set, str)
 
         super(TestMecaConstitutiveLaw, self).__init__(set, "mechanical")
+        
 
         self.young = young
         self.poisson = poisson
@@ -86,16 +87,6 @@ class TestMecaConstitutiveLaw(ConstitutiveLawBase):
         stress = np.einsum('klm,kl->km', ddsdde, stran, optimize = True)
 
         return ddsdde, stress
-
-
-    def GetIdentifier(self):
-        """
-        Returns
-        -------
-        couple of strings (set, type)
-            the identifier of constitutive law
-        """
-        return self.set
 
 
     def __str__(self):

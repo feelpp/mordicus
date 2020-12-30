@@ -28,10 +28,12 @@ class PressureBC(LoadingBase):
         dictionary with pressure vectors tags (str) keys and compressed pressure vectors (np.ndarray of size (numberOfModes,)) as values
     """
 
-    def __init__(self, set):
+    def __init__(self, solutionName, set):
         assert isinstance(set, str)
+        assert isinstance(solutionName, str)
+        assert solutionName == "U", "PressureBC loading can only be applied on U solution types"
 
-        super(PressureBC, self).__init__(set, "pressure")
+        super(PressureBC, self).__init__("U", set, "pressure")
 
         self.coefficients = collections.OrderedDict
         self.fieldsMap = collections.OrderedDict
@@ -61,6 +63,7 @@ class PressureBC(LoadingBase):
 
         self.coefficients = coefficients
 
+
     def SetFieldsMap(self, fieldsMap):
         """
         Sets the fieldsMap attribute of the class
@@ -77,6 +80,7 @@ class PressureBC(LoadingBase):
         assert np.all([isinstance(key, str) for key in list(fieldsMap.values())])
 
         self.fieldsMap = fieldsMap
+
 
     def SetFields(self, fields):
         """
@@ -138,9 +142,7 @@ class PressureBC(LoadingBase):
 
 
 
-    def ReduceLoading(self, mesh, problemData, reducedOrderBasis, operatorCompressionData):
-
-        assert isinstance(reducedOrderBasis, np.ndarray)
+    def ReduceLoading(self, mesh, problemData, reducedOrderBases, operatorCompressionData):
 
 
         self.assembledReducedFields = {}
@@ -148,7 +150,7 @@ class PressureBC(LoadingBase):
         from Mordicus.Modules.Safran.FE import FETools as FT
         for key, field in self.GetFields().items():
             assembledField = FT.IntegrateVectorNormalComponentOnSurface(mesh, self.GetSet(), field)
-            self.assembledReducedFields[key] = np.dot(reducedOrderBasis, assembledField)
+            self.assembledReducedFields[key] = np.dot(reducedOrderBases[self.solutionName], assembledField)
 
 
 

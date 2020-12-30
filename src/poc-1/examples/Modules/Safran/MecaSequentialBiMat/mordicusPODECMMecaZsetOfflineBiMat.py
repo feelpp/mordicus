@@ -82,14 +82,15 @@ def test():
 
 
     print("ComputeL2ScalarProducMatrix...")
-    snapshotCorrelationOperator = FT.ComputeL2ScalarProducMatrix(mesh, 3)
+    snapshotCorrelationOperator = {}
+    snapshotCorrelationOperator["U"] = FT.ComputeL2ScalarProducMatrix(mesh, 3)
 
-    SP.CompressData(collectionProblemData, "U", 1.e-6, snapshotCorrelationOperator)
+    SP.CompressData(collectionProblemData, "U", 1.e-6, snapshotCorrelationOperator["U"])
     for name in dualNames:
         SP.CompressData(collectionProblemData, name, 1.e-6)
 
 
-    collectionProblemData.CompressSolutions("U", snapshotCorrelationOperator)
+    collectionProblemData.CompressSolutions("U", snapshotCorrelationOperator["U"])
     reducedOrderBasisU = collectionProblemData.GetReducedOrderBasis("U")
 
 
@@ -124,5 +125,12 @@ def test():
 
 
 if __name__ == "__main__":
+
+    from BasicTools.Helpers import Profiler as P
+    p = P.Profiler()
+    p.Start()
+
     test()
 
+    p.Stop()
+    print(p)

@@ -22,7 +22,7 @@ def test():
     fields["pressure1"] = np.zeros(10)
     fields["pressure2"] = np.ones(10)
 
-    loading = PBC.PressureBC("set1")
+    loading = PBC.PressureBC("U", "set1")
     loading.SetCoefficients(coefficients)
     loading.SetFieldsMap(fieldsMap)
     loading.SetFields(fields)

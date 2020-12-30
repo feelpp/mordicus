@@ -27,10 +27,13 @@ class ConvectionHeatFlux(LoadingBase):
         size (numberOfModes)
     """
 
-    def __init__(self, set):
+    def __init__(self, solutionName, set):
         assert isinstance(set, str)
+        assert isinstance(solutionName, str)
+        assert solutionName == "T", "ConvectionHeatFlux loading can only be applied on T solution types"        
 
-        super(ConvectionHeatFlux, self).__init__(set, "convection_heat_flux")
+        super(ConvectionHeatFlux, self).__init__("T", set, "convection_heat_flux")
+
 
         self.h = collections.OrderedDict
         self.Text = collections.OrderedDict
@@ -123,15 +126,13 @@ class ConvectionHeatFlux(LoadingBase):
 
 
 
-    def ReduceLoading(self, mesh, problemData, reducedOrderBasis, operatorCompressionData):
-
-        assert isinstance(reducedOrderBasis, np.ndarray)
+    def ReduceLoading(self, mesh, problemData, reducedOrderBases, operatorCompressionData):
 
         from Mordicus.Modules.Safran.FE import FETools as FT
 
-        self.assembledReducedOrderBasisOnSet = FT.IntegrateOrderOneTensorOnSurface(mesh, self.set, reducedOrderBasis)
+        self.assembledReducedOrderBasisOnSet = FT.IntegrateOrderOneTensorOnSurface(mesh, self.set, reducedOrderBases[self.solutionName])
 
-        self.assembledReducedOrderBasisOrderTwoOnSet = FT.IntegrateOrderTwoTensorOnSurface(mesh, self.set, reducedOrderBasis)
+        self.assembledReducedOrderBasisOrderTwoOnSet = FT.IntegrateOrderTwoTensorOnSurface(mesh, self.set, reducedOrderBases[self.solutionName])
 
 
 

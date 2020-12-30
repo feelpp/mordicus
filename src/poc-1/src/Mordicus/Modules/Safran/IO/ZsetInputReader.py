@@ -186,7 +186,7 @@ class ZsetInputReader(InputReaderBase):
         if key == "pressure":
             from Mordicus.Modules.Safran.Containers.Loadings import PressureBC
 
-            loading = PressureBC.PressureBC(set)
+            loading = PressureBC.PressureBC("U", set)
 
             sequence = tables[load[3]]
             name = load[2]
@@ -226,7 +226,7 @@ class ZsetInputReader(InputReaderBase):
 
             from Mordicus.Modules.Safran.Containers.Loadings import Centrifugal
 
-            loading = Centrifugal.Centrifugal(set)
+            loading = Centrifugal.Centrifugal("U", set)
 
             center = [float(load[1][1:])]
             count = 2
@@ -277,7 +277,7 @@ class ZsetInputReader(InputReaderBase):
 
             from Mordicus.Modules.Safran.Containers.Loadings import Radiation
 
-            loading = Radiation.Radiation(set)
+            loading = Radiation.Radiation("T", set)
 
             stefanBoltzmannConstant = float(load[1])
             coefficient = float(load[2])
@@ -299,7 +299,7 @@ class ZsetInputReader(InputReaderBase):
 
             from Mordicus.Modules.Safran.Containers.Loadings import ConvectionHeatFlux
 
-            loading = ConvectionHeatFlux.ConvectionHeatFlux(set)
+            loading = ConvectionHeatFlux.ConvectionHeatFlux("T", set)
 
             coefH = float(load[2])
             coefficient = float(load[4])
@@ -323,7 +323,7 @@ class ZsetInputReader(InputReaderBase):
 
             from Mordicus.Modules.Safran.Containers.Loadings import Temperature
 
-            loading = Temperature.Temperature(set)
+            loading = Temperature.Temperature("U", set)
 
             for info in load[1].values():
                 if isinstance(info, dict):

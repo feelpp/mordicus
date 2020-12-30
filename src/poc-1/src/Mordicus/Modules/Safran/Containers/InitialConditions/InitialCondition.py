@@ -16,9 +16,9 @@ class InitialCondition(InitialConditionBase):
 
     Attributes
     ----------
-    dataType : string ("scalar" or "vector")
-    initialSnapshot : float or np.ndarray of size (numberOfDofs,)
-    reducedInitialSnapshot : np.ndarray of size (numberOfModes,)
+    dataType : dict of string ("scalar" or "vector")
+    initialSnapshot : dict of float or np.ndarray of size (numberOfDofs,)
+    reducedInitialSnapshot : dict of np.ndarray of size (numberOfModes,)
 
     """
 
@@ -56,29 +56,30 @@ class InitialCondition(InitialConditionBase):
         return self.reducedInitialSnapshot[solutionName]
 
 
-    def ReduceInitialSnapshot(self, solutionName, reducedOrderBasis, snapshotCorrelationOperator):
+    def ReduceInitialSnapshot(self, reducedOrderBases, snapshotCorrelationOperator):
 
-        assert isinstance(reducedOrderBasis, np.ndarray)
+        for solutionName in self.initialSnapshot.keys():
+            
+            reducedOrderBasis = reducedOrderBases[solutionName]
 
-        if self.dataType[solutionName] == "scalar":
-            if self.initialSnapshot[solutionName] == 0.:
-                self.SetReducedInitialSnapshot(solutionName, np.zeros(reducedOrderBasis.shape[0]))
-                return
+            if self.dataType[solutionName] == "scalar":
+                if self.initialSnapshot[solutionName] == 0.:
+                    self.SetReducedInitialSnapshot(solutionName, np.zeros(reducedOrderBasis.shape[0]))
+                    continue
+
+                else:
+                    initVector = self.initialSnapshot[solutionName] * np.ones(reducedOrderBasis.shape[1])
 
             else:
-                initVector = self.initialSnapshot[solutionName] * np.ones(reducedOrderBasis.shape[1])
+                initVector = self.initialSnapshot[solutionName]# pragma: no cover
 
-        else:
-            initVector = self.initialSnapshot[solutionName]# pragma: no cover
+            matVecProduct = snapshotCorrelationOperator[solutionName].dot(initVector)
 
+            localScalarProduct = np.dot(reducedOrderBasis, matVecProduct)
+            globalScalarProduct = np.zeros(reducedOrderBasis.shape[0])
+            MPI.COMM_WORLD.Allreduce([localScalarProduct, MPI.DOUBLE], [globalScalarProduct, MPI.DOUBLE])
 
-        matVecProduct = snapshotCorrelationOperator.dot(initVector)
-
-        localScalarProduct = np.dot(reducedOrderBasis, matVecProduct)
-        globalScalarProduct = np.zeros(reducedOrderBasis.shape[0])
-        MPI.COMM_WORLD.Allreduce([localScalarProduct, MPI.DOUBLE], [globalScalarProduct, MPI.DOUBLE])
-
-        self.SetReducedInitialSnapshot(solutionName, globalScalarProduct)# pragma: no cover
+            self.SetReducedInitialSnapshot(solutionName, globalScalarProduct)# pragma: no cover
 
 
 

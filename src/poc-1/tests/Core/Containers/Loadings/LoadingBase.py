@@ -5,10 +5,11 @@ from Mordicus.Core.Containers.Loadings import LoadingBase as LB
 
 def test():
 
-    loading = LB.LoadingBase("set1", "type1")
+    loading = LB.LoadingBase("solutionName", "set1", "type1")
     loading.GetSet()
     loading.GetType()
     loading.GetIdentifier()
+    loading.GetSolutionName()
     print(loading)
     return "ok"
 

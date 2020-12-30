@@ -25,11 +25,13 @@ class Radiation(LoadingBase):
     assembledReducedOrderBasisOnSet : numpy.ndarray
         size (numberOfModes)
     """
-
-    def __init__(self, set):
+        
+    def __init__(self, solutionName, set):
         assert isinstance(set, str)
+        assert isinstance(solutionName, str)
+        assert solutionName == "T", "Radiation loading can only be applied on T solution types"  
 
-        super(Radiation, self).__init__(set, "radiation")
+        super(Radiation, self).__init__("T", set, "radiation")
 
         self.StefanBoltzmannConstant = None
         self.Text = collections.OrderedDict
@@ -102,13 +104,11 @@ class Radiation(LoadingBase):
 
 
 
-    def ReduceLoading(self, mesh, problemData, reducedOrderBasis, operatorCompressionData):
-
-        assert isinstance(reducedOrderBasis, np.ndarray)
+    def ReduceLoading(self, mesh, problemData, reducedOrderBases, operatorCompressionData):
 
         from Mordicus.Modules.Safran.FE import FETools as FT
 
-        self.assembledReducedOrderBasisOnSet = FT.IntegrateOrderOneTensorOnSurface(mesh, self.set, reducedOrderBasis)
+        self.assembledReducedOrderBasisOnSet = FT.IntegrateOrderOneTensorOnSurface(mesh, self.set, reducedOrderBases[self.solutionName])
 
 
 

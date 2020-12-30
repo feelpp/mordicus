@@ -24,10 +24,12 @@ class Temperature(LoadingBase):
         np.ndarray of size (numberOfReducedIntegrationPoints) containing the temperature fields at reduced integration points
     """
 
-    def __init__(self, set):
+    def __init__(self, solutionName, set):
         assert isinstance(set, str)
+        assert isinstance(solutionName, str)
 
-        super(Temperature, self).__init__(set, "temperature")
+        super(Temperature, self).__init__(solutionName, set, "temperature")
+
 
         self.fieldsMap = collections.OrderedDict
         self.fields = {}
@@ -51,6 +53,7 @@ class Temperature(LoadingBase):
 
         self.fieldsMap = fieldsMap
 
+
     def SetFields(self, fields):
         """
         Sets the fields attribute of the class
@@ -67,7 +70,6 @@ class Temperature(LoadingBase):
         )
 
         self.fields = fields
-
 
 
     def GetTemperatureAtReducedIntegrationPointsAtTime(self, time):
@@ -99,10 +101,8 @@ class Temperature(LoadingBase):
         return temperatureAtReducedIntegrationPoints
 
 
+    def ReduceLoading(self, mesh, problemData, reducedOrderBases, operatorCompressionData):
 
-    def ReduceLoading(self, mesh, problemData, reducedOrderBasis, operatorCompressionData):
-
-        assert isinstance(reducedOrderBasis, np.ndarray)
         assert 'reducedIntegrationPoints' in operatorCompressionData, "operatorCompressionData must contain a key 'reducedIntegrationPoints'"
 
         from Mordicus.Modules.Safran.FE import FETools as FT
@@ -113,7 +113,6 @@ class Temperature(LoadingBase):
         for key, field in self.fields.items():
 
             self.fieldsAtReducedIntegrationPoints[key] = PhiAtIntegPoint.dot(field)[operatorCompressionData["reducedIntegrationPoints"]]
-
 
 
 

@@ -28,10 +28,13 @@ class Centrifugal(LoadingBase):
         np.ndarray of size (numberOfModes) containing the reducedUnitCentrifugalVector
     """
 
-    def __init__(self, set):
+    def __init__(self, solutionName, set):
         assert isinstance(set, str)
+        assert isinstance(solutionName, str)
+        assert solutionName == "U", "Centrifugal loading can only be applied on U solution types"
+        
 
-        super(Centrifugal, self).__init__(set, "centrifugal")
+        super(Centrifugal, self).__init__("U", set, "centrifugal")
 
         self.rotationVelocity = collections.OrderedDict
         self.center = None
@@ -112,19 +115,19 @@ class Centrifugal(LoadingBase):
 
 
 
-    def ReduceLoading(self, mesh, problemData, reducedOrderBasis, operatorCompressionData):
-
-        assert isinstance(reducedOrderBasis, np.ndarray)
+    def ReduceLoading(self, mesh, problemData, reducedOrderBases, operatorCompressionData):
 
         from Mordicus.Modules.Safran.FE import FETools as FT
 
         density = {}
-        for set, law in problemData.GetConstitutiveLaws().items():
-            density[set] = law.GetDensity()
-
+        for key, law in problemData.GetConstitutiveLaws().items():
+            if key[0] == "mechanical":
+                set = key[1]
+                density[set] = law.GetDensity()
+                
         assembledUnitCentrifugalVector = FT.IntegrateCentrifugalEffect(mesh, density, self.direction, self.center)
 
-        self.reducedUnitCentrifugalVector = np.dot(reducedOrderBasis, assembledUnitCentrifugalVector)
+        self.reducedUnitCentrifugalVector = np.dot(reducedOrderBases[self.solutionName], assembledUnitCentrifugalVector)
 
 
 
