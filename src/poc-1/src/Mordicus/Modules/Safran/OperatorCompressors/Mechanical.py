@@ -78,7 +78,7 @@ def PrepareOnline(onlineProblemData, operatorCompressionData):
     constitutiveLawSets = onlineProblemData.GetSetsOfConstitutiveOfType("mechanical")
 
     reducedListOTags = operatorCompressionData['reducedListOTags']
-    IndicesOfIntegPointsPerMaterial = ComputeIndicesOfIntegPointsPerMaterial(reducedListOTags, constitutiveLawSets)
+    IndicesOfIntegPointsPerMaterial = FT.ComputeIndicesOfIntegPointsPerMaterial(reducedListOTags, constitutiveLawSets)
 
 
     onlineCompressionData["statevIntForces"] = {}
@@ -263,7 +263,7 @@ def ComputeReducedInternalForcesAndTangentMatrix(onlineProblemData, opCompDat, o
 
         else:
             temperature = None  #pragma: no cover
-            dtemp = None  #pragma: no cover
+            dtemp = None        #pragma: no cover
 
         stran = onlineCompressionData['stranIntForces'][intPoints]
 
@@ -459,28 +459,6 @@ def ComputeSigmaEpsilon(collectionProblemData, reducedIntegrator, tolerance, tol
 
 
 
-def ComputeIndicesOfIntegPointsPerMaterial(listOfTags, keysConstitutiveLaws):
-    """
-    1.
-    """
-
-    numberOfIntegrationPoints = len(listOfTags)
-
-    localTags = []
-    for i in range(numberOfIntegrationPoints):
-        tags = set(listOfTags[i]+["ALLELEMENT"])
-        tagsIntersec = keysConstitutiveLaws & tags
-        assert len(tagsIntersec) == 1, "more than one constitutive law for a reducedIntegrationPoint"
-        localTags.append(tagsIntersec.pop())
-
-    IndicesOfIntegPointsPerMaterial = {}
-    arange = np.arange(numberOfIntegrationPoints)
-    for key in keysConstitutiveLaws:
-        IndicesOfIntegPointsPerMaterial[key] = arange[np.array(localTags) == key]
-
-    return IndicesOfIntegPointsPerMaterial
-
-
 
 def ReduceIntegrator(collectionProblemData, mesh, gradPhiAtIntegPoint, numberOfIntegrationPoints):
 
@@ -520,7 +498,6 @@ def ReconstructDualQuantity(nameDualQuantity, operatorCompressionData, onlineCom
     from Mordicus.Modules.Safran.BasicAlgorithms import GappyPOD as GP
     import collections
 
-
     onlineDualCompressedSolution = collections.OrderedDict()
 
     ModesAtMask = operatorCompressionData['gappyModesAtRedIntegPts'][nameDualQuantity]
@@ -532,14 +509,12 @@ def ReconstructDualQuantity(nameDualQuantity, operatorCompressionData, onlineCom
         if nameDualQuantity in onlineCompressionData['dualVarOutputNames'][tag]:
           localIndex[tag] = onlineCompressionData['dualVarOutputNames'][tag].index(nameDualQuantity)
 
-
     for time in timeSequence:
         for tag, intPoints in onlineCompressionData['IndicesOfIntegPointsPerMaterial'].items():
             if tag in localIndex:
                 fieldAtMask[intPoints] = onlineCompressionData['dualVarOutput'][tag][time][:,localIndex[tag]]
 
         onlineDualCompressedSolution[time] = GP.Fit(ModesAtMask, fieldAtMask)
-
 
     return onlineDualCompressedSolution
 

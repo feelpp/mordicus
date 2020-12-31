@@ -23,8 +23,10 @@ class ConvectionHeatFlux(LoadingBase):
         dictionary with time indices (float) as keys and h (float) as values
     Text    : collections.OrderedDict()
         dictionary with time indices (float) as keys and Text (str) as values
-    assembledReducedOrderBasisOnSet : numpy.ndarray
+    reducedPhiT : numpy.ndarray
         size (numberOfModes)
+    reducedPhiTPhiT : numpy.ndarray
+        size (numberOfModes, numberOfModes)
     """
 
     def __init__(self, solutionName, set):
@@ -44,8 +46,8 @@ class ConvectionHeatFlux(LoadingBase):
         self.TextTimes = None
         self.TextValues = None
 
-        self.assembledReducedOrderBasisOnSet = None
-        self.assembledReducedOrderBasisOrderTwoOnSet = None
+        self.reducedPhiT = None
+        self.reducedPhiTPhiT = None
 
 
     def SetH(self, h):
@@ -129,11 +131,22 @@ class ConvectionHeatFlux(LoadingBase):
     def ReduceLoading(self, mesh, problemData, reducedOrderBases, operatorCompressionData):
 
         from Mordicus.Modules.Safran.FE import FETools as FT
+        
+        integrationWeights, phiAtIntegPoint = FT.ComputePhiAtIntegPoint(mesh, [self.GetSet()], relativeDimension = -1)
 
-        self.assembledReducedOrderBasisOnSet = FT.IntegrateOrderOneTensorOnSurface(mesh, self.set, reducedOrderBases[self.solutionName])
+        reducedPhiTAtIntegPoints = phiAtIntegPoint.dot(reducedOrderBases[self.solutionName].T)
+        
+        self.reducedPhiTPhiT = np.einsum('tk,tl,t->kl', reducedPhiTAtIntegPoints, reducedPhiTAtIntegPoints, integrationWeights, optimize = True)
 
-        self.assembledReducedOrderBasisOrderTwoOnSet = FT.IntegrateOrderTwoTensorOnSurface(mesh, self.set, reducedOrderBases[self.solutionName])
+        self.reducedPhiT = np.einsum('tk,t->k', reducedPhiTAtIntegPoints, integrationWeights, optimize = True)
+        
 
+        """self.reducedPhiTPhiT0 = FT.IntegrateOrderTwoTensorOnSurface(mesh, self.set, reducedOrderBases[self.solutionName])
+
+        self.reducedPhiT0 = FT.IntegrateOrderOneTensorOnSurface(mesh, self.set, reducedOrderBases[self.solutionName])
+
+        print("rel dif =", np.linalg.norm(self.reducedPhiTPhiT - self.reducedPhiTPhiT0) / np.linalg.norm(self.reducedPhiTPhiT0))
+        print("rel dif =", np.linalg.norm(self.reducedPhiT - self.reducedPhiT0) / np.linalg.norm(self.reducedPhiT0))"""
 
 
 
@@ -147,7 +160,7 @@ class ConvectionHeatFlux(LoadingBase):
 
         h, Text = self.GetCoefficientsAtTime(time)
 
-        return h*Text*self.assembledReducedOrderBasisOnSet
+        return h*Text*self.reducedPhiT
 
 
 

@@ -22,7 +22,7 @@ class Radiation(LoadingBase):
         dictionary with time indices (float) as keys and temporal Text (float) as values
     StefanBoltzmannConstant    : float
         the Stefan Boltzmann constant used for the boundary condition computation
-    assembledReducedOrderBasisOnSet : numpy.ndarray
+    reducedPhiT : numpy.ndarray
         size (numberOfModes)
     """
         
@@ -39,7 +39,7 @@ class Radiation(LoadingBase):
         self.TextTimes = None
         self.TextValues = None
 
-        self.assembledReducedOrderBasisOnSet = None
+        self.reducedPhiT = None
 
 
     def SetText(self, Text):
@@ -107,8 +107,18 @@ class Radiation(LoadingBase):
     def ReduceLoading(self, mesh, problemData, reducedOrderBases, operatorCompressionData):
 
         from Mordicus.Modules.Safran.FE import FETools as FT
+        
 
-        self.assembledReducedOrderBasisOnSet = FT.IntegrateOrderOneTensorOnSurface(mesh, self.set, reducedOrderBases[self.solutionName])
+        integrationWeights, phiAtIntegPoint = FT.ComputePhiAtIntegPoint(mesh, [self.GetSet()], relativeDimension = -1)
+
+        reducedPhiTAtIntegPoints = phiAtIntegPoint.dot(reducedOrderBases[self.solutionName].T)
+
+        self.reducedPhiT = np.einsum('tk,t->k', reducedPhiTAtIntegPoints, integrationWeights, optimize = True)
+        
+
+        """self.reducedPhiT0 = FT.IntegrateOrderOneTensorOnSurface(mesh, self.set, reducedOrderBases[self.solutionName])
+
+        print("rel dif =", np.linalg.norm(self.reducedPhiT - self.reducedPhiT0) / np.linalg.norm(self.reducedPhiT0))"""
 
 
 
@@ -121,7 +131,7 @@ class Radiation(LoadingBase):
 
         Text = self.GetTextAtTime(time)
 
-        return self.stefanBoltzmannConstant*(Text**4)*self.assembledReducedOrderBasisOnSet
+        return self.stefanBoltzmannConstant*(Text**4)*self.reducedPhiT
 
 
 

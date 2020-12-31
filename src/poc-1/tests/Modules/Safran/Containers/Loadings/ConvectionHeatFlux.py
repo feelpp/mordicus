@@ -28,7 +28,7 @@ def test():
     mesh = ZMR.ReadMesh(meshFileName)
 
 
-    reducedOrderBases = {"T":np.random.rand(2,3)}
+    reducedOrderBases = {"T":np.random.rand(2,mesh.GetNumberOfNodes())}
     dummy = 1
     loading.ReduceLoading(mesh, dummy, reducedOrderBases, dummy)
 

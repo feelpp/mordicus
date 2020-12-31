@@ -70,14 +70,14 @@ class Centrifugal(LoadingBase):
         """
         1.
         """
-        self.center = center
+        self.center = np.array(center)
 
 
     def SetDirection(self, direction):
         """
         1.
         """
-        self.direction = direction
+        self.direction = np.array(direction)
 
 
     def SetCoefficient(self, coefficient):
@@ -119,14 +119,32 @@ class Centrifugal(LoadingBase):
 
         from Mordicus.Modules.Safran.FE import FETools as FT
 
-        density = {}
+        """density = {}
         for key, law in problemData.GetConstitutiveLaws().items():
             if key[0] == "mechanical":
-                set = key[1]
-                density[set] = law.GetDensity()
+                density[key[1]] = law.GetDensity()
                 
-        assembledUnitCentrifugalVector = FT.IntegrateCentrifugalEffect(mesh, density, self.direction, self.center)
+        assembledUnitCentrifugalVector0 = FT.IntegrateCentrifugalEffect(mesh, density, self.direction, self.center)"""
 
+        
+        integrationWeights, phiAtIntegPoint = FT.ComputePhiAtIntegPoint(mesh)
+        integrationPointsPosition = phiAtIntegPoint.dot(mesh.GetNodes())
+        ipPositionFromRotationCenter = integrationPointsPosition - self.center
+        length = np.einsum('ij,j->i', ipPositionFromRotationCenter, self.direction, optimize = True)        
+        ipProjectionFromRotationCenter = np.outer(length, np.array(self.direction))        
+        r = (ipPositionFromRotationCenter - ipProjectionFromRotationCenter)
+        
+        integrationPointsTags = FT.ComputeIntegrationPointsTags(mesh)        
+        assert len(integrationPointsTags) == len(integrationWeights), "integrationPointsTags and integrationWeights have different length"
+        constitutiveLawSets = problemData.GetSetsOfConstitutiveOfType("mechanical")        
+        materialKeyPerIntegrationPoint = FT.ComputeMaterialKeyPerIntegrationPoint(integrationPointsTags, constitutiveLawSets)
+        
+        densityAtIntegrationPoints = np.array([problemData.GetConstitutiveLaws()[("mechanical",set)].GetDensity() for set in materialKeyPerIntegrationPoint])
+                
+        densityRWeightAtIntegrationPoints = np.einsum('ij,i,i->ij', r, densityAtIntegrationPoints, integrationWeights, optimize = True)
+
+        assembledUnitCentrifugalVector = phiAtIntegPoint.T.dot(densityRWeightAtIntegrationPoints).T.flatten()
+        
         self.reducedUnitCentrifugalVector = np.dot(reducedOrderBases[self.solutionName], assembledUnitCentrifugalVector)
 
 

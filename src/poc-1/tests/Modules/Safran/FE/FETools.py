@@ -19,14 +19,22 @@ def test():
     FT.ComputeL2ScalarProducMatrix(mesh, 1)
     FT.ComputeH10ScalarProductMatrix(mesh, 1)
     FT.ComputeNumberOfIntegrationPoints(mesh)
-    FT.ComputeIntegrationPointsTags(mesh, 3)
+    listOfTags = FT.ComputeIntegrationPointsTags(mesh, 3)
+    
+    FT.ComputePhiAtIntegPoint(mesh)
+    FT.ComputeGradPhiAtIntegPoint(mesh)
     FT.ComputeNormalsAtIntegPoint(mesh)
+    
+    FT.ComputeIndicesOfIntegPointsPerMaterial(listOfTags, set(["EVP","ELAS"]))
 
     length = len(mesh.GetInternalStorage().elements["quad4"].tags["x0"].GetIds())
-    FT.IntegrateVectorNormalComponentOnSurface(mesh, "x0", np.ones(length))
+    FT.CellDataToIntegrationPointsData(mesh, "x0", np.ones(length))
+
+    #FT.IntegrateVectorNormalComponentOnSurface(mesh, "x0", np.ones(length))
 
     return "ok"
 
 
 if __name__ == "__main__":
     print(test())  # pragma: no cover
+    

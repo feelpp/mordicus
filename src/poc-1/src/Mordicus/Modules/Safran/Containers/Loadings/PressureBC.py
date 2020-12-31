@@ -103,8 +103,7 @@ class PressureBC(LoadingBase):
 
     def GetFields(self):
         return self.fields
-
-
+    
 
     def GetAssembledReducedFieldAtTime(self, time):
         """
@@ -145,12 +144,32 @@ class PressureBC(LoadingBase):
     def ReduceLoading(self, mesh, problemData, reducedOrderBases, operatorCompressionData):
 
 
-        self.assembledReducedFields = {}
         #AssembleLoadingAgainstReducedBasis
+
         from Mordicus.Modules.Safran.FE import FETools as FT
-        for key, field in self.GetFields().items():
-            assembledField = FT.IntegrateVectorNormalComponentOnSurface(mesh, self.GetSet(), field)
-            self.assembledReducedFields[key] = np.dot(reducedOrderBases[self.solutionName], assembledField)
+
+
+        self.assembledReducedFields = {}
+
+        keymap = list(self.GetFields().keys())
+        numberOfFields = len(keymap)
+        
+        
+        fieldsAtIntegrationPoints = FT.CellDataToIntegrationPointsData(mesh, self.GetSet(), self.GetFields(), relativeDimension = -1)
+        #this can be bypassed is the pressure values are already given at the integration points
+        
+        normalsAtIntegrationPoints = FT.ComputeNormalsAtIntegPoint(mesh, [self.GetSet()])
+
+        integrationWeights, phiAtIntegPoint = FT.ComputePhiAtIntegPoint(mesh, [self.GetSet()], relativeDimension = -1)
+
+        normalFieldsWeightsAtIntegrationPoints = np.einsum('ij,kj,j->jik', fieldsAtIntegrationPoints, normalsAtIntegrationPoints, integrationWeights, optimize = True)
+
+        for f in range(numberOfFields):
+            assembledField = phiAtIntegPoint.T.dot(normalFieldsWeightsAtIntegrationPoints[:,f,:]).T.flatten()
+            
+            self.assembledReducedFields[keymap[f]] = np.dot(reducedOrderBases[self.solutionName], assembledField)
+            """assembledField0 = FT.IntegrateVectorNormalComponentOnSurface(mesh, self.GetSet(), self.GetFields()[keymap[f]])
+            print("rel_dif =", np.linalg.norm(assembledField - assembledField0)/np.linalg.norm(assembledField0))"""
 
 
 
