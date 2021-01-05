@@ -34,6 +34,8 @@ extensions = [
     'sphinx.ext.mathjax',
     'sphinxcontrib.bibtex',
 ]
+bibtex_bibfiles = ['./architecture/components/ref-snap-pod.bib',
+                   './architecture/components/ref-pod-svd.bib']
 
 numfig = True
 
