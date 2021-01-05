@@ -111,6 +111,7 @@ pages:
   image: alpine:latest
   stage: deploy
   dependencies:
+    - docLatex
     - docWebsite
     - poc-1
   script:
