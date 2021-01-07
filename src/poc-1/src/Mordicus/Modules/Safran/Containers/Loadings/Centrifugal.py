@@ -36,7 +36,11 @@ class Centrifugal(LoadingBase):
 
         super(Centrifugal, self).__init__("U", set, "centrifugal")
 
-        self.rotationVelocity = collections.OrderedDict
+        #self.rotationVelocity = collections.OrderedDict
+        
+        self.rotationVelocityTimes = None
+        self.rotationVelocityValues = None
+        
         self.center = None
         self.direction = None
         self.coefficient = None
@@ -63,7 +67,10 @@ class Centrifugal(LoadingBase):
             ]
         )
 
-        self.rotationVelocity = rotationVelocity
+        #self.rotationVelocity = rotationVelocity
+        
+        self.rotationVelocityTimes = np.array(list(rotationVelocity.keys()), dtype = float)
+        self.rotationVelocityValues = np.array(list(rotationVelocity.values()), dtype = float)
 
 
     def SetCenter(self, center):
@@ -87,7 +94,7 @@ class Centrifugal(LoadingBase):
         self.coefficient = coefficient
 
 
-    def GetRotationVelocityAtTime(self, time):
+    def GetRotationVelocityAtTime(self, time: float)-> float:
         """
         Computes the rotationVelocity at time, using PieceWiseLinearInterpolation
 
@@ -108,8 +115,9 @@ class Centrifugal(LoadingBase):
 
         # compute rotationVelocity at time
         rotationVelocity = TI.PieceWiseLinearInterpolation(
-            time, list(self.rotationVelocity.keys()), list(self.rotationVelocity.values())
+            time, self.rotationVelocityTimes, self.rotationVelocityValues
         )
+        
         return rotationVelocity
 
 
@@ -166,7 +174,8 @@ class Centrifugal(LoadingBase):
 
     def __str__(self):
         res = "Centrifugal Loading with set "+self.GetSet()+"\n"
-        res += "rotationVelocity : "+str(self.rotationVelocity)+"\n"
+        res += "rotationVelocityTimes : "+str(self.rotationVelocityTimes)+"\n"
+        res += "rotationVelocityValues : "+str(self.rotationVelocityValues)+"\n"
         res += "center : "+str(self.center)+"\n"
         res += "direction : "+str(self.direction)
         return res
