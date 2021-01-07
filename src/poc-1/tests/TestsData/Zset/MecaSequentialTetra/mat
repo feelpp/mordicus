@@ -1,0 +1,36 @@
+***material
+   *integration theta_method_a 1.0 1.e-3 50 epsilon 1.e-3
+***behavior gen_evp
+  **coefficient
+	masvol 1.e-8
+**elasticity isotropic
+ young    temperature
+  0.2000000E+06  0.00000000E+00
+  0.2000000E+06  0.20000000E+04
+ poisson  0.3
+**thermal_strain isotropic
+ alpha     temperature
+  0.2000000E-04  0.00000000E+00
+  0.2000000E-04  0.20000000E+04
+  ref_temperature 20.
+**potential gen_evp evr
+*criterion mises
+*flow norton
+ K    temperature
+  300.00  20.
+  300.00  2000.
+ n    temperature
+30.     20.    
+30.     2000.
+*kinematic nonlinear
+ D  temperature
+  1000.00  20.00
+  1000.00  2000.00
+ C    temperature
+    100000.0       20.00000       
+    100000.0       2000.000
+*isotropic constant
+ R0    temperature
+  10.00   20.00
+  10.00   2000.000
+***return

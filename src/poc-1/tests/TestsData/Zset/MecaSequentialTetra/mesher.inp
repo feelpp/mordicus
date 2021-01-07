@@ -1,0 +1,13 @@
+****mesher
+***mesh cube2.geof
+**open cube.geof
+**hexa_only_to_tetra
+**lin_to_quad
+**bset x0
+*use_nset x0
+*overwrite
+**bset x1
+*use_nset x1
+*overwrite
+****return
+ 
