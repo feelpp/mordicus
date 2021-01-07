@@ -17,20 +17,20 @@
 *criterion mises
 *flow norton
  K    temperature
-  300.00  20.
+  300.00  0.
   300.00  2000.
  n    temperature
-30.     20.    
+30.     0.    
 30.     2000.
 *kinematic nonlinear
  D  temperature
-  1000.00  20.00
+  1000.00  0.00
   1000.00  2000.00
  C    temperature
-    100000.0       20.00000       
+    100000.0       0.00000       
     100000.0       2000.000
 *isotropic constant
  R0    temperature
-  10.00   20.00
+  10.00   0.00
   10.00   2000.000
 ***return

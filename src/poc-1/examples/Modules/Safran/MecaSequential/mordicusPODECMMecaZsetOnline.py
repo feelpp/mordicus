@@ -78,7 +78,7 @@ def test():
     for name in dualNames:
         solutionsDual = S.Solution(name, 1, numberOfIntegrationPoints, primality = False)
 
-        onlineDualCompressedSolution = Meca.ReconstructDualQuantity(name, operatorCompressionData, onlineCompressionData, timeSequence = list(onlineCompressedSolution.keys())[1:])
+        onlineDualCompressedSolution = Meca.ReconstructDualQuantity(name, operatorCompressionData, onlineCompressionData, timeSequence = list(onlineCompressedSolution.keys()))
 
         solutionsDual.SetCompressedSnapshots(onlineDualCompressedSolution)
 
@@ -119,7 +119,7 @@ def test():
         exactSolution = solutionEvrcumExact.GetSnapshotAtTime(t)
         approxSolution = solutionEvrcumApprox.GetSnapshotAtTime(t)
         norml2ExactSolution = np.linalg.norm(exactSolution)
-        if norml2ExactSolution != 0:
+        if norml2ExactSolution > 1.e-10:
             relError = np.linalg.norm(approxSolution-exactSolution)/norml2ExactSolution
         else:
             relError = np.linalg.norm(approxSolution-exactSolution)
@@ -128,7 +128,7 @@ def test():
         exactSolution = solutionUExact.GetSnapshotAtTime(t)
         approxSolution = solutionUApprox.GetSnapshotAtTime(t)
         norml2ExactSolution = np.linalg.norm(exactSolution)
-        if norml2ExactSolution != 0:
+        if norml2ExactSolution > 1.e-10:
             relError = np.linalg.norm(approxSolution-exactSolution)/norml2ExactSolution
         else:
             relError = np.linalg.norm(approxSolution-exactSolution)
