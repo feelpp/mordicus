@@ -37,8 +37,8 @@ class ConvectionHeatFlux(LoadingBase):
         super(ConvectionHeatFlux, self).__init__("T", set, "convection_heat_flux")
 
 
-        self.h = collections.OrderedDict
-        self.Text = collections.OrderedDict
+        #self.h = collections.OrderedDict
+        #self.Text = collections.OrderedDict
 
         self.hTimes = None
         self.hValues = None
@@ -70,10 +70,10 @@ class ConvectionHeatFlux(LoadingBase):
             ]
         )
 
-        self.h = h
+        #self.h = h
 
-        self.hTimes = np.array(list(self.h.keys()), dtype = float)
-        self.hValues = np.array(list(self.h.values()), dtype = float)
+        self.hTimes = np.array(list(h.keys()), dtype = float)
+        self.hValues = np.array(list(h.values()), dtype = float)
 
 
 
@@ -97,10 +97,10 @@ class ConvectionHeatFlux(LoadingBase):
             ]
         )
 
-        self.Text = Text
+        #self.Text = Text
 
-        self.TextTimes = np.array(list(self.Text.keys()), dtype = float)
-        self.TextValues = np.array(list(self.Text.values()), dtype = float)
+        self.TextTimes = np.array(list(Text.keys()), dtype = float)
+        self.TextValues = np.array(list(Text.values()), dtype = float)
 
 
     def GetCoefficientsAtTime(self, time: float)-> (float, float):
@@ -140,13 +140,6 @@ class ConvectionHeatFlux(LoadingBase):
 
         self.reducedPhiT = np.einsum('tk,t->k', reducedPhiTAtIntegPoints, integrationWeights, optimize = True)
         
-
-        """self.reducedPhiTPhiT0 = FT.IntegrateOrderTwoTensorOnSurface(mesh, self.set, reducedOrderBases[self.solutionName])
-
-        self.reducedPhiT0 = FT.IntegrateOrderOneTensorOnSurface(mesh, self.set, reducedOrderBases[self.solutionName])
-
-        print("rel dif =", np.linalg.norm(self.reducedPhiTPhiT - self.reducedPhiTPhiT0) / np.linalg.norm(self.reducedPhiTPhiT0))
-        print("rel dif =", np.linalg.norm(self.reducedPhiT - self.reducedPhiT0) / np.linalg.norm(self.reducedPhiT0))"""
 
 
 
