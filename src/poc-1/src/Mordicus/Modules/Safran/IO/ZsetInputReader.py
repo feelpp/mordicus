@@ -95,6 +95,15 @@ class ZsetInputReader(InputReaderBase):
 
 
 
+    def UpdateFileName(self, fileName):
+        
+        if MPI.COMM_WORLD.Get_size() > 1: # pragma: no cover
+            stem = str(Path(fileName).stem)
+            suffix = str(Path(fileName).suffix)
+            fileName = stem + "-" + str(MPI.COMM_WORLD.Get_rank()+1).zfill(3) + suffix
+
+        return fileName
+
 
 
     def ReadInputTimeSequence(self):
@@ -208,13 +217,8 @@ class ZsetInputReader(InputReaderBase):
             loading.SetFieldsMap(fieldsMap)
 
             folder = os.path.dirname(self.inputFileName) + os.sep
-            if MPI.COMM_WORLD.Get_size() > 1: # pragma: no cover
-                stem = str(Path(name).stem)
-                suffix = str(Path(name).suffix)
-                fileName = stem + "-" + str(MPI.COMM_WORLD.Get_rank()+1).zfill(3) + suffix
-            else:
-                fileName = name
-
+            
+            fileName = self.UpdateFileName(name)
             fields = {name: ZIO.ReadBinaryFile(folder + fileName)}
 
             loading.SetFields(fields)
@@ -320,22 +324,32 @@ class ZsetInputReader(InputReaderBase):
 
 
         if key == "temperature":
+            
 
+                
             from Mordicus.Modules.Safran.Containers.Loadings import Temperature
 
             loading = Temperature.Temperature("U", set)
 
-            for info in load[1].values():
-                if isinstance(info, dict):
-                    timeTable = info['timeTable']
-                    fileTable = info['fileTable']
-
-
             fieldsMap = collections.OrderedDict()
-
+            fields = {}
+            folder = os.path.dirname(self.inputFileName) + os.sep
+            
+            if 'base_temperature' in load[1] and 'max_temperature' in load[1]:
+                taleName = load[1]['table'][0]
+                timeTable = tables[taleName]['time']
+                fileTable = np.array(tables[taleName]['value'], dtype = str)
+            
+            else:
+                
+                for info in load[1].values():
+                    if isinstance(info, dict):
+                        timeTable = info['timeTable']
+                        fileTable = info['fileTable']
+                                    
+            
             lastTimeCycleLoading = float(timeTable[-1])
             nbeLoadingCycles = int(inputTimeSequence[-1]/lastTimeCycleLoading)
-
 
             fieldsMap[float(timeTable[0])] = fileTable[0]
             for time, file in zip(timeTable, fileTable):
@@ -343,24 +357,39 @@ class ZsetInputReader(InputReaderBase):
 
             for j in range(nbeLoadingCycles):
                 for i, time in enumerate(timeTable[1:]):
-                    fieldsMap[time + j*lastTimeCycleLoading] = fileTable[i+1]
+                    fieldsMap[time + j*lastTimeCycleLoading] = fileTable[i+1]     
+            
+            
+            if 'base_temperature' in load[1] and 'max_temperature' in load[1]:
 
+                temperatures = [load[1]['base_temperature'], load[1]['max_temperature']]
+                nNodes = int(load[1]['rec_size'][0])
 
-            folder = os.path.dirname(self.inputFileName) + os.sep
-            fields = {}
-            for file in fileTable:
-                if file not in fields:
-                    if MPI.COMM_WORLD.Get_size() > 1: # pragma: no cover
-                        stem = str(Path(file).stem)
-                        suffix = str(Path(file).suffix)
-                        fileName = stem + "-" + str(MPI.COMM_WORLD.Get_rank()+1).zfill(3) + suffix
-                    else:
-                        fileName = file
-                    fields[file] = ZIO.ReadBinaryFile(folder+fileName)
+                for i, temperature in enumerate(temperatures):
+                    if temperature[0] == 'constant':
+                        temperatures[i] = float(temperature[1])*np.ones(nNodes)
+                    elif temperature[0] == 'file':
+                        fileName = self.UpdateFileName(temperature[1])
+                        temperatures[i] = ZIO.ReadBinaryFile(folder+fileName)
+                    else:# pragma: no cover
+                        raise("temperature bc not valid")
+
+                #here, keys of fields are the coefficient, not the fileName
+                for coef in fileTable:
+                    if coef not in fields:
+                        coefFloat = float(coef)
+                        fields[coef] = coefFloat*temperatures[1] + (1-coefFloat)*temperatures[0]
+                    
+            else:
+    
+                for file in fileTable:
+                    if file not in fields:                        
+                        fileName = self.UpdateFileName(file)                        
+                        fields[file] = ZIO.ReadBinaryFile(folder+fileName)
 
             loading.SetFieldsMap(fieldsMap)
             loading.SetFields(fields)
-
+            
             return loading
 
 
@@ -442,10 +471,7 @@ class ZsetInputReader(InputReaderBase):
                 curFolder = os.getcwd()
                 os.chdir(folder)
 
-
-                suffix = ""
-                if MPI.COMM_WORLD.Get_size() > 1:
-                    suffix += "_"+str(MPI.COMM_WORLD.Get_rank()+1).zfill(3)# pragma: no cover
+                suffix = self.UpdateFileName("")
 
                 code="""
 import sys

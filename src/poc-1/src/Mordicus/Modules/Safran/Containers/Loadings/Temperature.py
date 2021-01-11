@@ -31,7 +31,10 @@ class Temperature(LoadingBase):
         super(Temperature, self).__init__(solutionName, set, "temperature")
 
 
-        self.fieldsMap = collections.OrderedDict
+        #self.fieldsMap = collections.OrderedDict
+        self.fieldsMapTimes = None
+        self.fieldsMapValues = None
+        
         self.fields = {}
         self.fieldsAtReducedIntegrationPoints = {}
 
@@ -46,12 +49,14 @@ class Temperature(LoadingBase):
         """
         # assert type of fieldsMap
         assert isinstance(fieldsMap, collections.OrderedDict)
-        assert np.all(
-            [isinstance(key, (float, np.float64)) for key in list(fieldsMap.keys())]
-        )
-        assert np.all([isinstance(key, str) for key in list(fieldsMap.values())])
+        #assert np.all(
+        #    [isinstance(key, (float, np.float64)) for key in list(fieldsMap.keys())]
+        #)
+        #assert np.all([isinstance(key, str) for key in list(fieldsMap.values())])
 
-        self.fieldsMap = fieldsMap
+        #self.fieldsMap = fieldsMap
+        self.fieldsMapTimes = np.array(list(fieldsMap.keys()), dtype = float)
+        self.fieldsMapValues = np.array(list(fieldsMap.values()), dtype = str)        
 
 
     def SetFields(self, fields):
@@ -65,9 +70,7 @@ class Temperature(LoadingBase):
         # assert type of fields
         assert isinstance(fields, dict)
         assert np.all([isinstance(key, str) for key in list(fields.keys())])
-        assert np.all(
-            [isinstance(value, np.ndarray) for value in list(fields.values())]
-        )
+        assert np.all([isinstance(value, np.ndarray) for value in list(fields.values())])
 
         self.fields = fields
 
@@ -92,11 +95,12 @@ class Temperature(LoadingBase):
         from Mordicus.Core.BasicAlgorithms import Interpolation as TI
 
         # compute fieldsAtReducedIntegrationPoints at time
+                
         temperatureAtReducedIntegrationPoints = TI.PieceWiseLinearInterpolationWithMap(
             time,
-            list(self.fieldsMap.keys()),
+            self.fieldsMapTimes,
             self.fieldsAtReducedIntegrationPoints,
-            list(self.fieldsMap.values()),
+            self.fieldsMapValues
         )
         return temperatureAtReducedIntegrationPoints
 
@@ -132,7 +136,8 @@ class Temperature(LoadingBase):
         state["set"] = self.set
         state["type"] = self.type
         state["fieldsAtReducedIntegrationPoints"] = self.fieldsAtReducedIntegrationPoints
-        state["fieldsMap"] = self.fieldsMap
+        state["fieldsMapTimes"] = self.fieldsMapTimes
+        state["fieldsMapValues"] = self.fieldsMapValues
         state["fields"] = {}
         for f in self.fields.keys():
             state["fields"][f] = None
@@ -143,7 +148,7 @@ class Temperature(LoadingBase):
 
     def __str__(self):
         res = "Temperature Loading with set "+self.GetSet()+"\n"
-        res += "fieldsMap : "+str(self.fieldsMap)+"\n"
+        res += "fieldsMapValues : "+str(self.fieldsMapValues)+"\n"
         res += "fields : "+str(self.fields)
         return res
 
