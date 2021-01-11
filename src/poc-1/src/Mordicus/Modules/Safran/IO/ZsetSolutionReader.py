@@ -91,14 +91,23 @@ class ZsetSolutionReader(SolutionReaderBase):
         stem = str(Path(solutionFileName).stem)
 
         if MPI.COMM_WORLD.Get_size() > 1: # pragma: no cover
-            self.solutionFileName = folder + os.sep + stem + "-" + str(MPI.COMM_WORLD.Get_rank()+1).zfill(3) + suffix
+            solutionFileName = folder + os.sep + stem + "-" + str(MPI.COMM_WORLD.Get_rank()+1).zfill(3) + suffix
         else:
-            self.solutionFileName = solutionFileName
+            solutionFileName = solutionFileName
+            
+        self.reader = UR.UtReader()
+        self.reader.SetFileName(solutionFileName)
+        self.reader.ReadMetaData()
+        
 
 
     def ReadSnapshotComponent(self, fieldName, time, primality=True):
 
-        return UR.ReadFieldFromUt(self.solutionFileName, fieldName, time, atIntegrationPoints = not primality)
+        self.reader.atIntegrationPoints = not primality
+        self.reader.SetFieldNameToRead(fieldName)
+        self.reader.SetTimeToRead(time=time)
+
+        return self.reader.ReadField()
 
 
     def ReadSnapshot(self, fieldName, time, numberOfComponents, primality=True):
@@ -128,10 +137,8 @@ class ZsetSolutionReader(SolutionReaderBase):
 
 
     def ReadTimeSequenceFromSolutionFile(self):
-        from BasicTools.IO import UtReader as UR
-
-        UTMetaData = UR.ReadUTMetaData(self.solutionFileName)
-        return UTMetaData["time"][:, 4]
+        
+        return self.reader.time[:, 4]
 
 
 if __name__ == "__main__":# pragma: no cover
