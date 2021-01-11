@@ -35,8 +35,14 @@ class PressureBC(LoadingBase):
 
         super(PressureBC, self).__init__("U", set, "pressure")
 
-        self.coefficients = collections.OrderedDict
-        self.fieldsMap = collections.OrderedDict
+        #self.coefficients = collections.OrderedDict
+        self.coefficientsTimes = None
+        self.coefficientsValues = None        
+        
+        #self.fieldsMap = collections.OrderedDict
+        self.fieldsMapTimes = None
+        self.fieldsMapValues = None
+        
         self.fields = {}
         self.assembledReducedFields = {}
 
@@ -61,7 +67,10 @@ class PressureBC(LoadingBase):
             ]
         )
 
-        self.coefficients = coefficients
+        #self.coefficients = coefficients
+        self.coefficientsTimes = np.array(list(coefficients.keys()), dtype = float)
+        self.coefficientsValues = np.array(list(coefficients.values()), dtype = float)        
+
 
 
     def SetFieldsMap(self, fieldsMap):
@@ -79,7 +88,10 @@ class PressureBC(LoadingBase):
         )
         assert np.all([isinstance(key, str) for key in list(fieldsMap.values())])
 
-        self.fieldsMap = fieldsMap
+        #self.fieldsMap = fieldsMap
+        self.fieldsMapTimes = np.array(list(fieldsMap.keys()), dtype = float)
+        self.fieldsMapValues = np.array(list(fieldsMap.values()), dtype = str)        
+
 
 
     def SetFields(self, fields):
@@ -126,15 +138,15 @@ class PressureBC(LoadingBase):
 
         # compute coefficient at time
         coefficient = TI.PieceWiseLinearInterpolation(
-            time, list(self.coefficients.keys()), list(self.coefficients.values())
+            time, self.coefficientsTimes, self.coefficientsValues
         )
 
         # compute vector field at time
         vectorField = TI.PieceWiseLinearInterpolationWithMap(
             time,
-            list(self.fieldsMap.keys()),
+            self.fieldsMapTimes,
             self.assembledReducedFields,
-            list(self.fieldsMap.values()),
+            self.fieldsMapValues
         )
 
         return coefficient * vectorField
@@ -190,8 +202,10 @@ class PressureBC(LoadingBase):
         state = {}
         state["set"] = self.set
         state["type"] = self.type
-        state["coefficients"] = self.coefficients
-        state["fieldsMap"] = self.fieldsMap
+        state["coefficientsTimes"] = self.coefficientsTimes
+        state["coefficientsValues"] = self.coefficientsValues
+        state["fieldsMapTimes"] = self.fieldsMapTimes
+        state["fieldsMapValues"] = self.fieldsMapValues
         state["assembledReducedFields"] = self.assembledReducedFields
         state["fields"] = {}
         for f in self.fields.keys():
