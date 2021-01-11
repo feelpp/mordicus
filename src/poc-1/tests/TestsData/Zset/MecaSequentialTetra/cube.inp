@@ -1,6 +1,6 @@
 ****calcul
  ***mesh
-  **file cube.geof
+  **file cube.geo
 
 
  ***resolution newton

@@ -1,0 +1,5 @@
+****mesher
+***mesh cube.geo
+**open cube.geof
+****return
+ 

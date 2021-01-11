@@ -20,7 +20,7 @@ def test():
 
     folder = "MecaSequentialTetra/"
 
-    meshFileName = folder + "cube.geof"
+    meshFileName = folder + "cube.geo"
     solutionFileName = folder + "cube.ut"
 
     meshReader = ZMR.ZsetMeshReader(meshFileName)

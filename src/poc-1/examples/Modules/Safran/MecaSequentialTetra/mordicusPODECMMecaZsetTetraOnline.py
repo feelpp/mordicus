@@ -41,7 +41,7 @@ def test():
     inputFileName = folder + "cube.inp"
     inputReader = ZIR.ZsetInputReader(inputFileName)
 
-    meshFileName = folder + "cube.geof"
+    meshFileName = folder + "cube.geo"
     mesh = ZMR.ReadMesh(meshFileName)
 
     onlineProblemData = PD.ProblemData(folder)
