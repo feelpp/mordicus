@@ -1,4 +1,5 @@
 from Mordicus.Modules.Safran.IO import ZsetMeshReader as ZMR
+from Mordicus.Modules.Safran.IO import ZsetInputReader as ZIR
 from Mordicus.Modules.Safran.IO import ZsetSolutionReader as ZSR
 from Mordicus.Core.Containers import ProblemData as PD
 from Mordicus.Core.Containers import CollectionProblemData as CPD
@@ -22,6 +23,7 @@ def test():
 
     meshFileName = folder + "cube.geof"
     solutionFileName = folder + "cube.ut"
+    inputFileName = folder + "cube2cycles.inp"
 
     meshReader = ZMR.ZsetMeshReader(meshFileName)
     solutionReader = ZSR.ZsetSolutionReader(solutionFileName)
@@ -56,12 +58,10 @@ def test():
         solutionSigma.AddSnapshot(solutionReader.ReadSnapshot("sig", time, nbeOfComponentsDual, primality=False), time)
         for i, name in enumerate(dualNames):
             solutionsDual[i].AddSnapshot(solutionReader.ReadSnapshotComponent(name, time, primality=False), time)
-
-
-
+            
     problemData = PD.ProblemData(folder)
     problemData.AddSolution(solutionU)
-    problemData.AddSolution(solutionSigma)
+    problemData.AddSolution(solutionSigma)   
 
     for i, name in enumerate(dualNames):
         problemData.AddSolution(solutionsDual[i])
@@ -86,18 +86,18 @@ def test():
     for name in dualNames:
         SP.CompressData(collectionProblemData, name, 1.e-6)
 
+    reducedOrderBases = collectionProblemData.GetReducedOrderBases()
 
+
+    #check accuracy
     collectionProblemData.CompressSolutions("U", snapshotCorrelationOperator["U"])
-    reducedOrderBasisU = collectionProblemData.GetReducedOrderBasis("U")
-
-
     CompressedSolutionU = solutionU.GetCompressedSnapshots()
 
     compressionErrors = []
 
     for t in outputTimeSequence:
 
-        reconstructedCompressedSolution = np.dot(CompressedSolutionU[t], reducedOrderBasisU)
+        reconstructedCompressedSolution = np.dot(CompressedSolutionU[t], reducedOrderBases["U"])
         exactSolution = solutionU.GetSnapshot(t)
         norml2ExactSolution = np.linalg.norm(exactSolution)
         if norml2ExactSolution != 0:
@@ -112,8 +112,25 @@ def test():
 
     print("CompressOperator done")
 
+
+    #construct loading, constitutive law and initial condition
+    operatorCompressionData = collectionProblemData.GetOperatorCompressionData()            
+    inputReader = ZIR.ZsetInputReader(inputFileName)
+    constitutiveLawsList = inputReader.ConstructConstitutiveLawsList()
+    problemData.AddConstitutiveLaw(constitutiveLawsList)
+
+    loadingList = inputReader.ConstructLoadingsList()
+    problemData.AddLoading(loadingList)
+    for loading in problemData.GetLoadingsForSolution("U"):
+        loading.ReduceLoading(mesh, problemData, reducedOrderBases, operatorCompressionData) 
+
+    initialCondition = inputReader.ConstructInitialCondition()
+    problemData.SetInitialCondition(initialCondition)            
+
+    initialCondition.ReduceInitialSnapshot(reducedOrderBases, snapshotCorrelationOperator)
+
+
     SIO.SaveState("collectionProblemData", collectionProblemData)
-    SIO.SaveState("snapshotCorrelationOperator", snapshotCorrelationOperator)
 
 
     folderHandler.SwitchToExecutionFolder()

@@ -2,10 +2,7 @@ from Mordicus.Modules.Safran.IO import ZsetInputReader as ZIR
 from Mordicus.Modules.Safran.IO import ZsetMeshReader as ZMR
 from Mordicus.Modules.Safran.IO import ZsetSolutionReader as ZSR
 from Mordicus.Modules.Safran.IO import ZsetSolutionWriter as ZSW
-from Mordicus.Core.Containers import ProblemData as PD
 from Mordicus.Core.Containers import Solution as S
-from Mordicus.Modules.Safran.FE import FETools as FT
-from Mordicus.Modules.Safran.IO import PXDMFWriter as PW
 from Mordicus.Modules.Safran.OperatorCompressors import Mechanical as Meca
 from Mordicus.Core.IO import StateIO as SIO
 from Mordicus.Core.Helpers import FolderHandler as FH
@@ -26,9 +23,7 @@ def test():
     collectionProblemData = SIO.LoadState("collectionProblemData")
     
     operatorCompressionData = collectionProblemData.GetOperatorCompressionData()
-    snapshotCorrelationOperator = SIO.LoadState("snapshotCorrelationOperator")
 
-    operatorCompressionData = collectionProblemData.GetOperatorCompressionData()
     reducedOrderBases = collectionProblemData.GetReducedOrderBases()
 
 
@@ -41,26 +36,19 @@ def test():
     inputFileName = folder + "cube2cycles.inp"
     inputReader = ZIR.ZsetInputReader(inputFileName)
 
-    meshFileName = folder + "cube.geof"
-    mesh = ZMR.ReadMesh(meshFileName)
 
-    onlineProblemData = PD.ProblemData(folder)
-
+    onlineProblemData = collectionProblemData.GetProblemData(config = "case-1")
+    
+ 
     timeSequence = inputReader.ReadInputTimeSequence()
 
-    constitutiveLawsList = inputReader.ConstructConstitutiveLawsList()
-    onlineProblemData.AddConstitutiveLaw(constitutiveLawsList)
+    inputLoadingTemperature = inputReader.ConstructLoadingsList(loadingTags = ["temperature"])[0]
+    assert inputLoadingTemperature.type == "temperature"
+    
 
-    loadingList = inputReader.ConstructLoadingsList()
-    onlineProblemData.AddLoading(loadingList)
-    for loading in onlineProblemData.GetLoadingsForSolution("U"):
-        loading.ReduceLoading(mesh, onlineProblemData, reducedOrderBases, operatorCompressionData) 
-        
-
-    initialCondition = inputReader.ConstructInitialCondition()
-    onlineProblemData.SetInitialCondition(initialCondition)
-
-    initialCondition.ReduceInitialSnapshot(reducedOrderBases, snapshotCorrelationOperator)
+    onlineProblemDataTempLoading = onlineProblemData.GetLoadingsOfType("temperature")[0]
+    onlineProblemDataTempLoading.UpdateLoading(inputLoadingTemperature)
+    onlineProblemDataTempLoading.ReduceLoading() 
 
 
     import time
@@ -69,8 +57,8 @@ def test():
     print(">>>> DURATION ONLINE =", time.time() - start)
     
     
-
-    numberOfIntegrationPoints = FT.ComputeNumberOfIntegrationPoints(mesh)
+    numberOfIntegrationPoints = onlineProblemData.GetSolution("evrcum").numberOfDOFs
+    
 
     dualNames = ["evrcum", "sig12", "sig23", "sig31", "sig11", "sig22", "sig33", "eto12", "eto23", "eto31", "eto11", "eto22", "eto33"]
 
@@ -84,15 +72,16 @@ def test():
 
         onlineProblemData.AddSolution(solutionsDual)
     
-    
 
     onlineEvrcumCompressedSolution = onlineProblemData.GetSolution("evrcum").GetCompressedSnapshots()
 
 
     ## Compute Error
 
-    nbeOfComponentsPrimal = 3
-    numberOfNodes = mesh.GetNumberOfNodes()
+    nbeOfComponentsPrimal = onlineProblemData.GetSolution("U").nbeOfComponents
+    numberOfNodes = onlineProblemData.GetSolution("U").numberOfNodes
+
+    
     solutionFileName = "MecaAlternateTempDefinition/cube.ut"
     solutionReader = ZSR.ZsetSolutionReader(solutionFileName)
     outputTimeSequence = solutionReader.ReadTimeSequenceFromSolutionFile()
@@ -133,16 +122,16 @@ def test():
         else:
             relError = np.linalg.norm(approxSolution-exactSolution)
         ROMErrorsU.append(relError)
+        
 
     print("ROMErrors U =", ROMErrorsU)
     print("ROMErrors Evrcum =", ROMErrorsEvrcum)
 
-    PW.WritePXDMF(mesh, onlineCompressedSolution, reducedOrderBases["U"], "U")
-    print("The compressed solution has been written in PXDMF Format")
 
     onlineProblemData.AddSolution(solutionUApprox)
     
-
+    meshFileName = folder + "cube.geof"
+    mesh = ZMR.ReadMesh(meshFileName)    
     ZSW.WriteZsetSolution(mesh, meshFileName, "reduced", collectionProblemData, onlineProblemData, "U")
 
 
