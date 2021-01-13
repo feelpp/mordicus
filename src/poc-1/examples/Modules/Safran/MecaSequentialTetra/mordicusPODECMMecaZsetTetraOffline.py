@@ -82,9 +82,9 @@ def test():
     snapshotCorrelationOperator = {}
     snapshotCorrelationOperator["U"] = FT.ComputeL2ScalarProducMatrix(mesh, 3)
 
-    SP.CompressData(collectionProblemData, "U", 1.e-6, snapshotCorrelationOperator["U"])
+    SP.CompressData(collectionProblemData, "U", 1.e-7, snapshotCorrelationOperator["U"])
     for name in dualNames:
-        SP.CompressData(collectionProblemData, name, 1.e-6)
+        SP.CompressData(collectionProblemData, name, 1.e-7)
 
 
     collectionProblemData.CompressSolutions("U", snapshotCorrelationOperator["U"])
@@ -108,7 +108,7 @@ def test():
 
     print("compressionErrors =", compressionErrors)
 
-    Mechanical.CompressOperator(collectionProblemData, operatorPreCompressionData, mesh, 1.e-5, listNameDualVarOutput = dualNames, listNameDualVarGappyIndicesforECM = ["evrcum"])
+    Mechanical.CompressOperator(collectionProblemData, operatorPreCompressionData, mesh, 1.e-6, listNameDualVarOutput = dualNames, listNameDualVarGappyIndicesforECM = ["evrcum"])
 
     print("CompressOperator done")
 
