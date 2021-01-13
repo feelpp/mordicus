@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 import os
-os.environ["OMP_NUM_THREADS"] = "1"
-os.environ["OPENBLAS_NUM_THREADS"] = "1"
-os.environ["MKL_NUM_THREADS"] = "1"
-os.environ["VECLIB_MAXIMUM_THREADS"] = "1"
-os.environ["NUMEXPR_NUM_THREADS"] = "1"
+from mpi4py import MPI
+if MPI.COMM_WORLD.Get_size() > 1: 
+    os.environ["OMP_NUM_THREADS"] = "1"
+    os.environ["OPENBLAS_NUM_THREADS"] = "1"
+    os.environ["MKL_NUM_THREADS"] = "1"
+    os.environ["VECLIB_MAXIMUM_THREADS"] = "1"
+    os.environ["NUMEXPR_NUM_THREADS"] = "1"
 import numpy as np
 
 from Mordicus.Core.Containers.Loadings.LoadingBase import LoadingBase
@@ -107,6 +109,7 @@ class Dirichlet(LoadingBase):
     def __getstate__(self):
 
         state = {}
+        state["solutionName"] = self.solutionName
         state["set"] = self.set
         state["type"] = self.type
         state["function"] = self.function

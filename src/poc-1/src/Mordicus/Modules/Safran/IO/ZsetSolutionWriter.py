@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
 
 import os
-os.environ["OMP_NUM_THREADS"] = "1"
-os.environ["OPENBLAS_NUM_THREADS"] = "1"
-os.environ["MKL_NUM_THREADS"] = "1"
-os.environ["VECLIB_MAXIMUM_THREADS"] = "1"
-os.environ["NUMEXPR_NUM_THREADS"] = "1"
+from mpi4py import MPI
+if MPI.COMM_WORLD.Get_size() > 1: 
+    os.environ["OMP_NUM_THREADS"] = "1"
+    os.environ["OPENBLAS_NUM_THREADS"] = "1"
+    os.environ["MKL_NUM_THREADS"] = "1"
+    os.environ["VECLIB_MAXIMUM_THREADS"] = "1"
+    os.environ["NUMEXPR_NUM_THREADS"] = "1"
 import numpy as np
 
 from BasicTools.FE import FETools as FT
@@ -36,7 +38,8 @@ def WriteZsetSolution(mesh, meshFileName, solutionFileName,\
     if outputReducedOrderBasis:
         nameList = list(collectionProblemData.reducedOrderBases.keys())
     else:
-        nameList = list(problemData.solutions.keys())
+        tempList = list(problemData.solutions.keys())
+        nameList = [n for n in tempList if problemData.solutions[n].GetCompressedSnapshots()]
 
 
     folder = str(Path(solutionFileName).parents[0])

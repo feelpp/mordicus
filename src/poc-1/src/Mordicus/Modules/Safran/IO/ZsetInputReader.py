@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
 
 import os
-os.environ["OMP_NUM_THREADS"] = "1"
-os.environ["OPENBLAS_NUM_THREADS"] = "1"
-os.environ["MKL_NUM_THREADS"] = "1"
-os.environ["VECLIB_MAXIMUM_THREADS"] = "1"
-os.environ["NUMEXPR_NUM_THREADS"] = "1"
+from mpi4py import MPI
+if MPI.COMM_WORLD.Get_size() > 1: 
+    os.environ["OMP_NUM_THREADS"] = "1"
+    os.environ["OPENBLAS_NUM_THREADS"] = "1"
+    os.environ["MKL_NUM_THREADS"] = "1"
+    os.environ["VECLIB_MAXIMUM_THREADS"] = "1"
+    os.environ["NUMEXPR_NUM_THREADS"] = "1"
 import numpy as np
 
 from mpi4py import MPI
@@ -144,9 +146,11 @@ class ZsetInputReader(InputReaderBase):
 
 
 
-    def ConstructLoadingsList(self):
+    def ConstructLoadingsList(self, loadingTags = None):
 
-
+        if not loadingTags:
+           loadingTags = knownLoadingTags
+           
         inputTimeSequence = self.ReadInputTimeSequence()
 
         tables = ZIO.GetTables(self.inputFile)
@@ -154,7 +158,7 @@ class ZsetInputReader(InputReaderBase):
 
         loadings = []
         for key, value in zSetLoadings.items():
-            if key in knownLoadingTags:
+            if key in loadingTags:
                 for loadList in zSetLoadings[key]:
                     for load in loadList:
                         loadings.append(self.ConstructOneLoading(key, load, tables, inputTimeSequence))
@@ -162,8 +166,9 @@ class ZsetInputReader(InputReaderBase):
                 print(
                     "Loading '"
                     + key
-                    + "' not among knownBCs: "
-                    + str([key for key in knownLoadingTags])
+                    + "' in inputFile but not among : "
+                    + str([key for key in loadingTags])
+                    + ", not constructed"
                 )
 
         return loadings
@@ -370,6 +375,8 @@ class ZsetInputReader(InputReaderBase):
                         temperatures[i] = float(temperature[1])*np.ones(nNodes)
                     elif temperature[0] == 'file':
                         fileName = self.UpdateFileName(temperature[1])
+                        print("folder+fileName =", folder+fileName)
+                        print("cwd =", os.getcwd())
                         temperatures[i] = ZIO.ReadBinaryFile(folder+fileName)
                     else:# pragma: no cover
                         raise("temperature bc not valid")
@@ -387,7 +394,11 @@ class ZsetInputReader(InputReaderBase):
                         fileName = self.UpdateFileName(file)                        
                         fields[file] = ZIO.ReadBinaryFile(folder+fileName)
 
-            loading.SetFieldsMap(fieldsMap)
+
+            fieldsMapTimes = np.array(list(fieldsMap.keys()), dtype = float)
+            fieldsMapValues = np.array(list(fieldsMap.values()), dtype = str)  
+
+            loading.SetFieldsMap(fieldsMapTimes, fieldsMapValues)
             loading.SetFields(fields)
             
             return loading

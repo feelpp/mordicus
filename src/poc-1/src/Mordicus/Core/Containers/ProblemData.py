@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 import os
-os.environ["OMP_NUM_THREADS"] = "1"
-os.environ["OPENBLAS_NUM_THREADS"] = "1"
-os.environ["MKL_NUM_THREADS"] = "1"
-os.environ["VECLIB_MAXIMUM_THREADS"] = "1"
-os.environ["NUMEXPR_NUM_THREADS"] = "1"
+from mpi4py import MPI
+if MPI.COMM_WORLD.Get_size() > 1: 
+    os.environ["OMP_NUM_THREADS"] = "1"
+    os.environ["OPENBLAS_NUM_THREADS"] = "1"
+    os.environ["MKL_NUM_THREADS"] = "1"
+    os.environ["VECLIB_MAXIMUM_THREADS"] = "1"
+    os.environ["NUMEXPR_NUM_THREADS"] = "1"
 import numpy as np
 
 from Mordicus.Core.Containers import Solution
@@ -81,6 +83,14 @@ class ProblemData(object):
             )
 
         self.solutions[solution.GetSolutionName()] = solution
+        
+    
+
+    def DeleteSolutions(self):
+        """
+        Deletes solutions
+        """
+        self.solutions = {}
 
 
     def AddParameter(self, parameter, time = 0.):
@@ -174,6 +184,30 @@ class ProblemData(object):
                 )
 
             self.loadings[load.GetIdentifier()] = load
+
+
+    def UpdateLoading(self, loading):
+        """
+        Update a loading or a list of loadings to loadings
+
+        Parameters
+        ----------
+        loading : LoadingBase
+            the loading of the problem for a given set and type
+        """
+        try:
+            iter(loading)
+        except TypeError:
+            loading = [loading]
+        for load in loading:
+            if load.GetIdentifier() not in self.loadings:
+                print(
+                    "Loading "
+                    + str(load.GetIdentifier())
+                    + " not present in problemData.loadings. Cannot update."
+                )
+
+            self.loadings[load.GetIdentifier()].UpdateLoading(load)
 
 
     def GetParameters(self):

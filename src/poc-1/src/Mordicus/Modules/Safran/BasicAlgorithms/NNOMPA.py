@@ -2,7 +2,6 @@
 
 import os
 from mpi4py import MPI
-
 if MPI.COMM_WORLD.Get_size() > 1: 
     os.environ["OMP_NUM_THREADS"] = "1"
     os.environ["OPENBLAS_NUM_THREADS"] = "1"

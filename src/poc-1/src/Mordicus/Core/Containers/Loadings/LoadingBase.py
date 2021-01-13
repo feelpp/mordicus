@@ -76,6 +76,13 @@ class LoadingBase(object):
         Carries out the operations needed to reduced the loading, depending on the type of loading (e.g. precomputations)
         """
         raise NotImplementedError("Not implemented in LoadingBase")  # pragma: no cover
+        
+        
+    def UpdateLoading(self, loading):
+        """
+        Update Loading using data from loading
+        """
+        raise NotImplementedError("Not implemented in LoadingBase")  # pragma: no cover        
 
 
 

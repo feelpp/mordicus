@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
 
 import os
-os.environ["OMP_NUM_THREADS"] = "1"
-os.environ["OPENBLAS_NUM_THREADS"] = "1"
-os.environ["MKL_NUM_THREADS"] = "1"
-os.environ["VECLIB_MAXIMUM_THREADS"] = "1"
-os.environ["NUMEXPR_NUM_THREADS"] = "1"
+from mpi4py import MPI
+if MPI.COMM_WORLD.Get_size() > 1: 
+    os.environ["OMP_NUM_THREADS"] = "1"
+    os.environ["OPENBLAS_NUM_THREADS"] = "1"
+    os.environ["MKL_NUM_THREADS"] = "1"
+    os.environ["VECLIB_MAXIMUM_THREADS"] = "1"
+    os.environ["NUMEXPR_NUM_THREADS"] = "1"
 import numpy as np
 
 from mpi4py import MPI
@@ -365,7 +367,8 @@ def CompressOperator(
     #numberOfModes = collectionProblemData.GetReducedOrderBasisNumberOfModes("U")
     #sigmaNumberOfComponents = collectionProblemData.GetSolutionsNumberOfComponents("sigma")
 
-
+    import time
+    start = time.time()
     reducedEpsilonAtIntegPoints = ReduceIntegrator(collectionProblemData, mesh, gradPhiAtIntegPoint, numberOfIntegrationPoints)
 
 
@@ -386,6 +389,7 @@ def CompressOperator(
 
     sigmaEpsilon = ComputeSigmaEpsilon(collectionProblemData, reducedEpsilonAtIntegPoints, tolerance, toleranceCompressSnapshotsForRedQuad)
 
+    print("prepare ECM duration =", time.time() - start)
     reducedIntegrationPoints, reducedIntegrationWeights = RQP.ComputeReducedIntegrationScheme(integrationWeights, sigmaEpsilon, tolerance, imposedIndices = imposedIndices, reducedIntegrationPointsInitSet = operatorCompressionData["reducedIntegrationPoints"])
 
     #hyperreduced operator
@@ -447,7 +451,6 @@ def ComputeSigmaEpsilon(collectionProblemData, reducedIntegrator, tolerance, tol
         numberOfSigmaSnapshots = snapshotsSigmaShape[0]
 
         snapshotsSigma.shape = (numberOfSigmaSnapshots,sigmaNumberOfComponents,numberOfIntegrationPoints)
-
 
         sigmaEpsilon = np.einsum('mlk,pml->pkl', reducedIntegrator, snapshotsSigma, optimize = True).reshape(numberOfModes*numberOfSigmaSnapshots,numberOfIntegrationPoints)
 
