@@ -11,6 +11,7 @@ if MPI.COMM_WORLD.Get_size() > 1:
 
 
 import numpy as np
+import sys
 
 from BasicTools.Helpers.TextFormatHelper import TFormat
 
@@ -129,7 +130,7 @@ def NNOMPA(integrationWeights, integrands, integrals, normIntegrals, tolerance,\
         print(TFormat.InBlue("Relative error = "+str(err)+" obtained with "+\
             str(len(s))+" integration points (corresponding to "+str(round(100*\
             len(s)/numberOfIntegrationPoints, 5))+"% of the total) ("+str(count)+\
-            " sample(s) to decrease interpolation error)"))
+            " sample(s) to decrease interpolation error)")); sys.stdout.flush()
 
 
     return s, x

@@ -9,6 +9,7 @@ if MPI.COMM_WORLD.Get_size() > 1:
     os.environ["VECLIB_MAXIMUM_THREADS"] = "1"
     os.environ["NUMEXPR_NUM_THREADS"] = "1"
 import numpy as np
+import sys
 
 from mpi4py import MPI
 import collections
@@ -136,12 +137,12 @@ def ComputeOnline(onlineProblemData, timeSequence, operatorCompressionData, tole
 
 
     for timeStep in range(1, len(timeSequence)):
-
+        
         previousTime = timeSequence[timeStep-1]
         time = timeSequence[timeStep]
         dtime = time - previousTime
 
-        print("time =", time)
+        print("time =", time); sys.stdout.flush()
 
         reducedExternalForcesTemp = PrepareNewtonIterations(onlineProblemData, onlineCompressionData, time, dtime)
         reducedExternalForces = np.zeros(reducedExternalForcesTemp.shape)
@@ -163,7 +164,7 @@ def ComputeOnline(onlineProblemData, timeSequence, operatorCompressionData, tole
             normRes = np.linalg.norm(reducedExternalForces-reducedInternalForces)/normExt
         else:
             normRes = np.linalg.norm(reducedExternalForces-reducedInternalForces) # pragma: no cover
-        print("normRes  =", normRes)
+        print("normRes  =", normRes); sys.stdout.flush()
 
         count = 0
         while normRes > tolerance:
@@ -189,7 +190,7 @@ def ComputeOnline(onlineProblemData, timeSequence, operatorCompressionData, tole
             else:
                 normRes = np.linalg.norm(reducedExternalForces-reducedInternalForces)# pragma: no cover
 
-            print("normRes  =", normRes)
+            print("normRes  =", normRes); sys.stdout.flush()
 
             count += 1
             if count == 20:
@@ -203,7 +204,7 @@ def ComputeOnline(onlineProblemData, timeSequence, operatorCompressionData, tole
 
             onlineCompressionData['dualVarOutput'][tag][time] = np.hstack((onlineCompressionData['stranIntForces'][intPoints], onlineCompressionData['sigIntForces'][intPoints], onlineCompressionData['statevIntForces'][tag]))
 
-        print("=== Newton iterations:", count)
+        print("=== Newton iterations:", count); sys.stdout.flush()
 
     os.chdir(currentFolder)
 
@@ -348,7 +349,7 @@ def CompressOperator(
     #BIEN APPELER "U", "sigma" et "epsilon" les quantités correspondantes
 
 
-    print("CompressOperator starting...")
+    print("CompressOperator starting..."); sys.stdout.flush()
 
     if toleranceCompressSnapshotsForRedQuad > 0:
         collectionProblemData.defineQuantity("SigmaECM")
@@ -389,7 +390,8 @@ def CompressOperator(
 
     sigmaEpsilon = ComputeSigmaEpsilon(collectionProblemData, reducedEpsilonAtIntegPoints, tolerance, toleranceCompressSnapshotsForRedQuad)
 
-    print("prepare ECM duration =", time.time() - start)
+    print("Prepare ECM duration = "+str(time.time()-start)+" s"); sys.stdout.flush()
+    
     reducedIntegrationPoints, reducedIntegrationWeights = RQP.ComputeReducedIntegrationScheme(integrationWeights, sigmaEpsilon, tolerance, imposedIndices = imposedIndices, reducedIntegrationPointsInitSet = operatorCompressionData["reducedIntegrationPoints"])
 
     #hyperreduced operator
