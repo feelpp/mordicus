@@ -42,7 +42,7 @@ def ReadInputTimeSequence(inputFileName):
     return reader.ReadInputTimeSequence()
 
 
-def ConstructLoadingsList(inputFileName):
+def ConstructLoadingsList(inputFileName, loadingTags = None):
     """
     Constructs the loadings defined in the Z-set input file "inputFileName" (.inp)
 
@@ -57,7 +57,7 @@ def ConstructLoadingsList(inputFileName):
         list of loadings, each one having one of the formats defined in Containers.Loadings
     """
     reader = ZsetInputReader(inputFileName=inputFileName)
-    return reader.ConstructLoadingsList()
+    return reader.ConstructLoadingsList(loadingTags)
 
 
 def ConstructConstitutiveLawsList(inputFileName):
