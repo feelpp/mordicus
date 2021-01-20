@@ -14,9 +14,15 @@ target_include_directories(mordicus PUBLIC
 )
 
 install(TARGETS mordicus
+  EXPORT mordicus-targets
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+
+install(EXPORT mordicus-targets
+        FILE mordicus-targets.cmake
+        NAMESPACE mordicus::
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/mordicus)
 
 install(DIRECTORY mordicus DESTINATION include)
 

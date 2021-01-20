@@ -7,9 +7,16 @@ macro(mordicus_add_module name sources)
   target_include_directories(${name} PUBLIC
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR};${CMAKE_CURRENT_BINARY_DIR}>"
     $<INSTALL_INTERFACE:include>)
+
   install(TARGETS ${name}
+    EXPORT ${name}-targets
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+
+  install(EXPORT ${name}-targets
+        FILE ${name}-targets.cmake
+        NAMESPACE mordicus::
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/mordicus)
 endmacro()
 
 add_subdirectory (esigroup/io/SciMeshReader)
