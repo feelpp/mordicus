@@ -1,5 +1,5 @@
 ***material
-   *integration theta_method_a 1.0 1.e-3 50 epsilon 1.e-3
+   *integration theta_method_a 1. 1.e-9 200
 ***behavior gen_evp
   **coefficient
 	masvol 1.e-8

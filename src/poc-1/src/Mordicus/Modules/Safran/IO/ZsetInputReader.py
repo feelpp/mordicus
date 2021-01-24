@@ -2,7 +2,7 @@
 
 import os
 from mpi4py import MPI
-if MPI.COMM_WORLD.Get_size() > 1: 
+if MPI.COMM_WORLD.Get_size() > 1: # pragma: no cover
     os.environ["OMP_NUM_THREADS"] = "1"
     os.environ["OPENBLAS_NUM_THREADS"] = "1"
     os.environ["MKL_NUM_THREADS"] = "1"
@@ -576,7 +576,7 @@ ddsddeNew = pyumat.umat(stress=stress,statev=statev,ddsdde=ddsdde,sse=sse,spd=sp
                         seplines.append(i)
                     if "done with material file reading" in outlines[i]:
                         lastline = i
-                outlines = outlines[seplines[seplines.index(lastline-1)-1]:]
+                outlines = outlines[seplines[-2]:]
 
                 names = ['Flux', 'Grad','var_int','var_aux','Extra Zmat']
 

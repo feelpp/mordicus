@@ -2,7 +2,7 @@
 
 import os
 from mpi4py import MPI
-if MPI.COMM_WORLD.Get_size() > 1: 
+if MPI.COMM_WORLD.Get_size() > 1: # pragma: no cover
     os.environ["OMP_NUM_THREADS"] = "1"
     os.environ["OPENBLAS_NUM_THREADS"] = "1"
     os.environ["MKL_NUM_THREADS"] = "1"

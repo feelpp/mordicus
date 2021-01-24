@@ -67,65 +67,84 @@ def test():
     print(">>>> DURATION ONLINE =", time.time() - start)
 
 
-    ## Compute Error
-    numberOfNodes = mesh.GetNumberOfNodes()
-    nbeOfComponentsPrimal = 3
-
-    solutionUApprox = S.Solution("U", nbeOfComponentsPrimal, numberOfNodes, primality = True)
-    solutionUApprox.SetCompressedSnapshots(onlineCompressedSolution)
-    solutionUApprox.UncompressSnapshots(reducedOrderBases["U"])
-
-    solutionFileName = folder + "cube.ut"
-    solutionReader = ZSR.ZsetSolutionReader(solutionFileName)
-    solutionUExact = S.Solution("U", nbeOfComponentsPrimal, numberOfNodes, primality = True)
-    outputTimeSequence = solutionReader.ReadTimeSequenceFromSolutionFile()
-    for t in outputTimeSequence:
-        U = solutionReader.ReadSnapshot("U", t, nbeOfComponentsPrimal, primality=True)
-        solutionUExact.AddSnapshot(U, t)
-
-
-    ROMErrors = []
-    for t in outputTimeSequence:
-        exactSolution = solutionUExact.GetSnapshotAtTime(t)
-        approxSolution = solutionUApprox.GetSnapshotAtTime(t)
-        norml2ExactSolution = np.linalg.norm(exactSolution)
-        if norml2ExactSolution != 0:
-            relError = np.linalg.norm(approxSolution-exactSolution)/norml2ExactSolution
-        else:
-            relError = np.linalg.norm(approxSolution-exactSolution)
-        ROMErrors.append(relError)
-
-    print("ROMErrors =", ROMErrors)
-
-    print("onlineCompressionData.keys() =", list(onlineCompressionData.keys()))
-
-    PW.WritePXDMF(mesh, onlineCompressedSolution, reducedOrderBases["U"], "U")
-    print("The compressed solution has been written in PXDMF Format")
-
-
-
     numberOfIntegrationPoints = FT.ComputeNumberOfIntegrationPoints(mesh)
 
     dualNames = ["evrcum", "sig12", "sig23", "sig31", "sig11", "sig22", "sig33", "eto12", "eto23", "eto31", "eto11", "eto22", "eto33"]
 
 
-    onlineProblemData.AddSolution(solutionUApprox)
-
     for name in dualNames:
         solutionsDual = S.Solution(name, 1, numberOfIntegrationPoints, primality = False)
 
-        onlineDualCompressedSolution = Meca.ReconstructDualQuantity(name, operatorCompressionData, onlineCompressionData, timeSequence = list(onlineCompressedSolution.keys()))
+        onlineDualCompressedSolution, errorGappy = Meca.ReconstructDualQuantity(name, operatorCompressionData, onlineCompressionData, timeSequence = list(onlineCompressedSolution.keys()))
 
         solutionsDual.SetCompressedSnapshots(onlineDualCompressedSolution)
 
         onlineProblemData.AddSolution(solutionsDual)
+        
+
+    ## Compute Error
+    
+    onlineEvrcumCompressedSolution = onlineProblemData.GetSolution("evrcum").GetCompressedSnapshots()
+
+    nbeOfComponentsPrimal = 3
+    numberOfNodes = mesh.GetNumberOfNodes()
+    solutionFileName = folder + "cube.ut"
+    solutionReader = ZSR.ZsetSolutionReader(solutionFileName)
+    outputTimeSequence = solutionReader.ReadTimeSequenceFromSolutionFile()
+    
+    solutionEvrcumExact  = S.Solution("evrcum", 1, numberOfIntegrationPoints, primality = False)
+    solutionUExact = S.Solution("U", nbeOfComponentsPrimal, numberOfNodes, primality = True)
+    for t in outputTimeSequence:
+        evrcum = solutionReader.ReadSnapshotComponent("evrcum", t, primality=False)
+        solutionEvrcumExact.AddSnapshot(evrcum, t)
+        U = solutionReader.ReadSnapshot("U", t, nbeOfComponentsPrimal, primality=True)
+        solutionUExact.AddSnapshot(U, t)
+
+    solutionEvrcumApprox = S.Solution("evrcum", 1, numberOfIntegrationPoints, primality = False)
+    solutionEvrcumApprox.SetCompressedSnapshots(onlineEvrcumCompressedSolution)
+    solutionEvrcumApprox.UncompressSnapshots(reducedOrderBases["evrcum"])
+    
+    solutionUApprox = S.Solution("U", nbeOfComponentsPrimal, numberOfNodes, primality = True)
+    solutionUApprox.SetCompressedSnapshots(onlineCompressedSolution)
+    solutionUApprox.UncompressSnapshots(reducedOrderBases["U"])
+
+    ROMErrorsU = []
+    ROMErrorsEvrcum = []    
+    for t in outputTimeSequence:
+        exactSolution = solutionEvrcumExact.GetSnapshotAtTime(t)
+        approxSolution = solutionEvrcumApprox.GetSnapshotAtTime(t)
+        norml2ExactSolution = np.linalg.norm(exactSolution)
+        if norml2ExactSolution > 1.e-6:
+            relError = np.linalg.norm(approxSolution-exactSolution)/norml2ExactSolution
+        else:
+            relError = np.linalg.norm(approxSolution-exactSolution)
+        ROMErrorsEvrcum.append(relError)
+        
+        exactSolution = solutionUExact.GetSnapshotAtTime(t)
+        approxSolution = solutionUApprox.GetSnapshotAtTime(t)
+        norml2ExactSolution = np.linalg.norm(exactSolution)
+        if norml2ExactSolution > 1.e-6:
+            relError = np.linalg.norm(approxSolution-exactSolution)/norml2ExactSolution
+        else:
+            relError = np.linalg.norm(approxSolution-exactSolution)
+        ROMErrorsU.append(relError)
+
+    print("ROMErrors U =", ROMErrorsU)
+    print("ROMErrors Evrcum =", ROMErrorsEvrcum)
+
+    PW.WritePXDMF(mesh, onlineCompressedSolution, reducedOrderBases["U"], "U")
+    print("The compressed solution has been written in PXDMF Format")
+
+    onlineProblemData.AddSolution(solutionUApprox)
+    
 
     ZSW.WriteZsetSolution(mesh, meshFileName, "reduced", collectionProblemData, onlineProblemData, "U")
 
 
     folderHandler.SwitchToExecutionFolder()
 
-    assert np.max(ROMErrors) < 1.e-3, "!!! Regression detected !!! ROMErrors have become too large"
+    assert np.max(ROMErrorsU) < 1.e-4, "!!! Regression detected !!! ROMErrors have become too large"
+    assert np.max(ROMErrorsEvrcum) < 1.e-3, "!!! Regression detected !!! ROMErrors have become too large"
 
 
 if __name__ == "__main__":

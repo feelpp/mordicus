@@ -2,14 +2,14 @@
 
 import os
 from mpi4py import MPI
-if MPI.COMM_WORLD.Get_size() > 1: 
+if MPI.COMM_WORLD.Get_size() > 1: # pragma: no cover
     os.environ["OMP_NUM_THREADS"] = "1"
     os.environ["OPENBLAS_NUM_THREADS"] = "1"
     os.environ["MKL_NUM_THREADS"] = "1"
     os.environ["VECLIB_MAXIMUM_THREADS"] = "1"
     os.environ["NUMEXPR_NUM_THREADS"] = "1"
 import numpy as np
-
+import sys
 
 from BasicTools.Helpers.TextFormatHelper import TFormat
 from Mordicus.Modules.Safran.BasicAlgorithms import NNOMPA
@@ -66,7 +66,7 @@ def ComputeReducedIntegrationScheme(integrationWeights, integrands, tolerance,\
     +str(integrands.shape[1])+" integration points"))
 
     # add the unity integrand for volume computation
-    #numberOfIntegrationPoints = integrands.shape[1]
+    numberOfIntegrationPoints = integrands.shape[1]
     #integrands = np.vstack((integrands, np.ones(numberOfIntegrationPoints)))
 
     # compute the integrations using the exact quadrature
@@ -105,6 +105,10 @@ def ComputeReducedIntegrationScheme(integrationWeights, integrands, tolerance,\
     s = np.array(list(s) + list(set(imposedIndices) - set(s)))
     dlength = s.shape[0] - l1
     x = np.hstack((x,np.zeros(dlength)))
+    
+    print(TFormat.InBlue("Selection of "+\
+        str(len(s))+" integration points (corresponding to "+str(round(100*\
+        len(s)/numberOfIntegrationPoints, 5))+"% of the total)")); sys.stdout.flush()    
 
 
     return s, x

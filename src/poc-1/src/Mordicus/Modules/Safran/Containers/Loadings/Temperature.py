@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
 from mpi4py import MPI
-if MPI.COMM_WORLD.Get_size() > 1: 
+if MPI.COMM_WORLD.Get_size() > 1: # pragma: no cover
     os.environ["OMP_NUM_THREADS"] = "1"
     os.environ["OPENBLAS_NUM_THREADS"] = "1"
     os.environ["MKL_NUM_THREADS"] = "1"
@@ -10,7 +10,7 @@ if MPI.COMM_WORLD.Get_size() > 1:
 import numpy as np
 
 from Mordicus.Core.Containers.Loadings.LoadingBase import LoadingBase
-import collections
+#import collections
 
 
 class Temperature(LoadingBase):

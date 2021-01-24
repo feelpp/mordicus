@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
-import collections
+#import collections
 from Mordicus.Modules.Safran.Containers.Loadings import Temperature as T
 
 
@@ -18,6 +18,7 @@ def test():
     loading = T.Temperature("U", "set1")
     loading.SetFieldsMap(fieldsMapTimes, fieldsMapValues)
     loading.SetFields(fields)
+    loading.UpdateLoading(loading)
 
     loading.__getstate__()
 

@@ -2,7 +2,7 @@
 
 import os
 from mpi4py import MPI
-if MPI.COMM_WORLD.Get_size() > 1: 
+if MPI.COMM_WORLD.Get_size() > 1: # pragma: no cover
     os.environ["OMP_NUM_THREADS"] = "1"
     os.environ["OPENBLAS_NUM_THREADS"] = "1"
     os.environ["MKL_NUM_THREADS"] = "1"
@@ -393,6 +393,8 @@ def CompressOperator(
     print("Prepare ECM duration = "+str(time.time()-start)+" s"); sys.stdout.flush()
     
     reducedIntegrationPoints, reducedIntegrationWeights = RQP.ComputeReducedIntegrationScheme(integrationWeights, sigmaEpsilon, tolerance, imposedIndices = imposedIndices, reducedIntegrationPointsInitSet = operatorCompressionData["reducedIntegrationPoints"])
+    #reducedIntegrationPoints, reducedIntegrationWeights = np.arange(integrationWeights.shape[0]), integrationWeights
+
 
     #hyperreduced operator
     reducedEpsilonAtReducedIntegPoints = reducedEpsilonAtIntegPoints[:,reducedIntegrationPoints,:]
@@ -514,14 +516,16 @@ def ReconstructDualQuantity(nameDualQuantity, operatorCompressionData, onlineCom
         if nameDualQuantity in onlineCompressionData['dualVarOutputNames'][tag]:
           localIndex[tag] = onlineCompressionData['dualVarOutputNames'][tag].index(nameDualQuantity)
 
+    gappyPODResidual = []
     for time in timeSequence:
         for tag, intPoints in onlineCompressionData['IndicesOfIntegPointsPerMaterial'].items():
             if tag in localIndex:
                 fieldAtMask[intPoints] = onlineCompressionData['dualVarOutput'][tag][time][:,localIndex[tag]]
 
-        onlineDualCompressedSolution[time] = GP.Fit(ModesAtMask, fieldAtMask)
-
-    return onlineDualCompressedSolution
+        onlineDualCompressedSolution[time], error = GP.FitAndCost(ModesAtMask, fieldAtMask)
+        gappyPODResidual.append(error)
+        
+    return onlineDualCompressedSolution, gappyPODResidual
 
 
 if __name__ == "__main__":# pragma: no cover

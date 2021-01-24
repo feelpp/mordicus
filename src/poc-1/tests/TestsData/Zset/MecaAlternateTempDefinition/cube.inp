@@ -5,7 +5,7 @@
 
  ***resolution newton
   **cycles 1
-   *ratio 0.01
+   *ratio 0.0001
    *time       2. 
    *increment  10
    *algorithm p1p2p3
@@ -21,7 +21,7 @@ x0y1z1 U3 0.0
 **pressure 
 x1 file pressure.node pressure
 **centrifugal
-ALL_ELEMENT (3.5 -20 1.5) d3 1.e2 rotation
+ALL_ELEMENT (3.5 -20 1.5) d3 1.5e4 rotation
 
 
 ***parameter
@@ -34,16 +34,16 @@ ALL_ELEMENT (3.5 -20 1.5) d3 1.e2 rotation
       *table coef
 
 ***table
-  **cycle rotation 0. 2.
-   *time 
-   0.  1.  2.
-   *value
-   0. 1. 1.
   **cycle pressure 0. 2.
    *time 
    0.  0.1  2.
    *value
    0.  -100.0  -100.0
+**cycle rotation 0. 2.
+   *time 
+   0.  1.  2.
+   *value
+   0. 1. 1.
   **cycle coef 0. 2.
     *time
         0.  1.  2. 
@@ -55,7 +55,7 @@ ALL_ELEMENT (3.5 -20 1.5) d3 1.e2 rotation
   **output_first
  ***material 
    *file mat
-
+       
 ****return
 
 

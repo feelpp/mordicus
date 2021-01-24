@@ -6,6 +6,8 @@ from Mordicus.Modules.Safran.Containers.Loadings import Centrifugal as C
 def test():
 
     loading = C.Centrifugal("U", "set1")
+    
+    loading.__getstate__()
 
     print(loading)
     return "ok"

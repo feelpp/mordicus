@@ -1,0 +1,119 @@
+% ficticious law with cubic elasticity, an octahedral potential with
+% hyperbolic flow and a cubic potential with hyperbolic flow 
+***material
+    *integration runge_kutta 1.e-9 dtmin 1.e-12
+***behavior gen_evp runge_jacobian
+  **elasticity	cubic
+	y1111	temperature
+	200000.		0.
+	100000.		1000.
+	200000.		2000.
+	y1122	temperature
+	150000.		0.
+	100000.		1000.
+	150000.		2000.
+	y1212	temperature
+	100000.		0.
+	050000.		1000.
+	100000.		2000.
+
+   **thermal_strain isotropic
+	alpha	temperature
+	1.E-05		0.
+	2.E-05		1000.
+	1.E-05		2000.
+	ref_temperature	20.0
+
+  **potential octahedral ev
+   *flow	hyperbolic
+	K	temperature
+	1.00E+02	0.
+	2.00E+02	1000.
+	1.00E+02	2000.
+	n	temperature
+	1.00E+02	0.
+	2.00E+02	1000.
+	1.00E+02	2000.
+	eps0	temperature
+	1.00E-01	0.
+	2.00E-01	1000.
+	1.00E-01	2000.
+
+   Kinf 1.e-5
+
+   *isotropic	constant
+	R0	temperature
+	1.00E+02	0.
+	2.00E+02	1000.
+	1.00E+02	2000.
+
+   *kinematic	nonlinear
+	C	temperature
+	1.00E+01	0.
+	2.00E+01	1000.
+	1.00E+01	2000.
+	D	temperature
+	1.00E+03	0.
+	2.00E+03	1000.
+	1.00E+03	2000.
+	m	temperature
+	1.00E+00	0.
+	2.00E+00	1000.
+	1.00E+00	2000.
+	M	temperature
+	1.00E+07	0.
+	2.00E+07	1000.
+	1.00E+07	2000.
+   *interaction	slip
+	h1	0.0
+	h2	0.0
+	h3	0.0
+	h4	1.0
+	h5	0.0
+	h6	0.0
+  **potential	cubic cu
+   *flow	hyperbolic
+	K	temperature
+	2.00E+02	0.
+	1.00E+02	1000.
+	2.00E+02	2000.
+	n	temperature
+	1.00E+01	0.
+	2.00E+01	1000.
+	1.00E+01	2000.
+	eps0	temperature
+	1.00E-02	0.
+	2.00E-02	1000.
+	1.00E-02	2000.
+
+   Kinf 1.e-4 
+
+   *isotropic	constant
+	R0	temperature
+	1.00E+02	0.
+	2.00E+02	1000.
+	1.00E+02	2000.
+   *kinematic	nonlinear
+	C	temperature
+	1.00E+05	0.
+	2.00E+05	1000.
+	1.00E+05	2000.
+	D	temperature
+	1.00E+03	0.
+	2.00E+03	1000.
+	1.00E+03	2000.
+	m	temperature
+	1.00E+00	0.
+	2.00E+00	1000.
+	1.00E+00	2000.
+	M	temperature
+	1.00E+06	0.
+	2.00E+06	1000.
+	1.00E+06	2000.
+   *interaction slip
+	h1	0.0
+	h2	1.0
+	h3	0.0
+**coefficient
+ masvol 1.e-8
+****return
