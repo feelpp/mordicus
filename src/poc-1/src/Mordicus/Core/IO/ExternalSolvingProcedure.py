@@ -19,7 +19,7 @@ class ExternalSolvingProcedure(object):
         """
         Constructor
         """
-        list_argnames = ["solver_cfg", "solver_call_procedure_type", "call_script"]
+        list_argnames = ["solver_cfg", "solver_call_procedure_type", "call_script", "python_preprocessing"]
         for name in list_argnames:
             if name in kwargs:
                 setattr(self, name, kwargs[name])

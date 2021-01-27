@@ -1,0 +1,326 @@
+# coding=utf-8
+# --------------------------------------------------------------------
+# Copyright (C) 1991 - 2020 - EDF R&D - www.code-aster.org
+# This file is part of code_aster.
+#
+# code_aster is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# code_aster is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with code_aster.  If not, see <http://www.gnu.org/licenses/>.
+# --------------------------------------------------------------------
+# person_in_charge: sylvie.michel-ponnelle@edf.fr
+
+DEBUT(CODE=_F(NIV_PUB_WEB='INTRANET'),DEBUG=_F(SDVERI='OUI',),PAR_LOT='NON');
+
+
+# ----------------------------------------------------
+# ETAPE 1
+#
+# DONNEES CONSTANTES POUR LE MODELE COMPLET
+# ----------------------------------------------------
+
+import math
+import numpy as np
+#CAS TEST ARCADE : CALCUL MECANIQUE
+from datetime import datetime
+
+# inclut ARC001a.2 qui contient toutes les donnees : matériaux + chargement
+
+INCLUDE(UNITE=2)
+
+#----------------------------------------------------------------------------------------------
+# CALCUL PRELIMINAIRE
+#---------------------------------------------------------------------------------------------------------
+#DEFINTION DES TEMPS CARACTERISTIQUES DU CHARGEMENT
+#---------------------------------------------------------------------------------------------------------
+
+T0=0.
+T30=30.*jour; #+30 pour le champ sechage
+TCOUL=datetime.strptime(J_COUL,"%d/%m/%Y")
+TFIN =  ( (datetime.strptime(J_FIN,"%d/%m/%Y")-TCOUL).days )* jour ;
+TMPI = ( (datetime.strptime(J_PREC_I,"%d/%m/%Y")-TCOUL).days )* jour ;
+TMPF = ( (datetime.strptime(J_PREC_F,"%d/%m/%Y")-TCOUL).days )* jour ;
+TDEMI = ( (datetime.strptime(J_DEM,"%d/%m/%Y")-TCOUL).days )* jour ;
+TDEMF = ( (datetime.strptime(J_DEM_STA,"%d/%m/%Y")-TCOUL).days )* jour ;
+TREF = ( (datetime.strptime(J_REF,"%d/%m/%Y")-TCOUL).days )* jour ;
+
+
+
+# lire maillage et definition du modele mécanique
+
+MAILMEC=LIRE_MAILLAGE(UNITE=80,
+                      FORMAT='MED',);
+
+#affectation du modele mecanique
+
+MODELE=AFFE_MODELE(MAILLAGE=MAILMEC,
+                   AFFE=(_F(GROUP_MA=('PACE','SI','SG','SD','SH','SB',),
+                            PHENOMENE='MECANIQUE',
+                            MODELISATION='3D',),
+                         _F(GROUP_MA='CABLE',
+                            PHENOMENE='MECANIQUE',
+                            MODELISATION='BARRE',),),);
+
+CARAMECA=AFFE_CARA_ELEM(MODELE=MODELE,
+                        BARRE=_F(GROUP_MA='CABLE',
+                                 SECTION='CERCLE',
+                                 CARA='R',
+                                 VALE= sqrt(p_secc/pi),),) ;
+
+# Lecture des champs thermiques, d'hydratation et de séchage
+
+TCALC=LIRE_RESU(TYPE_RESU='EVOL_THER',
+                FORMAT='MED',
+                MAILLAGE=MAILMEC,
+                TOUT_ORDRE='OUI',
+                UNITE=80,
+                FORMAT_MED=_F(NOM_CHAM='TEMP',
+                               NOM_CHAM_MED='TCALC___TEMP',),)
+SCALC=LIRE_RESU(TYPE_RESU='EVOL_THER',
+                FORMAT='MED',
+                MAILLAGE=MAILMEC,
+                TOUT_ORDRE='OUI',
+                UNITE=80,
+                FORMAT_MED=_F(NOM_CHAM='TEMP',
+                               NOM_CHAM_MED='SCALC___TEMP',),)
+HYDRC=LIRE_RESU(TYPE_RESU='EVOL_THER',
+                FORMAT='MED',
+                MAILLAGE=MAILMEC,
+                TOUT_ORDRE='OUI',
+                UNITE=80,
+                FORMAT_MED= _F(NOM_CHAM='HYDR_NOEU',
+                               NOM_CHAM_MED='HYDRC___HYDR_NOEU',),)
+
+
+# DEFINITION DES PARAMETRES MATERIAUX ET AFFECTATION
+
+E = DEFI_CONSTANTE(VALE=p_E_b365)
+NU=DEFI_CONSTANTE(VALE= p_nu);
+ALPHA=DEFI_CONSTANTE(VALE=p_alpha,);
+RHO=DEFI_CONSTANTE(VALE=p_rho,);
+
+FCTD=DEFI_FONCTION( NOM_PARA='SECH',
+                    PROL_DROITE='CONSTANT',
+                    PROL_GAUCHE='CONSTANT',
+                     VALE=(  0.0, 0.0,
+                            C_43, 0.43,
+                            C_58, 0.58,
+                            C_75, 0.75,
+                            C_84, 0.84,
+                            C_92, 0.92,
+                            C_97, 0.97,
+                            C_100, 1.0,),);
+
+#----------------------------------------------------------------------------------------------------------
+# LES CARACTERISTIQUES DE L'ACIER POUR LES ARMATURES
+#----------------------------------------------------------------------------------------------------------
+
+ACIERA=DEFI_MATERIAU(ELAS=_F(E=p_Ea,
+                             NU=p_nua,
+                             RHO=p_rhoa,
+                             ALPHA=p_alphaa,),);
+#---------------------------------------------------------------------------------------------------------
+#LES CARACTERISTIQUES DE L'ACIER POUR LES CABLES PRECONTRAINTE
+#---------------------------------------------------------------------------------------------------------
+ACIERC=DEFI_MATERIAU(ELAS=_F(E=p_Ec,
+                             NU=p_nuc,
+                             RHO=p_rhoc,
+                             ALPHA=p_alphac,),
+                     BPEL_ACIER=_F(F_PRG=p_fprg,
+                                   FROT_COURB=0.,
+                                   FROT_LINE=0.),
+                     );
+#                                   FROT_COURB=p_frotc,
+#                                   FROT_LINE=p_frotl),);
+
+
+#----------------------------------------------------------------------------------------------------------------------------
+#DEFINITON DES CHARGEMENTS ET CONDITIONS AUX LIMITES
+#----------------------------------------------------------------------------------------------------------------------------
+# Problème avec CLIM: il faut que toutes les fonctions des bases réduite
+# vérifient ces conditions limites cinématiques
+# Sauf pour DZ=0 sur SB, elles ne sont pas transposables dans AFFE_CHAR_CINE
+CLIM=AFFE_CHAR_MECA(MODELE=MODELE,
+                    FACE_IMPO=(_F(GROUP_MA=('SG','SD',),
+                                  DNOR=0.0,),
+                               _F(GROUP_MA='SB',
+                                  DZ=0.0,),),
+                    LIAISON_UNIF=_F(GROUP_MA='SH',
+                                    DDL='DZ',),
+                    PESANTEUR=_F(GRAVITE=9.81,
+                                 DIRECTION=(0.0,0.0,-1.0,),),);
+#poids du dome et du fut
+CH_DOME=AFFE_CHAR_MECA(MODELE=MODELE,
+                        PRES_REP=(_F(GROUP_MA='SH',
+                                     PRES=p_poids),),);
+
+
+# DEFINITION LISTES D'INSTANT - 2 LISTES POUR POUVOIR GERE AUTOMATIQUEMENT LES LISTES
+# ET CALCUL MECANIQUE
+if TREF<TMPI:
+   l_py1=[0.0, 1.*jour, TREF, TMPI, *[TMPI+(TMPF-TMPI)*(i+1)/5. for i in range(5)]]
+   l_auto1=DEFI_LIST_REEL(DEBUT=0.0,
+                      INTERVALLE=(_F(JUSQU_A=1.*jour,
+                                     NOMBRE=1),
+                                  _F(JUSQU_A=TREF,
+                                     NOMBRE=1),
+                                  _F(JUSQU_A=TMPI, #mise en tension des cables
+                                     NOMBRE=1), 
+                                  _F(JUSQU_A=TMPF, 
+                                     NOMBRE=5),    ))
+else:
+   l_py1=[0.0, 1.*jour, TMPI, *[TMPI+(TMPF-TMPI)*(i+1)/5. for i in range(5)]]
+   l_auto1=DEFI_LIST_REEL(DEBUT=0.0,
+                      INTERVALLE=(_F(JUSQU_A=1.*jour,
+                                     NOMBRE=1),
+                                  _F(JUSQU_A=TMPI, #mise en tension des cables
+                                     NOMBRE=1), 
+                                  _F(JUSQU_A=TMPF, 
+                                     NOMBRE=5),    ))
+if TREF>(TDEMF+180.*jour):
+   l_py2=[TMPF, TMPF + 30.*jour, TDEMI, *[TDEMI+(TDEMF-TDEMI)*(i+1)/6. for i in range(6)], TDEMF + 180.*jour, TREF, TFIN]
+   l_auto2=DEFI_LIST_REEL(DEBUT=TMPF,
+                       INTERVALLE=( _F(JUSQU_A= TMPF + 30.*jour,
+                                      NOMBRE=1),
+                                   _F(JUSQU_A=TDEMI, #démarrage du réacteur
+                                     NOMBRE=1),
+                                   _F(JUSQU_A=TDEMF, #attente puissance max
+                                     NOMBRE=6),
+                                   _F(JUSQU_A=TDEMF + 180.*jour , #pour eviter un pas de temps de plus d'un an
+                                     NOMBRE=1),
+                                    _F(JUSQU_A= TREF,
+                                      NOMBRE=1),  
+                                   _F(JUSQU_A=TFIN,
+                                      NOMBRE=1)))
+elif TREF>TDEMF:
+   l_py2=[TMPF, TMPF + 30.*jour, TDEMI, *[TDEMI+(TDEMF-TDEMI)*(i+1)/6. for i in range(6)], TREF, TDEMF + 180.*jour, TFIN]
+   l_auto2=DEFI_LIST_REEL(DEBUT=TMPF,
+                       INTERVALLE=( _F(JUSQU_A= TMPF + 30.*jour,
+                                      NOMBRE=1),                                                                           
+                                   _F(JUSQU_A=TDEMI, #démarrage du réacteur
+                                     NOMBRE=1),
+                                   _F(JUSQU_A=TDEMF, #attente puissance max
+                                     NOMBRE=6),
+                                    _F(JUSQU_A= TREF,
+                                      NOMBRE=1),       
+                                   _F(JUSQU_A=TDEMF + 180.*jour , #pour eviter un pas de temps de plus d'un an
+                                     NOMBRE=1),
+                                   _F(JUSQU_A=TFIN,
+                                      NOMBRE=1)))
+
+elif TREF>(TMPF+30.*jour):
+   l_py2=[TMPF, TMPF + 30.*jour, TREF, TDEMI, *[TDEMI+(TDEMF-TDEMI)*(i+1)/6. for i in range(6)], TDEMF + 180.*jour, TFIN]
+   l_auto2=DEFI_LIST_REEL(DEBUT=TMPF,
+                       INTERVALLE=( _F(JUSQU_A= TMPF + 30.*jour,
+                                      NOMBRE=1),  
+                                    _F(JUSQU_A= TREF,
+                                      NOMBRE=1),                                                                                
+                                   _F(JUSQU_A=TDEMI, #démarrage du réacteur
+                                     NOMBRE=1),
+                                   _F(JUSQU_A=TDEMF, #attente puissance max
+                                     NOMBRE=6),
+                                   _F(JUSQU_A=TDEMF + 180.*jour , #pour eviter un pas de temps de plus d'un an
+                                     NOMBRE=1),
+                                   _F(JUSQU_A=TFIN,
+                                      NOMBRE=1)))
+
+else:
+   l_py2=[TMPF, TMPF + 30.*jour, TDEMI, *[TDEMI+(TDEMF-TDEMI)*(i+1)/6. for i in range(6)], TDEMF + 180.*jour, TFIN]
+   l_auto2=DEFI_LIST_REEL(DEBUT=TMPF,
+                       INTERVALLE=( _F(JUSQU_A= TMPF + 30.*jour,
+                                      NOMBRE=1),                                                                                
+                                   _F(JUSQU_A=TDEMI, #démarrage du réacteur
+                                     NOMBRE=1),
+                                   _F(JUSQU_A=TDEMF, #attente puissance max
+                                     NOMBRE=6),
+                                   _F(JUSQU_A=TDEMF + 180.*jour , #pour eviter un pas de temps de plus d'un an
+                                     NOMBRE=1),
+                                   _F(JUSQU_A=TFIN,
+                                      NOMBRE=1)))
+
+
+
+LISTE1=DEFI_LIST_INST(METHODE='AUTO',
+                      DEFI_LIST=_F(
+                                LIST_INST=l_auto1,
+                                PAS_MINI=0.5*jour))
+LISTE2=DEFI_LIST_INST(METHODE='AUTO',
+                      DEFI_LIST=_F(
+                                LIST_INST=l_auto2,
+                                PAS_MINI=1.*jour))
+l_py = l_py1[1:] + l_py2
+#LRE = DEFI_LIST_REEL(VALE=l_py,) 
+# ----------------------------------------------------
+# ETAPE 2
+#
+# DONNEES CONSTANTES POUR LA REDUCTION
+# ----------------------------------------------------
+MAILR = CREA_MAILLAGE(MAILLAGE=MAILMEC,
+                      RESTREINT=_F(GROUP_MA=('PACE','SI','SG','SD','SH','SB','CABLE'),
+                                   TOUT_GROUP_NO='OUI',
+                                   TOUT_GROUP_MA='OUI'))
+
+MODR = AFFE_MODELE(MAILLAGE=MAILR,
+                   AFFE=(_F(GROUP_MA=('PACE','SI','SG','SD','SH','SB',),
+                            PHENOMENE='MECANIQUE',
+                            MODELISATION='3D',),
+                         _F(GROUP_MA='CABLE',
+                            PHENOMENE='MECANIQUE',
+                            MODELISATION='BARRE',),),);
+
+# ETAPE 2 BIS
+#
+# DONNEES CONSTANTES POUR LE MODELE REDUIT
+# ----------------------------------------------------
+#
+# MODELE ARTIFICIEL POUR ABRITER LES CHAMPS SANS MULTIPLICATEUR
+# -------------------------------------------------------------
+
+CLIMR=AFFE_CHAR_MECA(MODELE=MODR,
+                     PESANTEUR=_F(GRAVITE=9.81,
+                                  DIRECTION=(0.0,0.0,-1.0,),),);
+
+CH_DOMR=AFFE_CHAR_MECA(MODELE=MODR,
+                        PRES_REP=(_F(GROUP_MA='SH',
+                                     PRES=p_poids),),);
+
+CARAMECR=AFFE_CARA_ELEM(MODELE=MODR,
+                        BARRE=_F(GROUP_MA='CABLE',
+                                 SECTION='CERCLE',
+                                 CARA='R',
+                                 VALE= sqrt(p_secc/pi),),) ;
+
+TCALR=LIRE_RESU(TYPE_RESU='EVOL_THER',
+                FORMAT='MED',
+                MAILLAGE=MAILR,
+                TOUT_ORDRE='OUI',
+                UNITE=81,
+                FORMAT_MED=_F(NOM_CHAM='TEMP',
+                               NOM_CHAM_MED='TCALCR__TEMP',),)
+
+SCALR=LIRE_RESU(TYPE_RESU='EVOL_THER',
+                FORMAT='MED',
+                MAILLAGE=MAILR,
+                TOUT_ORDRE='OUI',
+                UNITE=81,
+                FORMAT_MED=_F(NOM_CHAM='TEMP',
+                               NOM_CHAM_MED='SCALCR__TEMP',),)
+
+HYDRR=LIRE_RESU(TYPE_RESU='EVOL_THER',
+                FORMAT='MED',
+                MAILLAGE=MAILR,
+                TOUT_ORDRE='OUI',
+                UNITE=81,
+                FORMAT_MED= _F(NOM_CHAM='HYDR_NOEU',
+                               NOM_CHAM_MED='HYDRCR__HYDR_NOEU',),)
+
+FIN()
+

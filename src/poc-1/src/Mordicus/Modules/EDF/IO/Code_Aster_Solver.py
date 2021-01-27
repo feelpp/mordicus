@@ -33,16 +33,5 @@ class Code_Aster_Solver(ExternalSolvingProcedure):
             script = script.format(**self.solver_cfg)
         seq = shlex.split(script)
         ret = subprocess.run(seq, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        print(ret.stdout)
         return ret
-    
-    def compute_equilibrium_residual(self):
-        """
-        Computes the residual of equilibrium. Returns a field
-        """
-        pass
-    
-    def compute_external_loading(self):
-        """
-        Computes the reference field for estimating the residual
-        """
-        pass

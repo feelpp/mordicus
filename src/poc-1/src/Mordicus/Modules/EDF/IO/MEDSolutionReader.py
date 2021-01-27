@@ -71,7 +71,7 @@ class MEDSolutionReader(SolutionReaderBase):
         """
         mlfield = self.readMEDField(fieldName, time)
         data_array_double = mlfield.getArray()
-        return data_array_double.toNumPyArray()
+        return data_array_double.toNumPyArray().flatten()
     
     def WriteReducedOrderBasis(self, reducedOrderBasis, singularValues, fieldName, fieldInstance, fileName):
         """
@@ -94,8 +94,11 @@ class MEDSolutionReader(SolutionReaderBase):
         for imode in range(numberOfModes):
             f = fieldInstance.clone()
             f.setTime(singularValues[imode], imode, imode)
-            f.setName("base____" + self.Mordicus2MEDAsterfieldName[fieldName])
-            f.setArray(reducedOrderBasis[imode,:])
+            f.setName("base____" + self.Mordicus2MEDAster[fieldName])
+            
+            # array needs to be put to the right shape and converted to DataArrayDouble
+            array_shape = (f.getNumberOfTuples(), f.getNumberOfComponents())
+            f.setArray(ml.DataArrayDouble(reducedOrderBasis[imode,:].reshape(array_shape)))
             # write f to a new file
             ML.WriteField(fileName, f, True)
     
@@ -142,7 +145,28 @@ class MEDSolutionReader(SolutionReaderBase):
                 raise ValueError("The sample field provided for empirical weights is numbered differently")
         
         ML.WriteField(fileName, f, True)
-    
+
+    def WriteSolution(self, solution, fieldInstance, fieldName, fileName, name=None):
+        """Convert a Mordicus snapshot into a MED field, with a field instance giving the structure"""
+        numberOfSnapshots = solution.GetNumberOfSnapshots()
+        for i, t in enumerate(solution.GetTimeSequenceFromSnapshots()):
+            f = fieldInstance.clone()
+            f.setTime(t, i+1, i+1)
+            
+            # No need to do anything for the name ?
+            if name is not None:
+                target = " "*8
+                expanded_name = name[:min(8,len(name))] + target[min(8,len(name)):]
+                f.setName(expanded_name + self.Mordicus2MEDAster[fieldName])
+
+            f.setArray(ml.DataArrayDouble(solution.GetSnapshot[t]))
+            # write f to a new file
+            if i == 0:
+                ML.WriteField(fileName, f, True)
+            else:
+                ML.WriteFieldUsingAlreadyWrittenMesh(fileName, f)
+        
+        
     def ReadSnapshotComponentAtMask(self, fieldName, time, primality, fieldWeights):
         """Reads snapshot coordinates at mask"""
         # A line to retrieve the field of weights if necessary

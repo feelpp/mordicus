@@ -16,8 +16,8 @@ class MEDMeshReader(object):
         """
         self.meshFileName = MEDFileName
     
-    def readMesh(self):
+    def ReadMesh(self):
         """
         Reads mesh
         """
-        return MEDMesh(ml.ReadUMeshFromFile(self.meshFileName))
+        return MEDMesh(self.meshFileName)

@@ -12,14 +12,13 @@ class MEDMesh(MeshBase):
     MED Mesh
     """
 
-    def __init__(self, meshFileName, meshName):
+    def __init__(self, meshFileName):
         """
         Constructor
         """
         super(MEDMesh, self).__init__()
         self.meshFileName = meshFileName
-        self.meshName = meshName
-        MEDCouplingUMeshInstance = ml.ReadUMeshFromFile(meshFileName, meshName)
+        MEDCouplingUMeshInstance = ml.ReadMeshFromFile(meshFileName)
         self.SetInternalStorage(MEDCouplingUMeshInstance)
 
     def gaussPointsCoordinates(self, sample_field):

@@ -1,0 +1,11 @@
+P time_limit 6000
+P memory_limit 4096
+P ncpus 1
+P mpi_nbcpu 1
+P mpi_nbnoeud 1
+P testlist validation sequential concrete
+
+R base ../step1/base_fixeddata D 0
+F rmed ../tmp/buffer_reduced_solution_sigma.med D 80
+F comm comp_ext_load.comm D 1
+F rmed comp_ext_load.rmed R 81

@@ -3,7 +3,7 @@ import numpy as np
 Algorithms for empirical quadrature
 """
 
-def computeMatrixAndVector(problemData, reducedOrderBasisU, fieldHandler):
+def computeMatrixAndVector(problemData, collectionProblemData, fieldHandler):
     """
     Arguments:
     ----------
@@ -19,21 +19,21 @@ def computeMatrixAndVector(problemData, reducedOrderBasisU, fieldHandler):
     np.array, np.array : matrix and vector of empirical quadrature, allocated within routine
     """
     # k denotes the row of G
-    return _addNewResultsToMatrixAndVector(problemData, reducedOrderBasisU, fieldHandler, 0)
+    return _addNewResultsToMatrixAndVector(problemData, collectionProblemData, fieldHandler, 0)
 
 
-def _cdoubledot(fieldHandler, solutionUStructure, sigma, solutionSigmaStructure, u):
-    """Computes u:sigma
+def _cdoubledot(fieldHandler, solutionUInstance, sigma, solutionSigmaInstance, u):
+    """Computes SymGrad(u):sigma (doubly contracted product)
     """
     # Convert to MEDCouplingField
-    fieldU = fieldHandler.ConvertToLocalField(solutionUStructure, u)
-    fieldSigma = fieldHandler.ConvertToLocalField(solutionSigmaStructure, sigma)
-# Make the doubly contracted product
-    fieldEpsilon = fieldHandler.symetricGradient(fieldU)
+    fieldU = fieldHandler.ConvertToLocalField(solutionUInstance, u)
+    fieldSigma = fieldHandler.ConvertToLocalField(solutionSigmaInstance, sigma)
+    # Make the doubly contracted product
+    fieldEpsilon = fieldHandler.symetricGradient(fieldU, solutionSigmaInstance)
     fieldDoublyContractedProduct = fieldHandler.doublyContractedProduct(fieldSigma, fieldEpsilon)
     return fieldDoublyContractedProduct
 
-def _addNewResultsToMatrixAndVector(problemData, reducedOrderBasisU, fieldHandler, k, G=None, Y=None):
+def _addNewResultsToMatrixAndVector(problemData, collectionProblemData, fieldHandler, k, G=None, Y=None):
     """
     Adds newly computed snapshots from problemData to the matrix and vector of empirical quadrature
     
@@ -47,10 +47,12 @@ def _addNewResultsToMatrixAndVector(problemData, reducedOrderBasisU, fieldHandle
         field implementation to use for field manipulation (e.g. medcoupling...)
     k : lines already in G and Y
     """
+    reducedOrderBasisU = collectionProblemData.GetReducedOrderBasis("U")
+
     # Initialisations pour la quadrature empirique
     numberOfModes, numerOfDofs = reducedOrderBasisU.shape
     solutionSigma = problemData.GetSolution("sigma")
-    solutionUStructure = problemData.GetSolution("U").GetStructure()
+    solutionUInstance = collectionProblemData.GetFieldInstance("U")
     numberOfRegisteredTimeSteps = len(solutionSigma.GetTimeSequenceFromSnapshots())
     if k == 0:
         G = np.zeros((numberOfRegisteredTimeSteps*numberOfModes, solutionSigma.GetNumberOfDofs()))
@@ -58,15 +60,19 @@ def _addNewResultsToMatrixAndVector(problemData, reducedOrderBasisU, fieldHandle
 
     for t in solutionSigma.GetTimeSequenceFromSnapshots():
         sigma = solutionSigma.GetSnapshot(t)
-        solutionSigmaStructure = solutionSigma.GetStructure()
+        solutionSigmaInstance = collectionProblemData.GetFieldInstance("sigma")
         
         for n in range(numberOfModes):
             u = reducedOrderBasisU[n,:]
             
-            fieldDoublyContractedProduct = _cdoubledot(fieldHandler, solutionUStructure, sigma, solutionSigmaStructure, u)
+            fieldDoublyContractedProduct = _cdoubledot(fieldHandler, solutionUInstance, sigma, solutionSigmaInstance, u)
+            print("Converting from local field")
             
             # Convert back to numpy array
             G[k,:] = fieldHandler.ConvertFromLocalField(fieldDoublyContractedProduct)
+            
+            print("Integral")
+
 
             # The right-hand side is the integral of G[k,:]
             Y[k] = fieldHandler.integral(fieldDoublyContractedProduct, 0)
@@ -92,20 +98,21 @@ def enrichMatrixAndVector(G, Y, problemData, collectionProblemData, fieldHandler
         field implementation to use for field manipulation (e.g. medcoupling...)
     """
     k = Y.size
-    reducedOrderBasisU = collectionProblemData.GetReducedOrderBasis("U")
-    G, Y = _addNewResultsToMatrixAndVector(problemData, reducedOrderBasisU, fieldHandler, k, G, Y)
-    solutionUStructure = problemData.GetSolution("U").GetStructure()
+    G, Y = _addNewResultsToMatrixAndVector(problemData, collectionProblemData, fieldHandler, k, G, Y)
+    solutionUInstance = collectionProblemData.GetFieldInstance("U")
     k = Y.size
+    reducedOrderBasisU = collectionProblemData.GetReducedOrderBasis("U")
+
     for previousProblemData in collectionProblemData.GetProblemDatas():
         solutionSigma = previousProblemData.GetSolution("sigma")
-        solutionSigmaStructure = solutionSigma.GetStructure()
+        solutionSigmaInstance = collectionProblemData.GetFieldInstance("sigma")
 
         for t in solutionSigma.GetTimeSequenceFromSnapshots():
             sigma = solutionSigma.GetSnapshot(t)
             
             for n in range(newmodes):
                 u = reducedOrderBasisU[n,:]
-                fieldDoublyContractedProduct = _cdoubledot(fieldHandler, solutionUStructure, sigma, solutionSigmaStructure, u)
+                fieldDoublyContractedProduct = _cdoubledot(fieldHandler, solutionUInstance, sigma, solutionSigmaInstance, u)
             
                 # Convert back to numpy array
                 G[k,:] = fieldHandler.ConvertFromLocalField(fieldDoublyContractedProduct)
