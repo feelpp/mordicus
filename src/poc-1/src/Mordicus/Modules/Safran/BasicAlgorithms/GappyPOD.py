@@ -7,6 +7,7 @@ if MPI.COMM_WORLD.Get_size() > 1: # pragma: no cover
     os.environ["MKL_NUM_THREADS"] = "1"
     os.environ["VECLIB_MAXIMUM_THREADS"] = "1"
     os.environ["NUMEXPR_NUM_THREADS"] = "1"
+import numpy as np
 
 from scipy.optimize import lsq_linear as lsq_linear
 
@@ -31,8 +32,14 @@ def FitAndCost(ModesAtMask, fieldAtMask):
     fieldAtMask: maskSize
     """
     lstqr = lsq_linear(ModesAtMask.T, fieldAtMask)
+ 
+    normFieldAtMask = np.linalg.norm(fieldAtMask)
+    if normFieldAtMask > 1.e-10:
+        cost = lstqr['cost']/np.linalg.norm(fieldAtMask)
+    else:
+        cost = lstqr['cost']
 
-    return lstqr['x'], lstqr['cost']
+    return lstqr['x'], cost
 
 
 if __name__ == "__main__":# pragma: no cover
