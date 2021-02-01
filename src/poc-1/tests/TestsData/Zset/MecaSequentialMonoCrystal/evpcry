@@ -1,7 +1,7 @@
 % ficticious law with cubic elasticity, an octahedral potential with
 % hyperbolic flow and a cubic potential with hyperbolic flow 
 ***material
-    *integration runge_kutta 1.e-9 dtmin 1.e-12
+    *integration runge_kutta 1.e-5 dtmin 1.e-12
 ***behavior gen_evp runge_jacobian
   **elasticity	cubic
 	y1111	temperature

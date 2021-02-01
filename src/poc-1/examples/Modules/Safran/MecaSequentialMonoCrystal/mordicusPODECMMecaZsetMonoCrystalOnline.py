@@ -41,7 +41,7 @@ def test():
     inputFileName = folder + "cube.inp"
     inputReader = ZIR.ZsetInputReader(inputFileName)
 
-    meshFileName = folder + "cube.geof"
+    meshFileName = folder + "cube.geo"
     mesh = ZMR.ReadMesh(meshFileName)
 
     onlineProblemData = PD.ProblemData(folder)
@@ -88,7 +88,7 @@ def test():
     
     
 
-    onlineevgeqCompressedSolution = onlineProblemData.GetSolution("evgeq").GetCompressedSnapshots()
+    onlineDualCompressedSolution = [onlineProblemData.GetSolution(name).GetCompressedSnapshots() for name in dualNames]
 
 
     ## Compute Error
@@ -99,45 +99,52 @@ def test():
     solutionReader = ZSR.ZsetSolutionReader(solutionFileName)
     outputTimeSequence = solutionReader.ReadTimeSequenceFromSolutionFile()
     
-    solutionevgeqExact  = S.Solution("evgeq", 1, numberOfIntegrationPoints, primality = False)
+    solutionDualExact  = [S.Solution(name, 1, numberOfIntegrationPoints, primality = False) for name in dualNames]
     solutionUExact = S.Solution("U", nbeOfComponentsPrimal, numberOfNodes, primality = True)
     for t in outputTimeSequence:
-        evgeq = solutionReader.ReadSnapshotComponent("evgeq", t, primality=False)
-        solutionevgeqExact.AddSnapshot(evgeq, t)
+        for i, name in enumerate(dualNames):
+            solutionDualExact[i].AddSnapshot(solutionReader.ReadSnapshotComponent(name, t, primality=False), t)
+        
         U = solutionReader.ReadSnapshot("U", t, nbeOfComponentsPrimal, primality=True)
         solutionUExact.AddSnapshot(U, t)
 
-    solutionevgeqApprox = S.Solution("evgeq", 1, numberOfIntegrationPoints, primality = False)
-    solutionevgeqApprox.SetCompressedSnapshots(onlineevgeqCompressedSolution)
-    solutionevgeqApprox.UncompressSnapshots(reducedOrderBases["evgeq"])
+    solutionDualApprox = [S.Solution(name, 1, numberOfIntegrationPoints, primality = False) for name in dualNames]
+    for i, name in enumerate(dualNames):
+        solutionDualApprox[i].SetCompressedSnapshots(onlineDualCompressedSolution[i])
+        solutionDualApprox[i].UncompressSnapshots(reducedOrderBases[name])
     
     solutionUApprox = S.Solution("U", nbeOfComponentsPrimal, numberOfNodes, primality = True)
     solutionUApprox.SetCompressedSnapshots(onlineCompressedSolution)
     solutionUApprox.UncompressSnapshots(reducedOrderBases["U"])
 
     ROMErrorsU = []
-    ROMErrorsevgeq = []    
+    ROMErrorsDual = [[] for name in dualNames]  
     for t in outputTimeSequence:
-        exactSolution = solutionevgeqExact.GetSnapshotAtTime(t)
-        approxSolution = solutionevgeqApprox.GetSnapshotAtTime(t)
-        norml2ExactSolution = np.linalg.norm(exactSolution)
-        if norml2ExactSolution > 1.e-10:
-            relError = np.linalg.norm(approxSolution-exactSolution)/norml2ExactSolution
-        else:
-            relError = np.linalg.norm(approxSolution-exactSolution)
-        ROMErrorsevgeq.append(relError)
+        for i, name in enumerate(dualNames):
         
+            exactSolution = solutionDualExact[i].GetSnapshotAtTime(t)
+            approxSolution = solutionDualApprox[i].GetSnapshotAtTime(t)
+            norml2ExactSolution = np.linalg.norm(exactSolution)
+            if norml2ExactSolution > 1.e-6:
+                relError = np.linalg.norm(approxSolution-exactSolution)/norml2ExactSolution
+            else:
+                relError = np.linalg.norm(approxSolution-exactSolution)
+            ROMErrorsDual[i].append(relError)
+        
+
         exactSolution = solutionUExact.GetSnapshotAtTime(t)
         approxSolution = solutionUApprox.GetSnapshotAtTime(t)
         norml2ExactSolution = np.linalg.norm(exactSolution)
-        if norml2ExactSolution > 1.e-10:
+        if norml2ExactSolution > 1.e-3:
             relError = np.linalg.norm(approxSolution-exactSolution)/norml2ExactSolution
         else:
             relError = np.linalg.norm(approxSolution-exactSolution)
         ROMErrorsU.append(relError)
 
-    print("ROMErrors U =", ROMErrorsU)
-    print("ROMErrors evgeq =", ROMErrorsevgeq)
+    print("ROMErrors U =", ROMErrorsU)    
+    for i, name in enumerate(dualNames):
+        print("ROMErrors "+name+" =", ROMErrorsDual[i])
+
 
     PW.WritePXDMF(mesh, onlineCompressedSolution, reducedOrderBases["U"], "U")
     print("The compressed solution has been written in PXDMF Format")
@@ -150,8 +157,10 @@ def test():
 
     folderHandler.SwitchToExecutionFolder()
 
-    assert np.max(ROMErrorsU) < 1.e-4, "!!! Regression detected !!! ROMErrors have become too large"
-    assert np.max(ROMErrorsevgeq) < 1.e-2, "!!! Regression detected !!! ROMErrors have become too large"
+    assert np.max(ROMErrorsU) < 1.e-2, "!!! Regression detected !!! ROMErrors have become too large"
+    
+    for i, name in enumerate(dualNames):
+        assert np.max(ROMErrorsDual[i]) < 1.e-2, "!!! Regression detected !!! ROMErrors have become too large"
 
 
 

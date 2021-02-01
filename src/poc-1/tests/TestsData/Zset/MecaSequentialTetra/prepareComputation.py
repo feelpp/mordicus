@@ -1,36 +1,18 @@
 import numpy as np
 
 
-f = open('cube2.geof')
-string = ""
-for line in f:
-  line = line.split()
-  try:
-    index = line.index("c3d10_4")
-    line[index] = "c3d10"
-  except ValueError:
-    True
-  line = ' '.join(line)
-  string += str(line)+'\n'
-f.close()
-
-f = open('cube2.geof', 'w')
-f.write(string)
-f.close()
 
 
 
+from BasicTools.IO import GeoReader as GR
 
-
-from BasicTools.IO import GeofReader as GR
-
-mesh = GR.ReadGeof('cube2.geof')
+mesh = GR.ReadGeo('cube.geo')
 
 nNodes = mesh.GetNumberOfNodes()
 
 
 Tmin = 100.
-Tmax = 400.
+Tmax = 1900.
 
 
 

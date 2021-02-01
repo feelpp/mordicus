@@ -1,11 +1,11 @@
 ****calcul
  ***mesh
-  **file cube.geof
+  **file cube.geo
 
 
  ***resolution newton
   **cycles 1
-   *ratio 0.01
+   *ratio 0.0001
    *time       2. 
    *increment  10
    *algorithm p1p2p3
@@ -21,12 +21,12 @@ x0y1z1 U3 0.0
 **pressure 
 x1 file pressure.node pressure
 **centrifugal
-ALL_ELEMENT (3.5 -20 1.5) d3 1.6e4 rotation
+ALL_ELEMENT (3.5 -20 1.5) d3 1.22e4 rotation
 
 ***parameter
 **file temperature
 *node
-*rec_size 343
+*rec_size 1981
 *cycle_conversion 0. 20. 2.
 function 0.0+cycle*2.; file temperature1.node 1
 function 1.0+cycle*2.; file temperature2.node 1
@@ -35,21 +35,21 @@ function 2.0+cycle*2.; file temperature1.node 1
 ***table
   **cycle pressure 0. 2.
    *time 
-   0.  0.5  2.
+   0.  1.  2.
    *value
-   0.  -500.0  -100.0
+   0.  -600.0  0.
 **cycle rotation 0. 2.
    *time 
    0.  1.  2.
    *value
-   0. 1. 1.
+   0. 1. 0.
    
 
  ***output
   **output_first
  ***material 
    *file evpcry
-   *integration runge_kutta 1.e-9 dtmin 1.e-12
+   *integration runge_kutta 1.e-5 dtmin 1.e-12
 
        
 ****return

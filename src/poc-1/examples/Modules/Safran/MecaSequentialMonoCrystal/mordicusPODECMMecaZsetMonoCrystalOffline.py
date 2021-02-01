@@ -20,7 +20,7 @@ def test():
 
     folder = "MecaSequentialMonoCrystal/"
 
-    meshFileName = folder + "cube.geof"
+    meshFileName = folder + "cube.geo"
     solutionFileName = folder + "cube.ut"
 
     meshReader = ZMR.ZsetMeshReader(meshFileName)
@@ -82,9 +82,9 @@ def test():
     snapshotCorrelationOperator = {}
     snapshotCorrelationOperator["U"] = FT.ComputeL2ScalarProducMatrix(mesh, 3)
 
-    SP.CompressData(collectionProblemData, "U", 1.e-6, snapshotCorrelationOperator["U"])
+    SP.CompressData(collectionProblemData, "U", 1.e-7, snapshotCorrelationOperator["U"])
     for name in dualNames:
-        SP.CompressData(collectionProblemData, name, 1.e-6)
+        SP.CompressData(collectionProblemData, name, 1.e-7)
 
 
     collectionProblemData.CompressSolutions("U", snapshotCorrelationOperator["U"])
@@ -100,7 +100,7 @@ def test():
         reconstructedCompressedSolution = np.dot(CompressedSolutionU[t], reducedOrderBasisU)
         exactSolution = solutionU.GetSnapshot(t)
         norml2ExactSolution = np.linalg.norm(exactSolution)
-        if norml2ExactSolution != 0:
+        if norml2ExactSolution > 1.e-6:
             relError = np.linalg.norm(reconstructedCompressedSolution-exactSolution)/norml2ExactSolution
         else:
             relError = np.linalg.norm(reconstructedCompressedSolution-exactSolution)
@@ -108,7 +108,7 @@ def test():
 
     print("compressionErrors =", compressionErrors)
 
-    Mechanical.CompressOperator(collectionProblemData, operatorPreCompressionData, mesh, 1.e-6, listNameDualVarOutput = dualNames, listNameDualVarGappyIndicesforECM = ["evgeq", "cugeq"])
+    Mechanical.CompressOperator(collectionProblemData, operatorPreCompressionData, mesh, 1.e-6, listNameDualVarOutput = dualNames, listNameDualVarGappyIndicesforECM = ["evgeq", "cugeq", "sig12", "sig23", "sig31", "sig11", "sig22", "sig33"])
 
     print("CompressOperator done")
 
@@ -118,7 +118,7 @@ def test():
 
     folderHandler.SwitchToExecutionFolder()
 
-    assert np.max(compressionErrors) < 1.e-5, "!!! Regression detected !!! compressionErrors have become too large"
+    assert np.max(compressionErrors) < 1.e-4, "!!! Regression detected !!! compressionErrors have become too large"
 
 
 if __name__ == "__main__":
