@@ -212,7 +212,11 @@ class ZsetInputReader(InputReaderBase):
             fieldsMap[sequence["time"][0]] = name
 
             lastTimeCycleLoading = float(sequence["time"][-1])
-            nbeLoadingCycles = int(inputTimeSequence[-1]/lastTimeCycleLoading)
+            nbeLoadingCycles = max(int(inputTimeSequence[-1]/lastTimeCycleLoading),1)
+
+            #print("lastTimeCycleLoading =", lastTimeCycleLoading)
+            #print("nbeLoadingCycles =", nbeLoadingCycles)
+
             for j in range(nbeLoadingCycles):
                 for i, time in enumerate(sequence["time"][1:]):
                     coefficients[float(time) + j*lastTimeCycleLoading] = sequence["value"][i+1]
@@ -227,7 +231,7 @@ class ZsetInputReader(InputReaderBase):
             fields = {name: ZIO.ReadBinaryFile(folder + fileName)}
 
             loading.SetFields(fields)
-
+            
             return loading
 
 
@@ -260,7 +264,7 @@ class ZsetInputReader(InputReaderBase):
 
 
             lastTimeCycleLoading = float(sequence["time"][-1])
-            nbeLoadingCycles = int(inputTimeSequence[-1]/lastTimeCycleLoading)+1
+            nbeLoadingCycles = max(int(inputTimeSequence[-1]/lastTimeCycleLoading),1)
 
 
             for j in range(nbeLoadingCycles):
@@ -354,7 +358,7 @@ class ZsetInputReader(InputReaderBase):
                                     
             
             lastTimeCycleLoading = float(timeTable[-1])
-            nbeLoadingCycles = int(inputTimeSequence[-1]/lastTimeCycleLoading)
+            nbeLoadingCycles = max(int(inputTimeSequence[-1]/lastTimeCycleLoading),1)
 
             fieldsMap[float(timeTable[0])] = fileTable[0]
             for time, file in zip(timeTable, fileTable):
