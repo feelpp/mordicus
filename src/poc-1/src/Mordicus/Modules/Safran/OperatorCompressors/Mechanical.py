@@ -193,8 +193,8 @@ def ComputeOnline(onlineProblemData, timeSequence, operatorCompressionData, tole
             print("normRes  =", normRes); sys.stdout.flush()
 
             count += 1
-            if count == 20:
-                raise RuntimeError("problem could not converge after 20 iterations") # pragma: no cover
+            if count == 50:
+                raise RuntimeError("problem could not converge after 50 iterations") # pragma: no cover
 
 
         #solution is set: now update Internal Variables:
