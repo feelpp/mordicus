@@ -3,6 +3,7 @@ from Mordicus.Core.IO.SolutionReaderBase import SolutionReaderBase
 import medcoupling as ml
 import MEDLoader as ML
 import numpy as np
+from Mordicus.Modules.EDF.Containers.FieldHandlers.MEDFieldHandler import safe_clone
 
 class MEDSolutionReader(SolutionReaderBase):
     """
@@ -72,8 +73,9 @@ class MEDSolutionReader(SolutionReaderBase):
         mlfield = self.readMEDField(fieldName, time)
         data_array_double = mlfield.getArray()
         return data_array_double.toNumPyArray().flatten()
-    
-    def WriteReducedOrderBasis(self, reducedOrderBasis, singularValues, fieldName, fieldInstance, fileName):
+
+    @classmethod
+    def WriteReducedOrderBasis(cls, reducedOrderBasis, fieldName, fieldInstance, fileName):
         """
         Converts Mordicus reduced order basis into the MED format
         
@@ -81,8 +83,6 @@ class MEDSolutionReader(SolutionReaderBase):
         ----------
         reducedOrderBasis : nparray(numberOfModes, numberOfDofs)
             numpy array of the modes
-        singularValues : nparray(numberOfModes)
-            numpy array of singular values associated with the modes
         fieldName : str
             name of field associated with the basis (e.g. "U", "sigma")
         fieldInstance : MEDCouplingField
@@ -92,17 +92,21 @@ class MEDSolutionReader(SolutionReaderBase):
         """
         numberOfModes, _ = reducedOrderBasis.shape
         for imode in range(numberOfModes):
-            f = fieldInstance.clone()
-            f.setTime(singularValues[imode], imode, imode)
-            f.setName("base____" + self.Mordicus2MEDAster[fieldName])
+            f = safe_clone(fieldInstance)
+            f.setTime(float(imode), imode, imode)
+            f.setName("base____" + cls.Mordicus2MEDAster[fieldName])
             
             # array needs to be put to the right shape and converted to DataArrayDouble
-            array_shape = (f.getNumberOfTuples(), f.getNumberOfComponents())
-            f.setArray(ml.DataArrayDouble(reducedOrderBasis[imode,:].reshape(array_shape)))
+            f.getArray().setValues(list(reducedOrderBasis[imode,:]), f.getNumberOfTuples(), f.getNumberOfComponents())
+            
             # write f to a new file
-            ML.WriteField(fileName, f, True)
+            if imode == 0:
+                ML.WriteField(fileName, f, True)
+            else:
+                ML.WriteFieldUsingAlreadyWrittenMesh(fileName, f)
     
-    def WriteSparseFieldOfEmpiricalWeights(self, np_coor_gauss, empirical_weights, fileName, fieldInstance):
+    @classmethod
+    def WriteSparseFieldOfEmpiricalWeights(cls, np_coor_gauss, empirical_weights, fileName, fieldInstance):
         """
         Writes found empirical_weights to a Gauss MED field
         
@@ -113,36 +117,40 @@ class MEDSolutionReader(SolutionReaderBase):
         empirical_weights
             numpy array of empirical weights
         """
+        import numpy as np
         # another solution would be to clone the field and replace the array, but this one seems cleaner
-        f = ml.MEDCouplingFieldDouble.New(ml.ON_GAUSS_PT, ml.NO_TIME)
+        f = ml.MEDCouplingFieldDouble.New(ml.ON_GAUSS_PT, ml.ONE_TIME)
         f.setMesh(fieldInstance.getMesh())
         f.setName("W_EMPI__")
-
+        f.setTime(0.0, 0, 0)
         
         for i_gauss_loc in range(fieldInstance.getNbOfGaussLocalization()):
             gauss_loc = fieldInstance.getGaussLocalization(i_gauss_loc)
-            cell_type, refCoo, gsCoo, wg = gauss_loc.GetType(), gauss_loc.getRefCoords(), gauss_loc.getGaussCoords(), gauss_loc.getWeights()
+            cell_type, refCoo, gsCoo, wg = gauss_loc.getType(), gauss_loc.getRefCoords(), gauss_loc.getGaussCoords(), gauss_loc.getWeights()
             f.setGaussLocalizationOnType(cell_type, refCoo, gsCoo, wg)
 
         # 1 component per Gauss point, initiated to 0
         f.fillFromAnalytic(1, "0")
 
         # indices of non zero empirical_weights
-        nonzero_indices = empirical_weights.non_zero()
+        nonzero_indices = empirical_weights.nonzero()[0]
+        print("nonzero_indices = ", nonzero_indices)
         char_len = fieldInstance.getMesh().getCaracteristicDimension()
         
-        gauss_pts = fieldInstance.getLocalizationOfDiscr()
-        nb_comps = gauss_pts.getNumberOfComponents()
+        gauss_pts = fieldInstance.getLocalizationOfDiscr().toNumPyArray()
+        nb_comps = gauss_pts.shape[1]
         
         # for each, find Gauss location, set field value there
         for i_nonzero in nonzero_indices:
-            f.getArray()[i_nonzero] = empirical_weights[i_nonzero]
+
+            f.getArray().toNumPyArray()[i_nonzero] = np.double(empirical_weights[i_nonzero])
             dist = 0.
             for i_comp in range(nb_comps):
                 dist = dist + (gauss_pts[i_nonzero, i_comp]-np_coor_gauss[i_nonzero, i_comp])**2
             dist = np.sqrt(dist)
             if dist > 1.e-8*char_len:
                 raise ValueError("The sample field provided for empirical weights is numbered differently")
+        f.getArray().setInfoOnComponent(0, "X1")
         
         ML.WriteField(fileName, f, True)
 
@@ -150,7 +158,7 @@ class MEDSolutionReader(SolutionReaderBase):
         """Convert a Mordicus snapshot into a MED field, with a field instance giving the structure"""
         numberOfSnapshots = solution.GetNumberOfSnapshots()
         for i, t in enumerate(solution.GetTimeSequenceFromSnapshots()):
-            f = fieldInstance.clone()
+            f = safe_clone(fieldInstance)
             f.setTime(t, i+1, i+1)
             
             # No need to do anything for the name ?

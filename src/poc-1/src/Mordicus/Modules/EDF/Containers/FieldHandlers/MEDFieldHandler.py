@@ -4,6 +4,18 @@ import numpy as np
 
 from Mordicus.Core.Containers.FieldHandlers.FieldHandlerBase import FieldHandlerBase
 
+def safe_clone(mc_field):
+    """
+    Safely initializaing field with the same structure as sample field mc_clone
+    """
+    template = mc.MEDCouplingFieldTemplate(mc_field)
+    array = mc.DataArrayDouble.New()
+    array.alloc(mc_field.getNumberOfTuples(), mc_field.getNumberOfComponents())
+    array.fillWithZero()
+    field = mc.MEDCouplingFieldDouble.New(template)
+    field.setArray(array)
+    return field
+
 class MEDFieldHandler(FieldHandlerBase):
     """
     Field operations implemented with MEDCouplingFIeldDouble
@@ -23,13 +35,12 @@ class MEDFieldHandler(FieldHandlerBase):
         MEDCouplingFieldDouble
             field in the local Type
         """
-        f = fieldInstance.clone(True)
+        f = safe_clone(fieldInstance)
         f.setName("convert_" + f.getName())
-        array_shape = (f.getNumberOfTuples(), f.getNumberOfComponents())
-        f.setArray(mc.DataArrayDouble(vector.reshape(array_shape)))
+        f.getArray().setValues(list(vector.flatten()), f.getNumberOfTuples(), f.getNumberOfComponents())
         return f
     
-    def doublyContractedProduct(self, sigma, epsilon):
+    def doublContractedProduct(self, sigma, epsilon):
         """
         Parameters
         ----------
@@ -43,10 +54,39 @@ class MEDFieldHandler(FieldHandlerBase):
         doublyContractedProduct : MEDCouplingFieldDouble
             field with 1 component, result of the doubly contracted product
         """
-        mult = sigma.clone(True)
-        mult.fillFromAnalytic(7, "1.*IVec+1.*JVec+1.*KVec+2.*LVec+2.*MVec+2.*NVec+0.*OVec")
+        mult = safe_clone(sigma)
+        
+        print("Filling from analytic")
+        mult.fillFromAnalytic(sigma.getNumberOfComponents(), "1.*IVec+1.*JVec+1.*KVec+2.*LVec+2.*MVec+2.*NVec")
+        mult.checkConsistencyLight()
+        print("Multipliy fields")
+
         sigma2 = mc.MEDCouplingFieldDouble.MultiplyFields(mult, sigma)
-        return mc.MEDCouplingFieldDouble.DotFields(sigma2, epsilon)
+        print("Dotting fields")
+
+        sigma2_array = sigma2.getArray()
+        epsilon_array = epsilon.getArray()
+
+        print("Creating result")
+        template = mc.MEDCouplingFieldTemplate(sigma)
+        array = mc.DataArrayDouble.New()
+        array.alloc(sigma.getNumberOfTuples())
+        array.fillWithZero()
+        print("Making dot operation with numpy")
+        dc_prod = np.sum(np.multiply(sigma2_array.toNumPyArray(), epsilon_array.toNumPyArray()), axis=1)
+        print("End of dot operation with numpy")
+        print("Putting values into array")
+        array.setValues(list(dc_prod), sigma.getNumberOfTuples(), 1)
+        print("End of putting values into array")
+        
+        print("Creating new array")
+        field = mc.MEDCouplingFieldDouble.New(template)
+        print("Putting array in new field")
+
+        field.setArray(array)
+        print("End putting array in new field")
+
+        return field
 
     def integral(self, field, componentNumber):
         """
@@ -95,10 +135,10 @@ class MEDFieldHandler(FieldHandlerBase):
         restrMesh = field.getMesh()
         field_array = field.getArray().toNumPyArray()
         coor_array = restrMesh.getCoords().toNumPyArray()
-        res = fieldInstanceGauss.clone(True)
+
+        res = safe_clone(fieldInstanceGauss)
         res_array = res.getArray()
-        res_array[:,:] = 0
-        
+      
         dN = self._derivativesOfShapeFunction(fieldInstanceGauss)
         
         # The following is clearly not optimal (python loop)

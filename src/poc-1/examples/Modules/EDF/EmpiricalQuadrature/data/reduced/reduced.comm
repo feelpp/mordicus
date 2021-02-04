@@ -20,6 +20,22 @@
 
 POURSUITE()
 
+BASE_POD=LIRE_RESU(TYPE_RESU='MODE_EMPI',
+                   FORMAT='MED',
+                   MAILLAGE=MAILR,
+                   TOUT_ORDRE='OUI',
+                   UNITE=24,
+                   FORMAT_MED=_F(NOM_CHAM='DEPL',
+                                 NOM_CHAM_MED='base____DEPL',),)
+
+POIDR=LIRE_CHAMP(FORMAT='MED',
+                 NOM_MED='W_EMPI__',
+                 NOM_CMP_IDEM='OUI',
+                 TYPE_CHAM='ELGA_NEUT_R',
+                 MODELE=MODR,
+                 MAILLAGE=MAILR,
+                 UNITE=25)
+
 # ----------------------------------------------------
 # ETAPE 3
 #
@@ -186,7 +202,7 @@ RES2=STAT_NON_LINE(reuse =RES2,
 
 IMPR_RESU(FORMAT='MED',
           UNITE=80,
-          RESU=_F(RESULTAT=RES1))
+          RESU=_F(RESULTAT=RES2))
 
 FIN()
 

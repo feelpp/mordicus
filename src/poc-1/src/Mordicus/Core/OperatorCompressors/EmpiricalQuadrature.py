@@ -21,17 +21,22 @@ def computeMatrixAndVector(problemData, collectionProblemData, fieldHandler):
     # k denotes the row of G
     return _addNewResultsToMatrixAndVector(problemData, collectionProblemData, fieldHandler, 0)
 
-
-def _cdoubledot(fieldHandler, solutionUInstance, sigma, solutionSigmaInstance, u):
+def cdoubledot(fieldHandler, solutionUInstance, u, solutionSigmaInstance, sigma):
     """Computes SymGrad(u):sigma (doubly contracted product)
     """
     # Convert to MEDCouplingField
+    print("Converting u to local field")
     fieldU = fieldHandler.ConvertToLocalField(solutionUInstance, u)
+    print("Converting sigma to local field")
     fieldSigma = fieldHandler.ConvertToLocalField(solutionSigmaInstance, sigma)
     # Make the doubly contracted product
+    print("Computing gradient")
+
     fieldEpsilon = fieldHandler.symetricGradient(fieldU, solutionSigmaInstance)
-    fieldDoublyContractedProduct = fieldHandler.doublyContractedProduct(fieldSigma, fieldEpsilon)
-    return fieldDoublyContractedProduct
+    print("Doubly contracted product")
+
+    fieldContracted = fieldHandler.doublContractedProduct(fieldSigma, fieldEpsilon)
+    return fieldContracted
 
 def _addNewResultsToMatrixAndVector(problemData, collectionProblemData, fieldHandler, k, G=None, Y=None):
     """
@@ -52,30 +57,37 @@ def _addNewResultsToMatrixAndVector(problemData, collectionProblemData, fieldHan
     # Initialisations pour la quadrature empirique
     numberOfModes, numerOfDofs = reducedOrderBasisU.shape
     solutionSigma = problemData.GetSolution("sigma")
-    solutionUInstance = collectionProblemData.GetFieldInstance("U")
     numberOfRegisteredTimeSteps = len(solutionSigma.GetTimeSequenceFromSnapshots())
     if k == 0:
-        G = np.zeros((numberOfRegisteredTimeSteps*numberOfModes, solutionSigma.GetNumberOfDofs()))
+        print("Initialize G and Y")
+
+        G = np.zeros((numberOfRegisteredTimeSteps*numberOfModes, solutionSigma.GetNumberOfNodes()))
         Y = np.zeros((numberOfRegisteredTimeSteps*numberOfModes))
 
-    for t in solutionSigma.GetTimeSequenceFromSnapshots():
+    for t in solutionSigma.GetTimeSequenceFromSnapshots()[1:]:
+        print("Getting snapshot")
+
         sigma = solutionSigma.GetSnapshot(t)
-        solutionSigmaInstance = collectionProblemData.GetFieldInstance("sigma")
-        
+        print("Getting instance")
+     
         for n in range(numberOfModes):
+            print("Getting reduced order basis u")
+
             u = reducedOrderBasisU[n,:]
+            print("Calling doubly contracted product")
+
             
-            fieldDoublyContractedProduct = _cdoubledot(fieldHandler, solutionUInstance, sigma, solutionSigmaInstance, u)
+            fieldContracted = cdoubledot(fieldHandler, collectionProblemData.GetFieldInstance("U"), u, collectionProblemData.GetFieldInstance("sigma"), sigma)
             print("Converting from local field")
             
             # Convert back to numpy array
-            G[k,:] = fieldHandler.ConvertFromLocalField(fieldDoublyContractedProduct)
+            G[k,:] = fieldHandler.ConvertFromLocalField(fieldContracted)
             
             print("Integral")
 
 
             # The right-hand side is the integral of G[k,:]
-            Y[k] = fieldHandler.integral(fieldDoublyContractedProduct, 0)
+            Y[k] = fieldHandler.integral(fieldContracted, 0)
             k = k + 1
 
     return G, Y
@@ -112,7 +124,7 @@ def enrichMatrixAndVector(G, Y, problemData, collectionProblemData, fieldHandler
             
             for n in range(newmodes):
                 u = reducedOrderBasisU[n,:]
-                fieldDoublyContractedProduct = _cdoubledot(fieldHandler, solutionUInstance, sigma, solutionSigmaInstance, u)
+                fieldDoublyContractedProduct = _cdoubledot(fieldHandler, solutionUInstance, u, solutionSigmaInstance, sigma)
             
                 # Convert back to numpy array
                 G[k,:] = fieldHandler.ConvertFromLocalField(fieldDoublyContractedProduct)
@@ -127,6 +139,8 @@ def solve(G, Y, volume, delta=1.e-5):
     """
     Solve for sparse empirical weignts
     """
+    import numpy as np
+
     # Construction de la matrice A
     n = G.shape[0]
     m = G.shape[1]

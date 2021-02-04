@@ -80,6 +80,8 @@ class SolverDataset(object):
             nbeOfComponentsDual = sampleFieldDual.getNumberOfComponents()
             numberOfIntegrationPoints = sampleFieldDual.getNumberOfTuples()
             
+            print("nbeOfComponentsDual = ", nbeOfComponentsDual)
+            print("numberOfIntegrationPoints = ", numberOfIntegrationPoints)
             solutionSigma = Solution("sigma", nbeOfComponentsDual, numberOfIntegrationPoints, primality = False)
             
             # Read the solutions from file
@@ -103,7 +105,7 @@ class SolverDataset(object):
     def instantiate(self, **kwargs):
         """Instantiate a template dataset. Replace parameters in file by their values
         """
-        if "reduced" in kwargs and kwargs["reduced"]:
+        if "reduced" in kwargs and kwargs.pop("reduced"):
             basestr = "reduced"
         else:
             basestr = "template"
@@ -113,7 +115,7 @@ class SolverDataset(object):
             mytemplate = Template(mystr)
             kws = {k: str(v) for k,v in kwargs.items()}
             myinstance = mytemplate.substitute(**kws)
-        dirbname = basestr + "_".join(kws.values())
+        dirbname = basestr + "_".join([str(hash(v)) for v in kws.values()])
         dirname = osp.join(osp.dirname(self.input_data["input_root_folder"]), dirbname)
         if osp.exists(dirname):
             shutil.rmtree(dirname)

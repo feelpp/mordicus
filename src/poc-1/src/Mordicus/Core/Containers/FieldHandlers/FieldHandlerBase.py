@@ -78,7 +78,7 @@ class FieldHandlerBase(object):
         """
         raise NotImplementedError("This is a virtual method, intended to be overriden")
 
-    def doublyContractedProduct(self, field1, field2):
+    def doublContractedProduct(self, field1, field2):
         """
         Parameters
         ----------

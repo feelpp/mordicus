@@ -6,6 +6,7 @@ Created on 26 févr. 2020
 import medcoupling as ml
 import MEDLoader as ML
 from Mordicus.Core.Containers.Meshes.MeshBase import MeshBase
+from Mordicus.Modules.EDF.Containers.FieldHandlers.MEDFieldHandler import safe_clone
 
 class MEDMesh(MeshBase):
     """
@@ -76,7 +77,7 @@ class MEDMesh(MeshBase):
         """Compute volume getting Gauss points from a sample field"""
         
         # deep copy field
-        f = sampleField.clone(True)
+        f = safe_clone(sampleField)
         
         # set number of components to 1
         f.changeNbOfComponents(1)

@@ -346,6 +346,8 @@ while not stop_condition:
     nb_modes = reducedOrderBasisU.shape[0]
     if is_first_iteration:
         # Ok first version implemented
+        print("Compute matrix and vector")
+
         G, y = EQ.computeMatrixAndVector(problemData,
                                          collectionProblemData,
                                          fieldHandler)
@@ -357,28 +359,46 @@ while not stop_condition:
                                  collectionProblemData,
                                  fieldHandler, newmodes)
     # Ok first version implemented
-    rho, NN0, ret = EQ.solve(G, y, volume, delta=1.e-5)
+    print("Solving")
+
+    rho = EQ.solve(G, y, volume, delta=1.e-5)
+    print("rho = ", rho)
     print("End solving")
 
 
     # Turn empirical weight into a field
     # ----------------------------------
     fileNameWeights = osp.join(root_to_all, "empirical_weights.med")
+    print("Writing field of empirical weights")
     MEDSolutionReader.WriteSparseFieldOfEmpiricalWeights(np_array_gauss_coor,
                                                          rho,
                                                          fileNameWeights,
-                                                         fieldInstance)
-    print("Writing field of empirical weights")
+                                                         sample_field)
+    print("End writing field of empirical weights")
+    
+    # write POD basis
+    fileNameModes = osp.join(root_to_all, "primal_modes.med")
+    MEDSolutionReader.WriteReducedOrderBasis(reducedOrderBasisU, "U", sample_field_u, fileNameModes)
+
 
     # Incremental POD on the dual fields
     # ----------------------------------
     
     # Reuse the same code than for primal fields
     if is_first_iteration:
+        print("Reduced basis for dual fields")
+
         reducedOrderBasisSigma = SP.ComputeReducedOrderBasisFromCollectionProblemData(collectionProblemData,
                                                                                       "sigma", 1.e-4)
+        print("End reduced basis for dual fields")
+
         collectionProblemData.AddReducedOrderBasis("sigma", reducedOrderBasisSigma)
+        print("End Adding reduced order basis")
+        print("Start compressing solutions")
+
         collectionProblemData.CompressSolutions("sigma")
+        print("End compressing solutions")
+
     else:
         reducedOrderBasisSigma = CompressData(collectionProblemData, "sigma", 1.e-4, snapshots=problemData.solutions["sigma"])
 
@@ -389,12 +409,15 @@ while not stop_condition:
     # use WriteSparseFieldOfEmpiricalWeights(self, np_coor_gauss, empirical_weights, fileName, fieldInstance) ?
     # Loop over the training set to find the next high-fidelity computation
     # ---------------------------------------------------------------------
-    grid = np.dstack(collectionProblemData.indexingSupport.training_set).reshape((len(p1)*len(p2), 2))
     error = []
     for i, [etaid, etafd] in enumerate(grid):
 
         # run the reduced order model
-        reduced_problem_data = collectionProblemData.solve_reduced(param_values=(etaid, etafd))
+        print("Start reduced resolution")
+
+        reduced_problem_data = collectionProblemData.solve_reduced(p_etaid=p_etaid, p_etafd=p_etafd)
+        print("End reduced resolution")
+
 
         # reconstruction of stress, gappy POD
         # code inspired from Safran's Mechanical.py

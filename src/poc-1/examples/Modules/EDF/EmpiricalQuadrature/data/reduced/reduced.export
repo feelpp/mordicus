@@ -7,5 +7,7 @@ P mpi_nbnoeud 1
 P testlist validation sequential concrete
 
 R base ../step1/base_fixeddata D 0
+F rmed ../primal_modes.med  D 24
+F rmed ../empirical_weights.med  D 25
 F comm reduced.comm D 1
 F rmed reduced.rmed R 80
