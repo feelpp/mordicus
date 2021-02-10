@@ -34,9 +34,13 @@ Resultats dans StationaryNSData/ONLINE_RESU/ (erreur et approximation)
 ************************************** 3D *******************************************************
 peut lire les maillages .msh de gmsh ou FF++ et les maillages .vtu
 
+attention ns: nombre de snapshots, lecture direct de ns en comptant le nombre de fichiers dans le dossier 3DData/FineSnapshots/
+
 utilisation:
 _avec base Greedy (posttraitement rectification ajoutee)
-offline: python mordicus/src/poc-1/examples/Modules/Sorbonne/3Dcase/NirbGreedyOffline_3D.py
+offline: python mordicus/src/poc-1/examples/Modules/Sorbonne/3Dcase/NirbGreedyOffline_3D.py (on peut ajouter nev)
+#attention nev<=ns nombre de snapshots
+
 online: python mordicus/src/poc-1/examples/Modules/Sorbonne/3Dcase/NirbGreedyOnline_3D.py
 #interpolation avec Basictools ou FF++
 

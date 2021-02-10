@@ -23,199 +23,224 @@ from Mordicus.Core.IO import StateIO as SIO
 import numpy as np
 from pathlib import Path
 import array
+import sys
 
-ns=3 #number of snapshots
-time=0.0 
-dimension=3
+
+print("-----------------------------------")
+print(" STEP II. 0: start Online nirb     ")
+print("-----------------------------------")
+
+
+time=0.0 #steady
+dimension=3 #3D
+
 print("NIRB online...")
+
 ## Directories
 currentFolder=os.getcwd()
 dataFolder=osp.join(currentFolder,'3DData')
-#parameters = [float(1+15*i) for i in range(ns)]   ###Reynolds
 
-## Script Files - Initiate data
-externalFolder=osp.join(currentFolder,'External')
+ns=1 #number of snapshots
 
-print("-----------------------------------")
-print(" STEP2: start Online nirb        ")
-print("-----------------------------------")
+for root, _, files in os.walk(dataFolder+"/FineSnapshots/"):
+    print("number of snapshots in ", root, ": ",len(files))
+    ns=len(files)
+    print("number of snapshots: ",ns)
+    
+##################################################
+# LOAD DATA FOR ONLINE
+##################################################
 
-    ##################################################
-    # LOAD DATA FOR ONLINE
-    ##################################################
 collectionProblemData = SIO.LoadState(dataFolder+"/OFFLINE_RESU/collectionProblemData")
 #snapshotCorrelationOperator = SIO.LoadState(dataFolder+"/Matrices/snapshotCorrelationOperator")
 #h1ScalarProducMatrix=SIO.LoadState(dataFolder+"/Matrices/h1ScalarProducMatrix")
 nev=collectionProblemData.GetReducedOrderBasisNumberOfModes("U")
+assert nev<=ns, " !! To many number of modes, nev must be less than ns !!"
 operatorCompressionData = collectionProblemData.GetOperatorCompressionData()
 reducedOrderBasisU = collectionProblemData.GetReducedOrderBasis("U")
 R=collectionProblemData.GetDataCompressionData("Rectification")
-#print("R ", R)
+#print("Rectification matrix: ", R)
 
 #### LOAD FINE MESH
 print("reading fine mesh")
-meshFileName=dataFolder+"/FineMesh/mesh1.vtu"
-meshReader = MR.MeshReader(meshFileName)
-mesh = meshReader.ReadMesh()
-mesh.GetInternalStorage().nodes = mesh.GetInternalStorage().nodes
-print("Mesh defined in " + meshFileName + " has been read")
+FineMeshFileName=dataFolder+"/FineMesh/fineMesh.vtu"
+meshReader = MR.MeshReader(FineMeshFileName)
+fineMesh = meshReader.ReadMesh()
+fineMesh.GetInternalStorage().nodes = fineMesh.GetInternalStorage().nodes
+print("Fine mesh defined in " + FineMeshFileName + " has been read")
 
 nbeOfComponentsPrimal = 3 # vitesses 3D
-numberOfNodes = mesh.GetNumberOfNodes()
-l2ScalarProducMatrix = FT.ComputeL2ScalarProducMatrix(mesh, 3)
-h1ScalarProducMatrix = FT.ComputeH10ScalarProductMatrix(mesh, 3)
-snapshotCorrelationOperator=l2ScalarProducMatrix
+numberOfNodes = fineMesh.GetNumberOfNodes()
+
+l2ScalarProducMatrix = FT.ComputeL2ScalarProducMatrix(fineMesh, 3)
+h1ScalarProducMatrix = FT.ComputeH10ScalarProductMatrix(fineMesh, 3)
+snapshotCorrelationOperator=l2ScalarProducMatrix #mass matrix
 
 #### LOAD COARSE MESH
-VTKmesh2 = dataFolder + "/CoarseMesh/mesh2.vtu"
-meshReader2=MR.MeshReader(VTKmesh2)
-mesh2 = meshReader2.ReadMesh()
-mesh2.GetInternalStorage().nodes = mesh2.GetInternalStorage().nodes
+CoarseMeshFileName=dataFolder+"/CoarseMesh/coarseMesh.vtu"
+meshReader = MR.MeshReader(CoarseMeshFileName)
+coarseMesh = meshReader.ReadMesh()
+coarseMesh.GetInternalStorage().nodes = coarseMesh.GetInternalStorage().nodes
+print("Coarse mesh defined in " + CoarseMeshFileName + " has been read")
 
 
-    ##################################################
-    #### Interpolation coarse solution into fine mesh (using Basictools)
-    ##################################################
+print("-------------------------------------------------")
+print(" STEP II. 1: Read and interpolate Coarse Solution")
+print("-------------------------------------------------")
 
-## ff si mesh en vtk, et sinon basictools
-finemesh=dataFolder+"/FineMesh/mesh1.vtu" #if basictools
-coarsemesh=dataFolder+"/CoarseMesh/mesh2.vtu"
-#inputmesh=dataFolder + "/FineMesh/mesh1.vtk" #if ff
-#outputmesh=dataFolder + "/CoarseMesh/mesh2.vtk"
+##################################################
+#### Interpolation coarse solution into fine mesh (using Basictools)
+##################################################
+
+## FreeFem++ or basictools interpolation
+
 option="basictools" #ff or basictools
-
-operator=IOW.InterpolationOperator(dataFolder,finemesh,coarsemesh,option=option)
+operator=IOW.InterpolationOperator(dataFolder,FineMeshFileName,CoarseMeshFileName,option=option)
 #operator=SIO.LoadState(dataFolder+"/Matrices/operator")
 
-#reading coarse solution
-test=VTKSR.VTKSolutionReader("Velocity");
-coarseFile=dataFolder+"/uHgrossier"+str(0)
-u1_np_array_coarse =test.VTKReadToNp(dataFolder+"/CoarseSolution/snapshotH",0) #solution sous la forme uHgrossier0.vtu
 
-print("coarse solution in "+ coarseFile + "has been read ")
-print("coarse solution shape ", np.shape(u1_np_array_coarse))
+#Reading coarse solution
+VTKSnapshotReader=VTKSR.VTKSolutionReader("Velocity");
+CoarseSolutionFolder=osp.join(dataFolder,'CoarseSolution')
+uH_np_array =VTKSnapshotReader.VTKReadToNp(dataFolder+"/CoarseSolution/snapshotH",0) #solution sous la forme snapshotH+str(ns).vtu
+
+print("coarse solution in "+ CoarseSolutionFolder + " has been read ")
 
 #Compute the projected data using the interpolation operator
 if option=="ff":
-    u1_np_array_coarse=u1_np_array_coarse.flatten() #if ff interp
+    uH_np_array=uH_np_array.flatten() 
     
-newdata = operator.dot(u1_np_array_coarse)
-print("interpolated solution shape " , np.shape(newdata))
+uHh = operator.dot(uH_np_array) #interpolation
 
 if option=="ff":
-   newdata=newdata.reshape((numberOfNodes, 3)) #if ff
+   uHh=uHh.reshape((numberOfNodes, 3)) #if ff
 
 """  
-#save interpolated solution
-VTKBase = MR.ReadVTKBase(dataFolder+"/FineMesh/mesh1.vtu")
+# save interpolated solution
+
+VTKBase = MR.ReadVTKBase(FineMeshFileName)
 SnapWrite=NpVTK.VTKWriter(VTKBase)
-SnapWrite.numpyToVTKSanpWrite(newdata,dataFolder+"/CoarseSolutionInterp/uH0.vtu")
+SnapWrite.numpyToVTKSanpWrite(uHh,dataFolder+"/CoarseSolutionInterp/uHh.vtu")
 
-#read interpolated solution
-test=VTKSR.VTKSolutionReader("Velocity");
-newdata =test.VTKReadToNp(dataFolder+"/CoarseSolutionInterp/uH",0)
-
+# read interpolated solution
+uHh =VTKSnapshotReader.VTKReadToNp(dataFolder+"/CoarseSolutionInterp/uHh",0)
 
 """
-newdata=newdata.flatten()
-solutionUH=S.Solution("U",dimension,numberOfNodes,True)
-solutionUH.AddSnapshot(newdata,0)
+
+uHh=uHh.flatten()
+solutionUHh=S.Solution("U",dimension,numberOfNodes,True)
+solutionUHh.AddSnapshot(uHh,0)
+
 onlineproblemData = PD.ProblemData("Online")
-onlineproblemData.AddSolution(solutionUH)
-Newparam=110.0 #parameters[ns-1]
-collectionProblemData.AddProblemData(onlineproblemData,mu1=Newparam)
 
-l2ScalarProducMatrix = snapshotCorrelationOperator
+onlineproblemData.AddSolution(solutionUHh)
+
+UnusedParam=0 #parameters[ns-1]
+collectionProblemData.AddProblemData(onlineproblemData,mu=UnusedParam)
+
+l2ScalarProducMatrix = snapshotCorrelationOperator #Mass Matrix
 
 
-    ##################################################
-    # ONLINE COMPRESSION
-    ##################################################
-print("-----------------------------------")
-print(" STEP3: Snapshot compression       ")
-print("-----------------------------------")        
-solutionUH.CompressSnapshots(snapshotCorrelationOperator,reducedOrderBasisU)
-CompressedSolutionU = solutionUH.GetCompressedSnapshots()
+##################################################
+# ONLINE COMPRESSION
+##################################################
+
+print("--------------------------------")
+print(" STEP II. 2:  Online compression")
+print("--------------------------------")
+
+solutionUHh.CompressSnapshots(snapshotCorrelationOperator,reducedOrderBasisU)
+CompressedSolutionU = solutionUHh.GetCompressedSnapshots()
+
 #Rectification
+
 coef=np.zeros(nev)
 for i in range(nev):
     coef[i]=0
     for j in range(nev):
         coef[i]+=R[i,j]*CompressedSolutionU[0][j]
         
-print("coef without rectif ", CompressedSolutionU[0])
-print("coef with rectif ", coef)
-reconstructedCompressedSolution = np.dot(coef, reducedOrderBasisU) #with rectif
-#reconstructedCompressedSolution = np.dot(CompressedSolutionU[0], reducedOrderBasisU) #pas de tps 0
-    ##################################################
-    # SAVE APPROXIMATION
-    ##################################################
+print("coef without rectification: ", CompressedSolutionU[0])
+print("coef with rectification ", coef)
 
-VTKBase = MR.ReadVTKBase(dataFolder+"/FineMesh/mesh1.vtu")
+reconstructedCompressedSolution = np.dot(coef, reducedOrderBasisU) #with rectification
+#reconstructedCompressedSolution = np.dot(CompressedSolutionU[0], reducedOrderBasisU) #pas de tps 0
+
+
+##################################################
+# SAVE APPROXIMATION
+##################################################
+
+VTKBase = MR.ReadVTKBase(FineMeshFileName)
 SnapWrite=NpVTK.VTKWriter(VTKBase)
 savedata=reconstructedCompressedSolution.reshape((numberOfNodes, 3)) #if ff
-SnapWrite.numpyToVTKSanpWrite(savedata,dataFolder+"/ONLINE_RESU/approximation"+str(nev)+".vtu")
+SnapWrite.numpyToVTKSanpWrite(savedata,dataFolder+"/ONLINE_RESU/NIRB_Greedy_Approximation_"+str(nev)+".vtu")
+print("approximation saved in ",dataFolder+"/ONLINE_RESU/NIRB_Greedy_Approximation_"+str(nev))
 
-    ##################################################
-    # ONLINE ERRORS
-    ##################################################
+##################################################
+# ONLINE ERRORS
+##################################################
+
 print("-----------------------------------")
-print(" STEP4: L2 and H1 errors           ")
+print(" STEP II. 3: L2 and H1 errors      ")
 print("-----------------------------------")
 
 print("reading exact solution...")
-test=VTKSR.VTKSolutionReader("Velocity");
-u1_np_array =test.VTKReadToNp(dataFolder+"/FineSolution/snapshot",0)
-u1_np_array=u1_np_array.flatten()
+
+u_np_array =VTKSnapshotReader.VTKReadToNp(dataFolder+"/FineSolution/snapshot",0)
+u_np_array=u_np_array.flatten()
 
 solutionU=S.Solution("U",dimension,numberOfNodes,True)
-solutionU.AddSnapshot(u1_np_array,0) #only one snapshot->time=0
+solutionU.AddSnapshot(u_np_array,0) #only one snapshot->time=0
 
 problemData = PD.ProblemData(dataFolder)
 problemData.AddSolution(solutionU)
-collectionProblemData.AddProblemData(problemData,mu1=110.0)
+collectionProblemData.AddProblemData(problemData,mu=UnusedParam)
     
 exactSolution =solutionU.GetSnapshot(0)
-
 solutionU.CompressSnapshots(snapshotCorrelationOperator,reducedOrderBasisU)
 CompressedSolutionU = solutionU.GetCompressedSnapshots()
 reconstructedCompressedSolutionh = np.dot(CompressedSolutionU[0], reducedOrderBasisU) #pas de tps 0
 
-#error list
-compressionErrors=[]
-h1compressionErrors=[]
+#relative errors list
+L2compressionErrors=[]
+H1compressionErrors=[]
 
 norml2ExactSolution=np.sqrt(exactSolution@(l2ScalarProducMatrix@exactSolution))
 normh1ExactSolution=np.sqrt(exactSolution@(h1ScalarProducMatrix@exactSolution))
 
-t=solutionUH.GetSnapshot(0)-exactSolution
+t=solutionUHh.GetSnapshot(0)-exactSolution
 normh1rel=np.sqrt(t@l2ScalarProducMatrix@t)/norml2ExactSolution
-print("Projection error without NIRB" , normh1rel)
+print("H1 Projection error without NIRB: " , normh1rel)
 
 if norml2ExactSolution != 0:
-    t=reconstructedCompressedSolution-exactSolution
-    t1=reconstructedCompressedSolutionh-exactSolution
-    relError=np.sqrt(t@(l2ScalarProducMatrix@t))/norml2ExactSolution
-    relh1Error=np.sqrt(t@h1ScalarProducMatrix@t)/normh1ExactSolution
-    relh1Errorh=np.sqrt(t1@h1ScalarProducMatrix@t1)/normh1ExactSolution
-    value = [nev,relh1Error]
-    valueh = [nev,relh1Errorh]
-    f = open("errorH1.txt", "a")
+    err=reconstructedCompressedSolution-exactSolution
+    errh=reconstructedCompressedSolutionh-exactSolution
+    L2relError=np.sqrt(err@(l2ScalarProducMatrix@err))/norml2ExactSolution
+    H1relError=np.sqrt(err@h1ScalarProducMatrix@err)/normh1ExactSolution
+    H1relErrorh=np.sqrt(errh@h1ScalarProducMatrix@errh)/normh1ExactSolution
+    value = [nev,H1relError]
+    valueh = [nev,H1relErrorh]
+    f = open("NIRB_Greedy_errorH1.txt", "a")
     f.write(str(value))
     f.close()
-    f2 = open("errorH1h.txt", "a")
+    f2 = open("NIRB_Greedy_errorH1_h.txt", "a")
     f2.write(str(valueh))
     f2.close()
 
 else:
-    print("exact solution =0")
-    relError = np.linalg.norm(reconstructedCompressedSolution-exactSolution)
+    print("norm exact solution = 0")
+    err=reconstructedCompressedSolution-exactSolution
+    L2relError=np.sqrt(err@(l2ScalarProducMatrix@err))
     
-compressionErrors.append(relError)
-h1compressionErrors.append(relh1Error)
-print("compressionErrors =", compressionErrors)
-print("compressionErrorsh1 =", h1compressionErrors)
-print("NIRB ONLINE DONE")
+    
+L2compressionErrors.append(L2relError)
+H1compressionErrors.append(H1relError)
+
+print("compression relative errors L2 =", L2compressionErrors)
+print("compression relative errors H1 =", H1compressionErrors)
+
+print("NIRB ONLINE DONE! ")
 
 
 

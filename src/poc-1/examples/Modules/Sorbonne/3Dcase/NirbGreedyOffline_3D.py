@@ -43,11 +43,11 @@ externalFolder=osp.join(currentFolder,'External')
 
 
 print("-----------------------------------")
-print(" STEP0: start init                 ")
+print(" STEP I. 0: start init             ")
 print("-----------------------------------")
 #initproblem(dataFolder)
 print("-----------------------------------")
-print(" STEP0: snapshots generated        ")
+print("STEP I.0 (bis): snapshots generated")
 print("-----------------------------------")
 
 """
@@ -60,169 +60,202 @@ print("-----------------------------------")
 import vtk
 import numpy as np
 from vtk.util.numpy_support import vtk_to_numpy
-nev=int(sys.argv[1])#11   #nombre de modes
-print("number of modes: ",nev)
-ns=3#number of snapshots
-time=0.0 
-dimension=3
-           
-## FINE MESH
-meshFileName=dataFolder+"/FineMesh/mesh1.vtu"
-meshReader = MR.MeshReader(meshFileName)
-mesh = meshReader.ReadMesh()
-mesh.GetInternalStorage().nodes = mesh.GetInternalStorage().nodes
-VTKBase = MR.ReadVTKBase(dataFolder+"/FineMesh/mesh1.vtu")
-print("Mesh defined in " + meshFileName + " has been read")
 
-nbeOfComponentsPrimal = 3 # vitesses 3D
-numberOfNodes = mesh.GetNumberOfNodes()
-#print("nbNodes",numberOfNodes)
+nev=1 #default value number of modes
+
+if len(sys.argv)>1:
+        nev=int(sys.argv[1]) 
+
+print("number of modes: ",nev)
+
+ns=1 #number of snapshots
+
+for root, _, files in os.walk(dataFolder+"/FineSnapshots/"):
+    print("number of snapshots in ", root, ": ",len(files))
+    ns=len(files)
+    print("number of snapshots: ",ns)
+
+assert nev<=ns, " !! To many number of modes, nev must be less than ns !!"
+    
+time=0.0 #steady 
+dimension=3 #3D
+
+
+## FINE MESH reader (vtu file, can also use one fine snapshot)
+FineMeshFileName=dataFolder+"/FineMesh/fineMesh.vtu"
+meshReader = MR.MeshReader(FineMeshFileName)
+fineMesh = meshReader.ReadMesh()
+fineMesh.GetInternalStorage().nodes = fineMesh.GetInternalStorage().nodes
+print("Fine mesh defined in " + FineMeshFileName + " has been read")
+
+nbeOfComponentsPrimal = dimension # 3D field
+numberOfNodes = fineMesh.GetNumberOfNodes()
+print("number of nodes for the fineMesh: ",numberOfNodes)
 #print("dimmesh",mesh.GetDimensionality())
 
 # COARSE MESH
-meshFileName2=dataFolder+"/CoarseMesh/mesh2.vtu"
-meshReader2 = MR.MeshReader(meshFileName2)
-mesh2 = meshReader2.ReadMesh()
-mesh2.GetInternalStorage().nodes = mesh2.GetInternalStorage().nodes
-print("Coarse Mesh defined in " + meshFileName2 + " has been read")
+CoarseMeshFileName=dataFolder+"/CoarseMesh/coarseMesh.vtu"
+meshReader = MR.MeshReader(CoarseMeshFileName)
+coarseMesh = meshReader.ReadMesh()
+coarseMesh.GetInternalStorage().nodes = coarseMesh.GetInternalStorage().nodes
+print("Coarse mesh defined in " + CoarseMeshFileName + " has been read")
 
 
 ## READ SNAPSHOTS
-print("-----------------------------------")
-print(" STEP0bis: read snapshots             ")
-print("-----------------------------------")
-# interpolation
-option="basictools" #ff or basictools
-operator=IOW.InterpolationOperator(dataFolder,meshFileName,meshFileName2,option=option)
-#operator=SIO.LoadState(dataFolder+"/Matrices/operator")
 
+print("-----------------------------------")
+print(" STEP I. 1: read snapshots         ")
+print("-----------------------------------")
+
+# interpolation
+option="basictools" #ff, basictools 
+operator=IOW.InterpolationOperator(dataFolder,FineMeshFileName,CoarseMeshFileName,option=option)
+#operator=SIO.LoadState(dataFolder+"/Matrices/operator") 
 
 
 collectionProblemData = CPD.CollectionProblemData()
-collectionProblemData.addVariabilityAxis('mu1',float,description="Reynolds number")
+#collectionProblemData.addVariabilityAxis('mu',float,description="Reynolds number")
+collectionProblemData.addVariabilityAxis('mu',int,description="dummy variability")
 collectionProblemData.defineQuantity("U", full_name="Velocity", unit="m/s")
 collectionProblemData.defineQuantity("UH", full_name="Velocity", unit="m/s")
-parameters = [float(1+15*i) for i in range(ns)]   ###Reynolds
+parameters=range(ns) 
 
 for i in range(ns):
-    print(i)
-    test=VTKSR.VTKSolutionReader("Velocity");
-    print(dataFolder)
-    u1_np_array =test.VTKReadToNp(dataFolder+"/FineSnapshots/snapshot",i)
-    u1_np_arrayH=test.VTKReadToNp(dataFolder+"/CoarseSnapshots/snapshotH",i) #Snapshots grossiers
-    newdata=operator.dot(u1_np_arrayH)
     
-    u1_np_array=u1_np_array.flatten()
-    u1_np_arrayH=newdata.flatten()#u1_np_arrayH=u1_np_arrayH.flatten()
+    print("Reading snapshot ", i)
+    VTKSnapshotReader=VTKSR.VTKSolutionReader("Velocity");
+    
+    u_np_array =VTKSnapshotReader.VTKReadToNp(dataFolder+"/FineSnapshots/snapshot",i)
+    uH_np_array=VTKSnapshotReader.VTKReadToNp(dataFolder+"/CoarseSnapshots/snapshotH",i) #Snapshots grossiers
+    
+    uHh=operator.dot(uH_np_array) #interpolation of uH on fineMesh
+    
+    u_np_array=u_np_array.flatten()
+    uH_np_array=uHh.flatten()
 
-    solutionU=S.Solution("U",dimension,numberOfNodes,True)
+    solutionU=S.Solution("U",dimension,numberOfNodes,True) #Add each snapshot in collectionProblemData
     solutionUH=S.Solution("UH",dimension,numberOfNodes,True)
 
-    solutionU.AddSnapshot(u1_np_array,0)
-    solutionUH.AddSnapshot(u1_np_arrayH,0)
-    problemData = PD.ProblemData(dataFolder+str(i))
+    solutionU.AddSnapshot(u_np_array,0) #time=0
+    solutionUH.AddSnapshot(uH_np_array,0)
+    
+    problemData = PD.ProblemData(dataFolder+str(i)) #label of problemData=dataFolder+str(i)
+    
     problemData.AddSolution(solutionU)
     problemData.AddSolution(solutionUH)
-    collectionProblemData.AddProblemData(problemData,mu1=parameters[i])
     
-snapshotsIterator = collectionProblemData.SnapshotsIterator("U")
-snapshots = []
-snapshotsHIterator = collectionProblemData.SnapshotsIterator("UH")
-snapshotsH = []
+    collectionProblemData.AddProblemData(problemData,mu=parameters[i])
+    
+    
 
-numberOfIntegrationPoints = FT.ComputeNumberOfIntegrationPoints(mesh)
+#numberOfIntegrationPoints = FT.ComputeNumberOfIntegrationPoints(fineMesh)
 
+
+"""
+----------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------
+                                      Greedy Offline part
+----------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------
+"""
 
 print("-----------------------------------")
-print(" STEP1: Greedy Offline             ")
+print(" STEP I. 2: Create basis functions ")
 print("-----------------------------------")
+
+
 print("ComputeL2ScalarProducMatrix...")
-#from scipy import sparse
-#l2ScalarProducMatrix = SIO.LoadState(dataFolder+"/Matrices/snapshotCorrelationOperator")
-#l2ScalarProducMatrix=sparse.eye(numberOfNodes*3)
-l2ScalarProducMatrix = FT.ComputeL2ScalarProducMatrix(mesh, 3)
+#l2ScalarProducMatrix = SIO.LoadState(dataFolder+"/Matrices/snapshotCorrelationOperator") #if already created
 #h1ScalarProducMatrix = SIO.LoadState(dataFolder+"/Matrices/h1ScalarProducMatrix")
-h1ScalarProducMatrix = FT.ComputeH10ScalarProductMatrix(mesh, 3)
 
+#from scipy import sparse
+#l2ScalarProducMatrix=sparse.eye(numberOfNodes*3) #works with identity matrix
 
-ListeNorm=[]
-for s in snapshotsIterator:
+l2ScalarProducMatrix = FT.ComputeL2ScalarProducMatrix(fineMesh, 3)
+h1ScalarProducMatrix = FT.ComputeH10ScalarProductMatrix(fineMesh, 3)
+
+# Norm of each snapshot
+snapshotUIterator = collectionProblemData.SnapshotsIterator("U")
+snapshots = []
+
+SnapshotsUNorm=[]
+for s in snapshotUIterator:
     snapshots.append(s)
-    t=l2ScalarProducMatrix.dot(s)
-    norm=np.sqrt(t.dot(s))
-    ListeNorm.append(norm)
-    #print("norm",norm)
-#print("snap",np.shape(snapshots))
+    #t=l2ScalarProducMatrix.dot(s)
+    norm=np.sqrt(s@l2ScalarProducMatrix@s)
+    SnapshotsUNorm.append(norm)
 
-for s in snapshotsHIterator:#snap grossiers
-    snapshotsH.append(s)
-    t=l2ScalarProducMatrix.dot(s)
-    norm=np.sqrt(t.dot(s))
     #print("norm",norm)
+
 
 ##### ALGO GREEDY
 nbdeg=numberOfNodes*nbeOfComponentsPrimal;
 reducedOrderBasisU=np.zeros((nev,nbdeg))
-reducedOrderBasisU[0,:]=snapshots[0]/ListeNorm[0] #first mode
-ListeIndex=[0]#first snapshot 
+print("nev ",0)
+reducedOrderBasisU[0,:]=snapshots[0]/SnapshotsUNorm[0] #first mode
+ListIndex=[0] #first snapshot 
 
 basis=[]
 basis.append(np.array(snapshots[0]))
 
 for n in range(1,nev):
     print("nev ",n)
-    testjl=[]
-    testjn=[]
+    testmax=[]
+    ListProj=[]
     for j in range(ns): 
-        if not (j in ListeIndex):
+        if not (j in ListIndex):
             
-            coef=[snapshots[j]@(l2ScalarProducMatrix@b) for b in basis]
-            w=snapshots[j]-np.sum((snapshots[j]@(l2ScalarProducMatrix@b))/(b@l2ScalarProducMatrix@b)*b for b in basis)
+            coefp=[snapshots[j]@(l2ScalarProducMatrix@b) for b in basis] #previous coefficient
+            proj=snapshots[j]-sum((snapshots[j]@(l2ScalarProducMatrix@b))/(b@l2ScalarProducMatrix@b)*b for b in basis) #projection 
             
-            norml2=np.sqrt(w@(l2ScalarProducMatrix@w))
-            testjnorm=norml2/ListeNorm[j]
-            testjl.append(testjnorm)
-            testjn.append(w)
+            norml2=np.sqrt(proj@(l2ScalarProducMatrix@proj))
+            testjnorm=norml2/SnapshotsUNorm[j]
+            testmax.append(testjnorm)
+            ListProj.append(proj)
         
         else:
-            testjl.append(-1e23)
-            testjn.append(-1e23)
-    maximum=max(testjl)
-    ind=testjl.index(max(testjl))
-    print("index",ind)
-    ListeIndex.append(ind)
-    norm=np.sqrt(testjn[ind]@(l2ScalarProducMatrix@testjn[ind]))
-    basis.append(testjn[ind])
-    reducedOrderBasisU[n,:]=(testjn[ind]/norm)
+            testmax.append(-1e23)
+            ListProj.append(-1e23)
+    #maximum=max(testmax)
+    ind=testmax.index(max(testmax))
+    #print("index :",ind)
+    ListIndex.append(ind)
+    norm=np.sqrt(ListProj[ind]@(l2ScalarProducMatrix@ListProj[ind]))
+    basis.append(ListProj[ind])
+    reducedOrderBasisU[n,:]=(ListProj[ind]/norm) #orthonormalization
 
 ### H1 & L2 Orthogonalization
 
 K=np.zeros((nev,nev))
 M=np.zeros((nev,nev))
+
 for i in range(nev):
     for j in range(nev):
         K[i,j]=reducedOrderBasisU[i,:]@h1ScalarProducMatrix@reducedOrderBasisU[j,:]
         M[i,j]=reducedOrderBasisU[i,:]@l2ScalarProducMatrix@reducedOrderBasisU[j,:]
+        
 eigenValues,vr=linalg.eig(K, b=M)#eigenvalues + right eigenvectors
 idx = eigenValues.argsort()[::-1]
 eigenValues = eigenValues[idx]
 eigenVectors = vr[:, idx]
 changeOfBasisMatrix = np.zeros((nev,nev))
+
 for j in range(nev):
     changeOfBasisMatrix[j,:]=eigenVectors[:,j]
-reducedOrderBasis=np.dot(changeOfBasisMatrix,reducedOrderBasisU)
+    
+reducedOrderBasisU=np.dot(changeOfBasisMatrix,reducedOrderBasisU)
 
 for i in range(nev):
-    reducedOrderBasisNorm=np.sqrt(reducedOrderBasis[i,:]@(l2ScalarProducMatrix@reducedOrderBasis[i,:]))
-    reducedOrderBasis[i,:]/=reducedOrderBasisNorm
-    reducedOrderBasisU[i,:]=reducedOrderBasis[i,:]
+    reducedOrderBasisNorm=np.sqrt(reducedOrderBasisU[i,:]@(l2ScalarProducMatrix@reducedOrderBasisU[i,:]))
+    reducedOrderBasisU[i,:]/=reducedOrderBasisNorm
+   #reducedOrderBasisU[i,:]=reducedOrderBasisU[i,:]
 
 ### Add basis to collectionProblemData
     
 collectionProblemData.AddReducedOrderBasis("U", reducedOrderBasisU)
-collectionProblemData.CompressSolutions("U", l2ScalarProducMatrix)
+collectionProblemData.CompressSolutions("U", l2ScalarProducMatrix) #Mass matrix
 
-## Ortho verif
+## Ortho verification
 """
 for i in range(nev):
     for j in range(nev):
@@ -235,9 +268,14 @@ for i in range(nev):
         
 ### PT: Rectification
 print("-----------------------------------")
-print(" STEP1bis: Rectification Offline   ")
+print(" STEP I.3. : Rectification Offline ")
 print("-----------------------------------")
+snapshotUHIterator = collectionProblemData.SnapshotsIterator("UH")
+snapshotsH = []
 
+for s in snapshotUHIterator:
+    snapshotsH.append(s)
+    
 coef=np.zeros(nev)
 alpha=np.zeros((ns,nev))
 beta=np.zeros((ns,nev))
@@ -247,26 +285,25 @@ for i in range(ns):
         alpha[i,j]=snapshots[i]@(l2ScalarProducMatrix@reducedOrderBasisU[j,:])
         beta[i,j]=snapshotsH[i]@(l2ScalarProducMatrix@reducedOrderBasisU[j,:])
 
-lambd=1e-10
+lambd=1e-10 #regularization (AT@A +lambda I_d)^-1
 R=np.zeros((nev,nev))
 for i in range(nev):
     R[i,:]=(np.linalg.inv(beta.transpose()@beta+lambd*np.eye(nev))@beta.transpose()@alpha[:,i])
     
-#print("R",R)
+#print("Rectification matrix: ",R)
 
 collectionProblemData.SetDataCompressionData("Rectification",R)
 
 
-
 ### Offline Errors
 print("-----------------------------------")
-print(" STEP1bis: Offline  errors ")
+print(" STEP I. 4: Offline  errors        ")
 print("-----------------------------------")
 
-compressionErrors=[]
-h1compressionErrors=[]
+L2compressionErrors=[]
+H1compressionErrors=[]
 
-for _, problemData in collectionProblemData.GetProblemDatas().items():
+for _, problemData in collectionProblemData.GetProblemDatas().items(): #for each snapshot
     solutionU=problemData.GetSolution("U")
     CompressedSolutionU=solutionU.GetCompressedSnapshots()
     exactSolution = problemData.solutions["U"].GetSnapshot(0)
@@ -274,19 +311,26 @@ for _, problemData in collectionProblemData.GetProblemDatas().items():
     
     norml2ExactSolution=np.sqrt(exactSolution@(l2ScalarProducMatrix@exactSolution))
     normh1ExactSolution=np.sqrt(exactSolution@(h1ScalarProducMatrix@exactSolution))
-    if norml2ExactSolution !=0 and normh1ExactSolution != 0:
-        t=reconstructedCompressedSolution-exactSolution
-        relError=np.sqrt(t@l2ScalarProducMatrix@t)/norml2ExactSolution
-        relh1Error=np.sqrt(t@h1ScalarProducMatrix@t)/normh1ExactSolution
     
-    else:
-        relError = np.linalg.norm(reconstructedCompressedSolution-exactSolution)
-    compressionErrors.append(relError)
-    h1compressionErrors.append(relh1Error)
-print("compressionErrors =", compressionErrors)
-print("compressionErrorsh1 =", h1compressionErrors)
+    if norml2ExactSolution !=0 and normh1ExactSolution != 0:
+        err=reconstructedCompressedSolution-exactSolution
+        relL2Error=np.sqrt(err@l2ScalarProducMatrix@err)/norml2ExactSolution
+        relH1Error=np.sqrt(err@h1ScalarProducMatrix@err)/normh1ExactSolution
+    
+    else: #erreur absolue
+        relL2Error=np.sqrt(err@l2ScalarProducMatrix@err)
+        relH1Error=np.sqrt(err@h1ScalarProducMatrix@err)
+        
+    L2compressionErrors.append(relL2Error)
+    H1compressionErrors.append(relH1Error)
+    
+print("compression relative errors L2 =", L2compressionErrors)
+print("compression relative errors H1 =", H1compressionErrors)
 
-print("Offline termine")
+print("Offline DONE... ")
+print("to be continued, with the online part ... ")
+
+#save results
 SIO.SaveState(dataFolder+"/OFFLINE_RESU/collectionProblemData", collectionProblemData)
 #SIO.SaveState("h1ScalarProducMatrix", h1ScalarProducMatrix)
 #SIO.SaveState("snapshotCorrelationOperator", l2ScalarProducMatrix)
