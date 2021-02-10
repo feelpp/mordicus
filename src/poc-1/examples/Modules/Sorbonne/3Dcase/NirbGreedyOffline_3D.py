@@ -82,7 +82,8 @@ dimension=3 #3D
 
 
 ## FINE MESH reader (vtu file, can also use one fine snapshot)
-FineMeshFileName=dataFolder+"/FineMesh/fineMesh.vtu"
+#FineMeshFileName=dataFolder+"/FineMesh/fineMesh.vtu"
+FineMeshFileName=dataFolder+"/FineSolution/snapshot0.vtu"
 meshReader = MR.MeshReader(FineMeshFileName)
 fineMesh = meshReader.ReadMesh()
 fineMesh.GetInternalStorage().nodes = fineMesh.GetInternalStorage().nodes
@@ -94,7 +95,8 @@ print("number of nodes for the fineMesh: ",numberOfNodes)
 #print("dimmesh",mesh.GetDimensionality())
 
 # COARSE MESH
-CoarseMeshFileName=dataFolder+"/CoarseMesh/coarseMesh.vtu"
+#CoarseMeshFileName=dataFolder+"/CoarseMesh/coarseMesh.vtu"
+CoarseMeshFileName=dataFolder+"/CoarseSolution/snapshotH0.vtu"
 meshReader = MR.MeshReader(CoarseMeshFileName)
 coarseMesh = meshReader.ReadMesh()
 coarseMesh.GetInternalStorage().nodes = coarseMesh.GetInternalStorage().nodes

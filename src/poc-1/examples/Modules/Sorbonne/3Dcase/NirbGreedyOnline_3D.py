@@ -63,7 +63,8 @@ R=collectionProblemData.GetDataCompressionData("Rectification")
 
 #### LOAD FINE MESH
 print("reading fine mesh")
-FineMeshFileName=dataFolder+"/FineMesh/fineMesh.vtu"
+#FineMeshFileName=dataFolder+"/FineMesh/fineMesh.vtu"
+FineMeshFileName=dataFolder+"/FineSolution/snapshot0.vtu"
 meshReader = MR.MeshReader(FineMeshFileName)
 fineMesh = meshReader.ReadMesh()
 fineMesh.GetInternalStorage().nodes = fineMesh.GetInternalStorage().nodes
@@ -77,7 +78,8 @@ h1ScalarProducMatrix = FT.ComputeH10ScalarProductMatrix(fineMesh, 3)
 snapshotCorrelationOperator=l2ScalarProducMatrix #mass matrix
 
 #### LOAD COARSE MESH
-CoarseMeshFileName=dataFolder+"/CoarseMesh/coarseMesh.vtu"
+#CoarseMeshFileName=dataFolder+"/CoarseMesh/coarseMesh.vtu"
+CoarseMeshFileName=dataFolder+"/CoarseSolution/snapshotH0.vtu"
 meshReader = MR.MeshReader(CoarseMeshFileName)
 coarseMesh = meshReader.ReadMesh()
 coarseMesh.GetInternalStorage().nodes = coarseMesh.GetInternalStorage().nodes
