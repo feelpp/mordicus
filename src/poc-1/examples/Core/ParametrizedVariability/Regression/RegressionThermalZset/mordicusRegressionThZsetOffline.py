@@ -24,10 +24,18 @@ def test():
     primality = True
 
     collectionProblemData = CPD.CollectionProblemData()
-    collectionProblemData.defineVariabilityAxes(['Text', 'Tint'],
-                                                [float, float],
-                                                [('Temperature', 'Celsius')]*2,
-                                                ['External temperature', 'Internal Temperature'])
+
+    #collectionProblemData.defineVariabilityAxes(['Text', 'Tint'],
+    #                                            [float, float],
+    #                                            [('Temperature', 'Celsius')]*2,
+    #                                            ['External temperature', 'Internal Temperature'])
+    
+    collectionProblemData = CPD.CollectionProblemData()
+    collectionProblemData.addVariabilityAxis('config',
+                                                str,
+                                                description="dummy variability")
+    
+    
     collectionProblemData.defineQuantity(solutionName, "Temperature", "Celsius")
 
     parameters = [[100.0, 1000.0], [90.0, 1100.0], [110.0, 900.0], [105.0, 1050.0]]
@@ -57,7 +65,8 @@ def test():
             solution.AddSnapshot(snapshot, t)
             problemData.AddParameter(np.array(parameters[i] + [t]), t)
 
-        collectionProblemData.AddProblemData(problemData, Text=parameters[i][0], Tint=parameters[i][1])
+        #collectionProblemData.AddProblemData(problemData, Text=parameters[i][0], Tint=parameters[i][1])
+        collectionProblemData.AddProblemData(problemData, config=folder)
 
 
     print("Solutions have been read")
@@ -76,16 +85,21 @@ def test():
     print("The solution has been compressed")
 
 
-    from sklearn.gaussian_process.kernels import WhiteKernel, RBF
+    from sklearn.gaussian_process.kernels import WhiteKernel, RBF, ConstantKernel, Matern
     from sklearn.gaussian_process import GaussianProcessRegressor
 
-    kernel = 1.0 * RBF(length_scale=10.0, length_scale_bounds=(1e-2, 1e2)) + WhiteKernel(noise_level=1, noise_level_bounds=(1e-10, 1e0))
+    #kernel = ConstantKernel(constant_value=1.0, constant_value_bounds=(0.01, 10.0)) * RBF(length_scale_bounds=(1e-2, 1e2)) + WhiteKernel(noise_level_bounds=(1e-10, 1e0))
+    kernel = ConstantKernel(constant_value=1.0, constant_value_bounds=(0.01, 10.0)) * Matern(length_scale=1., nu=2.5) + WhiteKernel(noise_level=1, noise_level_bounds=(1e-10, 1e0))
 
-    gpr = GaussianProcessRegressor(kernel=kernel, alpha=1.0)
+    regressors = {"TP":GaussianProcessRegressor(kernel=kernel)}
+    
+    paramGrids = {}
+    paramGrids["TP"] = {'kernel__k1__k1__constant_value':[0.1, 1.], 'kernel__k1__k2__length_scale': [1., 3., 10.], 'kernel__k2__noise_level': [1., 2.]}
 
+    operatorCompressionInputData = (regressors, paramGrids)
 
     Regression.CompressOperator(
-        collectionProblemData, solutionName, gpr
+        collectionProblemData, [solutionName], operatorCompressionInputData
     )
 
     SIO.SaveState("collectionProblemData", collectionProblemData)
