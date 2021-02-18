@@ -120,7 +120,7 @@ class CollectionProblemData(object):
             return None # pragma: no cover
         else:
             return self.reducedOrderBases[solutionName]
-        
+
 
     def GetReducedOrderBases(self):
         """
@@ -131,7 +131,7 @@ class CollectionProblemData(object):
         reducedOrderBases : dict
             dictionary with solutionNames (str) as keys and reducedOrderBases (np.ndarray of size (numberOfModes, numberOfDOFs)) as values
         """
-        return self.reducedOrderBases        
+        return self.reducedOrderBases
 
 
     def GetReducedOrderBasisNumberOfModes(self, solutionName):
@@ -410,29 +410,6 @@ class CollectionProblemData(object):
         """
         return list(self.GetProblemDatas().keys())
 
-    def GetGlobalNumberOfSnapshots(self, solutionName, skipFirst = False):
-        """
-        Iterates over problemDatas to return the complete number of snpashots for solutions of name "solutionName"
-
-        Parameters
-        ----------
-        solutionName : str
-            name of the solutions for which we want to compute the total number of snapshots
-
-        Returns
-        -------
-        int
-            number of snpashots for solutions of name "solutionName"
-        """
-        if skipFirst == False:
-            offset = 0
-        else:
-            offset = -1
-
-        number = 0
-        for _, problemData in self.problemDatas.items():
-            number += problemData.solutions[solutionName].GetNumberOfSnapshots() + offset
-        return number
 
     def GetSolutionsNumberOfComponents(self, solutionName):
         """
@@ -480,6 +457,7 @@ class CollectionProblemData(object):
 
         return nbeOfDofs[0]
 
+
     def GetSolutionsNumberOfNodes(self, solutionName):
         """
         Asserts that the solutions of name "solutionName" in all problemDatas have same nbeOfNodes
@@ -518,23 +496,23 @@ class CollectionProblemData(object):
         iterator
             an iterator over snapshots of solutions of name "solutionName" in all problemDatas
         """
+
         this = self
         self._checkSolutionName(solutionName)
         class iterator:
             def __init__(self, solutionName, skipFirst):
                 self.solutionName = solutionName
-                self.skipFirst = skipFirst
                 self.problemDatas = this.problemDatas
+                if skipFirst == False:
+                    self.startIndex = 0
+                else:
+                    self.startIndex = 1
 
             def __iter__(self):
                 for problemData in self.problemDatas.values():
-                    if self.skipFirst == False:
-                        localIterator = problemData.solutions[self.solutionName].snapshots.values()
-                    else:
-                        localIterator = list(problemData.solutions[self.solutionName].snapshots.values())[1:]
+                    localIterator  = problemData.GetSolution(self.solutionName).GetSnapshotsList()[self.startIndex :]
                     for snapshot in localIterator:
                         yield snapshot
-
 
         res = iterator(solutionName, skipFirst)
         return res
@@ -546,15 +524,154 @@ class CollectionProblemData(object):
         """
         self._checkSolutionName(solutionName)
         nbSnapshots = self.GetGlobalNumberOfSnapshots(solutionName, skipFirst)
-        nbDofs = self.GetSolutionsNumberOfDofs(solutionName)
+        numberOfDofs = self.GetSolutionsNumberOfDofs(solutionName)
 
-        snapshots = np.empty((nbSnapshots, nbDofs))
-
+        snapshots = np.empty((nbSnapshots, numberOfDofs))
         for i, s in enumerate(self.SnapshotsIterator(solutionName, skipFirst)):
             snapshots[i,:] = s
 
         return snapshots
 
+
+    def GetSnapshotsAtTimes(self, solutionName, timeSequence):
+        """
+        GetSnapshotsAtTimes
+        """
+        self._checkSolutionName(solutionName)
+        nbTimeSteps = np.array(timeSequence).shape[0]
+        nbProblemDatas = self.GetNumberOfProblemDatas()
+        numberOfDofs = self.GetSolutionsNumberOfDofs(solutionName)
+
+        snapshots = np.empty((nbTimeSteps*nbProblemDatas, numberOfDofs))
+        count = 0
+        for problemData in self.problemDatas.values():
+            solution = problemData.GetSolution(solutionName)
+            for t in timeSequence:
+                snapshots[count,:] = solution.GetSnapshotAtTime(t)
+                count += 1
+
+        return snapshots
+
+
+
+    def CompressedSnapshotsIterator(self, solutionName, skipFirst = False):
+        """
+        Constructs an iterator over compressedSnapshots of solutions of name "solutionName" in all problemDatas.
+
+        Parameters
+        ----------
+        solutionName : str
+            name of the solutions on which we want to iterate over compressedSnapshots
+
+        Returns
+        -------
+        iterator
+            an iterator over compressedSnapshots of solutions of name "solutionName" in all problemDatas
+        """
+        this = self
+        self._checkSolutionName(solutionName)
+        class iterator:
+            def __init__(self, solutionName, skipFirst):
+                self.solutionName = solutionName
+                self.problemDatas = this.problemDatas
+                if skipFirst == False:
+                    self.startIndex = 0
+                else:
+                    self.startIndex = 1
+
+            def __iter__(self):
+                for problemData in self.problemDatas.values():
+                    localIterator  = problemData.GetSolution(self.solutionName).GetCompressedSnapshotsList()[self.startIndex :]
+                    for snapshot in localIterator:
+                        yield snapshot
+
+        res = iterator(solutionName, skipFirst)
+        return res
+
+
+
+    def GetCompressedSnapshots(self, solutionName, skipFirst = False):
+        """
+        GetReducedSnapshots
+        """
+        self._checkSolutionName(solutionName)
+        nbSnapshots = self.GetGlobalNumberOfSnapshots(solutionName, skipFirst)
+        numberOfModes = self.GetReducedOrderBasisNumberOfModes(solutionName)
+
+        compressedSnapshots = np.empty((nbSnapshots, numberOfModes))
+
+        for i, s in enumerate(self.CompressedSnapshotsIterator(solutionName, skipFirst)):
+            compressedSnapshots[i,:] = s
+
+        return compressedSnapshots
+
+
+
+    def GetCompressedSnapshotsAtTimes(self, solutionName, timeSequence):
+        """
+        GetCompressedSnapshotsAtTimes
+        """
+        self._checkSolutionName(solutionName)
+        nbTimeSteps = np.array(timeSequence).shape[0]
+        nbProblemDatas = self.GetNumberOfProblemDatas()
+        numberOfModes = self.GetReducedOrderBasisNumberOfModes(solutionName)
+
+        compressedSnapshots = np.empty((nbTimeSteps*nbProblemDatas, numberOfModes))
+        count = 0
+        for problemData in self.problemDatas.values():
+            solution = problemData.GetSolution(solutionName)
+            for t in timeSequence:
+                compressedSnapshots[count,:] = solution.GetCompressedSnapshotsAtTime(t)
+                count += 1
+
+        return compressedSnapshots
+
+
+
+    def GetGlobalNumberOfSnapshots(self, solutionName, skipFirst = False):
+        """
+        Iterates over problemDatas to return the complete number of snpashots for solutions of name "solutionName"
+
+        Parameters
+        ----------
+        solutionName : str
+            name of the solutions for which we want to compute the total number of snapshots
+
+        Returns
+        -------
+        int
+            number of snpashots for solutions of name "solutionName"
+        """
+        if skipFirst == False:
+            offset = 0
+        else:
+            offset = -1
+
+        number = 0
+        for _, problemData in self.problemDatas.items():
+            number += problemData.solutions[solutionName].GetNumberOfSnapshots() + offset
+        return number
+
+
+    def GetSolutionTimeSteps(self, solutionName, skipFirst = False):
+        """
+        GetTimeSteps
+
+        Parameters
+        ----------
+        solutionName : str
+            name of the solutions for which we want to compute the total number of snapshots
+        """
+        if skipFirst == False:
+            startIndex = 0
+        else:
+            startIndex = 1
+
+        solutionTimeSteps = np.array([])
+        for _, problemData in self.problemDatas.items():
+            solutionTimeSteps = np.append(solutionTimeSteps, problemData.GetSolution(solutionName).GetTimeSequenceFromSnapshots()[startIndex:], 0)
+
+        return solutionTimeSteps
 
 
     def CompressSolutions(self, solutionName, snapshotCorrelationOperator = None):

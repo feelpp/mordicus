@@ -8,6 +8,7 @@ if MPI.COMM_WORLD.Get_size() > 1: # pragma: no cover
     os.environ["VECLIB_MAXIMUM_THREADS"] = "1"
     os.environ["NUMEXPR_NUM_THREADS"] = "1"
 import numpy as np
+from Mordicus.Core.BasicAlgorithms import  ScikitLearnRegressor as SLR
 
 
 def ComputeOnline(
@@ -35,15 +36,14 @@ def ComputeOnline(
     regressor = operatorCompressionOutputData[solutionName][0]
     scalerParameter = operatorCompressionOutputData[solutionName][1]
     scalerCoefficients = operatorCompressionOutputData[solutionName][2]
+    
+    onlineParameters = onlineProblemData.GetParametersList()
+    
 
+    onlineCoefficients = SLR.ComputeRegressionApproximation(regressor, scalerParameter, scalerCoefficients, onlineParameters)
+    
     timeSequence = onlineProblemData.GetParametersTimeSequence()
 
-    onlineParameters = onlineProblemData.GetParametersList()
-
-    onlineParameters = scalerParameter.transform(onlineParameters)
-    onlineCoefficients = regressor.predict(onlineParameters)
-    
-    onlineCoefficients = scalerCoefficients.inverse_transform(onlineCoefficients)
 
     import collections
     onlineCompressedSnapshots = collections.OrderedDict()
@@ -109,23 +109,8 @@ def CompressOperator(
             parameters[count : count + localNumberOfSnapshots, :] = localParameters
     
             count += localNumberOfSnapshots
-    
-        from sklearn.preprocessing import MinMaxScaler
-    
-        scalerParameter = MinMaxScaler()
-        scalerCoefficients = MinMaxScaler()
-    
-        scalerParameter.fit(parameters)
-        scalerCoefficients.fit(coefficients)
-    
-        parameters = scalerParameter.transform(parameters)
-        coefficients = scalerCoefficients.transform(coefficients)
-        
-        
-    
-        from sklearn.model_selection import GridSearchCV
-        model = GridSearchCV(estimator = regressor, param_grid = paramGrid, scoring = 'neg_mean_squared_error', cv = 4, verbose = 2, n_jobs=-1)
-        model.fit(parameters, coefficients)
+
+        model, scalerParameter, scalerCoefficients = SLR.GridSearchCVRegression(regressor, paramGrid, parameters, coefficients)
     
         operatorCompressionData[solutionName] = (model, scalerParameter, scalerCoefficients)
 

@@ -84,7 +84,7 @@ def test():
 
     SP.CompressData(collectionProblemData, "U", 1.e-6, snapshotCorrelationOperator["U"])
     for name in dualNames:
-        SP.CompressData(collectionProblemData, name, 1.e-6, compressSolutions = True)
+        SP.CompressData(collectionProblemData, name, 1.e-2, compressSolutions = True)
 
 
     collectionProblemData.CompressSolutions("U", snapshotCorrelationOperator["U"])
@@ -110,7 +110,9 @@ def test():
 
     Mechanical.CompressOperator(collectionProblemData, operatorPreCompressionData, \
                                 mesh, 1.e-5, listNameDualVarOutput = dualNames, \
-                                listNameDualVarGappyIndicesforECM = ["evrcum"])
+                                listNameDualVarGappyIndicesforECM = ["evrcum"],\
+                                methodDualReconstruction = "Krigring",\
+                                timeSequenceForDualReconstruction = outputTimeSequence[1:])
 
 
     print("CompressOperator done")

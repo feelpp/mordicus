@@ -18,10 +18,12 @@ from Mordicus.Core.IO import StateIO as SIO
 def test():
 
     solution = Solution.Solution("U", 2, 10, True)
-    snapshot = np.ones(20)
-    snapshot2 = 1.+np.ones(20)
-    solution.AddSnapshot(snapshot, 0.0)
-    solution.AddSnapshot(snapshot2, 1.0)
+
+    solution.AddSnapshot(np.ones(20), 0.0)
+    solution.AddSnapshot(1.+np.ones(20), 1.0)
+
+    solution.AddCompressedSnapshots(np.ones(2), 0.0)
+    solution.AddCompressedSnapshots(1.+np.ones(2), 1.0)
 
     problemData = ProblemData.ProblemData("computation1")
     problemData.AddSolution(solution)
@@ -51,12 +53,27 @@ def test():
     collectionProblemData.GetProblemSampling()
     collectionProblemData.GetGlobalNumberOfSnapshots("U")
     collectionProblemData.GetGlobalNumberOfSnapshots("U", skipFirst = True)
+    collectionProblemData.GetSolutionTimeSteps("U")
+    collectionProblemData.GetSolutionTimeSteps("U", skipFirst = True)
     collectionProblemData.GetSolutionsNumberOfComponents("U")
     collectionProblemData.GetSnapshots("U")
+    collectionProblemData.GetCompressedSnapshots("U")
+    collectionProblemData.GetSnapshots("U", skipFirst = True)
+    collectionProblemData.GetCompressedSnapshots("U", skipFirst = True)
+    collectionProblemData.GetCompressedSnapshots("U", skipFirst = True)
+    collectionProblemData.GetSnapshotsAtTimes("U", np.array([0., 1.]))
+    collectionProblemData.GetCompressedSnapshotsAtTimes("U", np.array([0., 1.]))
+
+
     for s in collectionProblemData.SnapshotsIterator("U"):
         pass
     for s in collectionProblemData.SnapshotsIterator("U", skipFirst = True):
         pass
+    for s in collectionProblemData.GetCompressedSnapshots("U"):
+        pass
+    for s in collectionProblemData.GetCompressedSnapshots("U", skipFirst = True):
+        pass
+
     collectionProblemData.GetReducedOrderBasisNumberOfModes("U")
     collectionProblemData.SetDataCompressionData("toto", 1.)
     collectionProblemData.GetDataCompressionData("toto")

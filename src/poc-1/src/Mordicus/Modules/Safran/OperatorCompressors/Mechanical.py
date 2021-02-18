@@ -92,7 +92,7 @@ def PrepareOnline(onlineProblemData, operatorCompressionData):
     for tag, intPoints in IndicesOfIntegPointsPerMaterial.items():
 
         localNbIntPoints = len(intPoints)
-        
+
         lawTag = ('mechanical', tag)
 
         law = onlineProblemData.GetConstitutiveLaws()[lawTag]
@@ -137,7 +137,7 @@ def ComputeOnline(onlineProblemData, timeSequence, operatorCompressionData, tole
 
 
     for timeStep in range(1, len(timeSequence)):
-        
+
         previousTime = timeSequence[timeStep-1]
         time = timeSequence[timeStep]
         dtime = time - previousTime
@@ -322,7 +322,8 @@ def PreCompressOperator(mesh):
 def CompressOperator(
     collectionProblemData, operatorPreCompressionData, mesh, tolerance, \
     listNameDualVarOutput = None, listNameDualVarGappyIndicesforECM = None, \
-    toleranceCompressSnapshotsForRedQuad = 0.
+    toleranceCompressSnapshotsForRedQuad = 0., methodDualReconstruction = "GappyPOD",
+    timeSequenceForDualReconstruction = None
 ):
     """
     Operator Compression for the POD and ECM for a mechanical problem
@@ -391,7 +392,7 @@ def CompressOperator(
     sigmaEpsilon = ComputeSigmaEpsilon(collectionProblemData, reducedEpsilonAtIntegPoints, tolerance, toleranceCompressSnapshotsForRedQuad)
 
     print("Prepare ECM duration = "+str(time.time()-start)+" s"); sys.stdout.flush()
-    
+
     reducedIntegrationPoints, reducedIntegrationWeights = RQP.ComputeReducedIntegrationScheme(integrationWeights, sigmaEpsilon, tolerance, imposedIndices = imposedIndices, reducedIntegrationPointsInitSet = operatorCompressionData["reducedIntegrationPoints"])
     #reducedIntegrationPoints, reducedIntegrationWeights = np.arange(integrationWeights.shape[0]), integrationWeights
 
@@ -403,9 +404,8 @@ def CompressOperator(
     for i, listOfTags in enumerate(reducedListOTags):
         reducedListOTags[i].append("ALLELEMENT")
 
-    gappyModesAtRedIntegPts = {}
-    for name in listNameDualVarOutput:
-        gappyModesAtRedIntegPts[name] = collectionProblemData.GetReducedOrderBasis(name)[:,reducedIntegrationPoints]
+
+    dualReconstructionData = LearnDualReconstruction(collectionProblemData, listNameDualVarOutput, reducedIntegrationPoints, methodDualReconstruction, timeSequenceForDualReconstruction)
 
 
     operatorCompressionData = {}
@@ -413,7 +413,7 @@ def CompressOperator(
     operatorCompressionData["reducedIntegrationWeights"] = reducedIntegrationWeights
     operatorCompressionData["reducedListOTags"] = reducedListOTags
     operatorCompressionData["reducedEpsilonAtReducedIntegPoints"] = reducedEpsilonAtReducedIntegPoints
-    operatorCompressionData["gappyModesAtRedIntegPts"] = gappyModesAtRedIntegPts
+    operatorCompressionData["dualReconstructionData"] = dualReconstructionData
 
     collectionProblemData.SetOperatorCompressionData(operatorCompressionData)
 
@@ -498,34 +498,148 @@ def ReduceIntegrator(collectionProblemData, mesh, gradPhiAtIntegPoint, numberOfI
 
 
 
+def LearnDualReconstruction(collectionProblemData, listNameDualVarOutput, reducedIntegrationPoints, methodDualReconstruction, timeSequenceForDualReconstruction = None, snapshotsAtReducedIntegrationPoints = None):
+
+
+    dualReconstructionData = {}
+
+    if methodDualReconstruction == "GappyPOD":
+        dualReconstructionData["methodDualReconstruction"] = "GappyPOD"
+        for name in listNameDualVarOutput:
+            dualReconstructionData[name] = collectionProblemData.GetReducedOrderBasis(name)[:,reducedIntegrationPoints]
+
+    elif methodDualReconstruction == "Kriging":
+        dualReconstructionData["methodDualReconstruction"] = "Kriging"
+        for name in listNameDualVarOutput:
+
+
+            if timeSequenceForDualReconstruction is None:
+                solutionTimeSteps = collectionProblemData.GetSolutionTimeSteps(name, skipFirst = True)[:,np.newaxis]
+                if snapshotsAtReducedIntegrationPoints is None:
+                    localSnapshotsAtReducedIntegrationPoints = collectionProblemData.GetSnapshots(name, skipFirst = True)[:,reducedIntegrationPoints]
+                else:# pragma: no cover
+                    raise RuntimeError("cannot specify snapshotsAtReducedIntegrationPoints when timeSequenceForDualReconstruction is None")
+                yTrain = collectionProblemData.GetCompressedSnapshots(name, skipFirst = True)
+            else:
+                solutionTimeSteps = np.array(timeSequenceForDualReconstruction)[:,np.newaxis]
+                if snapshotsAtReducedIntegrationPoints is None:
+                    localSnapshotsAtReducedIntegrationPoints = collectionProblemData.GetSnapshotsAtTimes(name, timeSequenceForDualReconstruction)[:,reducedIntegrationPoints]
+                else:
+                    localSnapshotsAtReducedIntegrationPoints = snapshotsAtReducedIntegrationPoints[name]
+                yTrain = collectionProblemData.GetCompressedSnapshotsAtTimes(name, timeSequenceForDualReconstruction)
+                solutionTimeSteps = np.tile(solutionTimeSteps, (collectionProblemData.GetNumberOfProblemDatas(),1))
+
+
+            #print("solutionTimeSteps =", solutionTimeSteps)
+            #print("localSnapshotsAtReducedIntegrationPoints =", localSnapshotsAtReducedIntegrationPoints)
+
+            assert solutionTimeSteps.shape[0] == localSnapshotsAtReducedIntegrationPoints.shape[0], "number of time steps different from number of snapshots at reduced integration points"
+
+            XTrain = np.hstack((solutionTimeSteps, localSnapshotsAtReducedIntegrationPoints))
+
+
+            from sklearn.gaussian_process.kernels import WhiteKernel, ConstantKernel, Matern
+            from sklearn.gaussian_process import GaussianProcessRegressor
+            from Mordicus.Core.BasicAlgorithms import ScikitLearnRegressor as SLR
+
+            kernel = Matern(length_scale=1., nu=2.5) + ConstantKernel(constant_value=1.0, constant_value_bounds=(0.01, 1.0)) * WhiteKernel(noise_level=1, noise_level_bounds=(1e-10, 1e0))
+            regressor = GaussianProcessRegressor(kernel=kernel)
+            #print("regressor.get_params().keys() =", regressor.get_params().keys())
+
+            paramGrid = {'kernel__k1__length_scale': [0.1, 1., 10.], 'kernel__k1__nu':[1.5, 2.5], 'kernel__k2__k1__constant_value':[0.01, 0.1, 1.]}#, 'kernel__k2__k2__noise_level':[1, 2]}
+
+            model, scalerX, scalery = SLR.GridSearchCVRegression(regressor, paramGrid, XTrain, yTrain)
+            dualReconstructionData[name] = (model, scalerX, scalery)
+
+
+    else:# pragma: no cover
+        print(">> Not learning how to reconstructing dual variables")
+
+
+    return dualReconstructionData
+
+
 
 def ReconstructDualQuantity(nameDualQuantity, operatorCompressionData, onlineCompressionData, timeSequence):
 
-
-    from Mordicus.Modules.Safran.BasicAlgorithms import GappyPOD as GP
     import collections
 
     onlineDualCompressedSolution = collections.OrderedDict()
 
-    ModesAtMask = operatorCompressionData['gappyModesAtRedIntegPts'][nameDualQuantity]
-    fieldAtMask = np.zeros(ModesAtMask.shape[1])
+
+    """nTimeSteps = np.array(timeSequence).shape[0]
+    nReducedIntegrationPoints = operatorCompressionData["reducedEpsilonAtReducedIntegPoints"].shape[1]
+    fieldAtMask = np.zeros((nTimeSteps, nReducedIntegrationPoints))
 
     localIndex = {}
     for tag in onlineCompressionData['IndicesOfIntegPointsPerMaterial'].keys():
- 
         if nameDualQuantity in onlineCompressionData['dualVarOutputNames'][tag]:
-          localIndex[tag] = onlineCompressionData['dualVarOutputNames'][tag].index(nameDualQuantity)
+            localIndex[tag] = onlineCompressionData['dualVarOutputNames'][tag].index(nameDualQuantity)
 
-    gappyPODResidual = []
-    for time in timeSequence:
+    for i, time in enumerate(timeSequence):
         for tag, intPoints in onlineCompressionData['IndicesOfIntegPointsPerMaterial'].items():
             if tag in localIndex:
-                fieldAtMask[intPoints] = onlineCompressionData['dualVarOutput'][tag][time][:,localIndex[tag]]
+                fieldAtMask[i, intPoints] = onlineCompressionData['dualVarOutput'][tag][time][:,localIndex[tag]]"""
 
-        onlineDualCompressedSolution[time], error = GP.FitAndCost(ModesAtMask, fieldAtMask)
-        gappyPODResidual.append(error)
-        
-    return onlineDualCompressedSolution, gappyPODResidual
+    fieldAtMask = GetOnlineDualQuantityAtReducedIntegrationPoints(nameDualQuantity, onlineCompressionData, timeSequence)
+
+    reconstructionResidual = []
+
+    methodDualReconstruction = operatorCompressionData['dualReconstructionData']["methodDualReconstruction"]
+
+    if methodDualReconstruction == "GappyPOD":
+        from Mordicus.Modules.Safran.BasicAlgorithms import GappyPOD as GP
+
+        ModesAtMask = operatorCompressionData['dualReconstructionData'][nameDualQuantity]
+
+        for i, time in enumerate(timeSequence):
+
+            onlineDualCompressedSolution[time], error = GP.FitAndCost(ModesAtMask, fieldAtMask[i])
+            reconstructionResidual.append(error)
+
+
+    elif methodDualReconstruction == "Kriging":
+
+        from Mordicus.Core.BasicAlgorithms import ScikitLearnRegressor as SLR
+
+        model   = operatorCompressionData['dualReconstructionData'][nameDualQuantity][0]
+        scalerX = operatorCompressionData['dualReconstructionData'][nameDualQuantity][1]
+        scalery = operatorCompressionData['dualReconstructionData'][nameDualQuantity][2]
+
+        xTest = np.hstack((np.array(timeSequence)[:,np.newaxis], fieldAtMask))
+
+        y = SLR.ComputeRegressionApproximation(model, scalerX, scalery, xTest)
+
+        for i, time in enumerate(timeSequence):
+
+            onlineDualCompressedSolution[time] = y[i]
+
+    else:# pragma: no cover
+        raise NameError(methodDualReconstruction+" not available")
+
+    return onlineDualCompressedSolution, reconstructionResidual
+
+
+
+def GetOnlineDualQuantityAtReducedIntegrationPoints(nameDualQuantity, onlineCompressionData, timeSequence):
+
+    nTimeSteps = np.array(timeSequence).shape[0]
+
+    nReducedIntegrationPoints = 0
+    localIndex = {}
+    for tag, intPoints in onlineCompressionData['IndicesOfIntegPointsPerMaterial'].items():
+        nReducedIntegrationPoints += intPoints.shape[0]
+        if nameDualQuantity in onlineCompressionData['dualVarOutputNames'][tag]:
+            localIndex[tag] = onlineCompressionData['dualVarOutputNames'][tag].index(nameDualQuantity)
+
+    fieldAtMask = np.zeros((nTimeSteps, nReducedIntegrationPoints))
+
+    for i, time in enumerate(timeSequence):
+        for tag, intPoints in onlineCompressionData['IndicesOfIntegPointsPerMaterial'].items():
+            if tag in localIndex:
+                fieldAtMask[i, intPoints] = onlineCompressionData['dualVarOutput'][tag][time][:,localIndex[tag]]
+
+    return fieldAtMask
 
 
 if __name__ == "__main__":# pragma: no cover

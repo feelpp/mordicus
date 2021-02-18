@@ -259,6 +259,10 @@ class Solution(object):
         """
         time = float(time)
 
+        timeSequenceFromSnapshots = self.GetTimeSequenceFromSnapshots()
+        if not timeSequenceFromSnapshots:
+            raise RuntimeError("Snapshots for solutionName "+self.solutionName+" not initialized")
+
         return TI.PieceWiseLinearInterpolation(
             time, self.GetTimeSequenceFromSnapshots(), self.GetSnapshotsList()
         )

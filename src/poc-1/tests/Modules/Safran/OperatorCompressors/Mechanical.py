@@ -81,7 +81,7 @@ def test():
 
     SP.CompressData(collectionProblemData, "U", 1.e-6, snapshotCorrelationOperator["U"])
 
-    SP.CompressData(collectionProblemData, "evrcum", 1.e-6)
+    SP.CompressData(collectionProblemData, "evrcum", 1.e-6, compressSolutions = True)
 
     print("PreCompressOperator...")
     operatorPreCompressionData = Meca.PreCompressOperator(mesh)
@@ -90,20 +90,22 @@ def test():
     Meca.CompressOperator(collectionProblemData, operatorPreCompressionData, mesh, 1.e-5, listNameDualVarOutput = ["evrcum"], listNameDualVarGappyIndicesforECM = ["evrcum"], toleranceCompressSnapshotsForRedQuad = 1.e-5)
     Meca.CompressOperator(collectionProblemData, operatorPreCompressionData, mesh, 1.e-5, listNameDualVarOutput = ["evrcum"], listNameDualVarGappyIndicesforECM = ["evrcum"])
 
+
+
     print("CompressOperator done")
 
-    SIO.SaveState("collectionProblemData", collectionProblemData)
-    SIO.SaveState("snapshotCorrelationOperator", snapshotCorrelationOperator)
+    #SIO.SaveState("collectionProblemData", collectionProblemData)
+    #SIO.SaveState("snapshotCorrelationOperator", snapshotCorrelationOperator)
 
 
     #################################################################
     ### ONLINE
     #################################################################
 
-    collectionProblemData = SIO.LoadState("collectionProblemData")
+    #collectionProblemData = SIO.LoadState("collectionProblemData")
     operatorCompressionData = collectionProblemData.GetOperatorCompressionData()
 
-    snapshotCorrelationOperator = SIO.LoadState("snapshotCorrelationOperator")
+    #snapshotCorrelationOperator = SIO.LoadState("snapshotCorrelationOperator")
     #operatorPreCompressionData = SIO.LoadState("operatorPreCompressionData")
 
     reducedOrderBases = collectionProblemData.GetReducedOrderBases()
@@ -127,7 +129,7 @@ def test():
     loadingList = inputReader.ConstructLoadingsList()
     onlineProblemData.AddLoading(loadingList)
     for loading in onlineProblemData.GetLoadingsForSolution("U"):
-        loading.ReduceLoading(mesh, onlineProblemData, reducedOrderBases, operatorCompressionData)    
+        loading.ReduceLoading(mesh, onlineProblemData, reducedOrderBases, operatorCompressionData)
 
     initialCondition = inputReader.ConstructInitialCondition()
     onlineProblemData.SetInitialCondition(initialCondition)
@@ -137,7 +139,23 @@ def test():
     onlineCompressedSolution, onlineCompressionData = Meca.ComputeOnline(onlineProblemData, timeSequence, operatorCompressionData, 1.e-6)
 
 
+    onlineEvrcumCompressedSolution, gappyError = Meca.ReconstructDualQuantity('evrcum', operatorCompressionData, onlineCompressionData, timeSequence = list(onlineCompressedSolution.keys())[1:])
 
+
+    ##############
+    # test LearnDualReconstruction
+
+    onlineDualQuantityAtReducedIntegrationPoints = {}
+    onlineDualQuantityAtReducedIntegrationPoints["evrcum"] = Meca.GetOnlineDualQuantityAtReducedIntegrationPoints("evrcum", onlineCompressionData, timeSequence)
+
+    reducedIntegrationPoints = operatorCompressionData["reducedIntegrationPoints"]
+    Meca.LearnDualReconstruction(collectionProblemData, ["evrcum"], reducedIntegrationPoints, methodDualReconstruction= "Kriging", timeSequenceForDualReconstruction = timeSequence, snapshotsAtReducedIntegrationPoints = onlineDualQuantityAtReducedIntegrationPoints)
+    Meca.LearnDualReconstruction(collectionProblemData, ["evrcum"], reducedIntegrationPoints, methodDualReconstruction= "Kriging", timeSequenceForDualReconstruction = timeSequence, snapshotsAtReducedIntegrationPoints = None)
+    dualReconstructionData = Meca.LearnDualReconstruction(collectionProblemData, ["evrcum"], reducedIntegrationPoints, methodDualReconstruction= "Kriging", timeSequenceForDualReconstruction = None, snapshotsAtReducedIntegrationPoints = None)
+
+    ##############
+
+    operatorCompressionData["dualReconstructionData"] = dualReconstructionData
     onlineEvrcumCompressedSolution, gappyError = Meca.ReconstructDualQuantity('evrcum', operatorCompressionData, onlineCompressionData, timeSequence = list(onlineCompressedSolution.keys())[1:])
 
 
@@ -152,7 +170,7 @@ def test():
     solutionEvrcumApprox = Solution.Solution("evrcum", 1, numberOfIntegrationPoints, primality = False)
     solutionEvrcumApprox.SetCompressedSnapshots(onlineEvrcumCompressedSolution)
     solutionEvrcumApprox.UncompressSnapshots(reducedOrderBases["evrcum"])
-    
+
     solutionUApprox = Solution.Solution("U", nbeOfComponentsPrimal, numberOfNodes, primality = True)
     solutionUApprox.SetCompressedSnapshots(onlineCompressedSolution)
     solutionUApprox.UncompressSnapshots(reducedOrderBases["U"])
@@ -168,7 +186,7 @@ def test():
         else:
             relError = np.linalg.norm(approxSolution-exactSolution)
         ROMErrorsEvrcum.append(relError)
-        
+
         exactSolution = solutionUExact.GetSnapshotAtTime(t)
         approxSolution = solutionUApprox.GetSnapshotAtTime(t)
         norml2ExactSolution = np.linalg.norm(exactSolution)
@@ -180,8 +198,8 @@ def test():
 
     print("ROMErrors U =", ROMErrorsU)
     print("ROMErrors Evrcum =", ROMErrorsEvrcum)
-    
- 
+
+
 
     from Mordicus.Modules.Safran.Containers.ConstitutiveLaws import MecaUniformLinearElasticity as MULE
 
