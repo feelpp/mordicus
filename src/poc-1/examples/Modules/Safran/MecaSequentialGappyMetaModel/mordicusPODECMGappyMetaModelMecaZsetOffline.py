@@ -111,7 +111,7 @@ def test():
     Mechanical.CompressOperator(collectionProblemData, operatorPreCompressionData, \
                                 mesh, 1.e-5, listNameDualVarOutput = dualNames, \
                                 listNameDualVarGappyIndicesforECM = ["evrcum"],\
-                                methodDualReconstruction = "Krigring",\
+                                methodDualReconstruction = "Kriging",\
                                 timeSequenceForDualReconstruction = outputTimeSequence[1:])
 
 

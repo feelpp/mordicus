@@ -107,6 +107,13 @@ def PrepareOnline(onlineProblemData, operatorCompressionData):
 
     onlineCompressionData['IndicesOfIntegPointsPerMaterial'] = IndicesOfIntegPointsPerMaterial
 
+
+    onlineCompressionData['reducedIntegrationWeights'] = np.copy(operatorCompressionData['reducedIntegrationWeights'])
+    onlineCompressionData['reducedEpsilonAtReducedIntegPoints'] = np.copy(operatorCompressionData['reducedEpsilonAtReducedIntegPoints'])
+
+    onlineCompressionData['nbOfComponents'] = onlineCompressionData['reducedEpsilonAtReducedIntegPoints'].shape[0]
+    onlineCompressionData['nbOfReducedIntPoints'] = len(onlineCompressionData["reducedIntegrationWeights"])
+
     return onlineCompressionData
 
 
@@ -155,7 +162,7 @@ def ComputeOnline(onlineProblemData, timeSequence, operatorCompressionData, tole
 
         onlineCompressedSolution[time] = np.copy(before)
 
-        reducedInternalForcesTemp, reducedTangentMatrixTemp = ComputeReducedInternalForcesAndTangentMatrix(onlineProblemData, operatorCompressionData, onlineCompressionData, IndicesOfIntegPointsPerMaterial, before, after)
+        reducedInternalForcesTemp, reducedTangentMatrixTemp = ComputeReducedInternalForcesAndTangentMatrix(onlineProblemData, onlineCompressionData, IndicesOfIntegPointsPerMaterial, before, after)
         reducedInternalForces = np.zeros(reducedInternalForcesTemp.shape)
         MPI.COMM_WORLD.Allreduce([reducedInternalForcesTemp,  MPI.DOUBLE], [reducedInternalForces,  MPI.DOUBLE])
 
@@ -179,7 +186,7 @@ def ComputeOnline(onlineProblemData, timeSequence, operatorCompressionData, tole
 
             after = onlineCompressedSolution[time]# np.copy in niROM
 
-            reducedInternalForcesTemp, reducedTangentMatrixTemp = ComputeReducedInternalForcesAndTangentMatrix(onlineProblemData, operatorCompressionData, onlineCompressionData, IndicesOfIntegPointsPerMaterial, before, after)
+            reducedInternalForcesTemp, reducedTangentMatrixTemp = ComputeReducedInternalForcesAndTangentMatrix(onlineProblemData, onlineCompressionData, IndicesOfIntegPointsPerMaterial, before, after)
 
             reducedInternalForces = np.zeros(reducedInternalForcesTemp.shape)
             MPI.COMM_WORLD.Allreduce([reducedInternalForcesTemp,  MPI.DOUBLE], [reducedInternalForces,  MPI.DOUBLE])
@@ -233,19 +240,18 @@ def PrepareNewtonIterations(onlineProblemData, onlineCompressionData, time, dtim
 
 
 
-def ComputeReducedInternalForcesAndTangentMatrix(onlineProblemData, opCompDat, onlineCompressionData, IndicesOfIntegPointsPerMaterial, before, after):
+def ComputeReducedInternalForcesAndTangentMatrix(onlineProblemData, onlineCompressionData, IndicesOfIntegPointsPerMaterial, before, after):
 
 
-    reducedEpsilonAtReducedIntegPoints = opCompDat['reducedEpsilonAtReducedIntegPoints']
+    nbOfComponents = onlineCompressionData['nbOfComponents']
+    nbOfReducedIntPoints = onlineCompressionData['nbOfReducedIntPoints']
 
-    nbOfComponents = opCompDat['reducedEpsilonAtReducedIntegPoints'].shape[0]
-    nbOfReducedIntPoints = len(opCompDat["reducedIntegrationPoints"])
+    reducedIntegrationWeights = onlineCompressionData['reducedIntegrationWeights']
+    reducedEpsilonAtReducedIntegPoints = onlineCompressionData['reducedEpsilonAtReducedIntegPoints']
 
     onlineCompressionData['sigIntForces'] = np.zeros((nbOfReducedIntPoints,nbOfComponents))
-
-    onlineCompressionData['stranIntForces0'] = np.dot(opCompDat['reducedEpsilonAtReducedIntegPoints'], before).T
-
-    onlineCompressionData['stranIntForces'] = np.dot(opCompDat['reducedEpsilonAtReducedIntegPoints'], after).T
+    onlineCompressionData['stranIntForces0'] = np.dot(reducedEpsilonAtReducedIntegPoints, before).T
+    onlineCompressionData['stranIntForces'] = np.dot(reducedEpsilonAtReducedIntegPoints, after).T
 
 
     constLaws = onlineProblemData.GetConstitutiveLaws()
@@ -291,9 +297,9 @@ def ComputeReducedInternalForcesAndTangentMatrix(onlineProblemData, opCompDat, o
         onlineCompressionData['stranIntForces'][intPoints,3:6] = 0.5*stran[:,3:6]
 
 
-    reducedInternalForces = np.einsum('l,mlk,lm->k', opCompDat['reducedIntegrationWeights'], reducedEpsilonAtReducedIntegPoints, sigma, optimize = True)
+    reducedInternalForces = np.einsum('l,mlk,lm->k', reducedIntegrationWeights, reducedEpsilonAtReducedIntegPoints, sigma, optimize = True)
 
-    reducedTangentMatrix = np.einsum('l,mlk,lmn,nlo->ko', opCompDat['reducedIntegrationWeights'], reducedEpsilonAtReducedIntegPoints, localTgtMat, reducedEpsilonAtReducedIntegPoints, optimize = True)
+    reducedTangentMatrix = np.einsum('l,mlk,lmn,nlo->ko', reducedIntegrationWeights, reducedEpsilonAtReducedIntegPoints, localTgtMat, reducedEpsilonAtReducedIntegPoints, optimize = True)
 
     return reducedInternalForces, reducedTangentMatrix
 
