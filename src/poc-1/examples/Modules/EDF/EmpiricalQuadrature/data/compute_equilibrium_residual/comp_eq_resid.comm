@@ -20,32 +20,86 @@
 
 POURSUITE()
 
-# ----------------------------------------------------
-# ETAPE 3
+
+# READ RAW REDUCED RESULT
+# -----------------------
+RES_RAW=LIRE_RESU(TYPE_RESU='MECA_NOLI',
+                  FORMAT='MED',
+                  MAILLAGE=MAILR,
+                  TOUT_ORDRE='OUI',
+                  UNITE=80,
+                  FORMAT_MED=_F(NOM_CHAM='SIEF_ELGA',
+                                NOM_CHAM_MED='SIG_RAW_SIEF_ELGA',),)
+
 #
-# CALCUL D'UNE NOUVELLE SOLUTION COMPLETE
-# ----------------------------------------------------
-RES2=LIRE_RESU(TYPE_RESU='MECA_NOLI',
-               FORMAT='MED',
-               MAILLAGE=MAILR,
-               TOUT_ORDRE='OUI',
-               UNITE=80,
-               FORMAT_MED=_F(NOM_CHAM='SIEF_ELGA',
-                             NOM_CHAM_MED='SIG_RED_SIEF_ELGA',),)
+# READ RECONSTRUCTED RESULT
+# -------------------------
+RES_REC=LIRE_RESU(TYPE_RESU='MECA_NOLI',
+                  FORMAT='MED',
+                  MAILLAGE=MAILR,
+                  TOUT_ORDRE='OUI',
+                  UNITE=81,
+                  FORMAT_MED=_F(NOM_CHAM='SIEF_ELGA',
+                                NOM_CHAM_MED='SIG_REC_SIEF_ELGA',),)
 
-RES2 = CALC_CHAMP(reuse=RES2,
-                  RESULTAT=RES2,
-                  FORCE='REAC_NODA',
-                  MODELE=MODR,
-                  CHAM_MATER=CHMATR,
-                  CARA_ELEM=CARAMECR,
-                  EXCIT=(_F(CHARGE=CLIMR,),
-                         _F(CHARGE=CH_DOMR,),),)
+#
+# WORKAROUND TO GET THE RIGHT STRESSES ON BARS
+# --------------------------------------------
+siefr = [None]*len(l_py_coarse)
+fackwds = []
 
+for i, ti in enumerate(l_py_coarse):
+    sief3d = CREA_CHAMP(OPERATION='EXTR',
+                        TYPE_CHAM='ELGA_SIEF_R',
+                        RESULTAT=RES_REC,
+                        NOM_CHAM='SIEF_ELGA',
+                        INST=ti);
+    sief1d = CREA_CHAMP(OPERATION='EXTR',
+                        TYPE_CHAM='ELGA_SIEF_R',
+                        RESULTAT=RES_RAW,
+                        NOM_CHAM='SIEF_ELGA',
+                        INST=ti);
+    siefr[i]=CREA_CHAMP(OPERATION='ASSE',
+                        TYPE_CHAM='ELGA_SIEF_R',
+                        MODELE=MODR,
+                        ASSE=(_F(CHAM_GD=sief3d,
+                                 GROUP_MA='PACE',),
+                              _F(CHAM_GD=sief1d,
+                                 GROUP_MA='CABLE',),),)
+    DETRUIRE(CONCEPT=_F(NOM=sief1d))
+    DETRUIRE(CONCEPT=_F(NOM=sief3d))
+    fackwds.append({'CHAM_GD': siefr[i], 'INST': ti, 'PRECISION': 1.E-5, 'MODELE': MODR})
+
+# Take reconstructed field and overwrite stress field
+RES_REC=CREA_RESU(reuse=RES_REC,
+                  RESULTAT=RES_REC,
+                  OPERATION='AFFE',
+                  TYPE_RESU='EVOL_NOLI',
+                  NOM_CHAM='SIEF_ELGA',
+                  AFFE=tuple(_F(**mydict) for mydict in fackwds),);
+
+# First computation of the residual (w/o Lagrange multipliers)
+RES_REC = CALC_CHAMP(reuse=RES_REC,
+                     RESULTAT=RES_REC,
+                     FORCE='REAC_NODA',
+                     MODELE=MODR,
+                     CHAM_MATER=CHMATR,
+                     CARA_ELEM=CARAMECR,
+                     EXCIT=(_F(CHARGE=CLIMR,),
+                            _F(CHARGE=CH_DOMR,),),)
+
+RES_REC = CALC_CHAMP(reuse=RES_REC,
+                     RESULTAT=RES_REC,
+                     FORCE='FORC_NODA',
+                     MODELE=MODR,
+                     CHAM_MATER=CHMATR,
+                     CARA_ELEM=CARAMECR,
+                     EXCIT=(_F(CHARGE=CLIMR,),
+                            _F(CHARGE=CH_DOMR,),),)
 
 IMPR_RESU(FORMAT='MED',
-          UNITE=81,
-          RESU=_F(RESULTAT=RES2))
+          UNITE=82,
+          RESU=_F(RESULTAT=RES_REC))
 
 FIN()
 
