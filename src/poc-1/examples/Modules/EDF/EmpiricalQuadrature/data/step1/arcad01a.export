@@ -13,8 +13,6 @@ A memjeveux 512.0
 A tpmax 6000.0
 F comm /home/A34370/dev/mordicus/src/poc-1/examples/Modules/EDF/EmpiricalQuadrature/data/step1/arcad01a.comm D  1
 F libr /home/A34370/dev/mordicus/src/poc-1/examples/Modules/EDF/EmpiricalQuadrature/data/step1/arcad01a.2 D  2
-F mmed /home/A34370/dev/mordicus/src/poc-1/examples/Modules/EDF/EmpiricalQuadrature/data/step1/arcad01a.20 D  20
-F mmed /home/A34370/dev/mordicus/src/poc-1/examples/Modules/EDF/EmpiricalQuadrature/data/step1/arcad01a.19 D  19
 F rmed /home/A34370/dev/mordicus/src/poc-1/examples/Modules/EDF/EmpiricalQuadrature/data/step1/Sortie.rmed D  80
 F rmed /home/A34370/dev/mordicus/src/poc-1/examples/Modules/EDF/EmpiricalQuadrature/data/step1/SortieR.rmed D  81
 F conf /home/A34370/dev/codeaster/install/std/share/aster/config.txt D  21

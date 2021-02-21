@@ -23,9 +23,9 @@ POURSUITE()
 
 # READ RAW REDUCED RESULT
 # -----------------------
-RES_RAW=LIRE_RESU(TYPE_RESU='MECA_NOLI',
+RES_RAW=LIRE_RESU(TYPE_RESU='EVOL_NOLI',
                   FORMAT='MED',
-                  MAILLAGE=MAILR,
+                  MODELE=MODR,
                   TOUT_ORDRE='OUI',
                   UNITE=80,
                   FORMAT_MED=_F(NOM_CHAM='SIEF_ELGA',
@@ -34,9 +34,9 @@ RES_RAW=LIRE_RESU(TYPE_RESU='MECA_NOLI',
 #
 # READ RECONSTRUCTED RESULT
 # -------------------------
-RES_REC=LIRE_RESU(TYPE_RESU='MECA_NOLI',
+RES_REC=LIRE_RESU(TYPE_RESU='EVOL_NOLI',
                   FORMAT='MED',
-                  MAILLAGE=MAILR,
+                  MODELE=MODR,
                   TOUT_ORDRE='OUI',
                   UNITE=81,
                   FORMAT_MED=_F(NOM_CHAM='SIEF_ELGA',
@@ -45,10 +45,10 @@ RES_REC=LIRE_RESU(TYPE_RESU='MECA_NOLI',
 #
 # WORKAROUND TO GET THE RIGHT STRESSES ON BARS
 # --------------------------------------------
-siefr = [None]*len(l_py_coarse)
+siefr = [None]*len(l_py)
 fackwds = []
 
-for i, ti in enumerate(l_py_coarse):
+for i, ti in enumerate(l_py):
     sief3d = CREA_CHAMP(OPERATION='EXTR',
                         TYPE_CHAM='ELGA_SIEF_R',
                         RESULTAT=RES_REC,
@@ -77,6 +77,46 @@ RES_REC=CREA_RESU(reuse=RES_REC,
                   TYPE_RESU='EVOL_NOLI',
                   NOM_CHAM='SIEF_ELGA',
                   AFFE=tuple(_F(**mydict) for mydict in fackwds),);
+
+BETON=DEFI_MATERIAU(ELAS_FO=_F(E=E,
+                               NU=NU,
+                               RHO=RHO,
+                               TEMP_DEF_ALPHA=20.0,
+                               ALPHA=ALPHA,
+                               B_ENDOGE=p_endo ,
+                               FONC_DESORP=FCTD,
+                               K_DESSIC=p_kdes,),
+                    BPEL_BETON=_F(),
+                    BETON_BURGER=_F(YoungModulus=p_E_b365,
+                                    PoissonRatio=p_nu,
+                                    K_RS=p_krs,
+                                    ETA_RS=p_etars,
+                                    KAPPA=p_kappa,
+                                    ETA_IS=p_etais,
+                                    K_RD=p_krd,
+                                    ETA_RD=p_etard,
+                                    ETA_ID=p_etaid,
+                                    ETA_FD=p_etafd,
+                                    TEMP_0_C=p_temp0c,
+                                    QSR_K=p_qsrk),);
+CHMATR=AFFE_MATERIAU(MAILLAGE=MAILR,
+                    AFFE=(_F(GROUP_MA=('PACE','SI','SD','SG','SH','SB',),
+                             MATER=BETON,),
+                          _F(GROUP_MA=('CABLEH1','CABLEH2','CABLEH3','CABLEV1','CABLEV2'),
+                             MATER=ACIERC),),
+                    AFFE_VARC=(_F(TOUT='OUI',
+                                  EVOL=HYDRR,
+                                  NOM_VARC='HYDR',
+                                  NOM_CHAM='HYDR_NOEU'),
+                               _F(TOUT='OUI',
+                                  EVOL=SCALR,
+                                  NOM_VARC='SECH',
+                                  VALE_REF=C_100,),
+                              _F(TOUT='OUI',
+                                 EVOL=TCALR,
+                                 NOM_VARC='TEMP',
+                                 VALE_REF=T_arret,),),);
+
 
 # First computation of the residual (w/o Lagrange multipliers)
 RES_REC = CALC_CHAMP(reuse=RES_REC,

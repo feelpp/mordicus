@@ -22,19 +22,23 @@ POURSUITE()
 
 BASE_POD=LIRE_RESU(TYPE_RESU='MODE_EMPI',
                    FORMAT='MED',
-                   MAILLAGE=MAILR,
+                   MODELE=MODR,
                    TOUT_ORDRE='OUI',
                    UNITE=24,
                    FORMAT_MED=_F(NOM_CHAM='DEPL',
                                  NOM_CHAM_MED='base____DEPL',),)
 
+
 POIDR=LIRE_CHAMP(FORMAT='MED',
                  NOM_MED='W_EMPI__',
-                 NOM_CMP_IDEM='OUI',
+                 NOM_CMP='X1',
+                 NOM_CMP_MED='X1',
+                 INST=0.0,
                  TYPE_CHAM='ELGA_NEUT_R',
                  MODELE=MODR,
                  MAILLAGE=MAILR,
                  UNITE=25)
+
 
 # ----------------------------------------------------
 # ETAPE 3

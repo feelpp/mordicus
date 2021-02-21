@@ -266,7 +266,8 @@ l_py = l_py1[1:] + l_py2
 MAILR = CREA_MAILLAGE(MAILLAGE=MAILMEC,
                       RESTREINT=_F(GROUP_MA=('PACE','SI','SG','SD','SH','SB','CABLE'),
                                    TOUT_GROUP_NO='OUI',
-                                   TOUT_GROUP_MA='OUI'))
+                                   TOUT_GROUP_MA='OUI'),
+                      INFO=2)
 
 MODR = AFFE_MODELE(MAILLAGE=MAILR,
                    AFFE=(_F(GROUP_MA=('PACE','SI','SG','SD','SH','SB',),

@@ -674,16 +674,16 @@ class CollectionProblemData(object):
         Computes the residual of equilibrium. Returns a field
         """
         dataset = self.specificDatasets["compute_equilibrium_residual"]
-        return dataset.run(sampleFieldPrimal=self.fieldInstances["sigma"],
-                           sampleFieldDual=self.fieldInstances["U"])
+        return dataset.run(sampleFieldPrimal=self.fieldInstances["U"],
+                           extract=("r", "Fext"))
     
     def compute_external_loading(self):
         """
         Computes the reference field for estimating the residual
         """
         dataset = self.specificDatasets["compute_external_loading"]
-        return dataset.run(sampleFieldPrimal=self.fieldInstances["sigma"],
-                           sampleFieldDual=self.fieldInstances["U"])
+        return dataset.run(sampleFieldPrimal=self.fieldInstances["U"],
+                           sampleFieldDual=self.fieldInstances["sigma"])
 
     def GetFieldInstance(self, solutionName):
         """

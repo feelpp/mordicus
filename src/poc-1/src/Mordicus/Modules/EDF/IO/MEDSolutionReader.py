@@ -10,7 +10,9 @@ class MEDSolutionReader(SolutionReaderBase):
     Class to convert MEDSolution into ProblemData
     """
     Mordicus2MEDAster = {"U"    : "DEPL",
-                         "sigma": "SIEF_ELGA"}
+                         "sigma": "SIEF_ELGA",
+                         "Fext" : "FORC_NODA",
+                         "r"    : "REAC_NODA"}
 
     def __init__(self, fileName):
         '''
@@ -46,13 +48,13 @@ class MEDSolutionReader(SolutionReaderBase):
         iteration, order = next((a, b) for (a, b, c) in all_iterations if c == time)
     # Lecture du resultat pour le bon nom de champ et de temps
         meshName = ML.GetMeshNames(self.fileName)[0]
-        if fieldName == "U":
+        if fieldName in ("U", "Fext", "r"):
             mlfield = ML.ReadFieldNode(self.fileName, meshName, 0, MED_field_name, iteration, order)
         if fieldName == "sigma":
             mlfield = ML.ReadFieldGauss(self.fileName, meshName, 0, MED_field_name, iteration, order)
         return mlfield
 
-    def ReadSnapshotComponent(self, fieldName, time, primality):
+    def ReadSnapshotComponentNoFlatten(self, fieldName, time, primality):
         """
         Reads a snapshots from the solutions of name "fieldName", at time "time" and of primality "primality", from the HF computation
     
@@ -72,10 +74,29 @@ class MEDSolutionReader(SolutionReaderBase):
         """
         mlfield = self.readMEDField(fieldName, time)
         data_array_double = mlfield.getArray()
-        return data_array_double.toNumPyArray().flatten()
+        return data_array_double.toNumPyArray()
 
-    @classmethod
-    def WriteReducedOrderBasis(cls, reducedOrderBasis, fieldName, fieldInstance, fileName):
+    def ReadSnapshotComponent(self, fieldName, time, primality):
+        """
+        Reads a snapshots from the solutions of name "fieldName", at time "time" and of primality "primality", from the HF computation
+    
+        Parameters
+        ----------
+        fieldName : str
+            name of the solution from which the snapshot is read
+        time : float
+            time at which the snapshot is read
+        primality : bool
+            primality of the solution from which the snapshot is read
+                    
+        Returns
+        -------
+        np.ndarray
+            of size (numberOfDofs,)
+        """
+        return self.ReadSnapshotComponentNoFlatten(fieldName, time, primality).flatten()
+
+    def WriteReducedOrderBasis(self, reducedOrderBasis, fieldName, fieldInstance, fileName):
         """
         Converts Mordicus reduced order basis into the MED format
         
@@ -91,22 +112,37 @@ class MEDSolutionReader(SolutionReaderBase):
             
         """
         numberOfModes, _ = reducedOrderBasis.shape
+        
+        ff=ML.MEDFileFieldMultiTS.New()
+        mf_mesh = ML.MEDFileUMesh.New(self.fileName)
         for imode in range(numberOfModes):
             f = safe_clone(fieldInstance)
-            f.setTime(float(imode), imode, imode)
-            f.setName("base____" + cls.Mordicus2MEDAster[fieldName])
+            f.setTime(float(imode+1), imode+1, imode+1)
+            if fieldName == "U":
+                f.getArray().setInfoOnComponent(0, "DX")
+                f.getArray().setInfoOnComponent(1, "DY")
+                f.getArray().setInfoOnComponent(2, "DZ")
+            if fieldName == "sigma":
+                f.getArray().setInfoOnComponent(0, "SIXX")
+                f.getArray().setInfoOnComponent(1, "SIYY")
+                f.getArray().setInfoOnComponent(2, "SIZZ")
+                f.getArray().setInfoOnComponent(3, "SIXY")
+                f.getArray().setInfoOnComponent(4, "SIXZ")
+                f.getArray().setInfoOnComponent(5, "SIYZ")
+                f.getArray().setInfoOnComponent(6, "N")
+
+            f.setName("base____" + self.Mordicus2MEDAster[fieldName])
             
             # array needs to be put to the right shape and converted to DataArrayDouble
             f.getArray().setValues(list(reducedOrderBasis[imode,:]), f.getNumberOfTuples(), f.getNumberOfComponents())
             
             # write f to a new file
-            if imode == 0:
-                ML.WriteField(fileName, f, True)
-            else:
-                ML.WriteFieldUsingAlreadyWrittenMesh(fileName, f)
+            ff.appendFieldNoProfileSBT(f)
+
+        mf_mesh.write(fileName, 2)
+        ff.write(fileName, 0)
     
-    @classmethod
-    def WriteSparseFieldOfEmpiricalWeights(cls, np_coor_gauss, empirical_weights, fileName, fieldInstance):
+    def WriteSparseFieldOfEmpiricalWeights(self, np_coor_gauss, empirical_weights, fileName, fieldInstance):
         """
         Writes found empirical_weights to a Gauss MED field
         
@@ -151,36 +187,52 @@ class MEDSolutionReader(SolutionReaderBase):
             if dist > 1.e-8*char_len:
                 raise ValueError("The sample field provided for empirical weights is numbered differently")
         f.getArray().setInfoOnComponent(0, "X1")
-        
-        ML.WriteField(fileName, f, True)
 
-    def WriteSolution(self, solution, fieldInstance, fieldName, fileName, name=None):
+        mf_mesh = ML.MEDFileUMesh.New(self.fileName)
+        ff=ML.MEDFileField1TS.New()
+        ff.setFieldNoProfileSBT(f)
+        
+        mf_mesh.write(fileName, 2)
+        ff.write(fileName, 0)
+
+    def WriteSolution(self, solution, fieldInstance, fieldName, fileName, name=None, append=False):
         """Convert a Mordicus snapshot into a MED field, with a field instance giving the structure"""
         numberOfSnapshots = solution.GetNumberOfSnapshots()
+        
+        ff=ML.MEDFileFieldMultiTS.New()
+        if not append:
+            mf_mesh = ML.MEDFileUMesh.New(self.fileName)
+
         for i, t in enumerate(solution.GetTimeSequenceFromSnapshots()):
             f = safe_clone(fieldInstance)
             f.setTime(t, i+1, i+1)
             
             # No need to do anything for the name ?
             if name is not None:
-                target = " "*8
+                target = "_"*8
                 expanded_name = name[:min(8,len(name))] + target[min(8,len(name)):]
                 f.setName(expanded_name + self.Mordicus2MEDAster[fieldName])
+            if fieldName == "U":
+                f.getArray().setInfoOnComponent(0, "DX")
+                f.getArray().setInfoOnComponent(1, "DY")
+                f.getArray().setInfoOnComponent(2, "DZ")
+            if fieldName == "sigma":
+                f.getArray().setInfoOnComponent(0, "SIXX")
+                f.getArray().setInfoOnComponent(1, "SIYY")
+                f.getArray().setInfoOnComponent(2, "SIZZ")
+                f.getArray().setInfoOnComponent(3, "SIXY")
+                f.getArray().setInfoOnComponent(4, "SIXZ")
+                f.getArray().setInfoOnComponent(5, "SIYZ")
+                f.getArray().setInfoOnComponent(6, "N")
 
-            f.setArray(ml.DataArrayDouble(solution.GetSnapshot[t]))
+            f.getArray().setValues(list(solution.GetSnapshot(t)), f.getNumberOfTuples(), f.getNumberOfComponents())
+
+            # setArray is almost always a bad idea
+            #f.setArray(ml.DataArrayDouble(solution.GetSnapshot(t)))
             # write f to a new file
-            if i == 0:
-                ML.WriteField(fileName, f, True)
-            else:
-                ML.WriteFieldUsingAlreadyWrittenMesh(fileName, f)
-        
-        
-    def ReadSnapshotComponentAtMask(self, fieldName, time, primality, fieldWeights):
-        """Reads snapshot coordinates at mask"""
-        # A line to retrieve the field of weights if necessary
-        # poid_field = ML.ReadFieldGauss("/home/A34370/tmp/arcad01a_to_m_fiel.rmed", "MAILR", 0, 'POIDR', -1, -1)
-        nonzero_terms = np.nonzero(fieldWeights.getArray().toNumPyArray())
-        full_vec = self.ReadSnapshotComponent(fieldName, time, primality)
-        return full_vec[nonzero_terms,:]
+            ff.appendFieldNoProfileSBT(f)
+        if not append:
+            mf_mesh.write(fileName, 2)
+        ff.write(fileName, 0)
 
         

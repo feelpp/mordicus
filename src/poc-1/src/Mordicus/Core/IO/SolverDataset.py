@@ -64,38 +64,33 @@ class SolverDataset(object):
             if self.input_data["input_result_type"] == "matrix":
                 obj.SetInternalStorage(np.load(result_file_path))
         if self.produced_object == ProblemData:
-            # create reader and get time sequence
-            solutionReader = MEDSolutionReader(result_file_path)
-            outputTimeSequence = solutionReader.ReadTimeSequenceFromSolutionFile("U")
-            
-            # primal field
-            sampleFieldPrimal = kwargs["sampleFieldPrimal"]
-            nbeOfComponentsPrimal = sampleFieldPrimal.getNumberOfComponents()
-            numberOfNodes = sampleFieldPrimal.getNumberOfTuples()
-            
-            solutionU = Solution("U", nbeOfComponentsPrimal, numberOfNodes, primality = True)
-            
-            # dual field
-            sampleFieldDual = kwargs["sampleFieldDual"]
-            nbeOfComponentsDual = sampleFieldDual.getNumberOfComponents()
-            numberOfIntegrationPoints = sampleFieldDual.getNumberOfTuples()
-            
-            print("nbeOfComponentsDual = ", nbeOfComponentsDual)
-            print("numberOfIntegrationPoints = ", numberOfIntegrationPoints)
-            solutionSigma = Solution("sigma", nbeOfComponentsDual, numberOfIntegrationPoints, primality = False)
-            
-            # Read the solutions from file
-            for time in outputTimeSequence:
-                U = solutionReader.ReadSnapshotComponent("U", time, primality=True)
-
-                solutionU.AddSnapshot(U, time)
-                sigma = solutionReader.ReadSnapshotComponent("sigma", time, primality=False)
-                solutionSigma.AddSnapshot(sigma, time)
+            extract = kwargs.get("extract", ("U", "sigma"))
             
             # to be changed with the new syntax for defining parameters
             problemData = ProblemData("dummy")
-            problemData.AddSolution(solutionU)
-            problemData.AddSolution(solutionSigma)
+
+            # create reader and get time sequence
+            solutionReader = MEDSolutionReader(result_file_path)
+            outputTimeSequence = solutionReader.ReadTimeSequenceFromSolutionFile(extract[0])
+            
+            # loop over field to extract
+            for field_name in extract:
+            
+                # primal field
+                sampleField = kwargs["sampleFieldDual"] if field_name in ("sigma", ) else kwargs["sampleFieldPrimal"]
+                nbeOfComponents = sampleField.getNumberOfComponents()
+                numberOfTuples = sampleField.getNumberOfTuples()
+                primality = True if field_name in ("U", ) else False
+            
+                solution = Solution(field_name, nbeOfComponents, numberOfTuples, primality=primality)
+                
+                # Read the solutions from file
+                for time in outputTimeSequence:
+                    snap = solutionReader.ReadSnapshotComponent(field_name, time, primality=primality)
+                    solution.AddSnapshot(snap, time)
+                    
+                problemData.AddSolution(solution)
+            
             return problemData
 
         return obj

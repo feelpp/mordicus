@@ -244,7 +244,7 @@ input_data = {"input_root_folder"      : osp.join(root_to_all, "template"),
               "input_main_file"        : "template.export",
               "input_instruction_file" : "template.comm",
               "input_resolution_data"  : fixed_data,
-              "input_result_path"      : "template.med",
+              "input_result_path"      : "template.rmed",
               "input_result_type"      : "med_file"}
 
 solver_dataset = SolverDataset(ProblemData,
@@ -263,7 +263,7 @@ input_data = {"input_root_folder"      : osp.join(root_to_all, "reduced"),
               "input_main_file"        : "reduced.export",
               "input_instruction_file" : "reduced.comm",
               "input_resolution_data"  : fixed_data,
-              "input_result_path"      : "reduced.med",
+              "input_result_path"      : "reduced.rmed",
               "input_result_type"      : "med_file"}
 reduced_solver_dataset = SolverDataset(ProblemData,
                                        external_solver,
@@ -282,8 +282,8 @@ collectionProblemData.SetReducedTemplateDataset(reduced_solver_dataset)
 
 # ------ Defining datasets for computing residuals
 input_data = {"input_root_folder"      : osp.join(root_to_all, "compute_equilibrium_residual"),
-              "input_main_file"        : "comp_eq_resid.comm",
-              "input_instruction_file" : "comp_eq_resid.export",
+              "input_main_file"        : "comp_eq_resid.export",
+              "input_instruction_file" : "comp_eq_resid.comm",
               "input_resolution_data"  : fixed_data,
               "input_result_path"      : "comp_eq_resid.rmed",
               "input_result_type"      : "med_file"}
@@ -293,20 +293,6 @@ compute_residual_dataset = SolverDataset(ProblemData,
 
 # TODO remplace with a proper setter method
 collectionProblemData.specificDatasets["compute_equilibrium_residual"] = compute_residual_dataset
-
-# ------ Defining datasets for computing external force
-input_data = {"input_root_folder"      : osp.join(root_to_all, "compute_external_loading"),
-              "input_main_file"        : "comp_ext_load.comm",
-              "input_instruction_file" : "comp_ext_load.export",
-              "input_resolution_data"  : fixed_data,
-              "input_result_path"      : "comp_ext_load.rmed",
-              "input_result_type"      : "med_file"}
-compute_loading_dataset = SolverDataset(ProblemData,
-                                        external_solver,
-                                        input_data)
-
-# TODO remplace with a proper setter method
-collectionProblemData.specificDatasets["compute_external_loading"] = compute_loading_dataset
 
 fieldHandler = MEDFieldHandler()
 
@@ -370,15 +356,15 @@ while not stop_condition:
     # ----------------------------------
     fileNameWeights = osp.join(root_to_all, "empirical_weights.med")
     print("Writing field of empirical weights")
-    MEDSolutionReader.WriteSparseFieldOfEmpiricalWeights(np_array_gauss_coor,
-                                                         rho,
-                                                         fileNameWeights,
-                                                         sample_field)
+    reader_solution.WriteSparseFieldOfEmpiricalWeights(np_array_gauss_coor,
+                                                       rho,
+                                                       fileNameWeights,
+                                                       sample_field)
     print("End writing field of empirical weights")
     
     # write POD basis
     fileNameModes = osp.join(root_to_all, "primal_modes.med")
-    MEDSolutionReader.WriteReducedOrderBasis(reducedOrderBasisU, "U", sample_field_u, fileNameModes)
+    reader_solution.WriteReducedOrderBasis(reducedOrderBasisU, "U", sample_field_u, fileNameModes)
 
 
     # Incremental POD on the dual fields
@@ -417,44 +403,66 @@ while not stop_condition:
 
         reduced_problem_data = collectionProblemData.solve_reduced(p_etaid=p_etaid, p_etafd=p_etafd)
         print("End reduced resolution")
+        fileNameRawReducedSolution = osp.join(root_to_all, "tmp", "buffer_raw_reduced_solution_sigma.med")
 
+        # sample_field est toujours le champ en contraintes
+        reader_solution.WriteSolution(reduced_problem_data.solutions["sigma"],
+                                      sample_field, "sigma",
+                                      fileNameRawReducedSolution, name="SIG_RAW")
 
         # reconstruction of stress, gappy POD
         # code inspired from Safran's Mechanical.py
         # it would be good to put that code in a subfunction
-        timeSequence = reduced_problem_data.GetOutputTimeSequence()
+        timeSequence = reduced_problem_data.solutions["sigma"].GetTimeSequenceFromSnapshots()
 
         # How to distinguish between (i)  values at the mask and
         #                            (ii) reduced coordinates of the data models ?
         # => They are distinct attributes of the ReducedSolution class, derived from Solution
+        # Getting modes at mask
+        numberOfComponentsSigma = collectionProblemData.GetSolutionsNumberOfComponents("sigma")
+        nb_modes_sigma = reducedOrderBasisSigma.shape[0]
+        reshapedModes = reducedOrderBasisSigma.reshape((nb_modes_sigma,
+                                                        collectionProblemData.GetSolutionsNumberOfNodes("sigma"),
+                                                        numberOfComponentsSigma))
+        ModesAtMaskNoFlatten = reshapedModes[np.ix_(np.array(range(nb_modes_sigma)),
+                                                    np.nonzero(rho)[0],
+                                                    np.array(range(numberOfComponentsSigma)))]
+        ModesAtMask = ModesAtMaskNoFlatten.reshape((nb_modes_sigma, -1))
+
         for t in timeSequence:
-            ModesAtMask = reducedOrderBasisSigma[np.ix_(np.array(range(nb_modes)), np.nonzero(rho))]
-            fieldAtMask = reduced_problem_data.solutions["sigma"].GetSnapshotAtTime[t][np.nonzero(rho)]
+            reshapedField = reduced_problem_data.solutions["sigma"].GetSnapshotAtTime(t).reshape((numberOfComponentsSigma,-1))
+            fieldAtMaskNoFlatten = reshapedField[np.ix_(np.array(range(numberOfComponentsSigma)), 
+                                                        np.nonzero(rho)[0])]
+            fieldAtMask = fieldAtMaskNoFlatten.flatten()
+
             reduced_problem_data.solutions["sigma"].compressedSnapshots[t] = GP.Fit(ModesAtMask, fieldAtMask)
 
         # Equivalent du REST_REDUIT_COMPLET
         reduced_problem_data.solutions["sigma"].UncompressSnapshots(reducedOrderBasisSigma)
-        
-        # On ne considere pas le temporary workaround pour l instant
+        #reduced_problem_data.solutions["U"].UncompressSnapshots(reducedOrderBasisU)
+
         
         # A ce stade, on a un resultat reconstruit qui est un objet Solution
         # Il faut reconstruire un résultat qu'on pourra donner a bouffer a Aster
-        fileNameReducedSolution = osp.join(root_to_all, "tmp", "buffer_reduced_solution_sigma.med")
+        fileNameRecReducedSolution = osp.join(root_to_all, "tmp", "buffer_rec_reduced_solution_sigma.med")
 
         # sample_field est toujours le champ en contraintes
-        MEDSolutionReader.WriteSolution(reduced_problem_data.solutions["sigma"],
-                                        sample_field, "sigma",
-                                        fileNameReducedSolution, name="SIG_RED")
+        reader_solution.WriteSolution(reduced_problem_data.solutions["sigma"],
+                                      sample_field, "sigma",
+                                      fileNameRecReducedSolution, name="SIG_REC")
+        # sample_field est toujours le champ en contraintes
+        reader_solution.WriteSolution(reduced_problem_data.solutions["U"],
+                                      sample_field_u, "U",
+                                      fileNameRecReducedSolution, name="U_REC", append=True)
 
         # A posteriori error indicator
         # ----------------------------
-        residual = collectionProblemData.compute_equilibrium_residual(sigma)
-        external_forces = collectionProblemData.compute_external_loading(sigma)
+        residualProblemData = collectionProblemData.compute_equilibrium_residual()
         ap_err = 0.
         ap_ref = 0.
         for t in timeSequence:
-            resid = residual.snapshots[t]
-            force = external_forces.snapshots[t]
+            resid = residualProblemData.GetSolution("r").snapshots[t]
+            force = residualProblemData.GetSolution("Fext").snapshots[t]
 
             # Take kinematic conditions into account in the residual
             Br = - matB @ resid
@@ -463,10 +471,12 @@ while not stop_condition:
             corr_res = resid + matBT @ multip
 
             # On sort l'indicateur d'erreur
-            ap_err = ap_err + 1./Nt * np.dot(corr_res, corr_res)
-            ap_ref = ap_ref + 1./Nt * np.dot(   force,    force)
+            if ti > 7.3e7:
+                ap_err = ap_err + 1./Nt * np.dot(corr_res, corr_res)
+                ap_ref = ap_ref + 1./Nt * np.dot(   force,    force)
         
         error[i] = math.sqrt(ap_err)/math.sqrt(ap_ref)
+        print("error[i] = ", error[i])
     # TODO: réécrire avec des fonctions numpy
     i_max = error.index(max(error))
     p_etaid, p_etafd = grid[i_max]
