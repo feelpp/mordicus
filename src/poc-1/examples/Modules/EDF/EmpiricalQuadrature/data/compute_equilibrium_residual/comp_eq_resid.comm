@@ -39,8 +39,11 @@ RES_REC=LIRE_RESU(TYPE_RESU='EVOL_NOLI',
                   MODELE=MODR,
                   TOUT_ORDRE='OUI',
                   UNITE=81,
-                  FORMAT_MED=_F(NOM_CHAM='SIEF_ELGA',
-                                NOM_CHAM_MED='SIG_REC_SIEF_ELGA',),)
+                  FORMAT_MED=(_F(NOM_CHAM='SIEF_ELGA',
+                                 NOM_CHAM_MED='SIG_REC_SIEF_ELGA',),
+                              _F(NOM_CHAM='DEPL',
+                                 NOM_CHAM_MED='U_REC___DEPL',),),
+                  )
 
 #
 # WORKAROUND TO GET THE RIGHT STRESSES ON BARS
