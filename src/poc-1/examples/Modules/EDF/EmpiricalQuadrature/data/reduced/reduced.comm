@@ -28,6 +28,10 @@ BASE_POD=LIRE_RESU(TYPE_RESU='MODE_EMPI',
                    FORMAT_MED=_F(NOM_CHAM='DEPL',
                                  NOM_CHAM_MED='base____DEPL',),)
 
+IMPR_RESU(FORMAT='MED',
+          UNITE=50,
+          RESU=_F(RESULTAT=BASE_POD))
+
 
 POIDR=LIRE_CHAMP(FORMAT='MED',
                  NOM_MED='W_EMPI__',
@@ -54,7 +58,7 @@ BETON=DEFI_MATERIAU(ELAS_FO=_F(E=E,
                                ALPHA=ALPHA,
                                B_ENDOGE=p_endo ,
                                FONC_DESORP=FCTD,
-                               K_DESSIC=p_kdes,),
+                               K_DESSIC=${p_kdes},),
                     BPEL_BETON=_F(),
                     BETON_BURGER=_F(YoungModulus=p_E_b365,
                                     PoissonRatio=p_nu,
@@ -64,7 +68,7 @@ BETON=DEFI_MATERIAU(ELAS_FO=_F(E=E,
                                     ETA_IS=p_etais,
                                     K_RD=p_krd,
                                     ETA_RD=p_etard,
-                                    ETA_ID=${p_etaid},
+                                    ETA_ID=p_etaid,
                                     ETA_FD=${p_etafd},
                                     TEMP_0_C=p_temp0c,
                                     QSR_K=p_qsrk),);
@@ -208,5 +212,8 @@ IMPR_RESU(FORMAT='MED',
           UNITE=80,
           RESU=_F(RESULTAT=RES2))
 
+IMPR_RESU(FORMAT='MED',
+          UNITE=51,
+          RESU=_F(RESULTAT=RES2))
 FIN()
 

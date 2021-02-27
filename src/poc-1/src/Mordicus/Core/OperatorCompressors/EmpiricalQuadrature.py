@@ -25,15 +25,11 @@ def cdoubledot(fieldHandler, solutionUInstance, u, solutionSigmaInstance, sigma)
     """Computes SymGrad(u):sigma (doubly contracted product)
     """
     # Convert to MEDCouplingField
-    print("Converting u to local field")
     fieldU = fieldHandler.ConvertToLocalField(solutionUInstance, u)
-    print("Converting sigma to local field")
     fieldSigma = fieldHandler.ConvertToLocalField(solutionSigmaInstance, sigma)
     # Make the doubly contracted product
-    print("Computing gradient")
 
     fieldEpsilon = fieldHandler.symetricGradient(fieldU, solutionSigmaInstance)
-    print("Doubly contracted product")
 
     fieldContracted = fieldHandler.doublContractedProduct(fieldSigma, fieldEpsilon)
     return fieldContracted
@@ -59,33 +55,23 @@ def _addNewResultsToMatrixAndVector(problemData, collectionProblemData, fieldHan
     solutionSigma = problemData.GetSolution("sigma")
     numberOfRegisteredTimeSteps = len(solutionSigma.GetTimeSequenceFromSnapshots())
     if k == 0:
-        print("Initialize G and Y")
 
         G = np.zeros((numberOfRegisteredTimeSteps*numberOfModes, solutionSigma.GetNumberOfNodes()))
         Y = np.zeros((numberOfRegisteredTimeSteps*numberOfModes))
 
     for t in solutionSigma.GetTimeSequenceFromSnapshots()[1:]:
-        print("Getting snapshot")
 
         sigma = solutionSigma.GetSnapshot(t)
-        print("Getting instance")
      
         for n in range(numberOfModes):
-            print("Getting reduced order basis u")
 
             u = reducedOrderBasisU[n,:]
-            print("Calling doubly contracted product")
-
             
             fieldContracted = cdoubledot(fieldHandler, collectionProblemData.GetFieldInstance("U"), u, collectionProblemData.GetFieldInstance("sigma"), sigma)
-            print("Converting from local field")
             
             # Convert back to numpy array
             G[k,:] = fieldHandler.ConvertFromLocalField(fieldContracted)
             
-            print("Integral")
-
-
             # The right-hand side is the integral of G[k,:]
             Y[k] = fieldHandler.integral(fieldContracted, 0)
             k = k + 1

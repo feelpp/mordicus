@@ -2,6 +2,7 @@ import os
 import os.path as osp
 import numpy as np
 import math
+import shutil
 
 from Mordicus.Modules.EDF.IO.Code_Aster_Solver import Code_Aster_Solver
 from Mordicus.Modules.EDF.IO.MEDMeshReader import MEDMeshReader
@@ -147,6 +148,9 @@ solver_dataset = SolverDataset(ResolutionDataBase,
 matB = solver_dataset.run()
 matB = matB.GetInternalStorage()
 
+# Debug MORDICUS/Aster
+np.save("/home/A34370/tmp/comparison_Aster_Mordicus/Mordicus/matB.npy", matB)
+
 # Computation needed for the error estimate
 # -----------------------------------------
 matBT = matB.copy()
@@ -217,21 +221,21 @@ collectionProblemData.SetFieldInstance("U", sample_field_u)
 collectionProblemData.defineQuantity("U", full_name="displacement", unit="meter")
 collectionProblemData.defineQuantity("sigma", full_name="stress", unit="Pa")
 
-collectionProblemData.defineVariabilityAxes(["p_etaid", "p_etafd"], 
+collectionProblemData.defineVariabilityAxes(["p_etafd", "p_kdes"], 
                                             [float, float],
                                             quantities=[('viscosity', 'Pa.s'), ('viscosity', 'Pa.s')],
                                             descriptions=["recoverable creep coefficient",
                                                           "non recoverable creep coefficient"])
 
 # Using np.meshgrid to define a cartesian grid
-
-lst_etaid = [1.e17, 5.e17, 1.e18, 5.e18, 1.e19, 5.e19, 1.e20]
-lst_etafd = [1.e8 , 5.e8 , 1.e9 , 5.e9 , 1.e10, 5.e10, 1.e11]
-p_etaid = lst_etaid[3]
-p_etafd = lst_etafd[3]
-training_set = np.meshgrid(lst_etaid, lst_etafd)
-grid = np.dstack(training_set).reshape((len(lst_etaid)*len(lst_etafd), 2))
-collectionProblemData.defineIndexingSupport(("p_etaid", "p_etafd"),
+lst_etafd = [ 5.e7 , 5.e11]
+lst_kdes  = [1.e-6 , 1.e-5]
+p_etafd = lst_etafd[1]
+p_kdes  = lst_kdes[0]
+training_set = np.meshgrid(lst_etafd, lst_kdes, indexing='ij')
+arr_etafd, arr_kdes = training_set
+grid = np.column_stack((arr_etafd.flatten(), arr_kdes.flatten()))
+collectionProblemData.defineIndexingSupport(("p_etafd", "p_kdes"),
                                             training_set=training_set)
 
 
@@ -305,8 +309,8 @@ while not stop_condition:
 
     # Proceed with next HF computation
     # --------------------------------
-    problemData = collectionProblemData.solve(p_etaid=p_etaid, p_etafd=p_etafd)
-    collectionProblemData.AddProblemData(problemData, p_etaid=p_etaid, p_etafd=p_etafd)
+    problemData = collectionProblemData.solve(p_etafd=p_etafd, p_kdes=p_kdes)
+    collectionProblemData.AddProblemData(problemData, p_etafd=p_etafd, p_kdes=p_kdes)
 
     # Incremental POD to update the reduced basis
     # -------------------------------------------
@@ -314,7 +318,7 @@ while not stop_condition:
         
         # Standard code for standard POD
         # ------------------------------
-        reducedOrderBasisU = SP.ComputeReducedOrderBasisFromCollectionProblemData(collectionProblemData, "U", 1.e-4)
+        reducedOrderBasisU = SP.ComputeReducedOrderBasisFromCollectionProblemData(collectionProblemData, "U", 1.e-3)
         
         # Note: couldn't these two steps be done in the previous one ?
         collectionProblemData.AddReducedOrderBasis("U", reducedOrderBasisU)
@@ -347,7 +351,9 @@ while not stop_condition:
     # Ok first version implemented
     print("Solving")
 
-    rho = EQ.solve(G, y, volume, delta=1.e-5)
+    rho = EQ.solve(G, y, volume, delta=5.e-6)
+    np.save("/home/A34370/tmp/comparison_Aster_Mordicus/Mordicus/rho.npy", rho)
+
     print("rho = ", rho)
     print("End solving")
 
@@ -386,7 +392,7 @@ while not stop_condition:
         print("End compressing solutions")
 
     else:
-        reducedOrderBasisSigma = CompressData(collectionProblemData, "sigma", 1.e-4, snapshots=problemData.solutions["sigma"])
+        reducedOrderBasisSigma = CompressData(collectionProblemData, "sigma", 1.e-5, snapshots=problemData.solutions["sigma"])
 
 
     # Add reduced integration scheme to solver dataset
@@ -396,19 +402,18 @@ while not stop_condition:
     # Loop over the training set to find the next high-fidelity computation
     # ---------------------------------------------------------------------
     error = []
-    for i, [etaid, etafd] in enumerate(grid):
+    for i, [etafd, kdes] in enumerate(grid):
 
         # run the reduced order model
         print("Start reduced resolution")
 
-        reduced_problem_data = collectionProblemData.solve_reduced(p_etaid=p_etaid, p_etafd=p_etafd)
-        print("End reduced resolution")
-        fileNameRawReducedSolution = osp.join(root_to_all, "tmp", "buffer_raw_reduced_solution_sigma.med")
+        reduced_problem_data, dataset_instance = collectionProblemData.solve_reduced(p_etafd=etafd, p_kdes=kdes)
 
-        # sample_field est toujours le champ en contraintes
-        reader_solution.WriteSolution(reduced_problem_data.solutions["sigma"],
-                                      sample_field, "sigma",
-                                      fileNameRawReducedSolution, name="SIG_RAW")
+        filePathRawReducedSolution = osp.join(dataset_instance.input_data["input_root_folder"], dataset_instance.input_data["input_result_path"])
+        copyFilePathRawReducedSolution = osp.join(root_to_all, "tmp", "buffer_raw_reduced_solution_sigma.med")
+        shutil.copyfile(filePathRawReducedSolution, copyFilePathRawReducedSolution)
+        print("End reduced resolution")
+
 
         # reconstruction of stress, gappy POD
         # code inspired from Safran's Mechanical.py
@@ -454,12 +459,14 @@ while not stop_condition:
         reader_solution.WriteSolution(reduced_problem_data.solutions["U"],
                                       sample_field_u, "U",
                                       fileNameRecReducedSolution, name="U_REC", append=True)
-
+        # Pour debug Mordicus/Aster
+        shutil.copyfile(fileNameRecReducedSolution, "/home/A34370/tmp/comparison_Aster_Mordicus/Mordicus/reRedRec.med")
         # A posteriori error indicator
         # ----------------------------
         residualProblemData = collectionProblemData.compute_equilibrium_residual()
         ap_err = 0.
         ap_ref = 0.
+        is_printed = False
         for t in timeSequence:
             resid = residualProblemData.GetSolution("r").snapshots[t]
             force = residualProblemData.GetSolution("Fext").snapshots[t]
@@ -471,13 +478,20 @@ while not stop_condition:
             corr_res = resid + matBT @ multip
 
             # On sort l'indicateur d'erreur
-            if ti > 7.3e7:
-                ap_err = ap_err + 1./Nt * np.dot(corr_res, corr_res)
-                ap_ref = ap_ref + 1./Nt * np.dot(   force,    force)
+            if t > 7.3e7:
+                if not is_printed:
+                    np.save("/home/A34370/tmp/comparison_Aster_Mordicus/Mordicus/resid.npy", resid)
+                    np.save("/home/A34370/tmp/comparison_Aster_Mordicus/Mordicus/force.npy", force)
+
+                ap_err = ap_err + 1./len(timeSequence) * np.dot(corr_res, corr_res)
+                ap_ref = ap_ref + 1./len(timeSequence) * np.dot(   force,    force)
         
-        error[i] = math.sqrt(ap_err)/math.sqrt(ap_ref)
-        print("error[i] = ", error[i])
+        error.append(math.sqrt(ap_err)/math.sqrt(ap_ref))
+        print("error[", i, "] = ", error[i])
+        # for debug Aster/Mordicus
+        assert(False)
     # TODO: réécrire avec des fonctions numpy
     i_max = error.index(max(error))
-    p_etaid, p_etafd = grid[i_max]
+    p_etafd, p_kdes= grid[i_max]
     stop_condition = error[i_max] < 1.e-4
+    is_first_iteration = False

@@ -667,7 +667,7 @@ class CollectionProblemData(object):
         
         # populate information for the structure
         return dataset.run(sampleFieldPrimal=self.fieldInstances["U"],
-                           sampleFieldDual=self.fieldInstances["sigma"] )
+                           sampleFieldDual=self.fieldInstances["sigma"] ), dataset
 
     def compute_equilibrium_residual(self):
         """

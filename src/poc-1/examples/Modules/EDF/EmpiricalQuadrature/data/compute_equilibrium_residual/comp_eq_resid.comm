@@ -29,7 +29,7 @@ RES_RAW=LIRE_RESU(TYPE_RESU='EVOL_NOLI',
                   TOUT_ORDRE='OUI',
                   UNITE=80,
                   FORMAT_MED=_F(NOM_CHAM='SIEF_ELGA',
-                                NOM_CHAM_MED='SIG_RAW_SIEF_ELGA',),)
+                                NOM_CHAM_MED='RES2____SIEF_ELGA',),)
 
 #
 # READ RECONSTRUCTED RESULT

@@ -34,7 +34,7 @@ BETON=DEFI_MATERIAU(ELAS_FO=_F(E=E,
                                ALPHA=ALPHA,
                                B_ENDOGE=p_endo ,
                                FONC_DESORP=FCTD,
-                               K_DESSIC=p_kdes,),
+                               K_DESSIC=${p_kdes},),
                     BPEL_BETON=_F(),
                     BETON_BURGER=_F(YoungModulus=p_E_b365,
                                     PoissonRatio=p_nu,
@@ -44,7 +44,7 @@ BETON=DEFI_MATERIAU(ELAS_FO=_F(E=E,
                                     ETA_IS=p_etais,
                                     K_RD=p_krd,
                                     ETA_RD=p_etard,
-                                    ETA_ID=${p_etaid},
+                                    ETA_ID=p_etaid,
                                     ETA_FD=${p_etafd},
                                     TEMP_0_C=p_temp0c,
                                     QSR_K=p_qsrk),);
@@ -173,8 +173,16 @@ RES1=STAT_NON_LINE(reuse =RES1,
           CONVERGENCE=_F(RESI_GLOB_RELA=1.0e-5,
                          ITER_GLOB_MAXI=50,),);
 
+RES1R = EXTR_RESU(RESULTAT=RES1,
+                  RESTREINT=_F(MODELE=MODR))
+
 IMPR_RESU(FORMAT='MED',
           UNITE=80,
+          RESU=_F(RESULTAT=RES1R))
+
+# For debug Aster/Mordicus
+IMPR_RESU(FORMAT='MED',
+          UNITE=85,
           RESU=_F(RESULTAT=RES1))
 
 FIN()

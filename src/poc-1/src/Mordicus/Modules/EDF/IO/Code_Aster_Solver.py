@@ -33,5 +33,5 @@ class Code_Aster_Solver(ExternalSolvingProcedure):
             script = script.format(**self.solver_cfg)
         seq = shlex.split(script)
         ret = subprocess.run(seq, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        print(ret.stdout)
+        #print(ret.stdout)
         return ret

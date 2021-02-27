@@ -56,35 +56,24 @@ class MEDFieldHandler(FieldHandlerBase):
         """
         mult = safe_clone(sigma)
         
-        print("Filling from analytic")
         mult.fillFromAnalytic(sigma.getNumberOfComponents(), "1.*IVec+1.*JVec+1.*KVec+2.*LVec+2.*MVec+2.*NVec")
         mult.checkConsistencyLight()
-        print("Multipliy fields")
 
         sigma2 = mc.MEDCouplingFieldDouble.MultiplyFields(mult, sigma)
-        print("Dotting fields")
 
         sigma2_array = sigma2.getArray()
         epsilon_array = epsilon.getArray()
 
-        print("Creating result")
         template = mc.MEDCouplingFieldTemplate(sigma)
         array = mc.DataArrayDouble.New()
         array.alloc(sigma.getNumberOfTuples())
         array.fillWithZero()
-        print("Making dot operation with numpy")
         dc_prod = np.sum(np.multiply(sigma2_array.toNumPyArray(), epsilon_array.toNumPyArray()), axis=1)
-        print("End of dot operation with numpy")
-        print("Putting values into array")
         array.setValues(list(dc_prod), sigma.getNumberOfTuples(), 1)
-        print("End of putting values into array")
         
-        print("Creating new array")
         field = mc.MEDCouplingFieldDouble.New(template)
-        print("Putting array in new field")
 
         field.setArray(array)
-        print("End putting array in new field")
 
         return field
 
