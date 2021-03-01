@@ -504,7 +504,7 @@ def ReduceIntegrator(collectionProblemData, mesh, gradPhiAtIntegPoint, numberOfI
 
 
 
-def LearnDualReconstruction(collectionProblemData, listNameDualVarOutput, reducedIntegrationPoints, methodDualReconstruction, timeSequenceForDualReconstruction = None, snapshotsAtReducedIntegrationPoints = None):
+def LearnDualReconstruction(collectionProblemData, listNameDualVarOutput, reducedIntegrationPoints, methodDualReconstruction, timeSequenceForDualReconstruction = None, snapshotsAtReducedIntegrationPoints = None, regressor = None, paramGrid = None):
 
 
     dualReconstructionData = {}
@@ -514,9 +514,11 @@ def LearnDualReconstruction(collectionProblemData, listNameDualVarOutput, reduce
         for name in listNameDualVarOutput:
             dualReconstructionData[name] = collectionProblemData.GetReducedOrderBasis(name)[:,reducedIntegrationPoints]
 
-    elif methodDualReconstruction == "Kriging":
-        dualReconstructionData["methodDualReconstruction"] = "Kriging"
+    elif methodDualReconstruction == "MetaModel":
+        dualReconstructionData["methodDualReconstruction"] = "MetaModel"
         for name in listNameDualVarOutput:
+
+            print("Running MetaModel for solutionName =", name)
 
 
             if timeSequenceForDualReconstruction is None:
@@ -541,18 +543,35 @@ def LearnDualReconstruction(collectionProblemData, listNameDualVarOutput, reduce
 
             assert solutionTimeSteps.shape[0] == localSnapshotsAtReducedIntegrationPoints.shape[0], "number of time steps different from number of snapshots at reduced integration points"
 
-            XTrain = np.hstack((solutionTimeSteps, localSnapshotsAtReducedIntegrationPoints))
+            #XTrain = np.hstack((solutionTimeSteps, localSnapshotsAtReducedIntegrationPoints))
+            XTrain = localSnapshotsAtReducedIntegrationPoints
 
 
-            from sklearn.gaussian_process.kernels import WhiteKernel, ConstantKernel, Matern
-            from sklearn.gaussian_process import GaussianProcessRegressor
+
             from Mordicus.Core.BasicAlgorithms import ScikitLearnRegressor as SLR
 
-            kernel = Matern(length_scale=1., nu=2.5) + ConstantKernel(constant_value=1.0, constant_value_bounds=(0.01, 1.0)) * WhiteKernel(noise_level=1, noise_level_bounds=(1e-10, 1e0))
-            regressor = GaussianProcessRegressor(kernel=kernel)
-            #print("regressor.get_params().keys() =", regressor.get_params().keys())
+            """
+            from sklearn.gaussian_process.kernels import WhiteKernel, ConstantKernel, Matern
+            #from sklearn.gaussian_process import GaussianProcessRegressor
+            kernel = Matern(length_scale=1., nu=2.5) + ConstantKernel(constant_value=1.0, constant_value_bounds=(0.001, 1.0)) * WhiteKernel(noise_level=1, noise_level_bounds=(1e-10, 1e0))
+            #regressor = GaussianProcessRegressor(kernel=kernel)
+            regressor = SLR.MyGPR(kernel=kernel)
 
-            paramGrid = {'kernel__k1__length_scale': [0.1, 1., 10.], 'kernel__k1__nu':[1.5, 2.5], 'kernel__k2__k1__constant_value':[0.01, 0.1, 1.]}#, 'kernel__k2__k2__noise_level':[1, 2]}
+            paramGrid = {'kernel__k1__length_scale': [0.1, 1., 10.], 'kernel__k1__nu':[1.5, 2.5], 'kernel__k2__k1__constant_value':[0.001, 0.01]}#, 'kernel__k2__k2__noise_level':[1, 2]}
+            """
+
+            #from pprint import pprint
+            #pprint(vars(regressor))
+            #print("regressor.get_params().keys() =", regressor.get_params().keys())
+            #1./0.
+
+            if regressor is None and paramGrid is None:
+                from sklearn import linear_model
+                regressor = linear_model.Lasso(alpha=0.1, max_iter=1e6, tol=1e-6)
+                paramGrid = {'alpha': [0.01, 0.1, 1.]}
+            if (regressor is None and paramGrid is not None) or (regressor is not None and paramGrid is None):#pragma: no cover
+                raise ValueError('regressor and paramGrid mush be both None or both specified')
+
 
             model, scalerX, scalery = SLR.GridSearchCVRegression(regressor, paramGrid, XTrain, yTrain)
             dualReconstructionData[name] = (model, scalerX, scalery)
@@ -604,7 +623,7 @@ def ReconstructDualQuantity(nameDualQuantity, operatorCompressionData, onlineCom
             reconstructionResidual.append(error)
 
 
-    elif methodDualReconstruction == "Kriging":
+    elif methodDualReconstruction == "MetaModel":
 
         from Mordicus.Core.BasicAlgorithms import ScikitLearnRegressor as SLR
 
@@ -612,7 +631,8 @@ def ReconstructDualQuantity(nameDualQuantity, operatorCompressionData, onlineCom
         scalerX = operatorCompressionData['dualReconstructionData'][nameDualQuantity][1]
         scalery = operatorCompressionData['dualReconstructionData'][nameDualQuantity][2]
 
-        xTest = np.hstack((np.array(timeSequence)[:,np.newaxis], fieldAtMask))
+        #xTest = np.hstack((np.array(timeSequence)[:,np.newaxis], fieldAtMask))
+        xTest = fieldAtMask
 
         y = SLR.ComputeRegressionApproximation(model, scalerX, scalery, xTest)
 

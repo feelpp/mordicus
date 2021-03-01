@@ -38,6 +38,7 @@ def test():
     problemData.GetParameterDimension()
     problemData.GetParametersTimeSequence()
     problemData.GetParametersList()
+    problemData.SetDataFolder("toto")
     problemData.GetDataFolder()
     problemData.GetLoadingsForSolution("U")
     problemData.GetConstitutiveOfType("type1")

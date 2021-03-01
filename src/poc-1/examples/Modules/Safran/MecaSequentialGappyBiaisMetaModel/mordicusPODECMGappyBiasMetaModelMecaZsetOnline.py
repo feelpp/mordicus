@@ -43,7 +43,8 @@ def test():
     meshFileName = folder + "cube.geof"
     mesh = ZMR.ReadMesh(meshFileName)
 
-    onlineProblemData = PD.ProblemData(folder)
+    onlineProblemData = PD.ProblemData("Online")
+    onlineProblemData.SetDataFolder(folder)
 
     timeSequence = inputReader.ReadInputTimeSequence()
 
@@ -120,7 +121,7 @@ def test():
         exactSolution = solutionEvrcumExact.GetSnapshotAtTime(t)
         approxSolution = solutionEvrcumApprox.GetSnapshotAtTime(t)
         norml2ExactSolution = np.linalg.norm(exactSolution)
-        if norml2ExactSolution > 1.e-3:
+        if norml2ExactSolution > 1.e-2:
             relError = np.linalg.norm(approxSolution-exactSolution)/norml2ExactSolution
         else:
             relError = np.linalg.norm(approxSolution-exactSolution)
@@ -129,7 +130,7 @@ def test():
         exactSolution = solutionUExact.GetSnapshotAtTime(t)
         approxSolution = solutionUApprox.GetSnapshotAtTime(t)
         norml2ExactSolution = np.linalg.norm(exactSolution)
-        if norml2ExactSolution > 1.e-3:
+        if norml2ExactSolution > 1.e-2:
             relError = np.linalg.norm(approxSolution-exactSolution)/norml2ExactSolution
         else:
             relError = np.linalg.norm(approxSolution-exactSolution)

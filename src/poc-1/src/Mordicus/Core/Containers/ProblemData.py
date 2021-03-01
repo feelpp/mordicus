@@ -19,8 +19,10 @@ class ProblemData(object):
 
     Attributes
     ----------
+    problemName : str
+        name of the ProblemData object
     dataFolder : str
-        name of the folder containing the data of the problemData, relative to the mordicus client script
+        name of folder containing the data of the problemData, relative to the mordicus client script
     solutions : dict
         dictionary with solutionNames (str) as keys and solution (Solution) as values
     initialCondition : InitialConditionBase
@@ -33,23 +35,31 @@ class ProblemData(object):
         dictionary with time indices as keys and a np.ndarray of size (parameterDimension,) containing the parameters
     """
 
-    def __init__(self, dataFolder):
+    def __init__(self, problemName):
         """
         Parameters
         ----------
-        dataFolder : str
+        problemName : str
         solutions : dict
         initialCondition : InitialConditionBase
         loadings : dict
         constitutiveLaws : dict
         parametersValues : collections.OrderedDict
         """
-        self.dataFolder = dataFolder
+        self.problemName = problemName
+        self.dataFolder = None
         self.solutions = {}
         self.initialCondition = None
         self.loadings = {}
         self.constitutiveLaws = {}
         self.parameters = collections.OrderedDict()
+
+
+    def SetDataFolder(self, dataFolder):
+        """
+        Sets dataFolder
+        """
+        self.dataFolder = dataFolder
 
 
     def GetDataFolder(self):
@@ -83,8 +93,8 @@ class ProblemData(object):
             )
 
         self.solutions[solution.GetSolutionName()] = solution
-        
-    
+
+
 
     def DeleteSolutions(self):
         """
@@ -304,7 +314,7 @@ class ProblemData(object):
             if loading.GetType() == type:
                 li.append(loading)# pragma: no cover
         return li
-    
+
 
     def GetLoadingsForSolution(self, solutionName):
         """
@@ -343,7 +353,7 @@ class ProblemData(object):
             if law.GetType() == type:
                 li.append(law)# pragma: no cover
         return li
-    
+
 
 
     def GetSetsOfConstitutiveOfType(self, type):

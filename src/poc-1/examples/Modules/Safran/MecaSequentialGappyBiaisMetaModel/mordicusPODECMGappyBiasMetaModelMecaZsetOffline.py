@@ -84,7 +84,7 @@ def test():
 
     SP.CompressData(collectionProblemData, "U", 1.e-6, snapshotCorrelationOperator["U"])
     for name in dualNames:
-        SP.CompressData(collectionProblemData, name, 1.e-2, compressSolutions = True)
+        SP.CompressData(collectionProblemData, name, 1.e-3, compressSolutions = True)
 
 
     collectionProblemData.CompressSolutions("U", snapshotCorrelationOperator["U"])
@@ -144,7 +144,8 @@ def test():
     meshFileName = folder + "cube.geof"
     mesh = ZMR.ReadMesh(meshFileName)
 
-    onlineProblemData = PD.ProblemData(folder)
+    onlineProblemData = PD.ProblemData("Online")
+    onlineProblemData.SetDataFolder(folder)
 
     timeSequence = inputReader.ReadInputTimeSequence()
 
@@ -178,7 +179,17 @@ def test():
 
     reducedIntegrationPoints = operatorCompressionData["reducedIntegrationPoints"]
 
-    dualReconstructionData = Mechanical.LearnDualReconstruction(collectionProblemData, dualNames, reducedIntegrationPoints, methodDualReconstruction = "Kriging", timeSequenceForDualReconstruction = timeSequence, snapshotsAtReducedIntegrationPoints = onlineDualQuantityAtReducedIntegrationPoints)
+    from Mordicus.Core.BasicAlgorithms import ScikitLearnRegressor as SLR
+    from sklearn.gaussian_process.kernels import WhiteKernel, ConstantKernel, Matern
+
+    #from sklearn.gaussian_process import GaussianProcessRegressor
+    kernel = Matern(length_scale=1., nu=2.5) + ConstantKernel(constant_value=1.0, constant_value_bounds=(0.001, 1.0)) * WhiteKernel(noise_level=1, noise_level_bounds=(1e-10, 1e0))
+    #regressor = GaussianProcessRegressor(kernel=kernel)
+    regressor = SLR.MyGPR(kernel=kernel)
+    paramGrid = {'kernel__k1__length_scale': [0.1, 1., 10.], 'kernel__k1__nu':[1.5, 2.5], 'kernel__k2__k1__constant_value':[0.001, 0.01]}#, 'kernel__k2__k2__noise_level':[1, 2]}
+
+
+    dualReconstructionData = Mechanical.LearnDualReconstruction(collectionProblemData, dualNames, reducedIntegrationPoints, methodDualReconstruction = "MetaModel", timeSequenceForDualReconstruction = timeSequence, snapshotsAtReducedIntegrationPoints = onlineDualQuantityAtReducedIntegrationPoints, regressor = regressor, paramGrid = paramGrid)
 
     operatorCompressionData["dualReconstructionData"] = dualReconstructionData
 

@@ -260,7 +260,7 @@ class Solution(object):
         time = float(time)
 
         timeSequenceFromSnapshots = self.GetTimeSequenceFromSnapshots()
-        if not timeSequenceFromSnapshots:
+        if not timeSequenceFromSnapshots:#pragma: no cover
             raise RuntimeError("Snapshots for solutionName "+self.solutionName+" not initialized")
 
         return TI.PieceWiseLinearInterpolation(

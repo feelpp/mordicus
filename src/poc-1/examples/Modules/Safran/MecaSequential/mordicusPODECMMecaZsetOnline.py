@@ -44,7 +44,8 @@ def test():
     meshFileName = folder + "cube.geof"
     mesh = ZMR.ReadMesh(meshFileName)
 
-    onlineProblemData = PD.ProblemData(folder)
+    onlineProblemData = PD.ProblemData("Online")
+    onlineProblemData.SetDataFolder(folder)
 
     timeSequence = inputReader.ReadInputTimeSequence()
 

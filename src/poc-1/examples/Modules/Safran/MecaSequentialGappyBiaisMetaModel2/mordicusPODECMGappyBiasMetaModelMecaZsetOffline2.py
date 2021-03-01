@@ -84,7 +84,7 @@ def test():
 
     SP.CompressData(collectionProblemData, "U", 1.e-6, snapshotCorrelationOperator["U"])
     for name in dualNames:
-        SP.CompressData(collectionProblemData, name, 1.e-2, compressSolutions = True)
+        SP.CompressData(collectionProblemData, name, 1.e-3, compressSolutions = True)
 
 
     collectionProblemData.CompressSolutions("U", snapshotCorrelationOperator["U"])
@@ -108,18 +108,85 @@ def test():
 
     print("compressionErrors =", compressionErrors)
 
-
     Mechanical.CompressOperator(collectionProblemData, operatorPreCompressionData, \
-                                mesh, 1.e-5, listNameDualVarOutput = dualNames, \
-                                listNameDualVarGappyIndicesforECM = ["evrcum"],\
-                                methodDualReconstruction = "MetaModel",\
-                                timeSequenceForDualReconstruction = outputTimeSequence[1:])
+                                mesh, 1.e-5, listNameDualVarOutput = [],\
+                                listNameDualVarGappyIndicesforECM = [],\
+                                methodDualReconstruction = None)
 
 
     print("CompressOperator done")
 
+
+
+    print("Launch online to learn ROM biais")
+
+    from Mordicus.Modules.Safran.IO import ZsetInputReader as ZIR
+
+
+    ##################################################
+    # LOAD DATA FOR ONLINE
+    ##################################################
+
+
+    operatorCompressionData = collectionProblemData.GetOperatorCompressionData()
+    reducedOrderBases = collectionProblemData.GetReducedOrderBases()
+
+
+    ##################################################
+    # ONLINE
+    ##################################################
+
+
+    folder = "MecaSequential/"
+    inputFileName = folder + "cube.inp"
+    inputReader = ZIR.ZsetInputReader(inputFileName)
+
+    meshFileName = folder + "cube.geof"
+    mesh = ZMR.ReadMesh(meshFileName)
+
+    onlineProblemData = PD.ProblemData("Online")
+    onlineProblemData.SetDataFolder(folder)
+
+    timeSequence = inputReader.ReadInputTimeSequence()
+
+    constitutiveLawsList = inputReader.ConstructConstitutiveLawsList()
+    onlineProblemData.AddConstitutiveLaw(constitutiveLawsList)
+
+    loadingList = inputReader.ConstructLoadingsList()
+    onlineProblemData.AddLoading(loadingList)
+    for loading in onlineProblemData.GetLoadingsForSolution("U"):
+        loading.ReduceLoading(mesh, onlineProblemData, reducedOrderBases, operatorCompressionData)
+
+
+    initialCondition = inputReader.ConstructInitialCondition()
+    onlineProblemData.SetInitialCondition(initialCondition)
+
+    initialCondition.ReduceInitialSnapshot(reducedOrderBases, snapshotCorrelationOperator)
+
+
+    import time
+    start = time.time()
+    onlineCompressedSolution, onlineCompressionData = Mechanical.ComputeOnline(onlineProblemData, timeSequence, operatorCompressionData, 1.e-6)
+    print(">>>> DURATION ONLINE =", time.time() - start)
+
+
+
+    timeSequence = np.array(timeSequence)[1:]
+    onlineDualQuantityAtReducedIntegrationPoints = {}
+    for i, name in enumerate(dualNames):
+        print(">>>>>>>> name", name)
+        onlineDualQuantityAtReducedIntegrationPoints[name] = Mechanical.GetOnlineDualQuantityAtReducedIntegrationPoints(name, onlineCompressionData, timeSequence)
+
+    reducedIntegrationPoints = operatorCompressionData["reducedIntegrationPoints"]
+
+    dualReconstructionData = Mechanical.LearnDualReconstruction(collectionProblemData, dualNames, reducedIntegrationPoints, methodDualReconstruction = "MetaModel", timeSequenceForDualReconstruction = timeSequence, snapshotsAtReducedIntegrationPoints = onlineDualQuantityAtReducedIntegrationPoints)
+
+    operatorCompressionData["dualReconstructionData"] = dualReconstructionData
+
+
     SIO.SaveState("collectionProblemData", collectionProblemData)
     SIO.SaveState("snapshotCorrelationOperator", snapshotCorrelationOperator)
+
 
 
     folderHandler.SwitchToExecutionFolder()

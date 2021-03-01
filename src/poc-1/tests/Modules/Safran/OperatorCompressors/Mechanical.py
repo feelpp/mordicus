@@ -119,7 +119,8 @@ def test():
     meshFileName = folder + "cube.geof"
     mesh = ZMR.ReadMesh(meshFileName)
 
-    onlineProblemData = ProblemData.ProblemData(os.path.relpath(folder))
+    onlineProblemData = ProblemData.ProblemData("Online")
+    onlineProblemData.SetDataFolder(os.path.relpath(folder))
 
     timeSequence = inputReader.ReadInputTimeSequence()
 
@@ -149,9 +150,9 @@ def test():
     onlineDualQuantityAtReducedIntegrationPoints["evrcum"] = Meca.GetOnlineDualQuantityAtReducedIntegrationPoints("evrcum", onlineCompressionData, timeSequence)
 
     reducedIntegrationPoints = operatorCompressionData["reducedIntegrationPoints"]
-    Meca.LearnDualReconstruction(collectionProblemData, ["evrcum"], reducedIntegrationPoints, methodDualReconstruction= "Kriging", timeSequenceForDualReconstruction = timeSequence, snapshotsAtReducedIntegrationPoints = onlineDualQuantityAtReducedIntegrationPoints)
-    Meca.LearnDualReconstruction(collectionProblemData, ["evrcum"], reducedIntegrationPoints, methodDualReconstruction= "Kriging", timeSequenceForDualReconstruction = timeSequence, snapshotsAtReducedIntegrationPoints = None)
-    dualReconstructionData = Meca.LearnDualReconstruction(collectionProblemData, ["evrcum"], reducedIntegrationPoints, methodDualReconstruction= "Kriging", timeSequenceForDualReconstruction = None, snapshotsAtReducedIntegrationPoints = None)
+    Meca.LearnDualReconstruction(collectionProblemData, ["evrcum"], reducedIntegrationPoints, methodDualReconstruction= "MetaModel", timeSequenceForDualReconstruction = timeSequence, snapshotsAtReducedIntegrationPoints = onlineDualQuantityAtReducedIntegrationPoints)
+    Meca.LearnDualReconstruction(collectionProblemData, ["evrcum"], reducedIntegrationPoints, methodDualReconstruction= "MetaModel", timeSequenceForDualReconstruction = timeSequence, snapshotsAtReducedIntegrationPoints = None)
+    dualReconstructionData = Meca.LearnDualReconstruction(collectionProblemData, ["evrcum"], reducedIntegrationPoints, methodDualReconstruction= "MetaModel", timeSequenceForDualReconstruction = None, snapshotsAtReducedIntegrationPoints = None)
 
     ##############
 
