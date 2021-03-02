@@ -675,7 +675,7 @@ class CollectionProblemData(object):
         """
         dataset = self.specificDatasets["compute_equilibrium_residual"]
         return dataset.run(sampleFieldPrimal=self.fieldInstances["U"],
-                           extract=("r", "Fext"))
+                           extract=("r", "Fext"), method="aster")
     
     def compute_external_loading(self):
         """

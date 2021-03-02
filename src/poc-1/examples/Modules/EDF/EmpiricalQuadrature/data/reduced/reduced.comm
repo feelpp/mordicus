@@ -22,7 +22,7 @@ POURSUITE()
 
 BASE_POD=LIRE_RESU(TYPE_RESU='MODE_EMPI',
                    FORMAT='MED',
-                   MODELE=MODR,
+                   MODELE=MODELE,
                    TOUT_ORDRE='OUI',
                    UNITE=24,
                    FORMAT_MED=_F(NOM_CHAM='DEPL',
@@ -39,8 +39,8 @@ POIDR=LIRE_CHAMP(FORMAT='MED',
                  NOM_CMP_MED='X1',
                  INST=0.0,
                  TYPE_CHAM='ELGA_NEUT_R',
-                 MODELE=MODR,
-                 MAILLAGE=MAILR,
+                 MODELE=MODELE,
+                 MAILLAGE=MAILMEC,
                  UNITE=25)
 
 
@@ -49,6 +49,14 @@ POIDR=LIRE_CHAMP(FORMAT='MED',
 #
 # CALCUL D'UNE NOUVELLE SOLUTION REDUITE
 # ----------------------------------------------------
+#
+CLIMR=AFFE_CHAR_MECA(MODELE=MODELE,
+                     PESANTEUR=_F(GRAVITE=9.81,
+                                  DIRECTION=(0.0,0.0,-1.0,),),);
+#poids du dome et du fut
+CH_DOMR=AFFE_CHAR_MECA(MODELE=MODELE,
+                       PRES_REP=(_F(GROUP_MA='SH',
+                                    PRES=p_poids),),);
 
 # Definition et affectation du materiau
 BETON=DEFI_MATERIAU(ELAS_FO=_F(E=E,
@@ -72,28 +80,28 @@ BETON=DEFI_MATERIAU(ELAS_FO=_F(E=E,
                                     ETA_FD=${p_etafd},
                                     TEMP_0_C=p_temp0c,
                                     QSR_K=p_qsrk),);
-CHMATR=AFFE_MATERIAU(MAILLAGE=MAILR,
+CHMATR=AFFE_MATERIAU(MAILLAGE=MAILMEC,
                     AFFE=(_F(GROUP_MA=('PACE','SI','SD','SG','SH','SB',),
                              MATER=BETON,),
                           _F(GROUP_MA=('CABLEH1','CABLEH2','CABLEH3','CABLEV1','CABLEV2'),
                              MATER=ACIERC),),
                     AFFE_VARC=(_F(TOUT='OUI',
-                                  EVOL=HYDRR,
+                                  EVOL=HYDRC,
                                   NOM_VARC='HYDR',
                                   NOM_CHAM='HYDR_NOEU'),
                                _F(TOUT='OUI',
-                                  EVOL=SCALR,
+                                  EVOL=SCALC,
                                   NOM_VARC='SECH',
                                   VALE_REF=C_100,),
                               _F(TOUT='OUI',
-                                 EVOL=TCALR,
+                                 EVOL=TCALC,
                                  NOM_VARC='TEMP',
                                  VALE_REF=T_arret,),),);
 
 # Redefine DEFI_CABLE_BP depending on the above 
-CABH10R=DEFI_CABLE_BP(MODELE=MODR,
+CABH10R=DEFI_CABLE_BP(MODELE=MODELE,
                       CHAM_MATER=CHMATR,
-                      CARA_ELEM=CARAMECR,
+                      CARA_ELEM=CARAMECA,
                       GROUP_MA_BETON='PACE',
                       DEFI_CABLE=(_F(GROUP_MA='CABLEH1',
                                      GROUP_NO_ANCRAGE=('CABH1G','CABH1D',),),
@@ -106,9 +114,9 @@ CABH10R=DEFI_CABLE_BP(MODELE=MODR,
                       RECUL_ANCRAGE=0.0,
                       TYPE_RELAX='SANS',);
 
-CABV10R=DEFI_CABLE_BP(MODELE=MODR,
+CABV10R=DEFI_CABLE_BP(MODELE=MODELE,
                       CHAM_MATER=CHMATR,
-                      CARA_ELEM=CARAMECR,
+                      CARA_ELEM=CARAMECA,
                       GROUP_MA_BETON='PACE',
                       DEFI_CABLE=(_F(GROUP_MA='CABLEV1',
                                      GROUP_NO_ANCRAGE=('CABV1B','CABV1H',),),
@@ -122,9 +130,9 @@ CABV10R=DEFI_CABLE_BP(MODELE=MODR,
 # Les "AFFE_CHAR_MECA" de type RELA_CINE_BP ne sont pas intégrées
 #     car les fonctions de la base réduite vérifient déjà toutes ces relations
 
-RES2=STAT_NON_LINE(MODELE=MODR,
+RES2=STAT_NON_LINE(MODELE=MODELE,
                    CHAM_MATER=CHMATR,
-                   CARA_ELEM=CARAMECR,
+                   CARA_ELEM=CARAMECA,
                    EXCIT=(_F(CHARGE=CLIMR,),
                           #_F(CHARGE=CH_CABH,),
                           _F(CHARGE=CH_DOMR,),
@@ -150,9 +158,9 @@ RES2=STAT_NON_LINE(MODELE=MODR,
 # Il faudra reporter le mot-cle facteur MODELE_REDUIT, et le mot-cle METHODE 
 # dans la macro afin de transmettre aux appels à STAT_NON_LINE
 RES2=CALC_PRECONT(reuse =RES2,
-                  MODELE=MODR,
+                  MODELE=MODELE,
                   CHAM_MATER=CHMATR,
-                  CARA_ELEM=CARAMECR,
+                  CARA_ELEM=CARAMECA,
                   CABLE_BP=(CABH10R,CABV10R,),
                   METHODE='MODELE_REDUIT',
                   MODELE_REDUIT=_F(PREDICTION='TANGENTE',
@@ -179,9 +187,9 @@ RES2=CALC_PRECONT(reuse =RES2,
 
 RES2=STAT_NON_LINE(reuse =RES2,
                    RESULTAT=RES2,
-                   MODELE=MODR,
+                   MODELE=MODELE,
                    CHAM_MATER=CHMATR,
-                   CARA_ELEM=CARAMECR,
+                   CARA_ELEM=CARAMECA,
                    METHODE='MODELE_REDUIT',
                    MODELE_REDUIT=_F(PREDICTION='ELASTIQUE',
                                     REAC_ITER=0,

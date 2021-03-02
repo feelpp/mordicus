@@ -31,7 +31,7 @@ import numpy as np
 #
 # On definit des charges en simple Lagrange
 # -----------------------------------------
-CLIMRE=AFFE_CHAR_MECA(MODELE=MODR,
+CLIMRE=AFFE_CHAR_MECA(MODELE=MODELE,
                       DOUBLE_LAGRANGE='NON',
                       FACE_IMPO=(_F(GROUP_MA=('SG','SD',),
                                     DNOR=0.0,),
@@ -61,7 +61,7 @@ BETOR=DEFI_MATERIAU(ELAS_FO=_F(E=E,
                                     ETA_FD=p_etafd,
                                     TEMP_0_C=p_temp0c,
                                     QSR_K=p_qsrk),);
-CHMATR=AFFE_MATERIAU(MAILLAGE=MAILR,
+CHMATR=AFFE_MATERIAU(MAILLAGE=MAILMEC,
                     AFFE=(_F(GROUP_MA=('PACE','SI','SD','SG','SH','SB',),
                              MATER=BETOR,),
                           _F(GROUP_MA=('CABLEH1','CABLEH2','CABLEH3','CABLEV1','CABLEV2'),
@@ -78,9 +78,9 @@ CHMATR=AFFE_MATERIAU(MAILLAGE=MAILR,
                                  EVOL=TCALR,
                                  NOM_VARC='TEMP',
                                  VALE_REF=T_arret,),),);
-CABH10R=DEFI_CABLE_BP(MODELE=MODR,
+CABH10R=DEFI_CABLE_BP(MODELE=MODELE,
                       CHAM_MATER=CHMATR,
-                      CARA_ELEM=CARAMECR,
+                      CARA_ELEM=CARAMECA,
                       GROUP_MA_BETON='PACE',
                       DEFI_CABLE=(_F(GROUP_MA='CABLEH1',
                                      GROUP_NO_ANCRAGE=('CABH1G','CABH1D',),),
@@ -93,9 +93,9 @@ CABH10R=DEFI_CABLE_BP(MODELE=MODR,
                       RECUL_ANCRAGE=0.0,
                       TYPE_RELAX='SANS',);
 
-CABV10R=DEFI_CABLE_BP(MODELE=MODR,
+CABV10R=DEFI_CABLE_BP(MODELE=MODELE,
                       CHAM_MATER=CHMATR,
-                      CARA_ELEM=CARAMECR,
+                      CARA_ELEM=CARAMECA,
                       GROUP_MA_BETON='PACE',
                       DEFI_CABLE=(_F(GROUP_MA='CABLEV1',
                                      GROUP_NO_ANCRAGE=('CABV1B','CABV1H',),),
@@ -106,17 +106,17 @@ CABV10R=DEFI_CABLE_BP(MODELE=MODR,
                       RECUL_ANCRAGE=0.0,
                       TYPE_RELAX='SANS',);
 
-CH_CABHR=AFFE_CHAR_MECA(MODELE=MODR,
+CH_CABHR=AFFE_CHAR_MECA(MODELE=MODELE,
                         DOUBLE_LAGRANGE='NON',
                         RELA_CINE_BP=_F(CABLE_BP=CABH10R,
                                         SIGM_BPEL='NON',
                                         RELA_CINE='OUI',),);
 
-CH_CABVR=AFFE_CHAR_MECA(MODELE=MODR,
+CH_CABVR=AFFE_CHAR_MECA(MODELE=MODELE,
                         DOUBLE_LAGRANGE='NON',
                         RELA_CINE_BP=_F(CABLE_BP=CABV10R,
                                         SIGM_BPEL='NON',
-                                                RELA_CINE='OUI',),);
+                                        RELA_CINE='OUI',),);
 
 # On calcule la matrice     (0  BT)
 #                           (B  0 )
@@ -124,12 +124,12 @@ CH_CABVR=AFFE_CHAR_MECA(MODELE=MODR,
 
 # Matrice elementaire
 matbelem = CALC_MATR_ELEM(OPTION='RIGI_MECA',
-                          MODELE=MODR,
+                          MODELE=MODELE,
                           CHARGE=(CLIMRE, CH_CABHR, CH_CABVR),
                           CALC_ELEM_MODELE='NON')
 
 # Definition du NUME_DDL avec les bon DDLS (simple Lagrange)
-dof = NUME_DDL(MODELE=MODR, CHARGE=(CLIMRE, CH_CABHR, CH_CABVR))
+dof = NUME_DDL(MODELE=MODELE, CHARGE=(CLIMRE, CH_CABHR, CH_CABVR))
 
 # Assemblage
 matbass = ASSE_MATRICE(MATR_ELEM=matbelem,
@@ -146,7 +146,7 @@ fullB = matbass.EXTR_MATR(sparse=False);
 # --------------------------
 
 # Creation "artificielle" d'un vecteur defini sur le NUME_DDL pour recuperer la position des DDLs Lagrange
-vecelem = CALC_VECT_ELEM(OPTION='CHAR_MECA', CHARGE=(CLIMR, CH_CABHR, CH_CABVR), CARA_ELEM=CARAMECR, CHAM_MATER=CHMATR)
+vecelem = CALC_VECT_ELEM(OPTION='CHAR_MECA', CHARGE=(CLIMR, CH_CABHR, CH_CABVR), CARA_ELEM=CARAMECA, CHAM_MATER=CHMATR)
 vecass = ASSE_VECTEUR(VECT_ELEM=vecelem, NUME_DDL=dof)
 
 # Recuperation de la position des DDLs de Lagrange

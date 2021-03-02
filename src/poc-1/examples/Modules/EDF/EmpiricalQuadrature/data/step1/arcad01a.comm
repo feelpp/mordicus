@@ -145,23 +145,6 @@ ACIERC=DEFI_MATERIAU(ELAS=_F(E=p_Ec,
 #----------------------------------------------------------------------------------------------------------------------------
 #DEFINITON DES CHARGEMENTS ET CONDITIONS AUX LIMITES
 #----------------------------------------------------------------------------------------------------------------------------
-# Problème avec CLIM: il faut que toutes les fonctions des bases réduite
-# vérifient ces conditions limites cinématiques
-# Sauf pour DZ=0 sur SB, elles ne sont pas transposables dans AFFE_CHAR_CINE
-CLIM=AFFE_CHAR_MECA(MODELE=MODELE,
-                    FACE_IMPO=(_F(GROUP_MA=('SG','SD',),
-                                  DNOR=0.0,),
-                               _F(GROUP_MA='SB',
-                                  DZ=0.0,),),
-                    LIAISON_UNIF=_F(GROUP_MA='SH',
-                                    DDL='DZ',),
-                    PESANTEUR=_F(GRAVITE=9.81,
-                                 DIRECTION=(0.0,0.0,-1.0,),),);
-#poids du dome et du fut
-CH_DOME=AFFE_CHAR_MECA(MODELE=MODELE,
-                        PRES_REP=(_F(GROUP_MA='SH',
-                                     PRES=p_poids),),);
-
 
 # DEFINITION LISTES D'INSTANT - 2 LISTES POUR POUVOIR GERE AUTOMATIQUEMENT LES LISTES
 # ET CALCUL MECANIQUE
@@ -263,65 +246,6 @@ l_py = l_py1[1:] + l_py2
 #
 # DONNEES CONSTANTES POUR LA REDUCTION
 # ----------------------------------------------------
-MAILR = CREA_MAILLAGE(MAILLAGE=MAILMEC,
-                      RESTREINT=_F(GROUP_MA=('PACE','SI','SG','SD','SH','SB','CABLE'),
-                                   TOUT_GROUP_NO='OUI',
-                                   TOUT_GROUP_MA='OUI'),
-                      INFO=2)
-
-MODR = AFFE_MODELE(MAILLAGE=MAILR,
-                   AFFE=(_F(GROUP_MA=('PACE','SI','SG','SD','SH','SB',),
-                            PHENOMENE='MECANIQUE',
-                            MODELISATION='3D',),
-                         _F(GROUP_MA='CABLE',
-                            PHENOMENE='MECANIQUE',
-                            MODELISATION='BARRE',),),);
-
-# ETAPE 2 BIS
-#
-# DONNEES CONSTANTES POUR LE MODELE REDUIT
-# ----------------------------------------------------
-#
-# MODELE ARTIFICIEL POUR ABRITER LES CHAMPS SANS MULTIPLICATEUR
-# -------------------------------------------------------------
-
-CLIMR=AFFE_CHAR_MECA(MODELE=MODR,
-                     PESANTEUR=_F(GRAVITE=9.81,
-                                  DIRECTION=(0.0,0.0,-1.0,),),);
-
-CH_DOMR=AFFE_CHAR_MECA(MODELE=MODR,
-                        PRES_REP=(_F(GROUP_MA='SH',
-                                     PRES=p_poids),),);
-
-CARAMECR=AFFE_CARA_ELEM(MODELE=MODR,
-                        BARRE=_F(GROUP_MA='CABLE',
-                                 SECTION='CERCLE',
-                                 CARA='R',
-                                 VALE= sqrt(p_secc/pi),),) ;
-
-TCALR=LIRE_RESU(TYPE_RESU='EVOL_THER',
-                FORMAT='MED',
-                MAILLAGE=MAILR,
-                TOUT_ORDRE='OUI',
-                UNITE=81,
-                FORMAT_MED=_F(NOM_CHAM='TEMP',
-                               NOM_CHAM_MED='TCALCR__TEMP',),)
-
-SCALR=LIRE_RESU(TYPE_RESU='EVOL_THER',
-                FORMAT='MED',
-                MAILLAGE=MAILR,
-                TOUT_ORDRE='OUI',
-                UNITE=81,
-                FORMAT_MED=_F(NOM_CHAM='TEMP',
-                               NOM_CHAM_MED='SCALCR__TEMP',),)
-
-HYDRR=LIRE_RESU(TYPE_RESU='EVOL_THER',
-                FORMAT='MED',
-                MAILLAGE=MAILR,
-                TOUT_ORDRE='OUI',
-                UNITE=81,
-                FORMAT_MED= _F(NOM_CHAM='HYDR_NOEU',
-                               NOM_CHAM_MED='HYDRCR__HYDR_NOEU',),)
 
 FIN()
 

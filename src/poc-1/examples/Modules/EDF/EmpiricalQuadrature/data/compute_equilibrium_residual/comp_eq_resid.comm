@@ -25,7 +25,7 @@ POURSUITE()
 # -----------------------
 RES_RAW=LIRE_RESU(TYPE_RESU='EVOL_NOLI',
                   FORMAT='MED',
-                  MODELE=MODR,
+                  MODELE=MODELE,
                   TOUT_ORDRE='OUI',
                   UNITE=80,
                   FORMAT_MED=_F(NOM_CHAM='SIEF_ELGA',
@@ -36,7 +36,7 @@ RES_RAW=LIRE_RESU(TYPE_RESU='EVOL_NOLI',
 # -------------------------
 RES_REC=LIRE_RESU(TYPE_RESU='EVOL_NOLI',
                   FORMAT='MED',
-                  MODELE=MODR,
+                  MODELE=MODELE,
                   TOUT_ORDRE='OUI',
                   UNITE=81,
                   FORMAT_MED=(_F(NOM_CHAM='SIEF_ELGA',
@@ -45,6 +45,13 @@ RES_REC=LIRE_RESU(TYPE_RESU='EVOL_NOLI',
                                  NOM_CHAM_MED='U_REC___DEPL',),),
                   )
 
+CLIMR=AFFE_CHAR_MECA(MODELE=MODELE,
+                     PESANTEUR=_F(GRAVITE=9.81,
+                                  DIRECTION=(0.0,0.0,-1.0,),),);
+#poids du dome et du fut
+CH_DOMR=AFFE_CHAR_MECA(MODELE=MODELE,
+                       PRES_REP=(_F(GROUP_MA='SH',
+                                    PRES=p_poids),),);
 #
 # WORKAROUND TO GET THE RIGHT STRESSES ON BARS
 # --------------------------------------------
@@ -64,14 +71,14 @@ for i, ti in enumerate(l_py):
                         INST=ti);
     siefr[i]=CREA_CHAMP(OPERATION='ASSE',
                         TYPE_CHAM='ELGA_SIEF_R',
-                        MODELE=MODR,
+                        MODELE=MODELE,
                         ASSE=(_F(CHAM_GD=sief3d,
                                  GROUP_MA='PACE',),
                               _F(CHAM_GD=sief1d,
                                  GROUP_MA='CABLE',),),)
     DETRUIRE(CONCEPT=_F(NOM=sief1d))
     DETRUIRE(CONCEPT=_F(NOM=sief3d))
-    fackwds.append({'CHAM_GD': siefr[i], 'INST': ti, 'PRECISION': 1.E-5, 'MODELE': MODR})
+    fackwds.append({'CHAM_GD': siefr[i], 'INST': ti, 'PRECISION': 1.E-5, 'MODELE': MODELE})
 
 # Take reconstructed field and overwrite stress field
 RES_REC=CREA_RESU(reuse=RES_REC,
@@ -102,21 +109,21 @@ BETON=DEFI_MATERIAU(ELAS_FO=_F(E=E,
                                     ETA_FD=p_etafd,
                                     TEMP_0_C=p_temp0c,
                                     QSR_K=p_qsrk),);
-CHMATR=AFFE_MATERIAU(MAILLAGE=MAILR,
+CHMATR=AFFE_MATERIAU(MAILLAGE=MAILMEC,
                     AFFE=(_F(GROUP_MA=('PACE','SI','SD','SG','SH','SB',),
                              MATER=BETON,),
                           _F(GROUP_MA=('CABLEH1','CABLEH2','CABLEH3','CABLEV1','CABLEV2'),
                              MATER=ACIERC),),
                     AFFE_VARC=(_F(TOUT='OUI',
-                                  EVOL=HYDRR,
+                                  EVOL=HYDRC,
                                   NOM_VARC='HYDR',
                                   NOM_CHAM='HYDR_NOEU'),
                                _F(TOUT='OUI',
-                                  EVOL=SCALR,
+                                  EVOL=SCALC,
                                   NOM_VARC='SECH',
                                   VALE_REF=C_100,),
                               _F(TOUT='OUI',
-                                 EVOL=TCALR,
+                                 EVOL=TCALC,
                                  NOM_VARC='TEMP',
                                  VALE_REF=T_arret,),),);
 
@@ -125,18 +132,18 @@ CHMATR=AFFE_MATERIAU(MAILLAGE=MAILR,
 RES_REC = CALC_CHAMP(reuse=RES_REC,
                      RESULTAT=RES_REC,
                      FORCE='REAC_NODA',
-                     MODELE=MODR,
+                     MODELE=MODELE,
                      CHAM_MATER=CHMATR,
-                     CARA_ELEM=CARAMECR,
+                     CARA_ELEM=CARAMECA,
                      EXCIT=(_F(CHARGE=CLIMR,),
                             _F(CHARGE=CH_DOMR,),),)
 
 RES_REC = CALC_CHAMP(reuse=RES_REC,
                      RESULTAT=RES_REC,
                      FORCE='FORC_NODA',
-                     MODELE=MODR,
+                     MODELE=MODELE,
                      CHAM_MATER=CHMATR,
-                     CARA_ELEM=CARAMECR,
+                     CARA_ELEM=CARAMECA,
                      EXCIT=(_F(CHARGE=CLIMR,),
                             _F(CHARGE=CH_DOMR,),),)
 

@@ -394,6 +394,8 @@ while not stop_condition:
     else:
         reducedOrderBasisSigma = CompressData(collectionProblemData, "sigma", 1.e-5, snapshots=problemData.solutions["sigma"])
 
+    # For debug Mordicus/Aster
+    np.save("/home/A34370/tmp/comparison_Aster_Mordicus/Mordicus/reducedOrderBasisSigma.npy", reducedOrderBasisSigma)
 
     # Add reduced integration scheme to solver dataset
     collectionProblemData.operatorCompressionData = fileNameWeights
@@ -434,12 +436,15 @@ while not stop_condition:
                                                     np.array(range(numberOfComponentsSigma)))]
         ModesAtMask = ModesAtMaskNoFlatten.reshape((nb_modes_sigma, -1))
 
-        for t in timeSequence:
-            reshapedField = reduced_problem_data.solutions["sigma"].GetSnapshotAtTime(t).reshape((numberOfComponentsSigma,-1))
-            fieldAtMaskNoFlatten = reshapedField[np.ix_(np.array(range(numberOfComponentsSigma)), 
-                                                        np.nonzero(rho)[0])]
+        for itt, t in enumerate(timeSequence):
+            rawField = reduced_problem_data.solutions["sigma"].GetSnapshotAtTime(t)
+            np.save("/home/A34370/tmp/comparison_Aster_Mordicus/Mordicus/field-"+str(itt)+".npy", rawField)
+            reshapedField = rawField.reshape((-1, numberOfComponentsSigma))
+            fieldAtMaskNoFlatten = reshapedField[np.ix_(np.nonzero(rho)[0], 
+                                                        np.array(range(numberOfComponentsSigma)))]
             fieldAtMask = fieldAtMaskNoFlatten.flatten()
-
+            # ModesAtMask: nbeModes, maskSize
+            # fieldAtMask: maskSize
             reduced_problem_data.solutions["sigma"].compressedSnapshots[t] = GP.Fit(ModesAtMask, fieldAtMask)
 
         # Equivalent du REST_REDUIT_COMPLET
@@ -482,6 +487,7 @@ while not stop_condition:
                 if not is_printed:
                     np.save("/home/A34370/tmp/comparison_Aster_Mordicus/Mordicus/resid.npy", resid)
                     np.save("/home/A34370/tmp/comparison_Aster_Mordicus/Mordicus/force.npy", force)
+                    is_printed = True
 
                 ap_err = ap_err + 1./len(timeSequence) * np.dot(corr_res, corr_res)
                 ap_ref = ap_ref + 1./len(timeSequence) * np.dot(   force,    force)
@@ -490,7 +496,8 @@ while not stop_condition:
         print("error[", i, "] = ", error[i])
         # for debug Aster/Mordicus
         assert(False)
-    # TODO: réécrire avec des fonctions numpy
+    # TODO: réécrire avec des fonctions nump
+    
     i_max = error.index(max(error))
     p_etafd, p_kdes= grid[i_max]
     stop_condition = error[i_max] < 1.e-4
