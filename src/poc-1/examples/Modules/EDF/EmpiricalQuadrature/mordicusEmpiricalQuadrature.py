@@ -138,6 +138,9 @@ volume = mesh.getVolume(sample_field)
 
 # Get matrix B of kinematic conditions
 # ------------------------------------
+fileNameNumbering = osp.join(root_to_all, "numbering.med")
+reader_solution.WriteNumbering(sample_field_u, "U", fileNameNumbering, name="number")
+
 input_data = {"input_root_folder" : osp.join(root_to_all, "step2"),
               "input_main_file"   : "arcad01a.export",
               "input_result_path" : "matB.npy",

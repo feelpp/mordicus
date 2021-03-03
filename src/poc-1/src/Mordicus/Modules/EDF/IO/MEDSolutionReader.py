@@ -235,4 +235,42 @@ class MEDSolutionReader(SolutionReaderBase):
             mf_mesh.write(fileName, 2)
         ff.write(fileName, 0)
 
+    def WriteNumbering(self, fieldInstance, fieldName, fileName, name=None):
+        """
+        Write an identity application on the input, see how it comes out to have the permutation matrix
+        """
+        mf_mesh = ML.MEDFileUMesh.New(self.fileName)
+
+        f = safe_clone(fieldInstance)
+        f.setTime(0.0, 0, 0)
+        if fieldName == "U":
+            f.getArray().setInfoOnComponent(0, "DX")
+            f.getArray().setInfoOnComponent(1, "DY")
+            f.getArray().setInfoOnComponent(2, "DZ")
+        if fieldName == "sigma":
+            f.getArray().setInfoOnComponent(0, "SIXX")
+            f.getArray().setInfoOnComponent(1, "SIYY")
+            f.getArray().setInfoOnComponent(2, "SIZZ")
+            f.getArray().setInfoOnComponent(3, "SIXY")
+            f.getArray().setInfoOnComponent(4, "SIXZ")
+            f.getArray().setInfoOnComponent(5, "SIYZ")
+            f.getArray().setInfoOnComponent(6, "N")
+
+        if name is not None:
+            target = "_"*8
+            expanded_name = name[:min(8,len(name))] + target[min(8,len(name)):]
+            f.setName(expanded_name + self.Mordicus2MEDAster[fieldName])
+            
+        # array needs to be put to the right shape and converted to DataArrayDouble
+        identity_appl = np.linspace(0.,
+                                    float(f.getNumberOfTuples()*f.getNumberOfComponents()-1),
+                                    f.getNumberOfTuples()*f.getNumberOfComponents())
+        f.getArray().setValues(list(identity_appl), f.getNumberOfTuples(), f.getNumberOfComponents())
+            
+        # write f to a new file
+        ff=ML.MEDFileField1TS.New()
+        ff.setFieldNoProfileSBT(f)
+
+        mf_mesh.write(fileName, 2)
+        ff.write(fileName, 0)
         

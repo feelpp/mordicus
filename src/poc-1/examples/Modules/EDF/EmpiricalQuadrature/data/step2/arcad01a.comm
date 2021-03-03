@@ -21,6 +21,26 @@
 POURSUITE(PAR_LOT='NON')
 import numpy as np
 
+#
+# Application de la permutation numerotation MEDcoupling
+# ------------------------------------------------------
+PERM_RES=LIRE_RESU(TYPE_RESU='EVOL_NOLI',
+                   FORMAT='MED',
+                   MODELE=MODELE,
+                   INST=0.0,
+                   UNITE=50,
+                   FORMAT_MED=_F(NOM_CHAM='DEPL',
+                                 NOM_CHAM_MED='number__DEPL',),)
+
+PERM = CREA_CHAMP(OPERATION='EXTR',
+                  TYPE_CHAM='NOEU_DEPL_R',
+                  RESULTAT=PERM_RES,
+                  NOM_CHAM='DEPL',
+                  INST=0.0);
+
+perm_float = np.array(PERM.EXTR_COMP(' ', []).valeurs)
+perm_int = np.array([int(round(f)) for f in perm_float])
+
 # ----------------------------------------------------
 # ETAPE 2 TER
 #
@@ -67,15 +87,15 @@ CHMATR=AFFE_MATERIAU(MAILLAGE=MAILMEC,
                           _F(GROUP_MA=('CABLEH1','CABLEH2','CABLEH3','CABLEV1','CABLEV2'),
                              MATER=ACIERC),),
                     AFFE_VARC=(_F(TOUT='OUI',
-                                  EVOL=HYDRR,
+                                  EVOL=HYDRC,
                                   NOM_VARC='HYDR',
                                   NOM_CHAM='HYDR_NOEU'),
                                _F(TOUT='OUI',
-                                  EVOL=SCALR,
+                                  EVOL=SCALC,
                                   NOM_VARC='SECH',
                                   VALE_REF=C_100,),
                               _F(TOUT='OUI',
-                                 EVOL=TCALR,
+                                 EVOL=TCALC,
                                  NOM_VARC='TEMP',
                                  VALE_REF=T_arret,),),);
 CABH10R=DEFI_CABLE_BP(MODELE=MODELE,
@@ -146,7 +166,7 @@ fullB = matbass.EXTR_MATR(sparse=False);
 # --------------------------
 
 # Creation "artificielle" d'un vecteur defini sur le NUME_DDL pour recuperer la position des DDLs Lagrange
-vecelem = CALC_VECT_ELEM(OPTION='CHAR_MECA', CHARGE=(CLIMR, CH_CABHR, CH_CABVR), CARA_ELEM=CARAMECA, CHAM_MATER=CHMATR)
+vecelem = CALC_VECT_ELEM(OPTION='CHAR_MECA', CHARGE=(CLIMRE, CH_CABHR, CH_CABVR), CARA_ELEM=CARAMECA, CHAM_MATER=CHMATR)
 vecass = ASSE_VECTEUR(VECT_ELEM=vecelem, NUME_DDL=dof)
 
 # Recuperation de la position des DDLs de Lagrange
@@ -157,7 +177,12 @@ index_primal = [i for i,x in enumerate(comps) if x[0:4]!='LAGR']
 # Extraction de B
 dual = np.array(index_dual, dtype=np.intp)
 primal = np.array(index_primal, dtype=np.intp)
-matB = fullB[np.ix_(dual, primal)]
+matB_tmp = fullB[np.ix_(dual, primal)]
+matB = np.zeros_like(matB_tmp)
+for i in range(matB.shape[0]):
+    matB[i,:] = matB_tmp[i,perm_int]
+
+
 
 np.save("/home/A34370/dev/mordicus/src/poc-1/examples/Modules/EDF/EmpiricalQuadrature/data/step2/matB.npy", matB)
 
