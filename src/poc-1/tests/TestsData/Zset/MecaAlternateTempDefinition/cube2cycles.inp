@@ -1,0 +1,62 @@
+****calcul
+ ***mesh
+  **file cube.geof
+
+
+ ***resolution newton
+  **cycles 2
+   *ratio 0.0001
+   *time       2. 
+   *increment  10
+   *algorithm p1p2p3
+
+
+***linear_solver mumps
+
+***bc
+**impose_nodal_dof
+x0     U1 0.0
+x0y0   U2 0.0
+x0y1z1 U3 0.0
+**pressure 
+x1 file pressure.node pressure
+**centrifugal
+ALL_ELEMENT (3.5 -20 1.5) d3 1.5e4 rotation
+
+
+***parameter
+   **file temperature
+      *node
+      *rec_size 343
+      *cycle_conversion 0. 2. 2.
+      *base_temperature constant 20.
+      *max_temperature file temperature2.node
+      *table coef
+
+***table
+  **cycle pressure 0. 2.
+   *time 
+   0.  0.1  2.
+   *value
+   0.  -100.0  -100.0
+**cycle rotation 0. 2.
+   *time 
+   0.  1.  2.
+   *value
+   0. 1. 1.
+  **cycle coef 0. 2.
+    *time
+        0.  1.  2. 
+    *value
+         0. 1.  0.
+   
+
+ ***output
+  **output_first
+ ***material 
+   *file mat
+       
+****return
+
+
+

@@ -48,7 +48,7 @@ class ConstitutiveLawBase(object):
         couple of string set
             the identifier of constitutive law
         """
-        return self.set
+        return (self.type,self.set)
 
 
     def __str__(self):

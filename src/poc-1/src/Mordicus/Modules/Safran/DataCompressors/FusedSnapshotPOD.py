@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 import os
-os.environ["OMP_NUM_THREADS"] = "1"
-os.environ["OPENBLAS_NUM_THREADS"] = "1"
-os.environ["MKL_NUM_THREADS"] = "1"
-os.environ["VECLIB_MAXIMUM_THREADS"] = "1"
-os.environ["NUMEXPR_NUM_THREADS"] = "1"
+from mpi4py import MPI
+if MPI.COMM_WORLD.Get_size() > 1: # pragma: no cover
+    os.environ["OMP_NUM_THREADS"] = "1"
+    os.environ["OPENBLAS_NUM_THREADS"] = "1"
+    os.environ["MKL_NUM_THREADS"] = "1"
+    os.environ["VECLIB_MAXIMUM_THREADS"] = "1"
+    os.environ["NUMEXPR_NUM_THREADS"] = "1"
 import numpy as np
 
 from scipy import sparse
@@ -76,6 +78,7 @@ def CompressData(
 
 
     else:
+        print("detecting existing POD basis")
 
         snapshots = np.append(previousReducedOrderBasis, reducedOrderBasis, axis=0)
 
@@ -105,6 +108,9 @@ def CompressData(
 
     if compressSolutions == True:
         collectionProblemData.CompressSolutions(solutionName, snapshotCorrelationOperator)
+
+
+    print("POD for "+solutionName+" : number of snapshots = "+str(numberOfSnapshots)+", number of modes = "+str(nbePODModes))
 
 
 if __name__ == "__main__":# pragma: no cover

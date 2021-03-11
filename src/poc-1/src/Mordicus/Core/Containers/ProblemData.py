@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 import os
-os.environ["OMP_NUM_THREADS"] = "1"
-os.environ["OPENBLAS_NUM_THREADS"] = "1"
-os.environ["MKL_NUM_THREADS"] = "1"
-os.environ["VECLIB_MAXIMUM_THREADS"] = "1"
-os.environ["NUMEXPR_NUM_THREADS"] = "1"
+from mpi4py import MPI
+if MPI.COMM_WORLD.Get_size() > 1: # pragma: no cover
+    os.environ["OMP_NUM_THREADS"] = "1"
+    os.environ["OPENBLAS_NUM_THREADS"] = "1"
+    os.environ["MKL_NUM_THREADS"] = "1"
+    os.environ["VECLIB_MAXIMUM_THREADS"] = "1"
+    os.environ["NUMEXPR_NUM_THREADS"] = "1"
 import numpy as np
 
 from Mordicus.Core.Containers import Solution
@@ -81,6 +83,14 @@ class ProblemData(object):
             )
 
         self.solutions[solution.GetSolutionName()] = solution
+        
+    
+
+    def DeleteSolutions(self):
+        """
+        Deletes solutions
+        """
+        self.solutions = {}
 
 
     def AddParameter(self, parameter, time = 0.):
@@ -123,9 +133,9 @@ class ProblemData(object):
         for law in constitutiveLaw:
             if law.GetIdentifier() in self.constitutiveLaws:
                 print(
-                    "Solution "
+                    "ConstitutiveLaw "
                     + str(law.GetIdentifier())
-                    + " already in problemData.loadings. Replacing it anyway."
+                    + " already in problemData.constitutiveLaws. Replacing it anyway."
                 )  # pragma: no cover
 
             self.constitutiveLaws[law.GetIdentifier()] = law
@@ -168,12 +178,36 @@ class ProblemData(object):
         for load in loading:
             if load.GetIdentifier() in self.loadings:
                 print(
-                    "Solution "
+                    "Loading "
                     + str(load.GetIdentifier())
                     + " already in problemData.loadings. Replacing it anyway."
                 )
 
             self.loadings[load.GetIdentifier()] = load
+
+
+    def UpdateLoading(self, loading):
+        """
+        Update a loading or a list of loadings to loadings
+
+        Parameters
+        ----------
+        loading : LoadingBase
+            the loading of the problem for a given set and type
+        """
+        try:
+            iter(loading)
+        except TypeError:
+            loading = [loading]
+        for load in loading:
+            if load.GetIdentifier() not in self.loadings: # pragma: no cover
+                print(
+                    "Loading "
+                    + str(load.GetIdentifier())
+                    + " not present in problemData.loadings. Cannot update."
+                )
+
+            self.loadings[load.GetIdentifier()].UpdateLoading(load)
 
 
     def GetParameters(self):
@@ -266,11 +300,24 @@ class ProblemData(object):
             list loadings of type type
         """
         li = []
-        for key, value in self.GetLoadings().items():
-            if key[0] == type:
-                li.append(value)# pragma: no cover
+        for loading in self.GetLoadings().values():
+            if loading.GetType() == type:
+                li.append(loading)# pragma: no cover
         return li
+    
 
+    def GetLoadingsForSolution(self, solutionName):
+        """
+        Returns
+        -------
+        list
+            list loadings of type type
+        """
+        li = []
+        for loading in self.GetLoadings().values():
+            if loading.GetSolutionName() == solutionName:
+                li.append(loading)# pragma: no cover
+        return li
 
 
     def GetConstitutiveLaws(self):
@@ -281,6 +328,35 @@ class ProblemData(object):
             constitutive laws of the problem
         """
         return self.constitutiveLaws
+
+
+
+    def GetConstitutiveOfType(self, type):
+        """
+        Returns
+        -------
+        list
+            list loadings of type type
+        """
+        li = []
+        for law in self.GetConstitutiveLaws().values():
+            if law.GetType() == type:
+                li.append(law)# pragma: no cover
+        return li
+    
+
+
+    def GetSetsOfConstitutiveOfType(self, type):
+        """
+        Returns
+        -------
+        set
+            set of strings of elementSets
+        """
+        se = []
+        for law in self.GetConstitutiveOfType(type):
+            se.append(law.GetSet())
+        return set(se)
 
 
     def GetSolution(self, solutionName):

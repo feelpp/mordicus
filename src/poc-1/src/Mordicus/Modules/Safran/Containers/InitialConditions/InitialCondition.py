@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 import os
-os.environ["OMP_NUM_THREADS"] = "1"
-os.environ["OPENBLAS_NUM_THREADS"] = "1"
-os.environ["MKL_NUM_THREADS"] = "1"
-os.environ["VECLIB_MAXIMUM_THREADS"] = "1"
-os.environ["NUMEXPR_NUM_THREADS"] = "1"
+from mpi4py import MPI
+if MPI.COMM_WORLD.Get_size() > 1: # pragma: no cover
+    os.environ["OMP_NUM_THREADS"] = "1"
+    os.environ["OPENBLAS_NUM_THREADS"] = "1"
+    os.environ["MKL_NUM_THREADS"] = "1"
+    os.environ["VECLIB_MAXIMUM_THREADS"] = "1"
+    os.environ["NUMEXPR_NUM_THREADS"] = "1"
 import numpy as np
 
 from Mordicus.Core.Containers.InitialConditions.InitialConditionBase import InitialConditionBase
@@ -16,9 +18,9 @@ class InitialCondition(InitialConditionBase):
 
     Attributes
     ----------
-    dataType : string ("scalar" or "vector")
-    initialSnapshot : float or np.ndarray of size (numberOfDofs,)
-    reducedInitialSnapshot : np.ndarray of size (numberOfModes,)
+    dataType : dict of string ("scalar" or "vector")
+    initialSnapshot : dict of float or np.ndarray of size (numberOfDofs,)
+    reducedInitialSnapshot : dict of np.ndarray of size (numberOfModes,)
 
     """
 
@@ -26,60 +28,60 @@ class InitialCondition(InitialConditionBase):
 
         super(InitialCondition, self).__init__()
 
-        self.dataType = ""
-        self.initialSnapshot = None
-        self.reducedInitialSnapshot = None
+        self.dataType = {}
+        self.initialSnapshot = {}
+        self.reducedInitialSnapshot = {}
 
 
-    def SetDataType(self, dataType):
+    def SetDataType(self, solutionName, dataType):
 
-        self.dataType = dataType
-
-
-    def GetDataType(self):
-
-        return self.dataType
+        self.dataType[solutionName] = dataType
 
 
-    def SetInitialSnapshot(self, initialSnapshot):
+    def GetDataType(self, solutionName):
 
-        self.initialSnapshot = initialSnapshot
-
-
-    def SetReducedInitialSnapshot(self, reducedInitialSnapshot):
-
-        self.reducedInitialSnapshot = reducedInitialSnapshot
+        return self.dataType[solutionName]
 
 
-    def GetReducedInitialSnapshot(self):
+    def SetInitialSnapshot(self, solutionName, initialSnapshot):
 
-        return self.reducedInitialSnapshot
+        self.initialSnapshot[solutionName] = initialSnapshot
 
 
-    def ReduceInitialSnapshot(self, reducedOrderBasis, snapshotCorrelationOperator):
+    def SetReducedInitialSnapshot(self, solutionName, reducedInitialSnapshot):
 
-        assert isinstance(reducedOrderBasis, np.ndarray)
+        self.reducedInitialSnapshot[solutionName] = reducedInitialSnapshot
 
-        if self.dataType == "scalar":
-            if self.initialSnapshot == 0.:
-                self.SetReducedInitialSnapshot(np.zeros(reducedOrderBasis.shape[0]))
-                return
+
+    def GetReducedInitialSnapshot(self, solutionName):
+
+        return self.reducedInitialSnapshot[solutionName]
+
+
+    def ReduceInitialSnapshot(self, reducedOrderBases, snapshotCorrelationOperator):
+
+        for solutionName in self.initialSnapshot.keys():
+            
+            reducedOrderBasis = reducedOrderBases[solutionName]
+
+            if self.dataType[solutionName] == "scalar":
+                if self.initialSnapshot[solutionName] == 0.:
+                    self.SetReducedInitialSnapshot(solutionName, np.zeros(reducedOrderBasis.shape[0]))
+                    continue
+
+                else:
+                    initVector = self.initialSnapshot[solutionName] * np.ones(reducedOrderBasis.shape[1])
 
             else:
-                initVector = self.initialSnapshot * np.ones(reducedOrderBasis.shape[1])
+                initVector = self.initialSnapshot[solutionName]# pragma: no cover
 
-        else:
-            initVector = self.initialSnapshot# pragma: no cover
+            matVecProduct = snapshotCorrelationOperator[solutionName].dot(initVector)
 
+            localScalarProduct = np.dot(reducedOrderBasis, matVecProduct)
+            globalScalarProduct = np.zeros(reducedOrderBasis.shape[0])
+            MPI.COMM_WORLD.Allreduce([localScalarProduct, MPI.DOUBLE], [globalScalarProduct, MPI.DOUBLE])
 
-        matVecProduct = snapshotCorrelationOperator.dot(initVector)
-
-        localScalarProduct = np.dot(reducedOrderBasis, matVecProduct)
-        globalScalarProduct = np.zeros(reducedOrderBasis.shape[0])
-        MPI.COMM_WORLD.Allreduce([localScalarProduct, MPI.DOUBLE], [globalScalarProduct, MPI.DOUBLE])
-
-
-        self.SetReducedInitialSnapshot(globalScalarProduct)# pragma: no cover
+            self.SetReducedInitialSnapshot(solutionName, globalScalarProduct)# pragma: no cover
 
 
 

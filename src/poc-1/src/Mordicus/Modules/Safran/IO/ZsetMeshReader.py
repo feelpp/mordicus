@@ -52,9 +52,24 @@ class ZsetMeshReader(MeshReaderBase):
 
 
         if MPI.COMM_WORLD.Get_size() > 1: # pragma: no cover
-            self.meshFileName = folder + os.sep + stem + "-pmeshes" + os.sep + stem + "-" + str(MPI.COMM_WORLD.Get_rank()+1).zfill(3) + suffix
+            meshFileName = folder + os.sep + stem + "-pmeshes" + os.sep + stem + "-" + str(MPI.COMM_WORLD.Get_rank()+1).zfill(3) + suffix
         else:
-            self.meshFileName = meshFileName
+            meshFileName = meshFileName
+            
+
+        if suffix == ".geof":
+            from BasicTools.IO import GeofReader as GR
+            self.reader = GR.GeofReader()
+
+        elif suffix == ".geo":  # pragma: no cover
+            from BasicTools.IO import GeoReader as GR
+            self.reader = GR.GeoReader()
+
+        else:  # pragma: no cover
+            raise NotImplementedError("meshFileName error!")         
+
+        self.reader.SetFileName(meshFileName)
+            
 
 
     def ReadMesh(self):
@@ -67,18 +82,7 @@ class ZsetMeshReader(MeshReaderBase):
             mesh of the HF computation
         """
 
-        suffix = str(Path(self.meshFileName).suffix)
-        if suffix == ".geof":
-            from BasicTools.IO.GeofReader import ReadGeof as Read
-
-        elif suffix == ".geo":  # pragma: no cover
-            from BasicTools.IO.GeoReader import ReadGeo as Read
-
-        else:  # pragma: no cover
-            raise NotImplementedError("FileName error!")
-
-        data = Read(self.meshFileName)
-
+        data = self.reader.Read()
 
         from Mordicus.Modules.Safran.Containers.Meshes import BasicToolsUnstructuredMesh as BTUM
 

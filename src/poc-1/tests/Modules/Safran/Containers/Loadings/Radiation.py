@@ -9,7 +9,7 @@ from Mordicus import GetTestDataPath
 
 def test():
 
-    loading = R.Radiation("set1")
+    loading = R.Radiation("T", "set1")
 
     Text = collections.OrderedDict()
     for i in range(3):
@@ -24,8 +24,9 @@ def test():
 
     mesh = ZMR.ReadMesh(meshFileName)
 
+    reducedOrderBases = {"T":np.random.rand(2,mesh.GetNumberOfNodes())}
     dummy = 1
-    loading.ReduceLoading(mesh, dummy, np.ones((2,3)), dummy)
+    loading.ReduceLoading(mesh, dummy, reducedOrderBases, dummy)
 
     loading.ComputeContributionToReducedExternalForces(0.2)
 

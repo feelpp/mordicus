@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 import os
-os.environ["OMP_NUM_THREADS"] = "1"
-os.environ["OPENBLAS_NUM_THREADS"] = "1"
-os.environ["MKL_NUM_THREADS"] = "1"
-os.environ["VECLIB_MAXIMUM_THREADS"] = "1"
-os.environ["NUMEXPR_NUM_THREADS"] = "1"
+from mpi4py import MPI
+if MPI.COMM_WORLD.Get_size() > 1: # pragma: no cover
+    os.environ["OMP_NUM_THREADS"] = "1"
+    os.environ["OPENBLAS_NUM_THREADS"] = "1"
+    os.environ["MKL_NUM_THREADS"] = "1"
+    os.environ["VECLIB_MAXIMUM_THREADS"] = "1"
+    os.environ["NUMEXPR_NUM_THREADS"] = "1"
 import numpy as np
 
 from scipy import sparse
@@ -80,6 +82,18 @@ class CollectionProblemData(object):
             return None # pragma: no cover
         else:
             return self.reducedOrderBases[solutionName]
+        
+
+    def GetReducedOrderBases(self):
+        """
+        Get the dictionary of precomputed reducedOrderBases
+
+        Returns
+        -------
+        reducedOrderBases : dict
+            dictionary with solutionNames (str) as keys and reducedOrderBases (np.ndarray of size (numberOfModes, numberOfDOFs)) as values
+        """
+        return self.reducedOrderBases        
 
 
     def GetReducedOrderBasisNumberOfModes(self, solutionName):

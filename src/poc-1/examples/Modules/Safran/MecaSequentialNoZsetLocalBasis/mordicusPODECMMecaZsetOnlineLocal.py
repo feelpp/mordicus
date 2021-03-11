@@ -27,7 +27,7 @@ def test():
     collectionProblemDatas = [SIO.LoadState("mordicusState_Basis_0"), SIO.LoadState("mordicusState_Basis_1")]
 
     operatorCompressionDatas = [collectionProblemDatas[i].GetOperatorCompressionData() for i in range(2)]
-    reducedOrderBasis = [collectionProblemDatas[i].GetReducedOrderBasis("U") for i in range(2)]
+    reducedOrderBases = [collectionProblemDatas[i].GetReducedOrderBases() for i in range(2)]
 
     snapshotCorrelationOperator = SIO.LoadState("snapshotCorrelationOperator")
 
@@ -51,20 +51,21 @@ def test():
 
     loadingList = inputReader.ConstructLoadingsList()
     onlineProblemData.AddLoading(loadingList)
-
+        
+    
     initialCondition = inputReader.ConstructInitialCondition()
-    initialCondition.ReduceInitialSnapshot(reducedOrderBasis[0], snapshotCorrelationOperator)
-
     onlineProblemData.SetInitialCondition(initialCondition)
+
+    initialCondition.ReduceInitialSnapshot(reducedOrderBases[0], snapshotCorrelationOperator)
+    
 
     timeSequence = inputReader.ReadInputTimeSequence()
     timeSequences = [timeSequence[:len(timeSequence)//2], timeSequence[len(timeSequence)//2-1:]]
 
 
-    onlinesolution = S.Solution("U", 1, mesh.GetNumberOfNodes(), primality = True)
+    nbeOfComponentsPrimal = 3
+    onlinesolution = S.Solution("U", nbeOfComponentsPrimal, mesh.GetNumberOfNodes(), primality = True)
     onlineProblemData.AddSolution(onlinesolution)
-
-    initOnlineCompressedSnapshot = initialCondition.GetReducedInitialSnapshot()
 
 
     start = time.time()
@@ -73,10 +74,10 @@ def test():
 
     for i in range(2):
 
-        for loading in loadingList:
-            loading.ReduceLoading(mesh, onlineProblemData, reducedOrderBasis[i], operatorCompressionDatas[i])
+        for loading in onlineProblemData.GetLoadingsForSolution("U"):
+            loading.ReduceLoading(mesh, onlineProblemData, reducedOrderBases[i], operatorCompressionDatas[i])
 
-        onlineCompressedSolution, onlineCompressionData = Mechanical.ComputeOnline(onlineProblemData, initOnlineCompressedSnapshot, timeSequences[i], reducedOrderBasis[i], operatorCompressionDatas[i], 1.e-4)
+        onlineCompressedSolution, onlineCompressionData = Mechanical.ComputeOnline(onlineProblemData, timeSequences[i], operatorCompressionDatas[i], 1.e-4)
 
         onlineCompressedSnapshots.append(onlineCompressedSolution)
 
@@ -88,19 +89,19 @@ def test():
 
             projectedReducedOrderBasis = collectionProblemDatas[0].GetDataCompressionData("projectedReducedOrderBasis_1")
             onlinesolution.ConvertCompressedSnapshotReducedOrderBasisAtTime(projectedReducedOrderBasis, previousTime)
-            initOnlineCompressedSnapshot = onlinesolution.GetCompressedSnapshotsAtTime(previousTime)
+            onlineProblemData.GetInitialCondition().SetReducedInitialSnapshot("U", onlinesolution.GetCompressedSnapshotsAtTime(previousTime))
 
 
 
     print("duration online =", time.time() - start)
 
 
-    PW.WritePXDMF(mesh, onlineCompressedSnapshots[0], reducedOrderBasis[0], "U_reduced0")
-    PW.WritePXDMF(mesh, onlineCompressedSnapshots[1], reducedOrderBasis[1], "U_reduced1")
+    PW.WritePXDMF(mesh, onlineCompressedSnapshots[0], reducedOrderBases[0]["U"], "U_reduced0")
+    PW.WritePXDMF(mesh, onlineCompressedSnapshots[1], reducedOrderBases[1]["U"], "U_reduced1")
     print("The compressed solution has been written in PXDMF Format")
 
-    PW.WriteReducedOrderBasisToPXDMF(mesh, reducedOrderBasis[0], "U0")
-    PW.WriteReducedOrderBasisToPXDMF(mesh, reducedOrderBasis[1], "U1")
+    PW.WriteReducedOrderBasisToPXDMF(mesh, reducedOrderBases[0]["U"], "U0")
+    PW.WriteReducedOrderBasisToPXDMF(mesh, reducedOrderBases[1]["U"], "U1")
     print("The reduced order basis has been written in PXDMF Format")
 
 
@@ -128,7 +129,7 @@ def test():
             i = 1
         exact = solution.GetSnapshotAtTime(t)
         normExact = np.linalg.norm(exact)
-        reconstructed = np.dot(reducedOrderBasis[i].T, onlineCompressedSnapshots[i][t])
+        reconstructed = np.dot(reducedOrderBases[i]["U"].T, onlineCompressedSnapshots[i][t])
         relError = np.linalg.norm(reconstructed - exact)
         if normExact > 0:
             relError /= normExact
@@ -143,4 +144,12 @@ def test():
 
 
 if __name__ == "__main__":
+
+    from BasicTools.Helpers import Profiler as P
+    p = P.Profiler()
+    p.Start()
+
     test()
+
+    p.Stop()
+    print(p)

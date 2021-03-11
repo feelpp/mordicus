@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 import os
-os.environ["OMP_NUM_THREADS"] = "1"
-os.environ["OPENBLAS_NUM_THREADS"] = "1"
-os.environ["MKL_NUM_THREADS"] = "1"
-os.environ["VECLIB_MAXIMUM_THREADS"] = "1"
-os.environ["NUMEXPR_NUM_THREADS"] = "1"
+from mpi4py import MPI
+if MPI.COMM_WORLD.Get_size() > 1: # pragma: no cover
+    os.environ["OMP_NUM_THREADS"] = "1"
+    os.environ["OPENBLAS_NUM_THREADS"] = "1"
+    os.environ["MKL_NUM_THREADS"] = "1"
+    os.environ["VECLIB_MAXIMUM_THREADS"] = "1"
+    os.environ["NUMEXPR_NUM_THREADS"] = "1"
 import numpy as np
 
 from Mordicus.Core.BasicAlgorithms import Interpolation as TI
@@ -332,7 +334,6 @@ class Solution(object):
         """
 
         numberOfModes = reducedOrderBasis.shape[0]
-        nNodes = self.GetNumberOfNodes()
 
         for time, snapshot in self.snapshots.items():
 
@@ -404,12 +405,12 @@ class Solution(object):
         Parameters
         ----------
         time : float
-            time at which the snapshot is retrieved
+            time at which the compressed snapshot is retrieved
 
         Returns
         -------
         np.ndarray
-            compressedSnapshots value at time, of size (numberOfModes), using PieceWiseLinearInterpolation
+            compressedSnapshot value at time, of size (numberOfModes), using PieceWiseLinearInterpolation
         """
         # assert type of time
         time = float(time)
@@ -417,6 +418,26 @@ class Solution(object):
         return TI.PieceWiseLinearInterpolation(
             time, self.GetTimeSequenceFromCompressedSnapshots(), self.GetCompressedSnapshotsList()
         )
+
+
+
+    def GetCompressedSnapshotsAtTimes(self, times):
+        """
+        Parameters
+        ----------
+        times : list or 1D ndarray of floats
+            times at which the compressed snapshot are retrieved
+
+        Returns
+        -------
+        np.ndarray
+            compressedSnapshots values at times, of size (numberOfModes), using PieceWiseLinearInterpolationVectorized
+        """
+
+        return TI.PieceWiseLinearInterpolationVectorized(
+            times, self.GetTimeSequenceFromCompressedSnapshots(), self.GetCompressedSnapshotsList()
+        )
+
 
 
     def __getstate__(self):

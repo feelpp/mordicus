@@ -35,6 +35,7 @@ def test():
     collectionProblemData.GetProblemDatas()
     collectionProblemData.AddReducedOrderBasis("U", reducedOrderBases)
     collectionProblemData.GetReducedOrderBasis("U")
+    collectionProblemData.GetReducedOrderBases()
     collectionProblemData.GetNumberOfProblemDatas()
     collectionProblemData.GetSolutionsNumberOfDofs("U")
     collectionProblemData.GetSolutionsNumberOfNodes("U")

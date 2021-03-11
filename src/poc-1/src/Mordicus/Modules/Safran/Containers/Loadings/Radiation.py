@@ -1,13 +1,16 @@
 # -*- coding: utf-8 -*-
 import os
-os.environ["OMP_NUM_THREADS"] = "1"
-os.environ["OPENBLAS_NUM_THREADS"] = "1"
-os.environ["MKL_NUM_THREADS"] = "1"
-os.environ["VECLIB_MAXIMUM_THREADS"] = "1"
-os.environ["NUMEXPR_NUM_THREADS"] = "1"
+from mpi4py import MPI
+if MPI.COMM_WORLD.Get_size() > 1: # pragma: no cover
+    os.environ["OMP_NUM_THREADS"] = "1"
+    os.environ["OPENBLAS_NUM_THREADS"] = "1"
+    os.environ["MKL_NUM_THREADS"] = "1"
+    os.environ["VECLIB_MAXIMUM_THREADS"] = "1"
+    os.environ["NUMEXPR_NUM_THREADS"] = "1"
 import numpy as np
 
 from Mordicus.Core.Containers.Loadings.LoadingBase import LoadingBase
+from Mordicus.Core.BasicAlgorithms import Interpolation as TI
 import collections
 
 
@@ -21,18 +24,24 @@ class Radiation(LoadingBase):
         dictionary with time indices (float) as keys and temporal Text (float) as values
     StefanBoltzmannConstant    : float
         the Stefan Boltzmann constant used for the boundary condition computation
-    assembledReducedOrderBasisOnSet : numpy.ndarray
+    reducedPhiT : numpy.ndarray
         size (numberOfModes)
     """
-
-    def __init__(self, set):
+        
+    def __init__(self, solutionName, set):
         assert isinstance(set, str)
+        assert isinstance(solutionName, str)
+        assert solutionName == "T", "Radiation loading can only be applied on T solution types"  
 
-        super(Radiation, self).__init__(set, "radiation")
+        super(Radiation, self).__init__("T", set, "radiation")
 
         self.StefanBoltzmannConstant = None
         self.Text = collections.OrderedDict
-        self.assembledReducedOrderBasisOnSet = None
+
+        self.TextTimes = None
+        self.TextValues = None
+
+        self.reducedPhiT = None
 
 
     def SetText(self, Text):
@@ -57,6 +66,9 @@ class Radiation(LoadingBase):
 
         self.Text = Text
 
+        self.TextTimes = np.array(list(self.Text.keys()), dtype = float)
+        self.TextValues = np.array(list(self.Text.values()), dtype = float)
+
 
     def SetStefanBoltzmannConstant(self, stefanBoltzmannConstant):
         """
@@ -72,7 +84,7 @@ class Radiation(LoadingBase):
         self.stefanBoltzmannConstant = stefanBoltzmannConstant
 
 
-    def GetTextAtTime(self, time):
+    def GetTextAtTime(self, time: float)-> float:
         """
         Computes Text at time, using PieceWiseLinearInterpolation
 
@@ -86,26 +98,29 @@ class Radiation(LoadingBase):
             Text at time
         """
 
-        # assert type of time
-        assert isinstance(time, (float, np.float64))
-
-        from Mordicus.Core.BasicAlgorithms import Interpolation as TI
-
         # compute coefficient at time
         Text = TI.PieceWiseLinearInterpolation(
-            time, list(self.Text.keys()), list(self.Text.values())
+            time, self.TextTimes, self.TextValues
         )
         return Text
 
 
 
-    def ReduceLoading(self, mesh, problemData, reducedOrderBasis, operatorCompressionData):
-
-        assert isinstance(reducedOrderBasis, np.ndarray)
+    def ReduceLoading(self, mesh, problemData, reducedOrderBases, operatorCompressionData):
 
         from Mordicus.Modules.Safran.FE import FETools as FT
+        
 
-        self.assembledReducedOrderBasisOnSet = FT.IntegrateOrderOneTensorOnSurface(mesh, self.set, reducedOrderBasis)
+        integrationWeights, phiAtIntegPoint = FT.ComputePhiAtIntegPoint(mesh, [self.GetSet()], relativeDimension = -1)
+
+        reducedPhiTAtIntegPoints = phiAtIntegPoint.dot(reducedOrderBases[self.solutionName].T)
+
+        self.reducedPhiT = np.einsum('tk,t->k', reducedPhiTAtIntegPoints, integrationWeights, optimize = True)
+        
+
+        """self.reducedPhiT0 = FT.IntegrateOrderOneTensorOnSurface(mesh, self.set, reducedOrderBases[self.solutionName])
+
+        print("rel dif =", np.linalg.norm(self.reducedPhiT - self.reducedPhiT0) / np.linalg.norm(self.reducedPhiT0))"""
 
 
 
@@ -118,7 +133,7 @@ class Radiation(LoadingBase):
 
         Text = self.GetTextAtTime(time)
 
-        return self.stefanBoltzmannConstant*(Text**4)*self.assembledReducedOrderBasisOnSet
+        return self.stefanBoltzmannConstant*(Text**4)*self.reducedPhiT
 
 
 

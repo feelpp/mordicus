@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 import os
-os.environ["OMP_NUM_THREADS"] = "1"
-os.environ["OPENBLAS_NUM_THREADS"] = "1"
-os.environ["MKL_NUM_THREADS"] = "1"
-os.environ["VECLIB_MAXIMUM_THREADS"] = "1"
-os.environ["NUMEXPR_NUM_THREADS"] = "1"
+from mpi4py import MPI
+if MPI.COMM_WORLD.Get_size() > 1: # pragma: no cover
+    os.environ["OMP_NUM_THREADS"] = "1"
+    os.environ["OPENBLAS_NUM_THREADS"] = "1"
+    os.environ["MKL_NUM_THREADS"] = "1"
+    os.environ["VECLIB_MAXIMUM_THREADS"] = "1"
+    os.environ["NUMEXPR_NUM_THREADS"] = "1"
 import numpy as np
 
 from Mordicus.Core.Containers.Loadings.LoadingBase import LoadingBase
@@ -28,13 +30,21 @@ class PressureBC(LoadingBase):
         dictionary with pressure vectors tags (str) keys and compressed pressure vectors (np.ndarray of size (numberOfModes,)) as values
     """
 
-    def __init__(self, set):
+    def __init__(self, solutionName, set):
         assert isinstance(set, str)
+        assert isinstance(solutionName, str)
+        assert solutionName == "U", "PressureBC loading can only be applied on U solution types"
 
-        super(PressureBC, self).__init__(set, "pressure")
+        super(PressureBC, self).__init__("U", set, "pressure")
 
-        self.coefficients = collections.OrderedDict
-        self.fieldsMap = collections.OrderedDict
+        #self.coefficients = collections.OrderedDict
+        self.coefficientsTimes = None
+        self.coefficientsValues = None        
+        
+        #self.fieldsMap = collections.OrderedDict
+        self.fieldsMapTimes = None
+        self.fieldsMapValues = None
+        
         self.fields = {}
         self.assembledReducedFields = {}
 
@@ -59,7 +69,11 @@ class PressureBC(LoadingBase):
             ]
         )
 
-        self.coefficients = coefficients
+        #self.coefficients = coefficients
+        self.coefficientsTimes = np.array(list(coefficients.keys()), dtype = float)
+        self.coefficientsValues = np.array(list(coefficients.values()), dtype = float)        
+
+
 
     def SetFieldsMap(self, fieldsMap):
         """
@@ -76,7 +90,11 @@ class PressureBC(LoadingBase):
         )
         assert np.all([isinstance(key, str) for key in list(fieldsMap.values())])
 
-        self.fieldsMap = fieldsMap
+        #self.fieldsMap = fieldsMap
+        self.fieldsMapTimes = np.array(list(fieldsMap.keys()), dtype = float)
+        self.fieldsMapValues = np.array(list(fieldsMap.values()), dtype = str)        
+
+
 
     def SetFields(self, fields):
         """
@@ -99,8 +117,7 @@ class PressureBC(LoadingBase):
 
     def GetFields(self):
         return self.fields
-
-
+    
 
     def GetAssembledReducedFieldAtTime(self, time):
         """
@@ -123,32 +140,50 @@ class PressureBC(LoadingBase):
 
         # compute coefficient at time
         coefficient = TI.PieceWiseLinearInterpolation(
-            time, list(self.coefficients.keys()), list(self.coefficients.values())
+            time, self.coefficientsTimes, self.coefficientsValues
         )
 
         # compute vector field at time
-        vectorField = TI.PieceWiseLinearInterpolation(
+        vectorField = TI.PieceWiseLinearInterpolationWithMap(
             time,
-            list(self.fieldsMap.keys()),
+            self.fieldsMapTimes,
             self.assembledReducedFields,
-            list(self.fieldsMap.values()),
+            self.fieldsMapValues
         )
 
         return coefficient * vectorField
 
 
 
-    def ReduceLoading(self, mesh, problemData, reducedOrderBasis, operatorCompressionData):
+    def ReduceLoading(self, mesh, problemData, reducedOrderBases, operatorCompressionData):
 
-        assert isinstance(reducedOrderBasis, np.ndarray)
+
+        #AssembleLoadingAgainstReducedBasis
+
+        from Mordicus.Modules.Safran.FE import FETools as FT
 
 
         self.assembledReducedFields = {}
-        #AssembleLoadingAgainstReducedBasis
-        from Mordicus.Modules.Safran.FE import FETools as FT
-        for key, field in self.GetFields().items():
-            assembledField = FT.IntegrateVectorNormalComponentOnSurface(mesh, self.GetSet(), field)
-            self.assembledReducedFields[key] = np.dot(reducedOrderBasis, assembledField)
+
+        keymap = list(self.GetFields().keys())
+        numberOfFields = len(keymap)
+        
+        
+        fieldsAtIntegrationPoints = FT.CellDataToIntegrationPointsData(mesh, self.GetSet(), self.GetFields(), relativeDimension = -1)
+        #this can be bypassed is the pressure values are already given at the integration points
+        
+        normalsAtIntegrationPoints = FT.ComputeNormalsAtIntegPoint(mesh, [self.GetSet()])
+
+        integrationWeights, phiAtIntegPoint = FT.ComputePhiAtIntegPoint(mesh, [self.GetSet()], relativeDimension = -1)
+
+        normalFieldsWeightsAtIntegrationPoints = np.einsum('ij,kj,j->jik', fieldsAtIntegrationPoints, normalsAtIntegrationPoints, integrationWeights, optimize = True)
+
+        for f in range(numberOfFields):
+            assembledField = phiAtIntegPoint.T.dot(normalFieldsWeightsAtIntegrationPoints[:,f,:]).T.flatten()
+            
+            self.assembledReducedFields[keymap[f]] = np.dot(reducedOrderBases[self.solutionName], assembledField)
+            """assembledField0 = FT.IntegrateVectorNormalComponentOnSurface(mesh, self.GetSet(), self.GetFields()[keymap[f]])
+            print("rel_dif =", np.linalg.norm(assembledField - assembledField0)/np.linalg.norm(assembledField0))"""
 
 
 
@@ -167,10 +202,13 @@ class PressureBC(LoadingBase):
     def __getstate__(self):
 
         state = {}
+        state["solutionName"] = self.solutionName
         state["set"] = self.set
         state["type"] = self.type
-        state["coefficients"] = self.coefficients
-        state["fieldsMap"] = self.fieldsMap
+        state["coefficientsTimes"] = self.coefficientsTimes
+        state["coefficientsValues"] = self.coefficientsValues
+        state["fieldsMapTimes"] = self.fieldsMapTimes
+        state["fieldsMapValues"] = self.fieldsMapValues
         state["assembledReducedFields"] = self.assembledReducedFields
         state["fields"] = {}
         for f in self.fields.keys():

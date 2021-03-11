@@ -7,19 +7,32 @@ class LoadingBase(object):
 
     Attributes
     ----------
+    solutionName : str
+        the solutionName for which the loading is applied
     set : str
         the elements tag on which the loading is applied
     type : str
         the type of loading (e.g pressure, etc... )
     """
 
-    def __init__(self, set, type):
+    def __init__(self, solutionName, set, type):
         assert isinstance(set, str)
         assert isinstance(type, str)
 
+        self.solutionName = solutionName
         self.set = set
         self.type = type
 
+
+    def GetSolutionName(self):
+        """
+        Returns
+        -------
+        str
+            the solutionName for which the loading is applied
+        """
+        return self.solutionName
+    
 
     def GetSet(self):
         """
@@ -48,7 +61,7 @@ class LoadingBase(object):
         couple of strings (set, type)
             the identifier of loading
         """
-        return (self.type,self.set)
+        return (self.solutionName,self.type,self.set)
 
 
     def ComputeContributionToReducedExternalForces(self, time):
@@ -63,6 +76,13 @@ class LoadingBase(object):
         Carries out the operations needed to reduced the loading, depending on the type of loading (e.g. precomputations)
         """
         raise NotImplementedError("Not implemented in LoadingBase")  # pragma: no cover
+        
+        
+    def UpdateLoading(self, loading):
+        """
+        Update Loading using data from loading
+        """
+        raise NotImplementedError("Not implemented in LoadingBase")  # pragma: no cover        
 
 
 

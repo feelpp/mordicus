@@ -1,16 +1,18 @@
 # -*- coding: utf-8 -*-
 
 import os
-os.environ["OMP_NUM_THREADS"] = "1"
-os.environ["OPENBLAS_NUM_THREADS"] = "1"
-os.environ["MKL_NUM_THREADS"] = "1"
-os.environ["VECLIB_MAXIMUM_THREADS"] = "1"
-os.environ["NUMEXPR_NUM_THREADS"] = "1"
+from mpi4py import MPI
+if MPI.COMM_WORLD.Get_size() > 1: # pragma: no cover
+    os.environ["OMP_NUM_THREADS"] = "1"
+    os.environ["OPENBLAS_NUM_THREADS"] = "1"
+    os.environ["MKL_NUM_THREADS"] = "1"
+    os.environ["VECLIB_MAXIMUM_THREADS"] = "1"
+    os.environ["NUMEXPR_NUM_THREADS"] = "1"
 import numpy as np
 
 from BasicTools.FE import FETools as FT
 from BasicTools.Containers import Filters
-from BasicTools.FE.IntegrationsRules import Lagrange as Lagrange
+from BasicTools.FE.IntegrationsRules import LagrangeIsoParam
 
 from mpi4py import MPI
 from pathlib import Path
@@ -22,7 +24,9 @@ primalSolutionComponents = {1:[""], 2:["1", "2"], 3:["1", "2", "3"]}
 
 
 
-def WriteZsetSolution(mesh, meshFileName, solutionFileName, collectionProblemData, problemData, solutionNameRef, outputReducedOrderBasis = False):
+def WriteZsetSolution(mesh, meshFileName, solutionFileName,\
+                      collectionProblemData, problemData, solutionNameRef,\
+                      timeSequence = [], outputReducedOrderBasis = False):
 
     """
     to write solution, set outputReducedOrderBasis = False
@@ -34,7 +38,8 @@ def WriteZsetSolution(mesh, meshFileName, solutionFileName, collectionProblemDat
     if outputReducedOrderBasis:
         nameList = list(collectionProblemData.reducedOrderBases.keys())
     else:
-        nameList = list(problemData.solutions.keys())
+        tempList = list(problemData.solutions.keys())
+        nameList = [n for n in tempList if problemData.solutions[n].GetCompressedSnapshots()]
 
 
     folder = str(Path(solutionFileName).parents[0])
@@ -70,7 +75,7 @@ def WriteZsetSolution(mesh, meshFileName, solutionFileName, collectionProblemDat
         if solution.primality == True:
             for component in primalSolutionComponents[solution.GetNbeOfComponents()]:
                 __stringNode += solution.solutionName+component+" "
-            nNodeVar += 1
+                nNodeVar += 1
         else:
             nIntegVar += 1
             __stringInteg += solution.solutionName+" "
@@ -95,8 +100,6 @@ def WriteZsetSolution(mesh, meshFileName, solutionFileName, collectionProblemDat
 
 
 
-    print("solutionFileName =", solutionFileName)
-
 
 
     resFile.write(__string)
@@ -113,7 +116,7 @@ def WriteZsetSolution(mesh, meshFileName, solutionFileName, collectionProblemDat
     ff = Filters.ElementFilter(mesh.GetInternalStorage())
     ff.SetDimensionality(mesh.GetInternalStorage().GetDimensionality())
     for name,data,ids in ff:
-        p,w =  Lagrange(name)
+        p,w =  LagrangeIsoParam[name]
         numberElements.append(data.GetNumberOfElements())
         nbPtIntPerElement.append(len(w))
 
@@ -122,17 +125,22 @@ def WriteZsetSolution(mesh, meshFileName, solutionFileName, collectionProblemDat
 
     if outputReducedOrderBasis:
         timeSequence = np.arange(maxNumberOfModes)
-    else:
+    elif len(timeSequence) == 0:
         timeSequence = problemData.GetSolution(solutionNameRef).GetTimeSequenceFromCompressedSnapshots()
 
-    nbDofs = problemData.GetSolution(solutionNameRef).GetNumberOfDofs()
+
+
+
+    #nbDofs = problemData.GetSolution(solutionNameRef).GetNumberOfDofs()
+    nbNodes = mesh.GetNumberOfNodes()
+
 
 
     count = 0
     for time in timeSequence:
         resFile.write(str(count+1)+" "+str(count)+" "+str(1)+" "+str(1)+" "+str(time)+"\n")
 
-        resNode  = np.empty(nNodeVar*nbDofs)
+        resNode  = np.empty(nNodeVar*nbNodes)
         fieldInteg = np.empty((nIntegVar,nbIntegPoints))
         resInteg = np.empty(nIntegVar*nbIntegPoints)
 
@@ -151,8 +159,11 @@ def WriteZsetSolution(mesh, meshFileName, solutionFileName, collectionProblemDat
                 res = np.dot(solution.GetCompressedSnapshotsAtTime(time), collectionProblemData.GetReducedOrderBasis(name))
 
             if solution.primality == True:
-                resNode[countNode*nbDofs:(countNode+1)*nbDofs] = res
-                countNode += 1
+                loccountNode = 0
+                for c in range(solution.GetNbeOfComponents()):
+                    resNode[countNode*nbNodes:(countNode+1)*nbNodes] = res[loccountNode*nbNodes:(loccountNode+1)*nbNodes]
+                    countNode += 1
+                    loccountNode += 1
             else:
                 fieldInteg[countInteg,:] = res
                 countInteg += 1

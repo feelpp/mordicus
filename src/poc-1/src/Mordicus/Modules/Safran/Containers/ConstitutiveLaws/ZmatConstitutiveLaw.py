@@ -1,15 +1,19 @@
 # -*- coding: utf-8 -*-
 import os
-os.environ["OMP_NUM_THREADS"] = "1"
-os.environ["OPENBLAS_NUM_THREADS"] = "1"
-os.environ["MKL_NUM_THREADS"] = "1"
-os.environ["VECLIB_MAXIMUM_THREADS"] = "1"
-os.environ["NUMEXPR_NUM_THREADS"] = "1"
+from mpi4py import MPI
+if MPI.COMM_WORLD.Get_size() > 1: # pragma: no cover
+    os.environ["OMP_NUM_THREADS"] = "1"
+    os.environ["OPENBLAS_NUM_THREADS"] = "1"
+    os.environ["MKL_NUM_THREADS"] = "1"
+    os.environ["VECLIB_MAXIMUM_THREADS"] = "1"
+    os.environ["NUMEXPR_NUM_THREADS"] = "1"
 import numpy as np
 
 from Mordicus.Core.Containers.ConstitutiveLaws.ConstitutiveLawBase import ConstitutiveLawBase
 from Mordicus.Modules.Safran.External.pyumat import py3umat as pyumat
 
+indices = [0,1,2,3,5,4]
+#indices = [0,1,2,3,4,5]
 
 class ZmatConstitutiveLaw(ConstitutiveLawBase):
     """
@@ -75,11 +79,20 @@ class ZmatConstitutiveLaw(ConstitutiveLawBase):
         stress = np.empty(stran.shape)
         ddsdde = np.empty((nbIntPoints , stran.shape[1], stran.shape[1]))
 
+        stran = stran[:,indices]
+        dstran = dstran[:,indices]
+
         for k in range(nbIntPoints):
 
             ddsdde[k,:,:] = self.PyumatCall(k, temperature, dtemp, stran, dstran, statev)
 
             stress[k,:] = self.constitutiveLawVariables['stress']
+            
+
+        ddsdde = ddsdde[:,:,indices]
+        ddsdde = ddsdde[:,indices,:]
+
+        stress = stress[:,indices]
 
         return ddsdde, stress
 

@@ -1,11 +1,17 @@
 # -*- coding: utf-8 -*-
+
 import os
-os.environ["OMP_NUM_THREADS"] = "1"
-os.environ["OPENBLAS_NUM_THREADS"] = "1"
-os.environ["MKL_NUM_THREADS"] = "1"
-os.environ["VECLIB_MAXIMUM_THREADS"] = "1"
-os.environ["NUMEXPR_NUM_THREADS"] = "1"
+from mpi4py import MPI
+if MPI.COMM_WORLD.Get_size() > 1: # pragma: no cover
+    os.environ["OMP_NUM_THREADS"] = "1"
+    os.environ["OPENBLAS_NUM_THREADS"] = "1"
+    os.environ["MKL_NUM_THREADS"] = "1"
+    os.environ["VECLIB_MAXIMUM_THREADS"] = "1"
+    os.environ["NUMEXPR_NUM_THREADS"] = "1"
+
+
 import numpy as np
+import sys
 
 from BasicTools.Helpers.TextFormatHelper import TFormat
 
@@ -78,7 +84,7 @@ def NNOMPA(integrationWeights, integrands, integrals, normIntegrals, tolerance,\
     # iterations
     while err > tolerance and count0 < maxIter:
 
-        nRandom = 0#numberOfIntegrationPointsToSelect - len(s)
+        nRandom = 1#numberOfIntegrationPointsToSelect - len(s)
         notSelectedIndices = np.array(list((set(np.arange(numberOfIntegrationPoints))-set(s))))
 
         count = 0
@@ -124,7 +130,7 @@ def NNOMPA(integrationWeights, integrands, integrals, normIntegrals, tolerance,\
         print(TFormat.InBlue("Relative error = "+str(err)+" obtained with "+\
             str(len(s))+" integration points (corresponding to "+str(round(100*\
             len(s)/numberOfIntegrationPoints, 5))+"% of the total) ("+str(count)+\
-            " sample(s) to decrease interpolation error)"))
+            " sample(s) to decrease interpolation error)")); sys.stdout.flush()
 
 
     return s, x
@@ -135,15 +141,15 @@ def NNOMPA(integrationWeights, integrands, integrals, normIntegrals, tolerance,\
 def CallOptimizer(integrands_s, integrals, max_iter):
 
 
-    from scipy.optimize import nnls as nnls
-    optimRes = {}
-    optimRes['x'] = nnls(integrands_s, integrals, maxiter=max_iter)[0]
+    #from scipy.optimize import nnls as nnls
+    #optimRes = {}
+    #optimRes['x'] = nnls(integrands_s, integrals, maxiter=max_iter)[0]
 
 
-    #from scipy.optimize import lsq_linear as lsq_linear
-    #optimRes = lsq_linear(integrands_s, integrals, bounds=(0.,np.inf), method=\
-    #                  'bvls', lsmr_tol='auto', verbose = 0, \
-    #                  lsq_solver='exact', max_iter = max_iter, tol = 1e-8)
+    from scipy.optimize import lsq_linear as lsq_linear
+    optimRes = lsq_linear(integrands_s, integrals, bounds=(0.,np.inf), method=\
+                      'bvls', lsmr_tol='auto', verbose = 0, \
+                      lsq_solver='exact', max_iter = max_iter, tol = 1e-8)
 
     return optimRes
 

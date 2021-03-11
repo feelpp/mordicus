@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 import os
-os.environ["OMP_NUM_THREADS"] = "1"
-os.environ["OPENBLAS_NUM_THREADS"] = "1"
-os.environ["MKL_NUM_THREADS"] = "1"
-os.environ["VECLIB_MAXIMUM_THREADS"] = "1"
-os.environ["NUMEXPR_NUM_THREADS"] = "1"
+from mpi4py import MPI
+if MPI.COMM_WORLD.Get_size() > 1: # pragma: no cover
+    os.environ["OMP_NUM_THREADS"] = "1"
+    os.environ["OPENBLAS_NUM_THREADS"] = "1"
+    os.environ["MKL_NUM_THREADS"] = "1"
+    os.environ["VECLIB_MAXIMUM_THREADS"] = "1"
+    os.environ["NUMEXPR_NUM_THREADS"] = "1"
 import numpy as np
 
 from Mordicus.Core.Containers.ConstitutiveLaws.ConstitutiveLawBase import ConstitutiveLawBase
@@ -30,6 +32,7 @@ class TestMecaConstitutiveLaw(ConstitutiveLawBase):
         assert isinstance(set, str)
 
         super(TestMecaConstitutiveLaw, self).__init__(set, "mechanical")
+        
 
         self.young = young
         self.poisson = poisson
@@ -86,16 +89,6 @@ class TestMecaConstitutiveLaw(ConstitutiveLawBase):
         stress = np.einsum('klm,kl->km', ddsdde, stran, optimize = True)
 
         return ddsdde, stress
-
-
-    def GetIdentifier(self):
-        """
-        Returns
-        -------
-        couple of strings (set, type)
-            the identifier of constitutive law
-        """
-        return self.set
 
 
     def __str__(self):

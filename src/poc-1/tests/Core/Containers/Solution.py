@@ -29,18 +29,23 @@ def test():
     solution.GetTimeSequenceFromSnapshots()
     solution.GetSnapshotsList()
     solution.GetNbeOfComponents()
-    solution.GetSolutionName()
     solution.GetNumberOfDofs()
     solution.GetNumberOfSnapshots()
     solution.GetSnapshotAtTime(0.5)
+    snapshots = collections.OrderedDict()
+    snapshots[0.0] = np.ones(20)
+    snapshots[1.0] = np.ones(20)
+    solution.SetSnapshots(snapshots)
     solution.SetCompressedSnapshots(compressedSnapshots)
     solution.GetCompressedSnapshots()
     solution.GetCompressedSnapshotsList()
     solution.GetTimeSequenceFromCompressedSnapshots()
     solution.GetCompressedSnapshotsAtTime(0.5)
+    solution.GetCompressedSnapshotsAtTimes([0.5, 0.6])
+    solution.UncompressSnapshots(np.random.rand(2,20))
+    solution.CompressSnapshots(np.eye(20), np.random.rand(2,20))
     print(solution)
     return "ok"
-
 
 if __name__ == "__main__":
     print(test())  # pragma: no cover

@@ -2,6 +2,7 @@
 
 from BasicTools.FE import FETools as FT
 from Mordicus.Modules.Safran.Containers.Meshes import BasicToolsUnstructuredMesh as BTUM
+import numpy as np
 
 
 def ComputeL2ScalarProducMatrix(mesh, numberOfComponents):
@@ -51,25 +52,28 @@ def ComputeH10ScalarProductMatrix(mesh, numberOfComponents):
     return FT.ComputeH10ScalarProductMatrix(unstructuredMesh, numberOfComponents)
 
 
-def ComputeFEInterpMatAtGaussPoint(mesh):
+def ComputePhiAtIntegPoint(mesh, elementSets = None, relativeDimension = 0):
 
     unstructuredMesh = ConvertMeshToUnstructuredMesh(mesh)
 
-    return FT.ComputeFEInterpMatAtGaussPoint(unstructuredMesh)
+    return FT.ComputePhiAtIntegPoint(unstructuredMesh, elementSets, relativeDimension)
 
 
-def ComputeFEInterpGradMatAtGaussPoint(mesh):
-
-    unstructuredMesh = ConvertMeshToUnstructuredMesh(mesh)
-
-    return FT.ComputeFEInterpGradMatAtGaussPoint(unstructuredMesh)
 
 
-def ComputeMecaIntegrator(mesh, elementSet = "ALLELEMENT"):
+def ComputeGradPhiAtIntegPoint(mesh, elementSets = None, relativeDimension = 0):
 
     unstructuredMesh = ConvertMeshToUnstructuredMesh(mesh)
 
-    return FT.ComputeMecaIntegrator(unstructuredMesh)
+    return FT.ComputeGradPhiAtIntegPoint(unstructuredMesh, elementSets, relativeDimension)
+
+
+
+def ComputeNormalsAtIntegPoint(mesh, elementSets = None):
+
+    unstructuredMesh = ConvertMeshToUnstructuredMesh(mesh)
+
+    return FT.ComputeNormalsAtIntegPoint(unstructuredMesh, elementSets)
 
 
 
@@ -81,6 +85,60 @@ def ComputeNumberOfIntegrationPoints(mesh):
     return numberOfIntegrationPoints
 
 
+
+def ComputeIntegrationPointsTags(mesh, dimension = None):
+
+    unstructuredMesh = ConvertMeshToUnstructuredMesh(mesh)
+
+    return FT.ComputeIntegrationPointsTags(unstructuredMesh, dimension)
+
+
+
+
+def ComputeIndicesOfIntegPointsPerMaterial(listOfTags, keysConstitutiveLaws):
+
+    materialKeyPerIntegrationPoint = ComputeMaterialKeyPerIntegrationPoint(listOfTags, keysConstitutiveLaws)
+
+    numberOfIntegrationPoints = len(listOfTags)
+
+    IndicesOfIntegPointsPerMaterial = {}
+    arange = np.arange(numberOfIntegrationPoints)
+    for key in keysConstitutiveLaws:
+        IndicesOfIntegPointsPerMaterial[key] = arange[np.array(materialKeyPerIntegrationPoint) == key]
+
+    return IndicesOfIntegPointsPerMaterial
+
+
+def ComputeMaterialKeyPerIntegrationPoint(listOfTags, keysConstitutiveLaws):
+
+    numberOfIntegrationPoints = len(listOfTags)
+
+    materialKeyPerIntegrationPoint = []
+    for i in range(numberOfIntegrationPoints):
+        tags = set(listOfTags[i]+["ALLELEMENT"])
+        tagsIntersec = keysConstitutiveLaws & tags
+        assert len(tagsIntersec) == 1, "more than one constitutive law for a reducedIntegrationPoint"
+        materialKeyPerIntegrationPoint.append(tagsIntersec.pop())
+
+    return materialKeyPerIntegrationPoint
+
+
+def CellDataToIntegrationPointsData(mesh, set, scalarFields, relativeDimension = 0):
+
+    unstructuredMesh = ConvertMeshToUnstructuredMesh(mesh)
+
+    return FT.CellDataToIntegrationPointsData(unstructuredMesh, set, scalarFields, relativeDimension)
+
+
+
+
+"""def ComputeMecaIntegrator(mesh, elementSet = "ALLELEMENT"):
+
+    unstructuredMesh = ConvertMeshToUnstructuredMesh(mesh)
+
+    return FT.ComputeMecaIntegrator(unstructuredMesh)
+
+
 def IntegrateVectorNormalComponentOnSurface(mesh, set, vector):
 
     unstructuredMesh = ConvertMeshToUnstructuredMesh(mesh)
@@ -88,13 +146,6 @@ def IntegrateVectorNormalComponentOnSurface(mesh, set, vector):
     assembledVector = FT.IntegrateVectorNormalComponentOnSurface(unstructuredMesh, set, vector)
 
     return assembledVector
-
-
-def ComputeIntegrationPointsTags(mesh, dimension):
-
-    unstructuredMesh = ConvertMeshToUnstructuredMesh(mesh)
-
-    return FT.ComputeIntegrationPointsTags(unstructuredMesh, dimension)
 
 
 def IntegrateCentrifugalEffect(mesh, density, direction, center):
@@ -115,8 +166,7 @@ def IntegrateOrderTwoTensorOnSurface(mesh, set, orderTwoTensor):
 
     unstructuredMesh = ConvertMeshToUnstructuredMesh(mesh)
 
-    return FT.IntegrateOrderTwoTensorOnSurface(unstructuredMesh, set, orderTwoTensor)
-
+    return FT.IntegrateOrderTwoTensorOnSurface(unstructuredMesh, set, orderTwoTensor)"""
 
 
 

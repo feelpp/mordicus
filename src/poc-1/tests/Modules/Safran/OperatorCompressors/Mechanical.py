@@ -76,9 +76,10 @@ def test():
 
 
     print("ComputeL2ScalarProducMatrix...")
-    snapshotCorrelationOperator = FT.ComputeL2ScalarProducMatrix(mesh, 3)
+    snapshotCorrelationOperator = {}
+    snapshotCorrelationOperator["U"] = FT.ComputeL2ScalarProducMatrix(mesh, 3)
 
-    SP.CompressData(collectionProblemData, "U", 1.e-6, snapshotCorrelationOperator)
+    SP.CompressData(collectionProblemData, "U", 1.e-6, snapshotCorrelationOperator["U"])
 
     SP.CompressData(collectionProblemData, "evrcum", 1.e-6)
 
@@ -86,6 +87,7 @@ def test():
     operatorPreCompressionData = Meca.PreCompressOperator(mesh)
     print("...done")
 
+    Meca.CompressOperator(collectionProblemData, operatorPreCompressionData, mesh, 1.e-5, listNameDualVarOutput = ["evrcum"], listNameDualVarGappyIndicesforECM = ["evrcum"], toleranceCompressSnapshotsForRedQuad = 1.e-5)
     Meca.CompressOperator(collectionProblemData, operatorPreCompressionData, mesh, 1.e-5, listNameDualVarOutput = ["evrcum"], listNameDualVarGappyIndicesforECM = ["evrcum"])
 
     print("CompressOperator done")
@@ -104,8 +106,7 @@ def test():
     snapshotCorrelationOperator = SIO.LoadState("snapshotCorrelationOperator")
     #operatorPreCompressionData = SIO.LoadState("operatorPreCompressionData")
 
-    reducedOrderBasisU = collectionProblemData.GetReducedOrderBasis("U")
-    reducedOrderBasisEvrcum = collectionProblemData.GetReducedOrderBasis("evrcum")
+    reducedOrderBases = collectionProblemData.GetReducedOrderBases()
 
 
     folder = GetTestDataPath() + "Zset/MecaSequential/"
@@ -125,58 +126,73 @@ def test():
 
     loadingList = inputReader.ConstructLoadingsList()
     onlineProblemData.AddLoading(loadingList)
-    for loading in loadingList:
-        loading.ReduceLoading(mesh, onlineProblemData, reducedOrderBasisU, operatorCompressionData)
+    for loading in onlineProblemData.GetLoadingsForSolution("U"):
+        loading.ReduceLoading(mesh, onlineProblemData, reducedOrderBases, operatorCompressionData)    
 
     initialCondition = inputReader.ConstructInitialCondition()
     onlineProblemData.SetInitialCondition(initialCondition)
 
-    initialCondition.ReduceInitialSnapshot(reducedOrderBasisU, snapshotCorrelationOperator)
+    initialCondition.ReduceInitialSnapshot(reducedOrderBases, snapshotCorrelationOperator)
 
-    initOnlineCompressedSnapshot = initialCondition.GetReducedInitialSnapshot()
-
-    onlineCompressedSolution, onlineCompressionData = Meca.ComputeOnline(onlineProblemData, initOnlineCompressedSnapshot, timeSequence, reducedOrderBasisU, operatorCompressionData, 1.e-6)
+    onlineCompressedSolution, onlineCompressionData = Meca.ComputeOnline(onlineProblemData, timeSequence, operatorCompressionData, 1.e-6)
 
 
 
-    onlineEvrcumCompressedSolution = Meca.ReconstructDualQuantity('evrcum', operatorCompressionData, onlineCompressionData, timeSequence = list(onlineCompressedSolution.keys())[1:])
+    onlineEvrcumCompressedSolution, gappyError = Meca.ReconstructDualQuantity('evrcum', operatorCompressionData, onlineCompressionData, timeSequence = list(onlineCompressedSolution.keys())[1:])
 
 
     solutionEvrcumExact  = Solution.Solution("evrcum", 1, numberOfIntegrationPoints, primality = False)
-    for time in outputTimeSequence:
-        evrcum = solutionReader.ReadSnapshotComponent("evrcum", time, primality=False)
-        solutionEvrcumExact.AddSnapshot(evrcum, time)
+    solutionUExact = Solution.Solution("U", nbeOfComponentsPrimal, numberOfNodes, primality = True)
+    for t in outputTimeSequence:
+        evrcum = solutionReader.ReadSnapshotComponent("evrcum", t, primality=False)
+        solutionEvrcumExact.AddSnapshot(evrcum, t)
+        U = solutionReader.ReadSnapshot("U", t, nbeOfComponentsPrimal, primality=True)
+        solutionUExact.AddSnapshot(U, t)
 
     solutionEvrcumApprox = Solution.Solution("evrcum", 1, numberOfIntegrationPoints, primality = False)
     solutionEvrcumApprox.SetCompressedSnapshots(onlineEvrcumCompressedSolution)
-    solutionEvrcumApprox.UncompressSnapshots(reducedOrderBasisEvrcum)
+    solutionEvrcumApprox.UncompressSnapshots(reducedOrderBases["evrcum"])
+    
+    solutionUApprox = Solution.Solution("U", nbeOfComponentsPrimal, numberOfNodes, primality = True)
+    solutionUApprox.SetCompressedSnapshots(onlineCompressedSolution)
+    solutionUApprox.UncompressSnapshots(reducedOrderBases["U"])
 
-    ROMErrors = []
-    for time in outputTimeSequence:
-        exactSolution = solutionEvrcumExact.GetSnapshotAtTime(time)
-        approxSolution = solutionEvrcumApprox.GetSnapshotAtTime(time)
+    ROMErrorsU = []
+    ROMErrorsEvrcum = []
+    for t in outputTimeSequence:
+        exactSolution = solutionEvrcumExact.GetSnapshotAtTime(t)
+        approxSolution = solutionEvrcumApprox.GetSnapshotAtTime(t)
         norml2ExactSolution = np.linalg.norm(exactSolution)
         if norml2ExactSolution != 0:
             relError = np.linalg.norm(approxSolution-exactSolution)/norml2ExactSolution
         else:
             relError = np.linalg.norm(approxSolution-exactSolution)
-        ROMErrors.append(relError)
+        ROMErrorsEvrcum.append(relError)
+        
+        exactSolution = solutionUExact.GetSnapshotAtTime(t)
+        approxSolution = solutionUApprox.GetSnapshotAtTime(t)
+        norml2ExactSolution = np.linalg.norm(exactSolution)
+        if norml2ExactSolution != 0:
+            relError = np.linalg.norm(approxSolution-exactSolution)/norml2ExactSolution
+        else:
+            relError = np.linalg.norm(approxSolution-exactSolution)
+        ROMErrorsU.append(relError)
 
-    print("ROMErrors =", ROMErrors)
-
-
-
+    print("ROMErrors U =", ROMErrorsU)
+    print("ROMErrors Evrcum =", ROMErrorsEvrcum)
+    
+ 
 
     from Mordicus.Modules.Safran.Containers.ConstitutiveLaws import MecaUniformLinearElasticity as MULE
 
     elasConsitutiveLaw = MULE.TestMecaConstitutiveLaw('ALLELEMENT', 300000., 0.3, 8.6E-09)
     onlineProblemData.AddConstitutiveLaw(elasConsitutiveLaw)
-    onlineCompressedSolution = Meca.ComputeOnline(onlineProblemData, initOnlineCompressedSnapshot, timeSequence, reducedOrderBasisU, operatorCompressionData, 1.e-6)
+    onlineCompressedSolution = Meca.ComputeOnline(onlineProblemData, timeSequence, operatorCompressionData, 1.e-6)
 
 
-    elasConsitutiveLaw = inputReader.ConstructOneConstitutiveLaw("elas", 'ALLELEMENT', "mechanical")
+    elasConsitutiveLaw = inputReader.ConstructOneConstitutiveLaw("elas", 'ALLELEMENT')
     onlineProblemData.AddConstitutiveLaw(elasConsitutiveLaw)
-    onlineCompressedSolution = Meca.ComputeOnline(onlineProblemData, initOnlineCompressedSnapshot, timeSequence, reducedOrderBasisU, operatorCompressionData, 1.e-6)
+    onlineCompressedSolution = Meca.ComputeOnline(onlineProblemData, timeSequence, operatorCompressionData, 1.e-6)
 
     os.system("rm -rf collectionProblemData.pkl")
     os.system("rm -rf snapshotCorrelationOperator.pkl")

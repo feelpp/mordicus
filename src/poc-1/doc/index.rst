@@ -3,7 +3,7 @@
 Welcome to Mordicus' documentation!
 ===================================
 
-Download the latest version of the requirements file here :download:`pdf <../../../doc/build/latex/Datamodel.pdf>`
+Download the latest version of the requirements file here :download:`pdf <pages/doc/latex/Datamodel.pdf>`
 
 Contents:
 

@@ -1,14 +1,16 @@
 # -*- coding: utf-8 -*-
 import os
-os.environ["OMP_NUM_THREADS"] = "1"
-os.environ["OPENBLAS_NUM_THREADS"] = "1"
-os.environ["MKL_NUM_THREADS"] = "1"
-os.environ["VECLIB_MAXIMUM_THREADS"] = "1"
-os.environ["NUMEXPR_NUM_THREADS"] = "1"
+from mpi4py import MPI
+if MPI.COMM_WORLD.Get_size() > 1: # pragma: no cover
+    os.environ["OMP_NUM_THREADS"] = "1"
+    os.environ["OPENBLAS_NUM_THREADS"] = "1"
+    os.environ["MKL_NUM_THREADS"] = "1"
+    os.environ["VECLIB_MAXIMUM_THREADS"] = "1"
+    os.environ["NUMEXPR_NUM_THREADS"] = "1"
 import numpy as np
 
 from Mordicus.Core.Containers.Loadings.LoadingBase import LoadingBase
-import collections
+#import collections
 
 
 class Temperature(LoadingBase):
@@ -24,17 +26,24 @@ class Temperature(LoadingBase):
         np.ndarray of size (numberOfReducedIntegrationPoints) containing the temperature fields at reduced integration points
     """
 
-    def __init__(self, set):
+    def __init__(self, solutionName, set):
         assert isinstance(set, str)
+        assert isinstance(solutionName, str)
 
-        super(Temperature, self).__init__(set, "temperature")
+        super(Temperature, self).__init__(solutionName, set, "temperature")
 
-        self.fieldsMap = collections.OrderedDict
+
+        #self.fieldsMap = collections.OrderedDict
+        self.fieldsMapTimes = None
+        self.fieldsMapValues = None
+        
+        self.PhiAtReducedIntegPoint = None
+        
         self.fields = {}
         self.fieldsAtReducedIntegrationPoints = {}
 
 
-    def SetFieldsMap(self, fieldsMap):
+    def SetFieldsMap(self, fieldsMapTimes, fieldsMapValues):
         """
         Sets the fieldsMap attribute of the class
 
@@ -43,13 +52,16 @@ class Temperature(LoadingBase):
         fieldsMap : collections.OrderedDict
         """
         # assert type of fieldsMap
-        assert isinstance(fieldsMap, collections.OrderedDict)
-        assert np.all(
-            [isinstance(key, (float, np.float64)) for key in list(fieldsMap.keys())]
-        )
-        assert np.all([isinstance(key, str) for key in list(fieldsMap.values())])
+        #assert isinstance(fieldsMap, collections.OrderedDict)
+        #assert np.all(
+        #    [isinstance(key, (float, np.float64)) for key in list(fieldsMap.keys())]
+        #)
+        #assert np.all([isinstance(key, str) for key in list(fieldsMap.values())])
 
-        self.fieldsMap = fieldsMap
+        #self.fieldsMap = fieldsMap
+        self.fieldsMapTimes = fieldsMapTimes
+        self.fieldsMapValues = fieldsMapValues
+
 
     def SetFields(self, fields):
         """
@@ -62,12 +74,9 @@ class Temperature(LoadingBase):
         # assert type of fields
         assert isinstance(fields, dict)
         assert np.all([isinstance(key, str) for key in list(fields.keys())])
-        assert np.all(
-            [isinstance(value, np.ndarray) for value in list(fields.values())]
-        )
+        assert np.all([isinstance(value, np.ndarray) for value in list(fields.values())])
 
         self.fields = fields
-
 
 
     def GetTemperatureAtReducedIntegrationPointsAtTime(self, time):
@@ -90,31 +99,36 @@ class Temperature(LoadingBase):
         from Mordicus.Core.BasicAlgorithms import Interpolation as TI
 
         # compute fieldsAtReducedIntegrationPoints at time
-        temperatureAtReducedIntegrationPoints = TI.PieceWiseLinearInterpolation(
+                
+        temperatureAtReducedIntegrationPoints = TI.PieceWiseLinearInterpolationWithMap(
             time,
-            list(self.fieldsMap.keys()),
+            self.fieldsMapTimes,
             self.fieldsAtReducedIntegrationPoints,
-            list(self.fieldsMap.values()),
+            self.fieldsMapValues
         )
         return temperatureAtReducedIntegrationPoints
 
 
+    def PreReduceLoading(self, mesh, operatorCompressionData):
+                
+        if self.PhiAtReducedIntegPoint == None:
+                        
+            assert 'reducedIntegrationPoints' in operatorCompressionData, "operatorCompressionData must contain a key 'reducedIntegrationPoints'"
+            
+            from Mordicus.Modules.Safran.FE import FETools as FT
+            _, PhiAtIntegPoint = FT.ComputePhiAtIntegPoint(mesh)
+            self.PhiAtReducedIntegPoint = PhiAtIntegPoint.tocsr()[operatorCompressionData["reducedIntegrationPoints"],:]
+            
 
-    def ReduceLoading(self, mesh, problemData, reducedOrderBasis, operatorCompressionData):
+    def ReduceLoading(self, mesh = None, problemData = None, reducedOrderBases = None, operatorCompressionData = None):
 
-        assert isinstance(reducedOrderBasis, np.ndarray)
-        assert 'reducedIntegrationPoints' in operatorCompressionData, "operatorCompressionData must contain a key 'reducedIntegrationPoints'"
-
-        from Mordicus.Modules.Safran.FE import FETools as FT
-
-        FEInterpAtIntegPointMatrix = FT.ComputeFEInterpMatAtGaussPoint(mesh)
+        self.PreReduceLoading(mesh, operatorCompressionData)
 
         self.fieldsAtReducedIntegrationPoints = {}
         for key, field in self.fields.items():
 
-            self.fieldsAtReducedIntegrationPoints[key] = FEInterpAtIntegPointMatrix.dot(field)[operatorCompressionData["reducedIntegrationPoints"]]
-
-
+            self.fieldsAtReducedIntegrationPoints[key] = self.PhiAtReducedIntegPoint.dot(field)
+            
 
 
     def ComputeContributionToReducedExternalForces(self, time):
@@ -127,24 +141,32 @@ class Temperature(LoadingBase):
         return 0.
 
 
+    def UpdateLoading(self, loading):
+
+
+        self.SetFieldsMap(loading.fieldsMapTimes, loading.fieldsMapValues)
+        self.SetFields(loading.fields)
+
+
     def __getstate__(self):
 
         state = {}
+        state["solutionName"] = self.solutionName
         state["set"] = self.set
         state["type"] = self.type
         state["fieldsAtReducedIntegrationPoints"] = self.fieldsAtReducedIntegrationPoints
-        state["fieldsMap"] = self.fieldsMap
+        state["fieldsMapTimes"] = self.fieldsMapTimes
+        state["fieldsMapValues"] = self.fieldsMapValues
+        state["PhiAtReducedIntegPoint"] = self.PhiAtReducedIntegPoint
         state["fields"] = {}
         for f in self.fields.keys():
             state["fields"][f] = None
 
         return state
 
-
-
     def __str__(self):
         res = "Temperature Loading with set "+self.GetSet()+"\n"
-        res += "fieldsMap : "+str(self.fieldsMap)+"\n"
+        res += "fieldsMapValues : "+str(self.fieldsMapValues)+"\n"
         res += "fields : "+str(self.fields)
         return res
 
