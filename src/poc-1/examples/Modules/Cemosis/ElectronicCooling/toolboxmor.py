@@ -1,13 +1,13 @@
 import sys
-from pyfeelpptoolboxes.heat import *
-from pyfeelppmor.crb import *
-from pyfeelppmor.toolboxmor import *
-from pyfeelpp import discr
-from pyfeelpp import alg
+import sys
+from feelpp.toolboxes.heat import *
+from feelpp.mor import *
+import feelpp
+
 
 o=toolboxes_options("heat")
 o.add(makeToolboxMorOptions())
-e=core.Environment(sys.argv,opts=o)
+e=feelpp.Environment(sys.argv,opts=o)
 
 heatBox=heat(dim=2,order=1)
 heatBox.init()
