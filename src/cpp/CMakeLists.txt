@@ -20,8 +20,11 @@ add_subdirectory (lib)
 if (BUILD_PYTHON)
   find_package (PythonInterp)
   find_package (PythonLibs ${PYTHON_VERSION_STRING} EXACT)
+  set (PYTHON_INCLUDE_DIRS_BAK "${PYTHON_INCLUDE_DIRS}")
+
   set (PYBIND11_NOPYTHON ON)
   find_package (pybind11 2.2 CONFIG)
+
   if (pybind11_FOUND)
     if (pybind11_VERSION VERSION_LESS 2.6)
       message(STATUS "Found pybind11: ${pybind11_INCLUDE_DIR} (found version ${pybind11_VERSION})")
