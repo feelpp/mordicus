@@ -10,7 +10,14 @@ option (BUILD_SHARED_LIBS "build shared/static libs" ON)
 option (BUILD_PYTHON "build Python module" ON)
 
 include (GenerateExportHeader)
+include (CMakePackageConfigHelpers)
 include (GNUInstallDirs)
+
+configure_package_config_file ( 
+  "${PROJECT_SOURCE_DIR}/mordicus-config.cmake.in" 
+  "${PROJECT_BINARY_DIR}/mordicus-config.cmake"
+  INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/mordicus)
+install (FILES "${PROJECT_BINARY_DIR}/mordicus-config.cmake" DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/mordicus)
 
 set (CMAKE_CXX_STANDARD 17)
 
@@ -36,3 +43,6 @@ if (BUILD_PYTHON)
     add_subdirectory (python)
   endif ()
 endif ()
+
+
+
