@@ -5,8 +5,9 @@ Created on 26 févr. 2020
 """
 import medcoupling as ml
 from Mordicus.Modules.EDF.IO.MEDMesh import MEDMesh
+from Mordicus.Core.IO.MeshReaderBase import MeshReaderBase
 
-class MEDMeshReader(object):
+class MEDMeshReader(MeshReaderBase):
     """
     Reader for mesh files. Based on MEDCoupling
     """

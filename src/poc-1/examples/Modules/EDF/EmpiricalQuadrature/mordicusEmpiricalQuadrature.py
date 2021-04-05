@@ -139,7 +139,7 @@ volume = mesh.getVolume(sample_field)
 # Get matrix B of kinematic conditions
 # ------------------------------------
 fileNameNumbering = osp.join(root_to_all, "numbering.med")
-reader_solution.WriteNumbering(sample_field_u, "U", fileNameNumbering, name="number")
+reader_solution.WriteNumbering(fileNameNumbering, sample_field_u, "U", name="number")
 
 input_data = {"input_root_folder" : osp.join(root_to_all, "step2"),
               "input_main_file"   : "arcad01a.export",
@@ -216,8 +216,8 @@ collectionProblemData = CollectionProblemData()
 #collectionProblemData.declareReferenceProblemData(problemData)
 #
 # --- old syntax
-collectionProblemData.SetFieldInstance("sigma", sample_field)
-collectionProblemData.SetFieldInstance("U", sample_field_u)
+collectionProblemData.SetSolutionStructure("sigma", sample_field)
+collectionProblemData.SetSolutionStructure("U", sample_field_u)
 
 
 # CollectionProblemData: extend the API, define parameters and indexation
@@ -231,16 +231,13 @@ collectionProblemData.defineVariabilityAxes(["p_etafd", "p_kdes"],
                                                           "non recoverable creep coefficient"])
 
 # Using np.meshgrid to define a cartesian grid
-lst_etafd = [ 5.e7 , 5.e11]
-lst_kdes  = [1.e-6 , 1.e-5]
-p_etafd = lst_etafd[1]
-p_kdes  = lst_kdes[0]
-training_set = np.meshgrid(lst_etafd, lst_kdes, indexing='ij')
-arr_etafd, arr_kdes = training_set
-grid = np.column_stack((arr_etafd.flatten(), arr_kdes.flatten()))
-collectionProblemData.defineIndexingSupport(("p_etafd", "p_kdes"),
-                                            training_set=training_set)
+arr_etafd = np.array([ 5.e7 , 5.e11])
+arr_kdes  = np.array([1.e-6 , 1.e-5])
+collectionProblemData.defineVariabilitySupport(["p_etafd", "p_kdes"],
+                                               [arr_etafd, arr_kdes])
 
+p_etafd = lst_etafd[0]
+p_kdes  = lst_kdes[0]
 
 
 # Template dataset for the parametric computation
@@ -299,7 +296,7 @@ compute_residual_dataset = SolverDataset(ProblemData,
                                          input_data)
 
 # TODO remplace with a proper setter method
-collectionProblemData.specificDatasets["compute_equilibrium_residual"] = compute_residual_dataset
+collectionProblemData.specificDatasets["computeAPosterioriError"] = compute_residual_dataset
 
 fieldHandler = MEDFieldHandler()
 
@@ -407,7 +404,7 @@ while not stop_condition:
     # Loop over the training set to find the next high-fidelity computation
     # ---------------------------------------------------------------------
     error = []
-    for i, [etafd, kdes] in enumerate(grid):
+    for i, [etafd, kdes] in enumerate(collectionProblemData.generateVariabilitySupport()):
 
         # run the reduced order model
         print("Start reduced resolution")
@@ -471,7 +468,7 @@ while not stop_condition:
         shutil.copyfile(fileNameRecReducedSolution, "/home/A34370/tmp/comparison_Aster_Mordicus/Mordicus/reRedRec.med")
         # A posteriori error indicator
         # ----------------------------
-        residualProblemData = collectionProblemData.compute_equilibrium_residual()
+        residualProblemData = collectionProblemData.computeAPosterioriError()
         ap_err = 0.
         ap_ref = 0.
         is_printed = False
@@ -502,6 +499,6 @@ while not stop_condition:
     # TODO: réécrire avec des fonctions nump
     
     i_max = error.index(max(error))
-    p_etafd, p_kdes= grid[i_max]
+    p_etafd, p_kdes = collectionProblemData.generateVariabilitySupport()[i_max]
     stop_condition = error[i_max] < 1.e-4
     is_first_iteration = False

@@ -1,3 +1,5 @@
+# coding: utf-8
+
 class FieldHandlerBase(object):
     """
     Class containing a FieldHandlerBase, with an internal storage hidden to all its children classes

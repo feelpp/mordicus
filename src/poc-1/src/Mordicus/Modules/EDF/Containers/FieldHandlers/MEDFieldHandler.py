@@ -11,6 +11,7 @@ def safe_clone(mc_field):
     template = mc.MEDCouplingFieldTemplate(mc_field)
     array = mc.DataArrayDouble.New()
     array.alloc(mc_field.getNumberOfTuples(), mc_field.getNumberOfComponents())
+    array.setInfoOnComponents(mc_field.getArray().getInfoOnComponents())
     array.fillWithZero()
     field = mc.MEDCouplingFieldDouble.New(template)
     field.setArray(array)

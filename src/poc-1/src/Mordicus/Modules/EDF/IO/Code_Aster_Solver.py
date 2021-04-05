@@ -19,12 +19,6 @@ class Code_Aster_Solver(ExternalSolvingProcedure):
         """
         return super(Code_Aster_Solver, self).__init__(**kwargs)
     
-    def import_resolution_data(self, data):
-        """
-        Imports a Code_Aster database into folder and adds to the export file
-        """
-        pass
-    
     def execute(self, script):
         """
         Executes as_run as a script

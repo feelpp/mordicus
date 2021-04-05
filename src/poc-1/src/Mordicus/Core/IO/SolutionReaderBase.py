@@ -39,6 +39,12 @@ class SolutionReaderBase(object):
             of size (numberOfSnapshots,)
         """
         raise NotImplementedError("Not implemented in ReaderBase")  # pragma: no cover
+    
+    def ReadSolutionStructure(self, fieldName):
+        """
+        Reads the *SolutionStructure* object for solutions of name "fieldName"
+        """
+        
 
     def __str__(self):
         res = "I am a SolutionReaderBase, try instanciating a particular reader instead"
