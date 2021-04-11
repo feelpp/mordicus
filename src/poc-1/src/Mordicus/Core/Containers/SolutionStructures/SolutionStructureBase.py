@@ -13,11 +13,14 @@ class SolutionStructureBase(object):
     mesh : MeshBase
         reference mesh for the definition solution is defined 
     """
-    def __init__(self, mesh):
+    def __init__(self, mesh, discr):
         self.__storage = None
         if not isinstance(mesh, MeshBase):
             raise ValueError("Attribute mesh of SolutionStructureBase should be an instance of MeshBase")
         self.mesh = mesh
+        if discr not in ("node", "gauss", "cell"):
+            raise ValueError("Attribute discr of SolutionStructureBase should be one of ('node', 'gauss', 'cell')")
+        self.discr = discr
         
 
     def SetInternalStorage(self, __storage):
@@ -44,3 +47,16 @@ class SolutionStructureBase(object):
         if self.__storage is None:
             raise AttributeError("Please set internal storage")  # pragma: no cover
         return self.__storage
+    
+    def GetNumberOfNodes(self):
+        """
+        Returns number of points in the support of the solution
+        """
+        raise NotImplementedError("Meant to be implemented in derived classes")
+
+    def GetNumberOfComponents(self):
+        """
+        Returns number of components of the solution
+        """
+        raise NotImplementedError("Meant to be implemented in derived classes")
+    

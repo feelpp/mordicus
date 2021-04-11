@@ -3,7 +3,7 @@ Created on 26 févr. 2020
 
 @author: Guilhem Ferte
 """
-import medcoupling as ml
+import MEDLoader as ML
 from Mordicus.Modules.EDF.IO.MEDMesh import MEDMesh
 from Mordicus.Core.IO.MeshReaderBase import MeshReaderBase
 
@@ -21,4 +21,4 @@ class MEDMeshReader(MeshReaderBase):
         """
         Reads mesh
         """
-        return MEDMesh(self.meshFileName)
+        return MEDMesh(ML.MEDFileMesh.New(self.meshFileName))

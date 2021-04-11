@@ -19,38 +19,19 @@ from Mordicus.Core.Containers.ProblemData import ProblemData
 from Mordicus.Core.Containers.Solution import Solution
 
 from Mordicus.Core.DataCompressors.SnapshotPOD import ComputeReducedOrderBasisFromCollectionProblemData
-from Mordicus.Core.OperatorCompressors import EmpiricalQuadrature as EQ
 from Mordicus.Core.DataCompressors import SnapshotPOD as SP
 
-from Mordicus.Modules.Safran.BasicAlgorithms import GappyPOD as GP
+from Mordicus.Modules.EDF.OperatorCompressors import EmpiricalQuadrature as EQ
 from Mordicus.Modules.EDF.DataCompressors.IncrementalSnapshotPOD import CompressData
+from Mordicus.Modules.EDF.BasicAlgorithms.GappyPOD import GappyPOD_EQ
 
-# ------------------------------------------------------------------
-# COMPUTATION OF CONSTANT DATA FOR THE HF AND REDUCED CASE
-# ------------------------------------------------------------------
+# root folder to all study subfolders where solver input and output files will be put
 
-# Commande qui marche pour lancer un test:
-# /home/A34370/dev/codeaster-prerequisites/v14_python3/tools/Code_aster_frontend-salomemeca/bin/as_run 
-#     --vers=/home/A34370/dev/codeaster/install/std/share/aster --test sslv120a
-
-# Ca ne marche pas avec --run, il faut faire avec --quick
-# Ca marche aussi depuis un environnement vierge
-
-# Pour que ca marche avec run, il faut ajouter les lignes suivantes au fichier export:
-# P actions make_etude
-# P version mordicus
-
-# en ayant pris soin de definir la version dans ~/.astkrc/prefs :
-# vers : mordicus:/home/A34370/dev/codeaster/install/std/share/aster
-
-# On peut aussi definir dynamiquement cette nouvelle version dans le fichier export via son fichier de configuration
-# F conf /home/A34370/dev/codeaster/install/std/share/aster/config.txt D  21
-
-# Ca ne marche pas pour --run avec --vers en ligne de commande
 root_to_all = osp.join(osp.dirname(osp.abspath(__file__)), "data")
 
-# Definition of the solver -> NEW OBJECT
-# --------------------------------------
+# ------------------------------------------------------------------
+# I. DEFINITION OF THE SOLVER
+# ------------------------------------------------------------------
 def append_aster_dev_version(solver_dataset):
     """Function to append configuration file at the end of the export file"""
     input_root_folder = solver_dataset.input_data["input_root_folder"]
@@ -68,91 +49,71 @@ def append_aster_dev_version(solver_dataset):
 call_script = """
 {solver_install}/bin/as_run --run {input_root_folder}/{input_main_file}
 """
-
-# Environment variables at the solver level
 solver_cfg = {"solver_version" : "/home/A34370/dev/codeaster/install/std",
               "solver_install" : "/home/A34370/dev/codeaster-prerequisites/v14_python3/tools/Code_aster_frontend-salomemeca"
               }
-
 external_solver = Code_Aster_Solver(solver_cfg=solver_cfg,
                                     solver_call_procedure_type="shell",
                                     python_preprocessing=append_aster_dev_version,
                                     call_script=call_script)
 
-# Definition of the solver dataset -> NEW OBJECT
-# ----------------------------------------------
+# ------------------------------------------------------------------
+# II. DEFINITION OF FIXED DATA = REUSABLE INPUT DATA FOR SOME COMPUTATION
+# ------------------------------------------------------------------
 input_data = {"input_root_folder" : osp.join(root_to_all, "step1"),
               "input_main_file"   : "arcad01a.export",
               "input_result_path" : "base_fixeddata",
               "input_result_type" : "folder"}
 
-# Should InitialCondition, Loadings and ConstitutiveLaw derive from FixedData
 solver_dataset = SolverDataset(FixedDataBase,
                                external_solver,
                                input_data)
 fixed_data = solver_dataset.run()
 
-# Read mesh -> REUSE EXISTING API
-# -------------------------------
 
-# Safran also offers static method MEDMeshReader.ReadMesh(meshFilename)
-# The latter is chosen cause it retains the mesh path
 
-# Pour avoir medcoupling avec python 3.5, on commence par l'installer depuis les paquets Debian
+# ------------------------------------------------------------------
+# III. READ MESH
+# ------------------------------------------------------------------
 input_med_file = osp.join(root_to_all, "input_mesh.med")
 reader_instance = MEDMeshReader(input_med_file)
 mesh = reader_instance.ReadMesh()
 
-#
-# Compute Gauss point coordinates and volume
-# ------------------------------------------
+# ------------------------------------------------------------------
+# IV. READ SOLUTION STRUCTURE
+# ------------------------------------------------------------------
+reader_solution = MEDSolutionReader(osp.join(root_to_all, "sample", "sample_field.rmed"), 0.0)
+fieldHandler = MEDFieldHandler()
 
-##Commented code to build approximation space anew, we are retrieving it from an example field
-## 
-##
-#coor_elem_ref = [-1.e0, -1.e0, -1.e0, +1.e0, -1.e0, -1.e0, +1.e0, +1.e0, -1.e0, -1.e0, +1.e0, -1.e0, -1.e0, -1.e0, +1.e0, +1.e0, -1.e0, +1.e0, +1.e0, +1.e0, +1.e0, -1.e0, +1.e0, +1.e0, 0.e0, -1.e0, -1.e0, +1.e0,  0.e0, -1.e0, 0.e0, +1.e0, -1.e0, -1.e0,  0.e0, -1.e0, -1.e0, -1.e0,  0.e0, +1.e0, -1.e0,  0.e0, +1.e0, +1.e0,  0.e0, -1.e0, +1.e0,  0.e0, 0.e0, -1.e0, +1.e0, +1.e0,  0.e0, +1.e0, 0.e0, +1.e0, +1.e0, -1.e0,  0.e0, +1.e0]
-#a =  [-0.774596669241483e0, 0.e0, 0.774596669241483e0]
-#h =  [ 0.555555555555556e0, 0.888888888888889e0, 0.555555555555556e0]
-#weight_gauss = []
-#coor_gauss = []
-#for ix in range(3):
-#    for iy in range(3):
-#        for iz in range(3):
-#            weight_gauss.append(h[ix]*h[iy]*h[iz])
-#            coor_gauss.append(a[ix])
-#            coor_gauss.append(a[iy])
-#            coor_gauss.append(a[iz])
-#approx = ApproximationSpace("finite element", "P2-full",
-#                            coor_elem_ref,
-#                            coor_gauss,
-#                            weight_gauss=weight_gauss)
-#np_array_gauss_coor = mesh.gaussPointsCoordinates("PACE", approx)
+solution_structure_sigma = reader_solution.ReadSolutionStructure("sigma",
+                                                                 "gauss",
+                                                                 components=["SIXX", "SIYY", "SIZZ", "SIXY", "SIXZ", "SIYZ"],
+                                                                 dimsRelativeToMax=[0])
 
+solution_structure_u = reader_solution.ReadSolutionStructure("U",
+                                                             "node")
 
-reader_solution = MEDSolutionReader(osp.join(root_to_all, "sample", "sample_field.rmed"))
-sample_field = reader_solution.readMEDField("sigma", 0.0)
-sample_field_u = reader_solution.readMEDField("U", 0.0)
-np_array_gauss_coor = mesh.gaussPointsCoordinates(sample_field)
+np_array_gauss_coor = fieldHandler.gaussPointsCoordinates(solution_structure_sigma)
+volume = fieldHandler.getVolume(solution_structure_sigma)
 
-volume = mesh.getVolume(sample_field)
-
-# Get matrix B of kinematic conditions
-# ------------------------------------
+# ------------------------------------------------------------------
+# V. READ FULL SCALE RESOLUTION DATA: HERE MATRIX B OF KINEMATIC CONDITIONS
+# ------------------------------------------------------------------
 fileNameNumbering = osp.join(root_to_all, "numbering.med")
-reader_solution.WriteNumbering(fileNameNumbering, sample_field_u, "U", name="number")
+reader_solution.WriteNumbering(fileNameNumbering, solution_structure_u, "U", nameInFile="number")
 
-input_data = {"input_root_folder" : osp.join(root_to_all, "step2"),
-              "input_main_file"   : "arcad01a.export",
-              "input_result_path" : "matB.npy",
-              "input_result_type" : "matrix"}
+print("fixed_data.GetInternalStorage() = ", fixed_data.GetInternalStorage())
+input_data = {"input_root_folder"   : osp.join(root_to_all, "step2"),
+              "input_mordicus_data" : {"mordicus_fixed_data": fixed_data.GetInternalStorage(),
+                                       "mordicus_numbering" : fileNameNumbering},
+              "input_main_file"     : "arcad01a.export",
+              "input_result_path"   : "matB.npy",
+              "input_result_type"   : "matrix"}
 solver_dataset = SolverDataset(ResolutionDataBase,
                                external_solver,
                                input_data)
 matB = solver_dataset.run()
 matB = matB.GetInternalStorage()
-
-# Debug MORDICUS/Aster
-np.save("/home/A34370/tmp/comparison_Aster_Mordicus/Mordicus/matB.npy", matB)
 
 # Computation needed for the error estimate
 # -----------------------------------------
@@ -161,163 +122,117 @@ matBT = np.transpose(matBT)
 matBBT = matB @ matBT
 
 # ------------------------------------------------------------------
-# DEFINE THE CASE DATA
+# VI.DEFINE THE STRUCTURE OF THE CASE
 # ------------------------------------------------------------------
 
-# CaseData is split in 2: ProblemData and CollectionProblemData
-
-# Defining a ProblemData and associated solutions
-# The initialization of Solution contains some of the informations of OutputDescription
-#    - returned_type  : not present yet, for now it is all "Field"
-#    - field_structure: contains the infos in solutionName, nbeOfComponentsPrimal, numberOfNodes
-
-# Define Solutions
-# ----------------
-
-# The displacement field is classical: same number of components per node
-numberOfNodes         = mesh.GetNumberOfNodes()
+# The displacement field is defined on 3D and 1D elements
+numberOfNodes         = solution_structure_u.GetNumberOfNodes()
 nbeOfComponentsPrimal = 3
-#
-# --- new syntax to be defined later on
-# 
-#solutionU = Solution(quantity=("U", "displacement", "m"),
-#                       structure=(nbeOfComponentsPrimal, numberOfNodes),
-#                       primality=True)
-#
-# --- old syntax
 solutionU = Solution("U", nbeOfComponentsPrimal, numberOfNodes, primality=True)
 
-# The sigma field is not classical, there is not the same number of components per Gauss Points
-# There is a necessity of providing a numpy array for the component structure
-numberOfIntegrationPoints = np_array_gauss_coor.shape[1]
+# The sigma field is defined only on 3D elements
 nbeOfComponentsDual = 6
-#
-# --- new syntax to be defined later on
-#
-#solutionSigma = Solution(quantity="sigma",
-#                           structure=(vector_of_components, vector_of_points),
-#                           primality=False)
-#
-# --- old syntax
+numberOfIntegrationPoints = solution_structure_sigma.GetNumberOfNodes()
 solutionSigma = Solution("sigma", nbeOfComponentsDual, numberOfIntegrationPoints, primality=True)
 
-# Define collectionProblemData
-# ----------------------------
-
-# CollectionProblemData: existing API
+# Define collectionProblemData and solution structures
 collectionProblemData = CollectionProblemData()
-
-#
-# --- new syntax
-#problemData = PD.ProblemData(root_to_all,
-#                             reference_support=mesh)
-#problemData.AddSolution(solutionU)
-#problemData.AddSolution(solutionSigma)
-#collectionProblemData.declareReferenceProblemData(problemData)
-#
-# --- old syntax
-collectionProblemData.SetSolutionStructure("sigma", sample_field)
-collectionProblemData.SetSolutionStructure("U", sample_field_u)
+collectionProblemData.SetSolutionStructure("sigma", solution_structure_sigma)
+collectionProblemData.SetSolutionStructure("U", solution_structure_u)
 
 
-# CollectionProblemData: extend the API, define parameters and indexation
+# Define physical quantities corresponding to solutions
 collectionProblemData.defineQuantity("U", full_name="displacement", unit="meter")
 collectionProblemData.defineQuantity("sigma", full_name="stress", unit="Pa")
 
+# Define the caracteristics of varying parameters
 collectionProblemData.defineVariabilityAxes(["p_etafd", "p_kdes"], 
                                             [float, float],
                                             quantities=[('viscosity', 'Pa.s'), ('viscosity', 'Pa.s')],
                                             descriptions=["recoverable creep coefficient",
                                                           "non recoverable creep coefficient"])
 
-# Using np.meshgrid to define a cartesian grid
-arr_etafd = np.array([ 5.e7 , 5.e11])
-arr_kdes  = np.array([1.e-6 , 1.e-5])
+# Define the support of varying parameters
+arr_etafd = np.array([ 5.e9 , 5.e11])
+arr_kdes  = np.array([5.e-5 , 1.e-5])
 collectionProblemData.defineVariabilitySupport(["p_etafd", "p_kdes"],
                                                [arr_etafd, arr_kdes])
 
-p_etafd = lst_etafd[0]
-p_kdes  = lst_kdes[0]
+p_etafd = arr_etafd[0]
+p_kdes  = arr_kdes[0]
 
-
-# Template dataset for the parametric computation
-
-# Define dataset to the main input
-# Defining the parametric case template
+# ------------------------------------------------------------------
+# VII. DEFINE TEMPLATE FOR HF PARAMETRIC COMPUTATION
+# ------------------------------------------------------------------
 input_data = {"input_root_folder"      : osp.join(root_to_all, "template"),
               "input_main_file"        : "template.export",
               "input_instruction_file" : "template.comm",
-              "input_resolution_data"  : fixed_data,
+              "input_mordicus_data"    : {"mordicus_fixed_data": fixed_data.GetInternalStorage()},
               "input_result_path"      : "template.rmed",
               "input_result_type"      : "med_file"}
-
 solver_dataset = SolverDataset(ProblemData,
                                external_solver,
                                input_data)
 collectionProblemData.SetTemplateDataset(solver_dataset)
 
 # ------------------------------------------------------------------
-# DEFINE THE REDUCED CASE
+# VII. DEFINE TEMPLATE FOR REDUCED PARAMETRIC COMPUTATION
 # ------------------------------------------------------------------
-
-# Template dataset of the reduced problem
-# ---------------------------------------
+fileNameModes = osp.join(root_to_all, "primal_modes.med")
+fileNameWeights = osp.join(root_to_all, "empirical_weights.med")
 
 input_data = {"input_root_folder"      : osp.join(root_to_all, "reduced"),
               "input_main_file"        : "reduced.export",
               "input_instruction_file" : "reduced.comm",
-              "input_resolution_data"  : fixed_data,
+              "input_mordicus_data"    : {"mordicus_fixed_data"        : fixed_data.GetInternalStorage(),
+                                          "mordicus_primal_modes"      : fileNameModes,
+                                          "mordicus_empirical_weights" : fileNameWeights},
               "input_result_path"      : "reduced.rmed",
               "input_result_type"      : "med_file"}
 reduced_solver_dataset = SolverDataset(ProblemData,
                                        external_solver,
                                        input_data)
-
-# ReducedCase --> now ProblemData is used
-# I suggest that it rather derives from CollectionProblemData
-# -----------------------------------------------------------
-#
-# --- new syntax
-#my_reduced_case = ReducedCollectionProblemData(parent=collectionProblemData,
-#                                               template_dataset=reduced_solver_dataset)
-#
-# --- old syntax
 collectionProblemData.SetReducedTemplateDataset(reduced_solver_dataset)
 
-# ------ Defining datasets for computing residuals
+# ------------------------------------------------------------------
+# VIII. DEFINE DATASET FOR SPECIFIC OPERATIONS
+# ------------------------------------------------------------------
+fileNameRecReducedSolution = osp.join(root_to_all, "tmp", "buffer_rec_reduced_solution_sigma.med")
+
 input_data = {"input_root_folder"      : osp.join(root_to_all, "compute_equilibrium_residual"),
               "input_main_file"        : "comp_eq_resid.export",
               "input_instruction_file" : "comp_eq_resid.comm",
-              "input_resolution_data"  : fixed_data,
+              "input_mordicus_data"    : {"mordicus_fixed_data"                     : fixed_data.GetInternalStorage(),
+                                          "mordicus_reduced_solution_reconstructed" : fileNameRecReducedSolution},
               "input_result_path"      : "comp_eq_resid.rmed",
               "input_result_type"      : "med_file"}
 compute_residual_dataset = SolverDataset(ProblemData,
                                          external_solver,
                                          input_data)
 
-# TODO remplace with a proper setter method
 collectionProblemData.specificDatasets["computeAPosterioriError"] = compute_residual_dataset
 
-fieldHandler = MEDFieldHandler()
 
-# Main loop of the RB method
-# --------------------------
+# ------------------------------------------------------------------
+# XI. MAIN LOOP OF THE REDUCED BASIS METHOD
+# ------------------------------------------------------------------
 stop_condition = False
 is_first_iteration = True
 #
 while not stop_condition:
 
-    # Proceed with next HF computation
-    # --------------------------------
-    problemData = collectionProblemData.solve(p_etafd=p_etafd, p_kdes=p_kdes)
+    # 1. Proceed with next HF computation
+    # -----------------------------------
+    problemData = collectionProblemData.solve(p_etafd=p_etafd, p_kdes=p_kdes,
+                                              extract=("U", "sigma"),
+                                              primalities={"U": True, "sigma": False},
+                                              solutionReaderType=MEDSolutionReader)
+
     collectionProblemData.AddProblemData(problemData, p_etafd=p_etafd, p_kdes=p_kdes)
 
-    # Incremental POD to update the reduced basis
-    # -------------------------------------------
+    # 2. Compression of data : incremental POD to update the reduced basis
+    # --------------------------------------------------------------------
     if is_first_iteration:
-        
-        # Standard code for standard POD
-        # ------------------------------
         reducedOrderBasisU = SP.ComputeReducedOrderBasisFromCollectionProblemData(collectionProblemData, "U", 1.e-3)
         
         # Note: couldn't these two steps be done in the previous one ?
@@ -328,150 +243,100 @@ while not stop_condition:
         reducedOrderBasisU = CompressData(collectionProblemData, "U", 1.e-4, snapshots=problemData.solutions["U"])
         newmodes = reducedOrderBasisU.shape[0] - nb_modes_old
 
-    # Build operators for empirical quadrature
-    # ----------------------------------------
+    # write POD basis
+    reader_solution.WriteReducedOrderBasis(fileNameModes, solution_structure_u, reducedOrderBasisU, "U")
 
-    # NOTE: reducedOrderBasisU is a numpy array for now
-    #       for now, we do not enrich yet with qualifying informations   
+    # 3. Compression of operators
+    # ---------------------------
+    
+    # a : build dictionary and signal of interest
+    # -------------------------------------------
     nb_modes = reducedOrderBasisU.shape[0]
     if is_first_iteration:
-        # Ok first version implemented
-        print("Compute matrix and vector")
+        G, y = EQ.computeMatrixAndVector(fieldHandler,
+                                         problemData,
+                                         collectionProblemData)
 
-        G, y = EQ.computeMatrixAndVector(problemData,
-                                         collectionProblemData,
-                                         fieldHandler)
-        print("End computing matrix and vector")
     else:
-        # Ok first version implemented
         EQ.enrichMatrixAndVector(G, y,
                                  problemData,
                                  collectionProblemData,
                                  fieldHandler, newmodes)
-    # Ok first version implemented
-    print("Solving")
 
+    # b : solve sparse representation problem
+    # ---------------------------------------
     rho = EQ.solve(G, y, volume, delta=5.e-6)
-    np.save("/home/A34370/tmp/comparison_Aster_Mordicus/Mordicus/rho.npy", rho)
 
-    print("rho = ", rho)
-    print("End solving")
+    # c : Turn empirical weight into a field
+    # --------------------------------------
+    reader_solution.WriteSparseFieldOfEmpiricalWeights(fileNameWeights,
+                                                       solution_structure_sigma,
+                                                       np_array_gauss_coor,
+                                                       rho)
 
-
-    # Turn empirical weight into a field
-    # ----------------------------------
-    fileNameWeights = osp.join(root_to_all, "empirical_weights.med")
-    print("Writing field of empirical weights")
-    reader_solution.WriteSparseFieldOfEmpiricalWeights(np_array_gauss_coor,
-                                                       rho,
-                                                       fileNameWeights,
-                                                       sample_field)
-    print("End writing field of empirical weights")
-    
-    # write POD basis
-    fileNameModes = osp.join(root_to_all, "primal_modes.med")
-    reader_solution.WriteReducedOrderBasis(reducedOrderBasisU, "U", sample_field_u, fileNameModes)
-
-
-    # Incremental POD on the dual fields
-    # ----------------------------------
+    # 4. POD on dual quantity
+    # -----------------------
     
     # Reuse the same code than for primal fields
     if is_first_iteration:
-        print("Reduced basis for dual fields")
-
         reducedOrderBasisSigma = SP.ComputeReducedOrderBasisFromCollectionProblemData(collectionProblemData,
                                                                                       "sigma", 1.e-4)
-        print("End reduced basis for dual fields")
-
         collectionProblemData.AddReducedOrderBasis("sigma", reducedOrderBasisSigma)
-        print("End Adding reduced order basis")
-        print("Start compressing solutions")
-
         collectionProblemData.CompressSolutions("sigma")
-        print("End compressing solutions")
 
     else:
         reducedOrderBasisSigma = CompressData(collectionProblemData, "sigma", 1.e-5, snapshots=problemData.solutions["sigma"])
 
-    # For debug Mordicus/Aster
-    np.save("/home/A34370/tmp/comparison_Aster_Mordicus/Mordicus/reducedOrderBasisSigma.npy", reducedOrderBasisSigma)
-
     # Add reduced integration scheme to solver dataset
     collectionProblemData.operatorCompressionData = fileNameWeights
     
-    # use WriteSparseFieldOfEmpiricalWeights(self, np_coor_gauss, empirical_weights, fileName, fieldInstance) ?
-    # Loop over the training set to find the next high-fidelity computation
-    # ---------------------------------------------------------------------
+    # 5. Loop over the training set to find the next high-fidelity computation
+    # ------------------------------------------------------------------------
     error = []
     for i, [etafd, kdes] in enumerate(collectionProblemData.generateVariabilitySupport()):
 
-        # run the reduced order model
-        print("Start reduced resolution")
+        # a. Run the reduce order model
+        # -----------------------------
+        reduced_problem_data, result_file_path = collectionProblemData.solve_reduced(p_etafd=etafd, p_kdes=kdes,
+                                                                                     extract=("U", "sigma"),
+                                                                                     primalities={"U": True, "sigma": False},
+                                                                                     solutionReaderType=MEDSolutionReader)
 
-        reduced_problem_data, dataset_instance = collectionProblemData.solve_reduced(p_etafd=etafd, p_kdes=kdes)
-
-        filePathRawReducedSolution = osp.join(dataset_instance.input_data["input_root_folder"], dataset_instance.input_data["input_result_path"])
-        copyFilePathRawReducedSolution = osp.join(root_to_all, "tmp", "buffer_raw_reduced_solution_sigma.med")
-        shutil.copyfile(filePathRawReducedSolution, copyFilePathRawReducedSolution)
-        print("End reduced resolution")
-
-
-        # reconstruction of stress, gappy POD
-        # code inspired from Safran's Mechanical.py
-        # it would be good to put that code in a subfunction
-        timeSequence = reduced_problem_data.solutions["sigma"].GetTimeSequenceFromSnapshots()
-
-        # How to distinguish between (i)  values at the mask and
-        #                            (ii) reduced coordinates of the data models ?
-        # => They are distinct attributes of the ReducedSolution class, derived from Solution
-        # Getting modes at mask
-        numberOfComponentsSigma = collectionProblemData.GetSolutionsNumberOfComponents("sigma")
-        nb_modes_sigma = reducedOrderBasisSigma.shape[0]
-        reshapedModes = reducedOrderBasisSigma.reshape((nb_modes_sigma,
-                                                        collectionProblemData.GetSolutionsNumberOfNodes("sigma"),
-                                                        numberOfComponentsSigma))
-        ModesAtMaskNoFlatten = reshapedModes[np.ix_(np.array(range(nb_modes_sigma)),
-                                                    np.nonzero(rho)[0],
-                                                    np.array(range(numberOfComponentsSigma)))]
-        ModesAtMask = ModesAtMaskNoFlatten.reshape((nb_modes_sigma, -1))
-
-        for itt, t in enumerate(timeSequence):
-            rawField = reduced_problem_data.solutions["sigma"].GetSnapshotAtTime(t)
-            np.save("/home/A34370/tmp/comparison_Aster_Mordicus/Mordicus/field-"+str(itt)+".npy", rawField)
-            reshapedField = rawField.reshape((-1, numberOfComponentsSigma))
-            fieldAtMaskNoFlatten = reshapedField[np.ix_(np.nonzero(rho)[0], 
-                                                        np.array(range(numberOfComponentsSigma)))]
-            fieldAtMask = fieldAtMaskNoFlatten.flatten()
-            # ModesAtMask: nbeModes, maskSize
-            # fieldAtMask: maskSize
-            reduced_problem_data.solutions["sigma"].compressedSnapshots[t] = GP.Fit(ModesAtMask, fieldAtMask)
-
-        # Equivalent du REST_REDUIT_COMPLET
+        # b. Gappy POD on stresses
+        # ------------------------
+        
+        # --- Compute reduced coordinates
+        GappyPOD_EQ(collectionProblemData, rho, reduced_problem_data)
+        
+        # --- Reconstruct fields from these reduced coordinates
         reduced_problem_data.solutions["sigma"].UncompressSnapshots(reducedOrderBasisSigma)
         #reduced_problem_data.solutions["U"].UncompressSnapshots(reducedOrderBasisU)
 
-        
-        # A ce stade, on a un resultat reconstruit qui est un objet Solution
-        # Il faut reconstruire un résultat qu'on pourra donner a bouffer a Aster
-        fileNameRecReducedSolution = osp.join(root_to_all, "tmp", "buffer_rec_reduced_solution_sigma.med")
+        # c. Write the solution
+        # ---------------------
+        reader_solution = MEDSolutionReader(result_file_path, 0.0)
 
-        # sample_field est toujours le champ en contraintes
-        reader_solution.WriteSolution(reduced_problem_data.solutions["sigma"],
-                                      sample_field, "sigma",
-                                      fileNameRecReducedSolution, name="SIG_REC")
-        # sample_field est toujours le champ en contraintes
-        reader_solution.WriteSolution(reduced_problem_data.solutions["U"],
-                                      sample_field_u, "U",
-                                      fileNameRecReducedSolution, name="U_REC", append=True)
-        # Pour debug Mordicus/Aster
-        shutil.copyfile(fileNameRecReducedSolution, "/home/A34370/tmp/comparison_Aster_Mordicus/Mordicus/reRedRec.med")
-        # A posteriori error indicator
-        # ----------------------------
-        residualProblemData = collectionProblemData.computeAPosterioriError()
+        reader_solution.WriteSolution(fileNameRecReducedSolution,
+                                      solution_structure_sigma,
+                                      reduced_problem_data.solutions["sigma"],
+                                      "sigma", nameInFile="SIG_REC")
+
+        reader_solution.WriteSolution(fileNameRecReducedSolution,
+                                      solution_structure_u,
+                                      reduced_problem_data.solutions["U"],
+                                      "U", nameInFile="U_REC", append=True)
+
+        # d. A posteriori error indicator
+        # -------------------------------
+        residualProblemData = collectionProblemData.computeAPosterioriError(extract=("r", "Fext"),
+                                                                            solutionStructures={"r": collectionProblemData.solutionStructures["U"],
+                                                                                                "Fext": collectionProblemData.solutionStructures["U"]},
+                                                                            primalities={"r": False, "Fext": False},
+                                                                            solutionReaderType=MEDSolutionReader)
+
         ap_err = 0.
         ap_ref = 0.
-        is_printed = False
+        timeSequence = reduced_problem_data.solutions["sigma"].GetTimeSequenceFromSnapshots()
         for t in timeSequence:
             resid = residualProblemData.GetSolution("r").snapshots[t]
             force = residualProblemData.GetSolution("Fext").snapshots[t]
@@ -484,11 +349,6 @@ while not stop_condition:
 
             # On sort l'indicateur d'erreur
             if t > 7.3e7:
-                if not is_printed:
-                    np.save("/home/A34370/tmp/comparison_Aster_Mordicus/Mordicus/resid.npy", resid)
-                    np.save("/home/A34370/tmp/comparison_Aster_Mordicus/Mordicus/force.npy", force)
-                    is_printed = True
-
                 ap_err = ap_err + 1./len(timeSequence) * np.dot(corr_res, corr_res)
                 ap_ref = ap_ref + 1./len(timeSequence) * np.dot(   force,    force)
         
@@ -496,7 +356,6 @@ while not stop_condition:
         print("error[", i, "] = ", error[i])
         # for debug Aster/Mordicus
         assert(False)
-    # TODO: réécrire avec des fonctions nump
     
     i_max = error.index(max(error))
     p_etafd, p_kdes = collectionProblemData.generateVariabilitySupport()[i_max]

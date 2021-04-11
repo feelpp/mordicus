@@ -22,67 +22,88 @@ class MEDFieldHandler(FieldHandlerBase):
     Field operations implemented with MEDCouplingFIeldDouble
     """
 
-    def ConvertToLocalField(self, fieldInstance, vector):
+    def ConvertToLocalField(self, solutionStructure, vector):
         """
         Parameters
         ----------
-        structure : Structure
+        solutionStructure : MEDAsterSolutionStructure
             Structure instance as defined by mordicus datamodel
         vector : nparray
             numpy array of solution to convert
 
         Returns
         -------
-        MEDCouplingFieldDouble
+        dict(int:MEDCouplingFieldDouble)
             field in the local Type
         """
-        f = safe_clone(fieldInstance)
-        f.setName("convert_" + f.getName())
-        f.getArray().setValues(list(vector.flatten()), f.getNumberOfTuples(), f.getNumberOfComponents())
-        return f
-    
-    def doublContractedProduct(self, sigma, epsilon):
+        if solutionStructure.discr in ("node", ):
+            fieldInstanceNode, _ = solutionStructure.GetInternalStorage()[0]
+            f = safe_clone(fieldInstanceNode)
+            f.setName("convert_" + f.getName())
+            f.getArray().setValues(list(vector.flatten()), f.getNumberOfTuples(), f.getNumberOfComponents())
+            return {1: f}
+
+        if solutionStructure.discr in ("gauss", "cell"):
+            fieldInstances = solutionStructure.GetInternalStorage()
+            
+            res = {}
+            offset = 0
+
+            for level, (fieldInstance, _) in fieldInstances.items():
+                f = safe_clone(fieldInstance)
+                f.setName("convert_" + f.getName())
+                offset_new = f.getNumberOfValues()
+                f.getArray().setValues(list(vector.flatten()[offset:offset_new]), f.getNumberOfTuples(), f.getNumberOfComponents())
+                offset_new = offset
+                res[level] = f
+            return res            
+
+    def doublContractedProduct(self, localSigmaField, localEpsilonField):
         """
         Parameters
         ----------
-        sigma : MEDCouplingFieldDouble
+        localSigmaField : dict(int:MEDCouplingFieldDouble)
             first field (symmetric 3x3 matrix)
-        epsilon : MEDCouplingFieldDouble
+        localEpsilonField : dict(int:MEDCouplingFieldDouble)
             second field (symmetric 3x3 matrix)
 
         Returns
         -------
-        doublyContractedProduct : MEDCouplingFieldDouble
+        dict(int:MEDCouplingFieldDouble)
             field with 1 component, result of the doubly contracted product
         """
-        mult = safe_clone(sigma)
-        
-        mult.fillFromAnalytic(sigma.getNumberOfComponents(), "1.*IVec+1.*JVec+1.*KVec+2.*LVec+2.*MVec+2.*NVec")
-        mult.checkConsistencyLight()
+        res = {}
+        for level, sigma in localSigmaField.items():
+            epsilon = localEpsilonField[level]
+            mult = safe_clone(sigma)
+            
+            mult.fillFromAnalytic(sigma.getNumberOfComponents(), "1.*IVec+1.*JVec+1.*KVec+2.*LVec+2.*MVec+2.*NVec")
+            mult.checkConsistencyLight()
+    
+            sigma2 = mc.MEDCouplingFieldDouble.MultiplyFields(mult, sigma)
+    
+            sigma2_array = sigma2.getArray()
+            epsilon_array = epsilon.getArray()
+    
+            template = mc.MEDCouplingFieldTemplate(sigma)
+            array = mc.DataArrayDouble.New()
+            array.alloc(sigma.getNumberOfTuples())
+            array.fillWithZero()
+            dc_prod = np.sum(np.multiply(sigma2_array.toNumPyArray(), epsilon_array.toNumPyArray()), axis=1)
+            array.setValues(list(dc_prod), sigma.getNumberOfTuples(), 1)
+            
+            field = mc.MEDCouplingFieldDouble.New(template)
+    
+            field.setArray(array)
+            res[level] = field
+    
+        return res
 
-        sigma2 = mc.MEDCouplingFieldDouble.MultiplyFields(mult, sigma)
-
-        sigma2_array = sigma2.getArray()
-        epsilon_array = epsilon.getArray()
-
-        template = mc.MEDCouplingFieldTemplate(sigma)
-        array = mc.DataArrayDouble.New()
-        array.alloc(sigma.getNumberOfTuples())
-        array.fillWithZero()
-        dc_prod = np.sum(np.multiply(sigma2_array.toNumPyArray(), epsilon_array.toNumPyArray()), axis=1)
-        array.setValues(list(dc_prod), sigma.getNumberOfTuples(), 1)
-        
-        field = mc.MEDCouplingFieldDouble.New(template)
-
-        field.setArray(array)
-
-        return field
-
-    def integral(self, field, componentNumber):
+    def integral(self, localField, componentNumber):
         """
         Parameters
         ----------
-        field : MEDCouplingFieldDouble
+        localField : dict(int:MEDCouplingFieldDouble)
             field to integrate over its whole domain Omega
         componentNumber : int
             number of the component number to integrate
@@ -91,13 +112,16 @@ class MEDFieldHandler(FieldHandlerBase):
         -------
         double : integral over Omega of field(componentNumber)
         """
-        return field.integral(componentNumber, True)
+        sumAll = np.double(0.0)
+        for _, field in localField.items():
+            sumAll = sumAll + field.integral(componentNumber, True)
+        return sumAll
 
-    def ConvertFromLocalField(self, field):
+    def ConvertFromLocalField(self, localField):
         """
         Parameters
         ----------
-        field : MEDCouplingFieldDouble
+        localField : dict(int: MEDCouplingFieldDouble)
 
         Returns
         -------
@@ -106,67 +130,99 @@ class MEDFieldHandler(FieldHandlerBase):
 
         Note: similarities with MEDSolutionReader.ReadSnapshotComponent
         """
-        data_array_double = field.getArray()
-        # TODO: discuss the opportunity of adding ".flatten()" here
-        return data_array_double.toNumPyArray()
+        vector = None
+        for _, mc_field in localField.items():
+            if vector is not None:
+                vector = np.concatenate((vector, mc_field.getArray().toNumPyArray().flatten()), axis=0)
+            if vector is None:
+                vector = mc_field.getArray().toNumPyArray().flatten()
+                
+        return vector
     
-    def symetricGradient(self, field, fieldInstanceGauss):
+    def symetricGradient(self, localField, solutionStructureGauss, solutionStructureNode):
         """
         Parameters
         ----------
-        field : MEDCouplingFieldDouble
-            Should have a discretization ON_NODES
+        localField : dict{1:MEDCouplingFieldDouble}
+            field of nodes for which the gradient should be computed. That field lives on a restricted mesh.
+        solutionStructureGauss : MEDAsterSolutionStructure
+            solution structure for Gauss fields
+        solutionStructureNode : MEDAsterSolutionStructure
+            solution structure for node fields
         
         Returns
         -------
-        field : MEDCouplingFieldDouble
+        gradients : dict
+            relative level as key and MEDCouplingFIeldDouble on gauss points as value
         """
         import numpy.linalg
-        restrMesh = field.getMesh()
-        field_array = field.getArray().toNumPyArray()
-        coor_array = restrMesh.getCoords().toNumPyArray()
-
-        res = safe_clone(fieldInstanceGauss)
-        res_array = res.getArray()
-      
-        dN = self._derivativesOfShapeFunction(fieldInstanceGauss)
+        localFieldU = localField[1]
+        sampleFieldNode, nodeIdsGlobalArray = solutionStructureNode.GetInternalStorage()[0]
         
-        # The following is clearly not optimal (python loop)
-        for cellId in range(restrMesh.getNumberOfCells()):
-            
-            # Get ordered connectivity of element            
-            nodesIds = restrMesh.getNodeIdsOfCell(cellId)
-            # #Identical to :
-            # tab_conn = restrMesh.getNodalConnectivity()
-            # nodesIds = tab_conn[21*cellId+1:21*(cellId+1)]
-            
-            # #We should have:
-            assert list(field.computeTupleIdsToSelectFromCellIds(cellId).toNumPyArray()) == sorted(nodesIds)
-            
-            # Get array of field and displacement coordinates
-            arrayU = field_array[nodesIds,:]
-            arrayX = coor_array[nodesIds,:]
+        fieldInstances = solutionStructureGauss.GetInternalStorage()
 
-            # Retrieve array of coordinates
-            dF = np.tensordot(dN, arrayX, axes=([0],[0]))
-            inv_dF = np.zeros((3,3))
-            
-            # Construct numpy array of inverse matrices
-            for igp in range(27):
-                dFg = dF[:,igp,:]
+        gradients = {}
+        for level, (fieldInstance, _) in fieldInstances.items():
+            meshRestrOnElems = fieldInstance.getMesh()
 
-                inv_dF = numpy.linalg.inv(dFg)
-                gradUg = np.tensordot(arrayU, np.tensordot(dN[:,:,igp], inv_dF, axes=([1],[1])), axes=([0],[0]))
+            # Create MEDCouplingField from scratch, based on user doc
+            fieldOnNodes=mc.MEDCouplingFieldDouble(mc.ON_NODES, mc.ONE_TIME)
+            fieldOnNodes.setName(sampleFieldNode.getName())
+            fieldOnNodes.setMesh(meshRestrOnElems)
+            fieldOnNodes.setTime(0.0, 0, 0)
+            array=mc.DataArrayDouble()
+            array.alloc(meshRestrOnElems.getNumberOfNodes(), sampleFieldNode.getNumberOfComponents()) # Implicitly fieldOnNodes will be a 1 component field.
+            array.fillWithValue(0.)
+            fieldOnNodes.setArray(array)
+            fieldOnNodes.checkConsistencyLight()
+            
+            # fill with values from localFieldU
+            array[nodeIdsGlobalArray] = localFieldU.getArray().deepCopy()
+
+            field_array = array.toNumPyArray()
+            coor_array = meshRestrOnElems.getCoords().toNumPyArray()
+    
+            gradients[level] = safe_clone(fieldInstance)
+            res_array = gradients[level].getArray()
+          
+            dN = self._derivativesOfShapeFunction(fieldInstance)
+            
+            # The following is clearly not optimal (python loop)
+            for cellId in range(meshRestrOnElems.getNumberOfCells()):
                 
-                # Fill in Gauss field with these values
-                res_array[27*cellId+igp,0] = gradUg[0,0]
-                res_array[27*cellId+igp,1] = gradUg[1,1]
-                res_array[27*cellId+igp,2] = gradUg[2,2]
-                res_array[27*cellId+igp,3] = (gradUg[0,1] + gradUg[1,0])/2.
-                res_array[27*cellId+igp,4] = (gradUg[0,2] + gradUg[2,0])/2.
-                res_array[27*cellId+igp,5] = (gradUg[1,2] + gradUg[2,1])/2.
+                # Get ordered connectivity of element            
+                nodesIds = meshRestrOnElems.getNodeIdsOfCell(cellId)
+                # #Identical to :
+                # tab_conn = restrMesh.getNodalConnectivity()
+                # nodesIds = tab_conn[21*cellId+1:21*(cellId+1)]
+                
+                # #We should have:
+                assert list(fieldOnNodes.computeTupleIdsToSelectFromCellIds(cellId).toNumPyArray()) == sorted(nodesIds)
+                
+                # Get array of field and displacement coordinates
+                arrayU = field_array[nodesIds,:]
+                arrayX = coor_array[nodesIds,:]
+    
+                # Retrieve array of coordinates
+                dF = np.tensordot(dN, arrayX, axes=([0],[0]))
+                inv_dF = np.zeros((3,3))
+                
+                # Construct numpy array of inverse matrices
+                for igp in range(27):
+                    dFg = dF[:,igp,:]
+    
+                    inv_dF = numpy.linalg.inv(dFg)
+                    gradUg = np.tensordot(arrayU, np.tensordot(dN[:,:,igp], inv_dF, axes=([1],[1])), axes=([0],[0]))
+                    
+                    # Fill in Gauss field with these values
+                    res_array[27*cellId+igp,0] = gradUg[0,0]
+                    res_array[27*cellId+igp,1] = gradUg[1,1]
+                    res_array[27*cellId+igp,2] = gradUg[2,2]
+                    res_array[27*cellId+igp,3] = (gradUg[0,1] + gradUg[1,0])/2.
+                    res_array[27*cellId+igp,4] = (gradUg[0,2] + gradUg[2,0])/2.
+                    res_array[27*cellId+igp,5] = (gradUg[1,2] + gradUg[2,1])/2.
             
-        return res
+        return gradients
 
     def _derivativesOfShapeFunction(self, fieldInstance):
         """
@@ -233,4 +289,60 @@ class MEDFieldHandler(FieldHandlerBase):
                 for k in range(27):
                     res[i,j,k] = diffValue[i][j].evalf(16, subs={a1:np_coor[k,0], a2:np_coor[k,1], a3:np_coor[k,2]}, chop=True)
         return res
+
+    def gaussPointsCoordinates(self, solutionStructureGauss):
+        """
+        Get the Gauss point coordinate a family of solutions relies on
+        
+        Arguments
+        ---------
+        solutionStructureGauss
+            a solution structure with discretization on Gauss points (any number of components)
+         
+        Returns:
+        -------
+        ndarray
+            numpy array of Gauss points coordinates for the given solutionStructureGauss
+        """
+        coords = None
+        solutionStructure = solutionStructureGauss.GetInternalStorage()
+        for _, (sample_field, _) in solutionStructure.items():
+            if coords is not None:
+                coords = np.concatenate((coords, sample_field.getLocalizationOfDiscr().toNumPyArray()), axis=0)
+            if coords is None:
+                coords = sample_field.getLocalizationOfDiscr().toNumPyArray()
+        return coords
+
+    def getVolume(self, solutionStructureGauss):
+        """
+        Compute volume getting Gauss points from a sample field
+        
+        Arguments
+        ---------
+        solutionStructureGauss
+            a solution structure with discretization on Gauss points (any number of components)
+            
+        Returns
+        -------
+        double
+            volume of the domain the family of solutions is defined on
+        """
+        solutionStructure = solutionStructureGauss.GetInternalStorage()
+
+        volume = np.double(0.0)
+        for _, (sample_field, _) in solutionStructure.items():
+        # deep copy field
+            f = safe_clone(sample_field)
+            
+            # set number of components to 1
+            f.changeNbOfComponents(1)
+            
+            # fill and compute integral
+            f.fillFromAnalytic(1, "1")
+            volume = volume + f.integral(0, True) 
+
+        return volume
+
+        
+
         

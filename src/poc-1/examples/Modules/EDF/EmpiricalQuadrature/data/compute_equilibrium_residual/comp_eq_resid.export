@@ -11,9 +11,8 @@ P time_limit 6000.0
 P tpsjob 101
 A memjeveux 512.0
 A tpmax 6000.0
-R base /home/A34370/dev/mordicus/src/poc-1/examples/Modules/EDF/EmpiricalQuadrature/data/compute_equilibrium_residual/../step1/base_fixeddata D  0
-F rmed /home/A34370/dev/mordicus/src/poc-1/examples/Modules/EDF/EmpiricalQuadrature/data/compute_equilibrium_residual/../tmp/buffer_raw_reduced_solution_sigma.med D  80
-F rmed /home/A34370/dev/mordicus/src/poc-1/examples/Modules/EDF/EmpiricalQuadrature/data/compute_equilibrium_residual/../tmp/buffer_rec_reduced_solution_sigma.med D  81
+R base /home/A34370/dev/mordicus/src/poc-1/examples/Modules/EDF/EmpiricalQuadrature/data/step1/base_fixeddata D  0
+F rmed /home/A34370/dev/mordicus/src/poc-1/examples/Modules/EDF/EmpiricalQuadrature/data/tmp/buffer_rec_reduced_solution_sigma.med D  81
 F comm /home/A34370/dev/mordicus/src/poc-1/examples/Modules/EDF/EmpiricalQuadrature/data/compute_equilibrium_residual/comp_eq_resid.comm D  1
 F conf /home/A34370/dev/codeaster/install/std/share/aster/config.txt D  21
 F rmed /home/A34370/dev/mordicus/src/poc-1/examples/Modules/EDF/EmpiricalQuadrature/data/compute_equilibrium_residual/comp_eq_resid.rmed R  82

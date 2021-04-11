@@ -42,7 +42,7 @@ class FieldHandlerBase(object):
         """
         Parameters
         ----------
-        structure : Structure
+        structure : SolutionStructure
             Structure instance as defined by mordicus datamodel
         vector : nparray
             numpy array of solution to convert
@@ -68,11 +68,16 @@ class FieldHandlerBase(object):
         """
         raise NotImplementedError("This is a virtual method, intended to be overriden")
     
-    def symetricGradient(self, field):
+    def symetricGradient(self, field, solutionStructureGauss, solutionStructureNode):
         """
         Parameters
         ----------
         field : localFieldType
+            local field to derive
+        solutionStructureGauss : SolutionStructure
+            solution structure of the result
+        solutionStructureNode : SolutionStructure
+            solutionStructure of the field to derive
         
         Returns
         -------
@@ -110,4 +115,35 @@ class FieldHandlerBase(object):
         """
         raise NotImplementedError("This is a virtual method, intended to be overriden")
 
+    def gaussPointsCoordinates(self, solutionStructureGauss):
+        """
+        Get the Gauss point coordinate a family of solutions relies on
+        
+        Arguments
+        ---------
+        solutionStructureGauss
+            a solution structure with discretization on Gauss points (any number of components)
+         
+        Returns:
+        -------
+        ndarray
+            numpy array of Gauss points coordinates for the given solutionStructureGauss
+        """
+        raise NotImplementedError("This is a virtual method, intended to be overriden")
+    
+    def getVolume(self, solutionStructureGauss):
+        """
+        Compute volume getting Gauss points from a sample field
+        
+        Arguments
+        ---------
+        solutionStructureGauss
+            a solution structure with discretization on Gauss points (any number of components)
+            
+        Returns
+        -------
+        double
+            volume of the domain the family of solutions is defined on
+        """
+        raise NotImplementedError("This is a virtual method, intended to be overriden")
         

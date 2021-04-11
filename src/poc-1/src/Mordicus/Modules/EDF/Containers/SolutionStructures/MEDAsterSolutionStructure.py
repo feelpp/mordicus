@@ -14,3 +14,16 @@ class MEDAsterSolutionStructure(SolutionStructureBase):
     mesh: MEDFileUMesh
         global mesh used to read/write the solution
     """
+    
+    def GetNumberOfNodes(self):
+        """Override method of base class"""
+        sampleFields = [f[0] for f in self.GetInternalStorage().values()]
+        numberOfPoints = 0
+        for sampleField in sampleFields:
+            numberOfPoints = numberOfPoints + sampleField.getNumberOfTuples()
+        return numberOfPoints
+    
+    def GetNumberOfComponents(self):
+        """Override method of base class"""
+        sampleField, _ = next(v for v in self.GetInternalStorage().values())
+        return sampleField.getNumberOfComponents()

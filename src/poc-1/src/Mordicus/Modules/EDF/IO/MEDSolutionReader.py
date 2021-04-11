@@ -5,6 +5,8 @@ from Mordicus.Core.IO.SolutionReaderBase import SolutionReaderBase
 import medcoupling as ml
 import MEDLoader as ML
 import numpy as np
+
+from Mordicus.Modules.EDF.IO.MEDMesh import MEDMesh
 from Mordicus.Modules.EDF.Containers.FieldHandlers.MEDFieldHandler import safe_clone
 from Mordicus.Modules.EDF.Containers.SolutionStructures.MEDAsterSolutionStructure import MEDAsterSolutionStructure
 
@@ -20,7 +22,7 @@ class MEDSolutionReader(SolutionReaderBase):
     Disc2MLType = {"nodes": ML.ON_NODES,
                    "gauss": ML.ON_GAUSS_PT}
 
-    def __init__(self, fileName, MEDResultBaseName, timeIt):
+    def __init__(self, fileName, timeIt):
         '''
         Constructor
         
@@ -28,14 +30,11 @@ class MEDSolutionReader(SolutionReaderBase):
         ---------
         fileName : str
             File name to read solutions from
-        MEDResultBaseName : str
-            base name of the result for loading a reference field
         timeIt : float
             time for loading a reference field
         '''
         super(MEDSolutionReader, self).__init__()
         self.fileName = fileName
-        self.MEDResultBaseName = MEDResultBaseName
         self.timeIt = timeIt
 
     def ReadTimeSequenceFromSolutionFile(self, fieldName):
@@ -94,21 +93,25 @@ class MEDSolutionReader(SolutionReaderBase):
         
         fieldInstances = solutionStructure.GetInternalStorage()
 
-        start = 0
-        for relLevel, (fieldInstance, groupSubset) in fieldInstances.items():
+        start = True
+        for relLevel, (fieldInstance, idsInRelLevel) in fieldInstances.items():
             disc = fieldInstance.getTypeOfField()
             f = f1ts.getFieldOnMeshAtLevel(disc, relLevel, mf_mesh)
 
             # Select groups if necessary
-            if groupSubset is not None:
-                elemIdsInRelLevel = mf_mesh.getGroupsArr(relLevel, groupSubset, False)
-                f = f.buildSubPart(elemIdsInRelLevel)
+            if idsInRelLevel is not None:
+                if solutionStructure.discr in ("gauss", "cell"):
+                    f = f.buildSubPart(idsInRelLevel)
+                if solutionStructure.discr in ("node", ):
+                    f.setArray(f.getArray()[idsInRelLevel].deepCopy())
 
-            f.keepSelectedComponents(fieldInstance.getArray().getInfoOnComponents())
-            if start == 0:
-                res = f.getArray().toNumPyArray().flatten()
-            else:
+            compos_num_to_select = [f.getArray().getInfoOnComponents().index(c) for c in fieldInstance.getArray().getInfoOnComponents()]
+            f = f.keepSelectedComponents(compos_num_to_select)
+            if not start:
                 res = np.concatenate((res, f.getArray().toNumPyArray().flatten()))
+            if start:
+                res = f.getArray().toNumPyArray().flatten()
+                start = False                
           
         return res
 
@@ -125,9 +128,7 @@ class MEDSolutionReader(SolutionReaderBase):
         reducedOrderBasis : nparray(numberOfModes, numberOfDofs)
             numpy array of the modes
         fieldName : str
-            name of field associated with the basis (e.g. "U", "sigma")
-        fieldInstance : MEDCouplingField
-            instance of field to give the structure for the modes           
+            name of field associated with the basis (e.g. "U", "sigma")         
         """
         fieldInstances = solutionStructure.GetInternalStorage()
         
@@ -138,7 +139,9 @@ class MEDSolutionReader(SolutionReaderBase):
             mc_mesh_at_level = fieldInstance.getMesh()
             mc_mesh_at_level.setName("MeshStripped")
             mf_mesh_strip.setMeshAtLevel(relLevel, mc_mesh_at_level)
-        mf_mesh_strip.zipCoords()
+            
+        if solutionStructure.discr in ("gauss", "cell"):
+            mf_mesh_strip.zipCoords()
 
         numberOfModes, _ = reducedOrderBasis.shape
         
@@ -161,7 +164,9 @@ class MEDSolutionReader(SolutionReaderBase):
                 f.getArray().setValues(list(reducedOrderBasis[imode,offset:offset_new]), f.getNumberOfTuples(), f.getNumberOfComponents())
                 offset = offset_new
                 # write f to a new file
-                f1ts.appendFieldNoProfileSBT(f)
+                f1ts.setFieldNoProfileSBT(f)
+            
+            f_mts.pushBackTimeStep(f1ts)
 
         mf_mesh_strip.write(fileName, 2)
         f_mts.write(fileName, 0)
@@ -182,6 +187,8 @@ class MEDSolutionReader(SolutionReaderBase):
             numpy array of empirical weights
         """
         import numpy as np
+        if fieldStructure.discr != "gauss":
+            raise ValueError("fieldStructure in argument to WriteSparseFieldOfEmpiricalWeights should be of type gauss.")
         fieldInstances = fieldStructure.GetInternalStorage()
         
         mf_mesh_strip = ML.MEDFileUMesh.New()
@@ -222,7 +229,7 @@ class MEDSolutionReader(SolutionReaderBase):
         
             # for each, find Gauss location, set field value there$
             f_non_zero_indices = nonzero_indices[np.where((nonzero_indices >= offset) & (nonzero_indices < offset_new))]
-            for i_nonzero in nonzero_indices:
+            for i_nonzero in f_non_zero_indices:
     
                 f.getArray().toNumPyArray()[i_nonzero-offset] = np.double(empirical_weights[i_nonzero])
                 dist = 0.
@@ -277,18 +284,23 @@ class MEDSolutionReader(SolutionReaderBase):
                 mf_mesh = ML.MEDFileUMesh.New(self.fileName, mfMeshName)
             
             offset = 0
-            for relLevel, (fieldInstance, groupSubset) in fieldInstances.items():
+            for relLevel, (fieldInstance, idsInRelLevel) in fieldInstances.items():
 
-                # start with background -1 field all over
+                # start with background 0 field all over
                 mc_field_bg = f1ts.getFieldOnMeshAtLevel(mf_disc, relLevel, mf_mesh)
-                mc_field_bg.fillFromAnalytic(mc_field_bg.getNumberOfComponents(), "0.0")
+                mc_field_bg.getArray().fillWithValue(0.0)
+
                 mc_field_bg.setTime(t, i+1, i+1)
                 
                 f = safe_clone(fieldInstance)
                 f.setTime(t, i+1, i+1)
                 
                 # reduce number of components all over
-                mc_field_bg.keepSelectedComponents(f.getArray().getInfoOnComponents())
+                compos_num_to_select = [mc_field_bg.getArray().getInfoOnComponents().index(c) for c in f.getArray().getInfoOnComponents()]
+                
+                # The following truncates the field: not the desired behavior, we want to leave unselected components to their older values
+                #mc_field_bg = mc_field_bg.keepSelectedComponents(compos_num_to_select)
+                has_component_selection = len(compos_num_to_select) < mc_field_bg.getNumberOfComponents()
     
                 if nameInFile is not None:
                     target = "_"*8
@@ -306,16 +318,32 @@ class MEDSolutionReader(SolutionReaderBase):
                 offset = offset_new
                 
                 # put that into mc_field_bg
-                if groupSubset is not None:
-                    elemIdsInRelLevel = mf_mesh.getGroupsArr(relLevel, groupSubset, False)
-                    tupIds = mc_field_bg.computeTupleIdsToSelectFromCellIds(elemIdsInRelLevel)
-                    mc_field_bg.getArray()[tupIds] = f.getArray().deepCopy()
+                if idsInRelLevel is not None:
+                    if fieldStructure.discr in ("gauss", "cell"):
+                        tupIds = mc_field_bg.computeTupleIdsToSelectFromCellIds(idsInRelLevel)
+                    if fieldStructure.discr in ("node", ):
+                        tupIds = idsInRelLevel
+                        
+                    # command in case there is no components selection
+                    if not has_component_selection:
+                        mc_field_bg.getArray()[tupIds] = f.getArray().deepCopy()
+                    if has_component_selection:
+                        mc_field_bg.getArray().toNumPyArray()[tupIds,np.array(compos_num_to_select)] = f.getArray().deepCopy().toNumPyArray()
                 
-                    # write f to a new file
-                    f1ts.setFieldNoProfileSBT(mc_field_bg)
                 else:
-                    f1ts.setFieldNoProfileSBT(f)
-                # Here is the assignment of values
+                    # The following is native Medcoupling syntax but it s unclear whether it still works
+                    #     if the N components to keep are not the first N components
+                    # There seems to be a setPartOfValues2 function in later versions of medcoupling
+                    # Not using it for now
+                    #mc_field_bg.getArray().setPartOfValues1(f.getArray().deepCopy(), 0, f.getNumberOfTuples(), 1, 0, f.getNumberOfComponents(), 1)
+                    
+                    if not has_component_selection:
+                        f1ts.setFieldNoProfileSBT(f)
+                        continue
+                    if has_component_selection:
+                        mc_field_bg.getArray().toNumPyArray()[:,np.array(compos_num_to_select)] = f.getArray().deepCopy().toNumPyArray()
+
+                f1ts.setFieldNoProfileSBT(mc_field_bg)
 
             # setArray is almost always a bad idea
             f_mts.pushBackTimeStep(f1ts)
@@ -358,19 +386,23 @@ class MEDSolutionReader(SolutionReaderBase):
         fieldInstances = fieldStructure.GetInternalStorage()
 
         offset = 0
-        for relLevel, (fieldInstance, groupSubset) in fieldInstances.items():
+        for relLevel, (fieldInstance, idsInRelLevel) in fieldInstances.items():
 
             
             # start with background -1 field all over
             mc_field_bg = mf_field_bg.getFieldOnMeshAtLevel(mf_disc, relLevel, mf_mesh)
-            mc_field_bg.fillFromAnalytic(mc_field_bg.getNumberOfComponents(), "-1.0")
+            
+            # do not use mc_field_bg.fillWithAnalytic !! For some reaseon it erases info on components
+            mc_field_bg.getArray().fillWithValue(-1.0)
             mc_field_bg.setTime(0.0, 0, 0)
             
             f = safe_clone(fieldInstance)
             f.setTime(0.0, 0, 0)
             
             # reduce number of components all over
-            mc_field_bg.keepSelectedComponents(f.getArray().getInfoOnComponents())
+            #print("the infos : ", mc_field_bg.getArray().getInfoOnComponents())
+            compos_num_to_select = [mc_field_bg.getArray().getInfoOnComponents().index(c) for c in f.getArray().getInfoOnComponents()]
+            mc_field_bg = mc_field_bg.keepSelectedComponents(compos_num_to_select)
 
             if nameInFile is not None:
                 target = "_"*8
@@ -388,9 +420,11 @@ class MEDSolutionReader(SolutionReaderBase):
             offset = offset + f.getNumberOfTuples()*f.getNumberOfComponents()
             
             # put that into mc_field_bg
-            if groupSubset is not None:
-                elemIdsInRelLevel = mf_mesh.getGroupsArr(relLevel, groupSubset, False)
-                tupIds = mc_field_bg.computeTupleIdsToSelectFromCellIds(elemIdsInRelLevel)
+            if idsInRelLevel is not None:
+                if fieldStructure.discr in ("gauss", "cell"):
+                    tupIds = mc_field_bg.computeTupleIdsToSelectFromCellIds(idsInRelLevel)
+                if fieldStructure.discr in ("node", ):
+                    tupIds = idsInRelLevel
                 mc_field_bg.getArray()[tupIds] = f.getArray().deepCopy()
             
                 # write f to a new file
@@ -403,22 +437,19 @@ class MEDSolutionReader(SolutionReaderBase):
         
     def ReadSolutionStructure(self, fieldName,
                               discretization,
-                              timeIt,
                               components=[],
                               dimsRelativeToMax=[],
                               groups=[],
-                              nodeSolutionStructure=None,
-                              primalSolutionName="",
                               componentsByRelativeDimension=None):
         """
         Read the solution structure object. To move to MEDSolutionReader ?
         
         Arguments
         ---------
+        fieldName : str
+            identifier of the physical quantity for the field
         discretization : str
             type of field discretization. Into {"node", "gauss"} for now, to be expanded...
-        timeIt : double
-            time to read. It is good practice to have a single solution in solutionFile, at time 0.0
         components : list(str)
             list of components to select in the field. By default they are all kept
         dimsRelativeToMax : list(int)
@@ -435,33 +466,27 @@ class MEDSolutionReader(SolutionReaderBase):
         """
         if discretization == "node":
             return self._readSolutionStructureNode(fieldName,
-                                                   timeIt,
                                                    components,
                                                    dimsRelativeToMax,
                                                    groups)
         # --- find right field to import by name and iteration
         all_iterations, MED_field_name = self._extract_name_and_sequence(fieldName)
-        iteration, order = next((a, b) for (a, b, c) in all_iterations if math.isclose(c, timeIt))
-        
-        _, primal_MED_field_name = self._extract_name_and_sequence(primalSolutionName)
-        
+        iteration, order = next((a, b) for (a, b, c) in all_iterations if math.isclose(c, self.timeIt))      
         
         # read the field under the form of a MEDFileField1TS
         f1ts = ML.MEDFileField1TS(self.fileName, MED_field_name, iteration, order)
-        f1ts_primal = ML.MEDFileField1TS(self.fileName, primal_MED_field_name, iteration, order)
 
         mfMeshName = f1ts.getMeshName()
         mf_mesh = ML.MEDFileUMesh.New(self.fileName, mfMeshName)
         
-        solutionStructure = MEDAsterSolutionStructure(mf_mesh)
+        solutionStructure = MEDAsterSolutionStructure(MEDMesh(mf_mesh), "gauss")
         solutionStructureInternalStorage = {}
         
         # --- Loop over relative dimensions
-        nonEmptyLevels = list(mf_mesh.getNonEmptyLevels())
-        includedLevels = reversed([-i for i in range(mf_mesh.getMeshDimension()+1)]) if dimsRelativeToMax  \
-                         else reversed(sorted(nonEmptyLevels))
+        nonEmptyLevels = reversed(sorted(list(f1ts.getNonEmptyLevels()[1])))
+        includedLevels = reversed(sorted(dimsRelativeToMax)) if dimsRelativeToMax else nonEmptyLevels
         
-        walkedLevels = reversed(sorted(list(set(nonEmptyLevels).intersection(includedLevels))))
+        walkedLevels = reversed(sorted(list( set(nonEmptyLevels).intersection(set(includedLevels)) )))
         
         for relLevel in walkedLevels:
             
@@ -476,26 +501,27 @@ class MEDSolutionReader(SolutionReaderBase):
             mc_field = f1ts.getFieldOnMeshAtLevel(self.Disc2MLType[discretization], relLevel, mf_mesh)
             
             # Select groups
+            elemIdsInRelLevel = None
             if groups:
                 elemIdsInRelLevel = mf_mesh.getGroupsArr(relLevel, groupSubset, False)
                 mc_field = mc_field[elemIdsInRelLevel] # or mc_field = mc_field.buildSubPart(elemIdsInRelLevel)
 
             # Select components for this relative dimension
-            if components or componentsByRelativeDimension and componentsByRelativeDimension[relLevel]:
+            if components or (componentsByRelativeDimension and componentsByRelativeDimension[relLevel]):
                 list_of_compos = mc_field.getArray().getInfoOnComponents()
                 compos_to_select = componentsByRelativeDimension[relLevel] if componentsByRelativeDimension and componentsByRelativeDimension[relLevel] \
                     else components
             
                 compos_num_to_select = [list_of_compos.index(c) for c in compos_to_select]
-                mc_field.keepSelectedComponents(compos_num_to_select)
+                
+                mc_field = mc_field.keepSelectedComponents(compos_num_to_select)
         
-            solutionStructureInternalStorage[relLevel] = (mc_field, groupSubset)
+            solutionStructureInternalStorage[relLevel] = (mc_field, elemIdsInRelLevel)
         
         solutionStructure.SetInternalStorage(solutionStructureInternalStorage)
         return solutionStructure
     
     def _readSolutionStructureNode(self, fieldName,
-                                   timeIt,
                                    components=[],
                                    dimsRelativeToMax=[],
                                    groups=[]):
@@ -503,16 +529,17 @@ class MEDSolutionReader(SolutionReaderBase):
         Read solution structure for node fields
         """
         all_iterations, MED_field_name = self._extract_name_and_sequence(fieldName)
-        iteration, order = next((a, b) for (a, b, c) in all_iterations if math.isclose(c, timeIt))
+        iteration, order = next((a, b) for (a, b, c) in all_iterations if math.isclose(c, self.timeIt))
         
         # read the field under the form of a MEDFileField1TS
         mf_field = ML.MEDFileField1TS(self.fileName, MED_field_name, iteration, order)
         mfMeshName = mf_field.getMeshName()
         mf_mesh = ML.MEDFileUMesh.New(self.fileName, mfMeshName)
-        solutionStructure = MEDAsterSolutionStructure(mf_mesh)
+        solutionStructure = MEDAsterSolutionStructure(MEDMesh(mf_mesh), "node")
 
         
-        mc_field_bg = mf_field.getFieldAtTopLevel(ML.ON_NODES, False)
+        #mc_field_bg = mf_field.getFieldAtTopLevel(ML.ON_NODES, False)
+        mc_field_bg = mf_field.getFieldOnMeshAtLevel(ML.ON_NODES, 0, mf_mesh)
 
         # First, build array of nodes to keep
         extractDef = {}
@@ -524,8 +551,7 @@ class MEDSolutionReader(SolutionReaderBase):
         
         # --- Loop over relative dimensions
         nonEmptyLevels = list(mf_mesh.getNonEmptyLevels())
-        includedLevels = reversed([-i for i in range(mf_mesh.getMeshDimension()+1)]) if dimsRelativeToMax  \
-                         else reversed(sorted(nonEmptyLevels))
+        includedLevels = reversed(sorted(dimsRelativeToMax)) if dimsRelativeToMax else nonEmptyLevels
         
         walkedLevels = reversed(sorted(list(set(nonEmptyLevels).intersection(includedLevels))))
 
@@ -540,22 +566,25 @@ class MEDSolutionReader(SolutionReaderBase):
         fieldOnNodes=ml.MEDCouplingFieldDouble(ml.ON_NODES, ml.ONE_TIME)
         fieldOnNodes.setName(mc_field_bg.getName())
         fieldOnNodes.setMesh(mc_restricted_mesh)
-        fieldOnNodes.setTime(timeIt, iteration, order)
+        fieldOnNodes.setTime(self.timeIt, iteration, order)
         array=ml.DataArrayDouble()
         array.alloc(fieldOnNodes.getMesh().getNumberOfNodes(), mc_field_bg.getNumberOfComponents()) # Implicitly fieldOnNodes will be a 1 component field.
         array.fillWithValue(0.)
+        array.setInfoOnComponents(mc_field_bg.getArray().getInfoOnComponents())
+
         fieldOnNodes.setArray(array)
+
         fieldOnNodes.checkConsistencyLight()
 
         if components:
             list_of_compos = fieldOnNodes.getArray().getInfoOnComponents()
             compos_num_to_select = [list_of_compos.index(c) for c in components]
-            fieldOnNodes.keepSelectedComponents(compos_num_to_select)
+            fieldOnNodes = fieldOnNodes.keepSelectedComponents(compos_num_to_select)
     
         internalStorage = {}
 
         # Put this array at level 0, and a global sample field
-        internalStorage[0] = (finalNodeIdsGlobalArray, fieldOnNodes)
+        internalStorage[0] = (fieldOnNodes, finalNodeIdsGlobalArray)
         
         #for level in walkedLevels:
             
@@ -572,6 +601,4 @@ class MEDSolutionReader(SolutionReaderBase):
         
         solutionStructure.SetInternalStorage(internalStorage)
         return solutionStructure
-  
-            
         

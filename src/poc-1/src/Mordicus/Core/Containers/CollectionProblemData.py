@@ -9,6 +9,8 @@ if MPI.COMM_WORLD.Get_size() > 1: # pragma: no cover
     os.environ["NUMEXPR_NUM_THREADS"] = "1"
 import numpy as np
 
+import os.path as osp
+
 from scipy import sparse
 from Mordicus.Core.Containers import ProblemData
 from mpi4py import MPI
@@ -16,12 +18,11 @@ from collections import OrderedDict
 
 class NoAxisDuplicateDict(OrderedDict):
     """A dict imposing that ('a', 'b') is invalid key if 'a' is a existing key"""
+
     def __setitem__(self, key, value):
         """Set self[key] to value."""
         # make an iterable from 'key'
-        try:
-            it = iter(key)
-        except TypeError:
+        if isinstance(key, (str, bytes)):
             it = [key]
 
         # test compatibility
@@ -655,11 +656,17 @@ class CollectionProblemData(object):
         -----------
         kwargs: (parameter_name=value) name of the variability as key and value stays value.
         """
+        extract = kwargs.pop("extract", None)
+        primalities = kwargs.pop("primalities", None)
+        solutionReaderType = kwargs.pop("solutionReaderType", None)
+
         dataset = self.templateDataset.instantiate(**kwargs)
         
         # populate information for the structure
-        return dataset.run(sampleFieldPrimal=self.solutionStructures["U"],
-                           sampleFieldDual=self.solutionStructures["sigma"] )
+        return dataset.run(extract=extract,
+                           solutionStructures=self.solutionStructures,
+                           primalities=primalities,
+                           solutionReaderType=solutionReaderType)
 
     def solve_reduced(self, **kwargs):
         """
@@ -669,35 +676,39 @@ class CollectionProblemData(object):
         -----------
          kwargs: (parameter_name=value) name of the variability as key and value stays value.
         """
+        extract = kwargs.pop("extract", None)
+        primalities = kwargs.pop("primalities", None)
+        solutionReaderType = kwargs.pop("solutionReaderType", None)
+
         kwargs["reduced"] = True
         dataset = self.reducedTemplateDataset.instantiate(**kwargs)
         
         # populate information for the structure
-        return dataset.run(sampleFieldPrimal=self.solutionStructures["U"],
-                           sampleFieldDual=self.solutionStructures["sigma"] ), dataset
+        return (dataset.run(extract=extract,
+                           solutionStructures=self.solutionStructures,
+                           primalities=primalities,
+                           solutionReaderType=solutionReaderType),
+                osp.join(dataset.input_data["input_root_folder"], dataset.input_data["input_result_path"])
+                            )
 
-    def computeAPosterioriError(self):
+    def computeAPosterioriError(self, **kwargs):
         """
         Computes the residual of equilibrium. Returns a field
         """
         dataset = self.specificDatasets["computeAPosterioriError"]
-        return dataset.run(sampleFieldPrimal=self.solutionStructures["U"],
-                           extract=("r", "Fext"), method="aster")
-    
-    def compute_external_loading(self):
-        """
-        Computes the reference field for estimating the residual
-        """
-        dataset = self.specificDatasets["compute_external_loading"]
-        return dataset.run(sampleFieldPrimal=self.solutionStructures["U"],
-                           sampleFieldDual=self.solutionStructures["sigma"])
+        return dataset.run(**kwargs)
 
-    def GetFieldInstance(self, solutionName):
+    def GetSolutionStructure(self, solutionName):
         """
         Parameters
         ----------
         solutionName : str
            identifier of the physical quantity, e.g. "U", "sigma"
+           
+        Returns
+        -------
+        SolutionStructureBase
+            solution structure for the demanded solution
         """
         return self.solutionStructures[solutionName]
     
@@ -707,8 +718,8 @@ class CollectionProblemData(object):
         ----------
         solutionName : str
            identifier of the physical quantity, e.g. "U", "sigma"
-        problemData : ProblemData
-           problemData with field Structure
+        solutionStructure : SolutionStructureBase
+            solution structure for the demanded solution
         """
         self.solutionStructures[solutionName] = solutionStructure
 
@@ -751,8 +762,7 @@ class CollectionProblemData(object):
         """
         ndarrays = self.variabilitySupport.values()
         meshgrid = np.meshgrid(*ndarrays, indexing='ij')
-        return np.column_stack(tuple(m for m in meshgrid))
-        
+        return np.column_stack(tuple(m.flatten() for m in meshgrid))
 
     def __str__(self):
         res = "CollectionProblemData\n"

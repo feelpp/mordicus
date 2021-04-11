@@ -40,11 +40,78 @@ class SolutionReaderBase(object):
         """
         raise NotImplementedError("Not implemented in ReaderBase")  # pragma: no cover
     
-    def ReadSolutionStructure(self, fieldName):
+    def WriteReducedOrderBasis(self, fileName, solutionStructure, reducedOrderBasis, fieldName):
         """
-        Reads the *SolutionStructure* object for solutions of name "fieldName"
-        """
+        Converts Mordicus reduced order basis into the format for writing fields
         
+        Parameters
+        ----------
+        fileName : str
+            file to write reduced basis to
+        fieldStructure : SolutionStructureBase
+            field structure giving the context to interpret the vector in terms of field values on the mesh
+        reducedOrderBasis : nparray(numberOfModes, numberOfDofs)
+            numpy array of the modes
+        fieldName : str
+            name of field associated with the basis (e.g. "U", "sigma")      
+        """
+        raise NotImplementedError("Not implemented in ReaderBase")  # pragma: no cover
+
+    def WriteSparseFieldOfEmpiricalWeights(self, fileName, fieldStructure, np_coor_gauss, empirical_weights):
+        """
+        Writes found empirical_weights to a Gauss field
+        
+        Parameters
+        ----------
+        fileName : str
+            file to write field of empirical weights to
+        fieldStructure : MEDAsterSolutionStructure
+            field structure giving the context to interpret the vector in terms of field values on the mesh
+        np_coor_gauss
+            numpy array of empirical Gauss points coordinates
+        empirical_weights
+            numpy array of empirical weights
+        """
+        raise NotImplementedError("Not implemented in ReaderBase")  # pragma: no cover
+
+    def WriteSolution(self, fileName, fieldStructure, solution, fieldName, nameInFile=None, append=False):
+        """
+        Convert a Mordicus snapshot into a field, relying on SolutionStructure to build relations
+        between the vector of values and the mesh.
+        
+        Arguments
+        ---------
+        fileName : str
+            MED file to write solution to
+        fieldStructure : MEDAsterSolutionStructure
+            field structure giving the context to interpret the vector in terms of field values on the mesh
+        solution : Solution
+            solution to write
+        fieldName : str
+            identifier of the physical quantity for the field
+        """
+        raise NotImplementedError("Not implemented in ReaderBase")  # pragma: no cover
+
+    def WriteNumbering(self, fileName, fieldStructure, fieldName, nameInFile=None):
+        """
+        Write an identity application on the input, gets the permutation application on the output.
+        This method is used to convert operators from a FEM code to the numbering system associated
+            with the format of the results (for instance be able to get a consistent numbering between
+            a mass matrix computed with Code_Aster and the results written to MED format)
+            
+        Arguments
+        ---------
+        fileName : str
+            MED file to write permutation to
+        fieldStructure : SolutionStructureBase
+            field structure for which the numbering system has to be converted
+        fieldName : str
+            identifier of the physical quantity for the field
+        nameInFile : str
+            to customize field name in output MED file *fileName*
+        """
+        raise NotImplementedError("Not implemented in ReaderBase")  # pragma: no cover
+
 
     def __str__(self):
         res = "I am a SolutionReaderBase, try instanciating a particular reader instead"

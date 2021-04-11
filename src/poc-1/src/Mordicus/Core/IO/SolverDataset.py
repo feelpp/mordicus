@@ -34,6 +34,8 @@ class SolverDataset(object):
     def __init__(self, produced_object, solver, input_data):
         """
         Constructor
+        
+        Arguments
         """
         self.produced_object = produced_object
         self.solver = solver
@@ -43,17 +45,28 @@ class SolverDataset(object):
         """
         Executes the dataset with its solver
         """
-        if "input_resolution_data" in self.input_data:
-            self.solver.import_resolution_data(self.input_data.pop("input_resolution_data"))
+        if "input_mordicus_data" in self.input_data:
+            self.solver.import_mordicus_data(self.input_data)
         script_after_substitutions = self.solver.call_script.format(**self.input_data, **self.solver.solver_cfg)
         if hasattr(self.solver, "python_preprocessing"):
             self.solver.python_preprocessing(self)
         self.solver.execute(script_after_substitutions)
         return self.extract_result(**kwargs)
     
-    def extract_result(self, **kwargs):
+    def extract_result(self, extract=None, solutionStructures=None, primalities=None, solutionReaderType=None):
         """
         Calls constructor of object to import the file into a data structure
+        
+        Arguments
+        ---------
+        extract : tuple(str)
+            identifier of the solutions to extract (e.g. "U", "sigma"...)
+        solutionStructures: dict
+            dict with solution name as key and solutionStructure as argument
+        primalities: dict
+            dict with solution name as key and solutionStructure as argument
+        solutionReaderType : type
+            specific solution reader to use
         """
         result_file_path = osp.join(self.input_data["input_root_folder"], self.input_data["input_result_path"])
         if self.produced_object == FixedDataBase:
@@ -64,29 +77,30 @@ class SolverDataset(object):
             if self.input_data["input_result_type"] == "matrix":
                 obj.SetInternalStorage(np.load(result_file_path))
         if self.produced_object == ProblemData:
-            extract = kwargs.get("extract", ("U", "sigma"))
             
+            if extract is None or solutionStructures is None or primalities is None:
+                raise ValueError("To extract a ProblemData, all optional arguments to extract_result shall be present")
             # to be changed with the new syntax for defining parameters
             problemData = ProblemData("dummy")
 
             # create reader and get time sequence
-            solutionReader = MEDSolutionReader(result_file_path)
+            solutionReader = solutionReaderType(result_file_path, 0.0)
             outputTimeSequence = solutionReader.ReadTimeSequenceFromSolutionFile(extract[0])
             
             # loop over field to extract
             for field_name in extract:
             
                 # primal field
-                sampleField = kwargs["sampleFieldDual"] if field_name in ("sigma", ) else kwargs["sampleFieldPrimal"]
-                nbeOfComponents = sampleField.getNumberOfComponents()
-                numberOfTuples = sampleField.getNumberOfTuples()
-                primality = True if field_name in ("U", ) else False
+                solutionStructure = solutionStructures[field_name]
+                nbeOfComponents = solutionStructure.GetNumberOfComponents()
+                numberOfNodes = solutionStructure.GetNumberOfNodes()
+                primality = primalities[field_name]
             
-                solution = Solution(field_name, nbeOfComponents, numberOfTuples, primality=primality)
+                solution = Solution(field_name, nbeOfComponents, numberOfNodes, primality=primality)
                 
                 # Read the solutions from file
                 for time in outputTimeSequence:
-                    snap = solutionReader.ReadSnapshotComponent(field_name, time, primality=primality)
+                    snap = solutionReader.ReadSnapshotComponent(field_name, time, primality, solutionStructure)
                     solution.AddSnapshot(snap, time)
                     
                 problemData.AddSolution(solution)
@@ -98,7 +112,8 @@ class SolverDataset(object):
         # typical code to read the solution on one parameter value
 
     def instantiate(self, **kwargs):
-        """Instantiate a template dataset. Replace parameters in file by their values
+        """
+        Instantiate a template dataset. Replace parameters in file by their values
         """
         if "reduced" in kwargs and kwargs.pop("reduced"):
             basestr = "reduced"
@@ -109,7 +124,7 @@ class SolverDataset(object):
             mystr = f.read()
             mytemplate = Template(mystr)
             kws = {k: str(v) for k,v in kwargs.items()}
-            myinstance = mytemplate.substitute(**kws)
+            myinstance = mytemplate.safe_substitute(**kws)
         dirbname = basestr + "_".join([str(hash(v)) for v in kws.values()])
         dirname = osp.join(osp.dirname(self.input_data["input_root_folder"]), dirbname)
         if osp.exists(dirname):
@@ -120,10 +135,14 @@ class SolverDataset(object):
             f.write(myinstance)
         shutil.copyfile(osp.join(self.input_data["input_root_folder"], self.input_data["input_main_file"]), 
                         osp.join(dirname, basestr + ".export"))
+        # tmp to emule
+        shutil.copyfile(osp.join(self.input_data["input_root_folder"], self.input_data["input_result_path"]), 
+                        osp.join(dirname, basestr + ".rmed"))        
+        # end tmp to emule
         input_data = {"input_root_folder"      : dirname,
                       "input_main_file"        : basestr + ".export",
                       "input_instruction_file" : basestr + ".comm",
-                      "input_resolution_data"  : self.input_data.get("input_root_folder"),
+                      "input_mordicus_data"    : self.input_data["input_mordicus_data"],
                       "input_result_path"      : basestr + ".rmed",
                       "input_result_type"      : "med_file"}
 

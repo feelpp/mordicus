@@ -28,11 +28,6 @@ BASE_POD=LIRE_RESU(TYPE_RESU='MODE_EMPI',
                    FORMAT_MED=_F(NOM_CHAM='DEPL',
                                  NOM_CHAM_MED='base____DEPL',),)
 
-IMPR_RESU(FORMAT='MED',
-          UNITE=50,
-          RESU=_F(RESULTAT=BASE_POD))
-
-
 POIDR=LIRE_CHAMP(FORMAT='MED',
                  NOM_MED='W_EMPI__',
                  NOM_CMP='X1',
@@ -44,184 +39,181 @@ POIDR=LIRE_CHAMP(FORMAT='MED',
                  UNITE=25)
 
 
-# ----------------------------------------------------
-# ETAPE 3
+## ----------------------------------------------------
+## ETAPE 3
+##
+## CALCUL D'UNE NOUVELLE SOLUTION REDUITE
+## ----------------------------------------------------
+##
+#CLIMR=AFFE_CHAR_MECA(MODELE=MODELE,
+#                     PESANTEUR=_F(GRAVITE=9.81,
+#                                  DIRECTION=(0.0,0.0,-1.0,),),);
+##poids du dome et du fut
+#CH_DOMR=AFFE_CHAR_MECA(MODELE=MODELE,
+#                       PRES_REP=(_F(GROUP_MA='SH',
+#                                    PRES=p_poids),),);
 #
-# CALCUL D'UNE NOUVELLE SOLUTION REDUITE
-# ----------------------------------------------------
+## Definition et affectation du materiau
+#BETON=DEFI_MATERIAU(ELAS_FO=_F(E=E,
+#                               NU=NU,
+#                               RHO=RHO,
+#                               TEMP_DEF_ALPHA=20.0,
+#                               ALPHA=ALPHA,
+#                               B_ENDOGE=p_endo ,
+#                               FONC_DESORP=FCTD,
+#                               K_DESSIC=${p_kdes},),
+#                    BPEL_BETON=_F(),
+#                    BETON_BURGER=_F(YoungModulus=p_E_b365,
+#                                    PoissonRatio=p_nu,
+#                                    K_RS=p_krs,
+#                                    ETA_RS=p_etars,
+#                                    KAPPA=p_kappa,
+#                                    ETA_IS=p_etais,
+#                                    K_RD=p_krd,
+#                                    ETA_RD=p_etard,
+#                                    ETA_ID=p_etaid,
+#                                    ETA_FD=${p_etafd},
+#                                    TEMP_0_C=p_temp0c,
+#                                    QSR_K=p_qsrk),);
+#CHMATR=AFFE_MATERIAU(MAILLAGE=MAILMEC,
+#                    AFFE=(_F(GROUP_MA=('PACE','SI','SD','SG','SH','SB',),
+#                             MATER=BETON,),
+#                          _F(GROUP_MA=('CABLEH1','CABLEH2','CABLEH3','CABLEV1','CABLEV2'),
+#                             MATER=ACIERC),),
+#                    AFFE_VARC=(_F(TOUT='OUI',
+#                                  EVOL=HYDRC,
+#                                  NOM_VARC='HYDR',
+#                                  NOM_CHAM='HYDR_NOEU'),
+#                               _F(TOUT='OUI',
+#                                  EVOL=SCALC,
+#                                  NOM_VARC='SECH',
+#                                  VALE_REF=C_100,),
+#                              _F(TOUT='OUI',
+#                                 EVOL=TCALC,
+#                                 NOM_VARC='TEMP',
+#                                 VALE_REF=T_arret,),),);
 #
-CLIMR=AFFE_CHAR_MECA(MODELE=MODELE,
-                     PESANTEUR=_F(GRAVITE=9.81,
-                                  DIRECTION=(0.0,0.0,-1.0,),),);
-#poids du dome et du fut
-CH_DOMR=AFFE_CHAR_MECA(MODELE=MODELE,
-                       PRES_REP=(_F(GROUP_MA='SH',
-                                    PRES=p_poids),),);
+## Redefine DEFI_CABLE_BP depending on the above 
+#CABH10R=DEFI_CABLE_BP(MODELE=MODELE,
+#                      CHAM_MATER=CHMATR,
+#                      CARA_ELEM=CARAMECA,
+#                      GROUP_MA_BETON='PACE',
+#                      DEFI_CABLE=(_F(GROUP_MA='CABLEH1',
+#                                     GROUP_NO_ANCRAGE=('CABH1G','CABH1D',),),
+#                                  _F(GROUP_MA='CABLEH2',
+#                                     GROUP_NO_ANCRAGE=('CABH2G','CABH2D',),),
+#                                  _F(GROUP_MA='CABLEH3',
+#                                     GROUP_NO_ANCRAGE=('CABH3G','CABH3D',),),),
+#                      TYPE_ANCRAGE=('ACTIF','ACTIF',),
+#                      TENSION_INIT= p_tensH*p_secc,
+#                      RECUL_ANCRAGE=0.0,
+#                      TYPE_RELAX='SANS',);
+#
+#CABV10R=DEFI_CABLE_BP(MODELE=MODELE,
+#                      CHAM_MATER=CHMATR,
+#                      CARA_ELEM=CARAMECA,
+#                      GROUP_MA_BETON='PACE',
+#                      DEFI_CABLE=(_F(GROUP_MA='CABLEV1',
+#                                     GROUP_NO_ANCRAGE=('CABV1B','CABV1H',),),
+#                                  _F(GROUP_MA='CABLEV2',
+#                                    GROUP_NO_ANCRAGE=('CABV2B','CABV2H',),),),
+#                      TYPE_ANCRAGE=('ACTIF','ACTIF',),
+#                      TENSION_INIT=p_tensV*p_secc,
+#                      RECUL_ANCRAGE=0.0,
+#                      TYPE_RELAX='SANS',);
+#
+## Les "AFFE_CHAR_MECA" de type RELA_CINE_BP ne sont pas intégrées
+##     car les fonctions de la base réduite vérifient déjà toutes ces relations
+#
+#RES2=STAT_NON_LINE(MODELE=MODELE,
+#                   CHAM_MATER=CHMATR,
+#                   CARA_ELEM=CARAMECA,
+#                   EXCIT=(_F(CHARGE=CLIMR,),
+#                          #_F(CHARGE=CH_CABH,),
+#                          _F(CHARGE=CH_DOMR,),
+#                          #_F(CHARGE=CH_CABV,),
+#                          ),
+#                   METHODE='MODELE_REDUIT',
+#                   MODELE_REDUIT=_F(PREDICTION='TANGENTE',
+#                                    REAC_ITER=0,
+#                                    QUADRATURE_EMPIRIQUE=POIDR,
+#                                    BASE_PRIMAL = BASE_POD,
+#                                    DOMAINE_REDUIT  = 'NON',
+#                    ),
+#                   COMPORTEMENT=(_F(RELATION='BETON_BURGER',
+#                                    RESI_INTE_RELA = 1e-12,
+#                                    GROUP_MA='PACE',),
+#                                 _F(RELATION='SANS',
+#                                    GROUP_MA=('CABLEH1','CABLEH2','CABLEH3','CABLEV1','CABLEV2'),),),
+#                   INCREMENT=_F(LIST_INST=LISTE1,
+#                                INST_FIN=TMPI,),
+#                   CONVERGENCE=_F(RESI_GLOB_RELA=1e-05,
+#                                  ITER_GLOB_MAXI=50,),);
+#
+## Il faudra reporter le mot-cle facteur MODELE_REDUIT, et le mot-cle METHODE 
+## dans la macro afin de transmettre aux appels à STAT_NON_LINE
+#RES2=CALC_PRECONT(reuse =RES2,
+#                  MODELE=MODELE,
+#                  CHAM_MATER=CHMATR,
+#                  CARA_ELEM=CARAMECA,
+#                  CABLE_BP=(CABH10R,CABV10R,),
+#                  METHODE='MODELE_REDUIT',
+#                  MODELE_REDUIT=_F(PREDICTION='TANGENTE',
+#                                   REAC_ITER=0,
+#                                   QUADRATURE_EMPIRIQUE=POIDR,
+#                                   BASE_PRIMAL = BASE_POD,
+#                                   DOMAINE_REDUIT  = 'NON',
+#                   ),
+#                  INCREMENT=_F(LIST_INST=LISTE1,
+#                               INST_FIN=TMPF,),
+#                  CONVERGENCE=_F(RESI_GLOB_RELA=1.0e-5,
+#                                 ITER_GLOB_MAXI=50),
+#                  ETAT_INIT=_F(EVOL_NOLI=RES2,),
+#                  EXCIT=(_F(CHARGE=CLIMR,),
+#                         _F(CHARGE=CH_DOMR,),),    
+#                  COMPORTEMENT=(_F(RELATION='BETON_BURGER',
+#                                   RESI_INTE_RELA = 1e-12,
+#                                   GROUP_MA='PACE',),
+#                                _F(RELATION='ELAS',
+#                                   GROUP_MA=('CABLEH1','CABLEH2','CABLEH3',),),
+#                                _F(RELATION='ELAS',
+#                                   GROUP_MA=('CABLEV1','CABLEV2',),),),);
+#
+#
+#RES2=STAT_NON_LINE(reuse =RES2,
+#                   RESULTAT=RES2,
+#                   MODELE=MODELE,
+#                   CHAM_MATER=CHMATR,
+#                   CARA_ELEM=CARAMECA,
+#                   METHODE='MODELE_REDUIT',
+#                   MODELE_REDUIT=_F(PREDICTION='ELASTIQUE',
+#                                    REAC_ITER=0,
+#                                    QUADRATURE_EMPIRIQUE=POIDR,
+#                                    BASE_PRIMAL = BASE_POD,
+#                                    DOMAINE_REDUIT  = 'NON',
+#                    ),
+#                   EXCIT=(_F(CHARGE=CLIMR,),
+#                           #_F(CHARGE=CH_CABH,),
+#                           _F(CHARGE=CH_DOMR,),
+#                           #_F(CHARGE=CH_CABV,),
+#                           ),
+#                   COMPORTEMENT=(_F(RELATION='BETON_BURGER',
+#                                    GROUP_MA='PACE',
+#                                    RESI_INTE_RELA=1.E-12,
+#                                    ITER_INTE_MAXI=50),
+#                                 _F(RELATION='ELAS',
+#                                    GROUP_MA=('CABLEH1','CABLEH2','CABLEH3',),),
+#                                 _F(RELATION='ELAS',
+#                                    GROUP_MA=('CABLEV1','CABLEV2',),),),
+#                   ETAT_INIT=_F(EVOL_NOLI=RES2,),
+#                   INCREMENT=_F(LIST_INST=LISTE2,
+#                                PRECISION=1e-06,),
+#                   CONVERGENCE=_F(RESI_GLOB_RELA=1.0e-5,
+#                                  ITER_GLOB_MAXI=50,),);
+#
+#IMPR_RESU(FORMAT='MED',
+#          UNITE=80,
+#          RESU=_F(RESULTAT=RES2))
 
-# Definition et affectation du materiau
-BETON=DEFI_MATERIAU(ELAS_FO=_F(E=E,
-                               NU=NU,
-                               RHO=RHO,
-                               TEMP_DEF_ALPHA=20.0,
-                               ALPHA=ALPHA,
-                               B_ENDOGE=p_endo ,
-                               FONC_DESORP=FCTD,
-                               K_DESSIC=${p_kdes},),
-                    BPEL_BETON=_F(),
-                    BETON_BURGER=_F(YoungModulus=p_E_b365,
-                                    PoissonRatio=p_nu,
-                                    K_RS=p_krs,
-                                    ETA_RS=p_etars,
-                                    KAPPA=p_kappa,
-                                    ETA_IS=p_etais,
-                                    K_RD=p_krd,
-                                    ETA_RD=p_etard,
-                                    ETA_ID=p_etaid,
-                                    ETA_FD=${p_etafd},
-                                    TEMP_0_C=p_temp0c,
-                                    QSR_K=p_qsrk),);
-CHMATR=AFFE_MATERIAU(MAILLAGE=MAILMEC,
-                    AFFE=(_F(GROUP_MA=('PACE','SI','SD','SG','SH','SB',),
-                             MATER=BETON,),
-                          _F(GROUP_MA=('CABLEH1','CABLEH2','CABLEH3','CABLEV1','CABLEV2'),
-                             MATER=ACIERC),),
-                    AFFE_VARC=(_F(TOUT='OUI',
-                                  EVOL=HYDRC,
-                                  NOM_VARC='HYDR',
-                                  NOM_CHAM='HYDR_NOEU'),
-                               _F(TOUT='OUI',
-                                  EVOL=SCALC,
-                                  NOM_VARC='SECH',
-                                  VALE_REF=C_100,),
-                              _F(TOUT='OUI',
-                                 EVOL=TCALC,
-                                 NOM_VARC='TEMP',
-                                 VALE_REF=T_arret,),),);
-
-# Redefine DEFI_CABLE_BP depending on the above 
-CABH10R=DEFI_CABLE_BP(MODELE=MODELE,
-                      CHAM_MATER=CHMATR,
-                      CARA_ELEM=CARAMECA,
-                      GROUP_MA_BETON='PACE',
-                      DEFI_CABLE=(_F(GROUP_MA='CABLEH1',
-                                     GROUP_NO_ANCRAGE=('CABH1G','CABH1D',),),
-                                  _F(GROUP_MA='CABLEH2',
-                                     GROUP_NO_ANCRAGE=('CABH2G','CABH2D',),),
-                                  _F(GROUP_MA='CABLEH3',
-                                     GROUP_NO_ANCRAGE=('CABH3G','CABH3D',),),),
-                      TYPE_ANCRAGE=('ACTIF','ACTIF',),
-                      TENSION_INIT= p_tensH*p_secc,
-                      RECUL_ANCRAGE=0.0,
-                      TYPE_RELAX='SANS',);
-
-CABV10R=DEFI_CABLE_BP(MODELE=MODELE,
-                      CHAM_MATER=CHMATR,
-                      CARA_ELEM=CARAMECA,
-                      GROUP_MA_BETON='PACE',
-                      DEFI_CABLE=(_F(GROUP_MA='CABLEV1',
-                                     GROUP_NO_ANCRAGE=('CABV1B','CABV1H',),),
-                                  _F(GROUP_MA='CABLEV2',
-                                    GROUP_NO_ANCRAGE=('CABV2B','CABV2H',),),),
-                      TYPE_ANCRAGE=('ACTIF','ACTIF',),
-                      TENSION_INIT=p_tensV*p_secc,
-                      RECUL_ANCRAGE=0.0,
-                      TYPE_RELAX='SANS',);
-
-# Les "AFFE_CHAR_MECA" de type RELA_CINE_BP ne sont pas intégrées
-#     car les fonctions de la base réduite vérifient déjà toutes ces relations
-
-RES2=STAT_NON_LINE(MODELE=MODELE,
-                   CHAM_MATER=CHMATR,
-                   CARA_ELEM=CARAMECA,
-                   EXCIT=(_F(CHARGE=CLIMR,),
-                          #_F(CHARGE=CH_CABH,),
-                          _F(CHARGE=CH_DOMR,),
-                          #_F(CHARGE=CH_CABV,),
-                          ),
-                   METHODE='MODELE_REDUIT',
-                   MODELE_REDUIT=_F(PREDICTION='TANGENTE',
-                                    REAC_ITER=0,
-                                    QUADRATURE_EMPIRIQUE=POIDR,
-                                    BASE_PRIMAL = BASE_POD,
-                                    DOMAINE_REDUIT  = 'NON',
-                    ),
-                   COMPORTEMENT=(_F(RELATION='BETON_BURGER',
-                                    RESI_INTE_RELA = 1e-12,
-                                    GROUP_MA='PACE',),
-                                 _F(RELATION='SANS',
-                                    GROUP_MA=('CABLEH1','CABLEH2','CABLEH3','CABLEV1','CABLEV2'),),),
-                   INCREMENT=_F(LIST_INST=LISTE1,
-                                INST_FIN=TMPI,),
-                   CONVERGENCE=_F(RESI_GLOB_RELA=1e-05,
-                                  ITER_GLOB_MAXI=50,),);
-
-# Il faudra reporter le mot-cle facteur MODELE_REDUIT, et le mot-cle METHODE 
-# dans la macro afin de transmettre aux appels à STAT_NON_LINE
-RES2=CALC_PRECONT(reuse =RES2,
-                  MODELE=MODELE,
-                  CHAM_MATER=CHMATR,
-                  CARA_ELEM=CARAMECA,
-                  CABLE_BP=(CABH10R,CABV10R,),
-                  METHODE='MODELE_REDUIT',
-                  MODELE_REDUIT=_F(PREDICTION='TANGENTE',
-                                   REAC_ITER=0,
-                                   QUADRATURE_EMPIRIQUE=POIDR,
-                                   BASE_PRIMAL = BASE_POD,
-                                   DOMAINE_REDUIT  = 'NON',
-                   ),
-                  INCREMENT=_F(LIST_INST=LISTE1,
-                               INST_FIN=TMPF,),
-                  CONVERGENCE=_F(RESI_GLOB_RELA=1.0e-5,
-                                 ITER_GLOB_MAXI=50),
-                  ETAT_INIT=_F(EVOL_NOLI=RES2,),
-                  EXCIT=(_F(CHARGE=CLIMR,),
-                         _F(CHARGE=CH_DOMR,),),    
-                  COMPORTEMENT=(_F(RELATION='BETON_BURGER',
-                                   RESI_INTE_RELA = 1e-12,
-                                   GROUP_MA='PACE',),
-                                _F(RELATION='ELAS',
-                                   GROUP_MA=('CABLEH1','CABLEH2','CABLEH3',),),
-                                _F(RELATION='ELAS',
-                                   GROUP_MA=('CABLEV1','CABLEV2',),),),);
-
-
-RES2=STAT_NON_LINE(reuse =RES2,
-                   RESULTAT=RES2,
-                   MODELE=MODELE,
-                   CHAM_MATER=CHMATR,
-                   CARA_ELEM=CARAMECA,
-                   METHODE='MODELE_REDUIT',
-                   MODELE_REDUIT=_F(PREDICTION='ELASTIQUE',
-                                    REAC_ITER=0,
-                                    QUADRATURE_EMPIRIQUE=POIDR,
-                                    BASE_PRIMAL = BASE_POD,
-                                    DOMAINE_REDUIT  = 'NON',
-                    ),
-                   EXCIT=(_F(CHARGE=CLIMR,),
-                           #_F(CHARGE=CH_CABH,),
-                           _F(CHARGE=CH_DOMR,),
-                           #_F(CHARGE=CH_CABV,),
-                           ),
-                   COMPORTEMENT=(_F(RELATION='BETON_BURGER',
-                                    GROUP_MA='PACE',
-                                    RESI_INTE_RELA=1.E-12,
-                                    ITER_INTE_MAXI=50),
-                                 _F(RELATION='ELAS',
-                                    GROUP_MA=('CABLEH1','CABLEH2','CABLEH3',),),
-                                 _F(RELATION='ELAS',
-                                    GROUP_MA=('CABLEV1','CABLEV2',),),),
-                   ETAT_INIT=_F(EVOL_NOLI=RES2,),
-                   INCREMENT=_F(LIST_INST=LISTE2,
-                                PRECISION=1e-06,),
-                   CONVERGENCE=_F(RESI_GLOB_RELA=1.0e-5,
-                                  ITER_GLOB_MAXI=50,),);
-
-IMPR_RESU(FORMAT='MED',
-          UNITE=80,
-          RESU=_F(RESULTAT=RES2))
-
-IMPR_RESU(FORMAT='MED',
-          UNITE=51,
-          RESU=_F(RESULTAT=RES2))
 FIN()
 

@@ -20,17 +20,6 @@
 
 POURSUITE()
 
-
-# READ RAW REDUCED RESULT
-# -----------------------
-RES_RAW=LIRE_RESU(TYPE_RESU='EVOL_NOLI',
-                  FORMAT='MED',
-                  MODELE=MODELE,
-                  TOUT_ORDRE='OUI',
-                  UNITE=80,
-                  FORMAT_MED=_F(NOM_CHAM='SIEF_ELGA',
-                                NOM_CHAM_MED='RES2____SIEF_ELGA',),)
-
 #
 # READ RECONSTRUCTED RESULT
 # -------------------------
@@ -52,41 +41,6 @@ CLIMR=AFFE_CHAR_MECA(MODELE=MODELE,
 CH_DOMR=AFFE_CHAR_MECA(MODELE=MODELE,
                        PRES_REP=(_F(GROUP_MA='SH',
                                     PRES=p_poids),),);
-#
-# WORKAROUND TO GET THE RIGHT STRESSES ON BARS
-# --------------------------------------------
-siefr = [None]*len(l_py)
-fackwds = []
-
-for i, ti in enumerate(l_py):
-    sief3d = CREA_CHAMP(OPERATION='EXTR',
-                        TYPE_CHAM='ELGA_SIEF_R',
-                        RESULTAT=RES_REC,
-                        NOM_CHAM='SIEF_ELGA',
-                        INST=ti);
-    sief1d = CREA_CHAMP(OPERATION='EXTR',
-                        TYPE_CHAM='ELGA_SIEF_R',
-                        RESULTAT=RES_RAW,
-                        NOM_CHAM='SIEF_ELGA',
-                        INST=ti);
-    siefr[i]=CREA_CHAMP(OPERATION='ASSE',
-                        TYPE_CHAM='ELGA_SIEF_R',
-                        MODELE=MODELE,
-                        ASSE=(_F(CHAM_GD=sief3d,
-                                 GROUP_MA='PACE',),
-                              _F(CHAM_GD=sief1d,
-                                 GROUP_MA='CABLE',),),)
-    DETRUIRE(CONCEPT=_F(NOM=sief1d))
-    DETRUIRE(CONCEPT=_F(NOM=sief3d))
-    fackwds.append({'CHAM_GD': siefr[i], 'INST': ti, 'PRECISION': 1.E-5, 'MODELE': MODELE})
-
-# Take reconstructed field and overwrite stress field
-RES_REC=CREA_RESU(reuse=RES_REC,
-                  RESULTAT=RES_REC,
-                  OPERATION='AFFE',
-                  TYPE_RESU='EVOL_NOLI',
-                  NOM_CHAM='SIEF_ELGA',
-                  AFFE=tuple(_F(**mydict) for mydict in fackwds),);
 
 BETON=DEFI_MATERIAU(ELAS_FO=_F(E=E,
                                NU=NU,

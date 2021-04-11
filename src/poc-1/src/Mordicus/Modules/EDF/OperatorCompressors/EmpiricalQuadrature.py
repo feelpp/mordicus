@@ -3,49 +3,64 @@ import numpy as np
 Algorithms for empirical quadrature
 """
 
-def computeMatrixAndVector(problemData, collectionProblemData, fieldHandler):
+def computeMatrixAndVector(fieldHandler, problemData, collectionProblemData):
     """
     Arguments:
     ----------
+    fieldHandler : fieldHandlerBase
+        field implementation to use for field manipulation (e.g. medcoupling...)
     problemData : ProblemData
         new solution (1 parameter value, all time steps)
     reducedOrderBasisU : nparray(numberOfModes, numerOfDofs)
         reduced order basis
-    fieldHandler : fieldHandlerBase
-        field implementation to use for field manipulation (e.g. medcoupling...)
         
     Returns
     -------
     np.array, np.array : matrix and vector of empirical quadrature, allocated within routine
     """
     # k denotes the row of G
-    return _addNewResultsToMatrixAndVector(problemData, collectionProblemData, fieldHandler, 0)
+    return _addNewResultsToMatrixAndVector(fieldHandler, problemData, collectionProblemData, 0)
 
-def cdoubledot(fieldHandler, solutionUInstance, u, solutionSigmaInstance, sigma):
-    """Computes SymGrad(u):sigma (doubly contracted product)
+def cdoubledot(fieldHandler, solutionUStructure, u, solutionSigmaStructure, sigma):
     """
-    # Convert to MEDCouplingField
-    fieldU = fieldHandler.ConvertToLocalField(solutionUInstance, u)
-    fieldSigma = fieldHandler.ConvertToLocalField(solutionSigmaInstance, sigma)
+    Computes SymGrad(u):sigma (doubly contracted product)
+    
+    Arguments
+    ---------
+    fieldHandler : fieldHandlerBase
+        field implementation to use for field manipulation (e.g. medcoupling...)
+    solutionUStructure : SolutionStructureBase
+        solution structure for primal field
+    u : ndarray
+        values of displacement field
+    solutionSigmaStructure : SolutionStructureBase
+        solution structure for dual field
+    sigma : ndarray
+        values of stress field
+    
+    """
+    # Convert to dict of MEDCouplingField
+    fieldU = fieldHandler.ConvertToLocalField(solutionUStructure, u)
+    fieldSigma = fieldHandler.ConvertToLocalField(solutionSigmaStructure, sigma)
     # Make the doubly contracted product
 
-    fieldEpsilon = fieldHandler.symetricGradient(fieldU, solutionSigmaInstance)
+    fieldEpsilon = fieldHandler.symetricGradient(fieldU, solutionSigmaStructure, solutionUStructure)
 
     fieldContracted = fieldHandler.doublContractedProduct(fieldSigma, fieldEpsilon)
     return fieldContracted
 
-def _addNewResultsToMatrixAndVector(problemData, collectionProblemData, fieldHandler, k, G=None, Y=None):
+def _addNewResultsToMatrixAndVector(fieldHandler, problemData, collectionProblemData, k, G=None, Y=None):
     """
     Adds newly computed snapshots from problemData to the matrix and vector of empirical quadrature
     
     Arguments
     ---------
+    fieldHandler : fieldHandlerBase
+        field implementation to use for field manipulation (e.g. medcoupling...)
     problemData : ProblemData
         new solution (1 parameter value, all time steps)
     reducedOrderBasisU : nparray(numberOfModes, numerOfDofs)
         reduced order basis
-    fieldHandler : fieldHandlerBase
-        field implementation to use for field manipulation (e.g. medcoupling...)
     k : lines already in G and Y
     """
     reducedOrderBasisU = collectionProblemData.GetReducedOrderBasis("U")
@@ -67,7 +82,7 @@ def _addNewResultsToMatrixAndVector(problemData, collectionProblemData, fieldHan
 
             u = reducedOrderBasisU[n,:]
             
-            fieldContracted = cdoubledot(fieldHandler, collectionProblemData.GetFieldInstance("U"), u, collectionProblemData.GetFieldInstance("sigma"), sigma)
+            fieldContracted = cdoubledot(fieldHandler, collectionProblemData.GetSolutionStructure("U"), u, collectionProblemData.GetSolutionStructure("sigma"), sigma)
             
             # Convert back to numpy array
             G[k,:] = fieldHandler.ConvertFromLocalField(fieldContracted)
@@ -96,21 +111,22 @@ def enrichMatrixAndVector(G, Y, problemData, collectionProblemData, fieldHandler
         field implementation to use for field manipulation (e.g. medcoupling...)
     """
     k = Y.size
-    G, Y = _addNewResultsToMatrixAndVector(problemData, collectionProblemData, fieldHandler, k, G, Y)
-    solutionUInstance = collectionProblemData.GetFieldInstance("U")
+    G, Y = _addNewResultsToMatrixAndVector(fieldHandler, problemData, collectionProblemData, k, G, Y)
+    solutionUStructure = collectionProblemData.GetSolutionStructure("U")
+
     k = Y.size
     reducedOrderBasisU = collectionProblemData.GetReducedOrderBasis("U")
 
     for previousProblemData in collectionProblemData.GetProblemDatas():
         solutionSigma = previousProblemData.GetSolution("sigma")
-        solutionSigmaInstance = collectionProblemData.GetFieldInstance("sigma")
+        solutionSigmaStructure = collectionProblemData.GetSolutionStructure("sigma")
 
         for t in solutionSigma.GetTimeSequenceFromSnapshots():
             sigma = solutionSigma.GetSnapshot(t)
             
             for n in range(newmodes):
                 u = reducedOrderBasisU[n,:]
-                fieldDoublyContractedProduct = _cdoubledot(fieldHandler, solutionUInstance, u, solutionSigmaInstance, sigma)
+                fieldDoublyContractedProduct = cdoubledot(fieldHandler, solutionUStructure, u, solutionSigmaStructure, sigma)
             
                 # Convert back to numpy array
                 G[k,:] = fieldHandler.ConvertFromLocalField(fieldDoublyContractedProduct)
@@ -123,7 +139,16 @@ def enrichMatrixAndVector(G, Y, problemData, collectionProblemData, fieldHandler
 
 def solve(G, Y, volume, delta=1.e-5):
     """
-    Solve for sparse empirical weignts
+    Solve for sparse empirical weights. This function is purely agebraic.
+    
+    G : ndarray
+        dictionnary matrix. Values on the Gauss points of the functions we wish to integrate correctly on Omega.
+    Y : ndarray
+        right-hand side vector. Values of integral of these functions with full quadature scheme.
+    volume : double
+        volume of Omega
+    delta : double
+        desired accuracy of the sparse approximate quadrature scheme
     """
     import numpy as np
 
@@ -132,7 +157,6 @@ def solve(G, Y, volume, delta=1.e-5):
     m = G.shape[1]
 
     c = np.ones((m))
-    null = np.zeros((n+1,m))
     tildeG = np.concatenate((G, np.ones((1,m))), axis = 0)
     #
     A = np.concatenate((tildeG, -tildeG), axis = 0)
