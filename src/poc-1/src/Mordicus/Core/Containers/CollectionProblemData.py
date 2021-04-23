@@ -344,6 +344,10 @@ class CollectionProblemData(object):
             problemData, ProblemData.ProblemData
         ), "wrong type for problemData"
         self._checkPointInParameterSpace(**kwargs)
+
+        if tuple(kwargs.values()) in self.problemDatas.keys():
+            print("Warning: problemData at key "+str(tuple(kwargs.values()))+" already existing, overwriting it anyway")
+
         self.problemDatas[tuple(kwargs.values())] = problemData
         return
 
@@ -426,13 +430,17 @@ class CollectionProblemData(object):
         int
             nbeOfComponents of solutions of name "solutionName"
         """
-        nbeOfComponents = [
-            problemData.solutions[solutionName].GetNbeOfComponents()
-            for _, problemData in self.GetProblemDatas().items()
-        ]
+
+        nbeOfComponents = []
+        for _, problemData in self.GetProblemDatas().items():
+            try:
+                nbeOfComponents.append(problemData.GetSolution(solutionName).GetNbeOfComponents())
+            except KeyError:
+                continue
         assert nbeOfComponents.count(nbeOfComponents[0]) == len(nbeOfComponents)
 
         return nbeOfComponents[0]
+
 
     def GetSolutionsNumberOfDofs(self, solutionName):
         """
@@ -449,10 +457,13 @@ class CollectionProblemData(object):
         int
             nbeOfDofs of solutions of name "solutionName"
         """
-        nbeOfDofs = [
-            problemData.solutions[solutionName].GetNumberOfDofs()
-            for _, problemData in self.GetProblemDatas().items()
-        ]
+
+        nbeOfDofs = []
+        for _, problemData in self.GetProblemDatas().items():
+            try:
+                nbeOfDofs.append(problemData.GetSolution(solutionName).GetNumberOfDofs())
+            except KeyError:
+                continue
         assert nbeOfDofs.count(nbeOfDofs[0]) == len(nbeOfDofs)
 
         return nbeOfDofs[0]
@@ -510,9 +521,12 @@ class CollectionProblemData(object):
 
             def __iter__(self):
                 for problemData in self.problemDatas.values():
-                    localIterator  = problemData.GetSolution(self.solutionName).GetSnapshotsList()[self.startIndex :]
-                    for snapshot in localIterator:
-                        yield snapshot
+                    try:
+                        localIterator = problemData.GetSolution(self.solutionName).GetSnapshotsList()[self.startIndex:]
+                        for snapshot in localIterator:
+                            yield snapshot
+                    except KeyError:
+                        continue
 
         res = iterator(solutionName, skipFirst)
         return res
@@ -531,6 +545,18 @@ class CollectionProblemData(object):
             snapshots[i,:] = s
 
         return snapshots
+
+
+
+    def GetLoadingsOfType(self, type):
+        """
+        GetBoundaryConditionsOfType
+        """
+        li = []
+        for _, problemData in self.GetProblemDatas().items():
+            li.extend(problemData.GetLoadingsOfType(type))
+        return li
+
 
 
     def GetSnapshotsAtTimes(self, solutionName, timeSequence):
@@ -649,7 +675,10 @@ class CollectionProblemData(object):
 
         number = 0
         for _, problemData in self.problemDatas.items():
-            number += problemData.solutions[solutionName].GetNumberOfSnapshots() + offset
+            try:
+                number += problemData.GetSolution(solutionName).GetNumberOfSnapshots() + offset
+            except KeyError:
+                continue
         return number
 
 

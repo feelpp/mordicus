@@ -302,6 +302,19 @@ class ProblemData(object):
 
 
 
+    def GetLoading(self, solutionName, type, set):
+        """
+        Returns
+        -------
+        loading
+        """
+        for loading in self.GetLoadings().values():
+            if loading.GetIdentifier() == (solutionName,type,set):
+                return loading
+        else:
+            raise("loading "+str((solutionName, type, set))+" not available")
+
+
     def GetLoadingsOfType(self, type):
         """
         Returns
@@ -398,15 +411,18 @@ class ProblemData(object):
         """
         assert isinstance(solutionName, str)
 
-        if solutionName not in self.solutions:
+        """if solutionName not in self.solutions:
             raise AttributeError(
                 "You must provide solutions "
                 + solutionName
-                + "before trying to compress them"
-            )  # pragma: no cover
+                + " before trying to compress them"
+            )  # pragma: no cover"""
 
-        solution = self.GetSolution(solutionName)
-        solution.CompressSnapshots(snapshotCorrelationOperator, reducedOrderBasis)
+        try:
+            solution = self.GetSolution(solutionName)
+            solution.CompressSnapshots(snapshotCorrelationOperator, reducedOrderBasis)
+        except KeyError:
+            return
 
 
     def ConvertCompressedSnapshotReducedOrderBasis(self, solutionName, projectedReducedOrderBasis):
@@ -450,7 +466,8 @@ class ProblemData(object):
 
 
     def __str__(self):
-        res = "Solutions:" + str(list(self.solutions.keys()))
+        res = "ProblemData of name: "+self.problemName+"\n"
+        #res += "Solutions:" + str(list(self.solutions.keys()))
         return res
 
 
