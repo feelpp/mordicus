@@ -52,6 +52,14 @@ def ComputeH10ScalarProductMatrix(mesh, numberOfComponents):
     return FT.ComputeH10ScalarProductMatrix(unstructuredMesh, numberOfComponents)
 
 
+def ComputeJdetAtIntegPoint(mesh, elementSets = None, relativeDimension = 0):
+
+    unstructuredMesh = ConvertMeshToUnstructuredMesh(mesh)
+
+    return FT.ComputeJdetAtIntegPoint(unstructuredMesh, elementSets, relativeDimension)
+
+
+
 def ComputePhiAtIntegPoint(mesh, elementSets = None, relativeDimension = 0):
 
     unstructuredMesh = ConvertMeshToUnstructuredMesh(mesh)
@@ -117,7 +125,7 @@ def ComputeMaterialKeyPerIntegrationPoint(listOfTags, keysConstitutiveLaws):
     for i in range(numberOfIntegrationPoints):
         tags = set(listOfTags[i]+["ALLELEMENT"])
         tagsIntersec = keysConstitutiveLaws & tags
-        assert len(tagsIntersec) == 1, "more than one constitutive law for a reducedIntegrationPoint"
+        assert len(tagsIntersec) == 1, "either no constitutive law has been set or there are more than one constitutive law for a reducedIntegrationPoint"
         materialKeyPerIntegrationPoint.append(tagsIntersec.pop())
 
     return materialKeyPerIntegrationPoint

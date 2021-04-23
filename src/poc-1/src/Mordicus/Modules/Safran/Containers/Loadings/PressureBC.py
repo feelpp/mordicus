@@ -39,12 +39,12 @@ class PressureBC(LoadingBase):
 
         #self.coefficients = collections.OrderedDict
         self.coefficientsTimes = None
-        self.coefficientsValues = None        
-        
+        self.coefficientsValues = None
+
         #self.fieldsMap = collections.OrderedDict
         self.fieldsMapTimes = None
         self.fieldsMapValues = None
-        
+
         self.fields = {}
         self.assembledReducedFields = {}
 
@@ -71,7 +71,7 @@ class PressureBC(LoadingBase):
 
         #self.coefficients = coefficients
         self.coefficientsTimes = np.array(list(coefficients.keys()), dtype = float)
-        self.coefficientsValues = np.array(list(coefficients.values()), dtype = float)        
+        self.coefficientsValues = np.array(list(coefficients.values()), dtype = float)
 
 
 
@@ -92,7 +92,7 @@ class PressureBC(LoadingBase):
 
         #self.fieldsMap = fieldsMap
         self.fieldsMapTimes = np.array(list(fieldsMap.keys()), dtype = float)
-        self.fieldsMapValues = np.array(list(fieldsMap.values()), dtype = str)        
+        self.fieldsMapValues = np.array(list(fieldsMap.values()), dtype = str)
 
 
 
@@ -117,7 +117,7 @@ class PressureBC(LoadingBase):
 
     def GetFields(self):
         return self.fields
-    
+
 
     def GetAssembledReducedFieldAtTime(self, time):
         """
@@ -167,11 +167,11 @@ class PressureBC(LoadingBase):
 
         keymap = list(self.GetFields().keys())
         numberOfFields = len(keymap)
-        
-        
+
+
         fieldsAtIntegrationPoints = FT.CellDataToIntegrationPointsData(mesh, self.GetSet(), self.GetFields(), relativeDimension = -1)
         #this can be bypassed is the pressure values are already given at the integration points
-        
+
         normalsAtIntegrationPoints = FT.ComputeNormalsAtIntegPoint(mesh, [self.GetSet()])
 
         integrationWeights, phiAtIntegPoint = FT.ComputePhiAtIntegPoint(mesh, [self.GetSet()], relativeDimension = -1)
@@ -180,10 +180,15 @@ class PressureBC(LoadingBase):
 
         for f in range(numberOfFields):
             assembledField = phiAtIntegPoint.T.dot(normalFieldsWeightsAtIntegrationPoints[:,f,:]).T.flatten()
-            
+
             self.assembledReducedFields[keymap[f]] = np.dot(reducedOrderBases[self.solutionName], assembledField)
             """assembledField0 = FT.IntegrateVectorNormalComponentOnSurface(mesh, self.GetSet(), self.GetFields()[keymap[f]])
             print("rel_dif =", np.linalg.norm(assembledField - assembledField0)/np.linalg.norm(assembledField0))"""
+
+
+    def HyperReduceLoading(self, mesh, problemData, reducedOrderBases, operatorCompressionData):
+
+        return
 
 
 

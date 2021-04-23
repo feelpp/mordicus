@@ -36,9 +36,9 @@ class Temperature(LoadingBase):
         #self.fieldsMap = collections.OrderedDict
         self.fieldsMapTimes = None
         self.fieldsMapValues = None
-        
+
         self.PhiAtReducedIntegPoint = None
-        
+
         self.fields = {}
         self.fieldsAtReducedIntegrationPoints = {}
 
@@ -99,7 +99,7 @@ class Temperature(LoadingBase):
         from Mordicus.Core.BasicAlgorithms import Interpolation as TI
 
         # compute fieldsAtReducedIntegrationPoints at time
-                
+
         temperatureAtReducedIntegrationPoints = TI.PieceWiseLinearInterpolationWithMap(
             time,
             self.fieldsMapTimes,
@@ -110,15 +110,15 @@ class Temperature(LoadingBase):
 
 
     def PreReduceLoading(self, mesh, operatorCompressionData):
-                
+
         if self.PhiAtReducedIntegPoint == None:
-                        
+
             assert 'reducedIntegrationPoints' in operatorCompressionData, "operatorCompressionData must contain a key 'reducedIntegrationPoints'"
-            
+
             from Mordicus.Modules.Safran.FE import FETools as FT
             _, PhiAtIntegPoint = FT.ComputePhiAtIntegPoint(mesh)
             self.PhiAtReducedIntegPoint = PhiAtIntegPoint.tocsr()[operatorCompressionData["reducedIntegrationPoints"],:]
-            
+
 
     def ReduceLoading(self, mesh = None, problemData = None, reducedOrderBases = None, operatorCompressionData = None):
 
@@ -128,7 +128,12 @@ class Temperature(LoadingBase):
         for key, field in self.fields.items():
 
             self.fieldsAtReducedIntegrationPoints[key] = self.PhiAtReducedIntegPoint.dot(field)
-            
+
+
+    def HyperReduceLoading(self, mesh, problemData, reducedOrderBases, operatorCompressionData):
+
+        return
+
 
 
     def ComputeContributionToReducedExternalForces(self, time):

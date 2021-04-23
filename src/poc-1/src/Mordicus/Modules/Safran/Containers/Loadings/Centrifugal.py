@@ -34,19 +34,25 @@ class Centrifugal(LoadingBase):
         assert isinstance(set, str)
         assert isinstance(solutionName, str)
         assert solutionName == "U", "Centrifugal loading can only be applied on U solution types"
-        
+
 
         super(Centrifugal, self).__init__("U", set, "centrifugal")
 
         #self.rotationVelocity = collections.OrderedDict
-        
+
         self.rotationVelocityTimes = None
         self.rotationVelocityValues = None
-        
+
         self.center = None
         self.direction = None
         self.coefficient = None
         self.reducedUnitCentrifugalVector = None
+
+        self.reducedIntegrationWeights = None
+        self.reducedIntegrationPoints = None
+        self.reducedUnAssembledReducedUnitCentrifugalVector = None
+        self.JdetAtReducedIntegPoint = None
+
 
 
     def SetRotationVelocity(self, rotationVelocity):
@@ -70,7 +76,7 @@ class Centrifugal(LoadingBase):
         )
 
         #self.rotationVelocity = rotationVelocity
-        
+
         self.rotationVelocityTimes = np.array(list(rotationVelocity.keys()), dtype = float)
         self.rotationVelocityValues = np.array(list(rotationVelocity.values()), dtype = float)
 
@@ -119,13 +125,13 @@ class Centrifugal(LoadingBase):
         rotationVelocity = TI.PieceWiseLinearInterpolation(
             time, self.rotationVelocityTimes, self.rotationVelocityValues
         )
-        
+
         return rotationVelocity
 
 
 
 
-    def ReduceLoading(self, mesh, problemData, reducedOrderBases, operatorCompressionData):
+    def ReduceLoading(self, mesh, problemData, reducedOrderBases, operatorCompressionData = None):
 
         from Mordicus.Modules.Safran.FE import FETools as FT
 
@@ -133,29 +139,100 @@ class Centrifugal(LoadingBase):
         for key, law in problemData.GetConstitutiveLaws().items():
             if key[0] == "mechanical":
                 density[key[1]] = law.GetDensity()
-                
+
         assembledUnitCentrifugalVector0 = FT.IntegrateCentrifugalEffect(mesh, density, self.direction, self.center)"""
 
-        
         integrationWeights, phiAtIntegPoint = FT.ComputePhiAtIntegPoint(mesh)
         integrationPointsPosition = phiAtIntegPoint.dot(mesh.GetNodes())
         ipPositionFromRotationCenter = integrationPointsPosition - self.center
-        length = np.einsum('ij,j->i', ipPositionFromRotationCenter, self.direction, optimize = True)        
-        ipProjectionFromRotationCenter = np.outer(length, np.array(self.direction))        
+        length = np.einsum('ij,j->i', ipPositionFromRotationCenter, self.direction, optimize = True)
+        ipProjectionFromRotationCenter = np.outer(length, np.array(self.direction))
         r = (ipPositionFromRotationCenter - ipProjectionFromRotationCenter)
-        
-        integrationPointsTags = FT.ComputeIntegrationPointsTags(mesh)        
-        assert len(integrationPointsTags) == len(integrationWeights), "integrationPointsTags and integrationWeights have different length"
-        constitutiveLawSets = problemData.GetSetsOfConstitutiveOfType("mechanical")        
-        materialKeyPerIntegrationPoint = FT.ComputeMaterialKeyPerIntegrationPoint(integrationPointsTags, constitutiveLawSets)
-        
-        densityAtIntegrationPoints = np.array([problemData.GetConstitutiveLaws()[("mechanical",set)].GetDensity() for set in materialKeyPerIntegrationPoint])
-                
-        densityRWeightAtIntegrationPoints = np.einsum('ij,i,i->ij', r, densityAtIntegrationPoints, integrationWeights, optimize = True)
 
+        integrationPointsTags = FT.ComputeIntegrationPointsTags(mesh)
+        assert len(integrationPointsTags) == len(integrationWeights), "integrationPointsTags and integrationWeights have different length"
+        constitutiveLawSets = problemData.GetSetsOfConstitutiveOfType("mechanical")
+        materialKeyPerIntegrationPoint = FT.ComputeMaterialKeyPerIntegrationPoint(integrationPointsTags, constitutiveLawSets)
+
+        densityAtIntegrationPoints = np.array([problemData.GetConstitutiveLaws()[("mechanical",set)].GetDensity() for set in materialKeyPerIntegrationPoint])
+
+
+        """densityRWeightAtIntegrationPoints = np.einsum('ij,i,i->ij', r, densityAtIntegrationPoints, integrationWeights, optimize = True)
         assembledUnitCentrifugalVector = phiAtIntegPoint.T.dot(densityRWeightAtIntegrationPoints).T.flatten()
-        
-        self.reducedUnitCentrifugalVector = np.dot(reducedOrderBases[self.solutionName], assembledUnitCentrifugalVector)
+        self.reducedUnitCentrifugalVector = np.dot(reducedOrderBases[self.solutionName], assembledUnitCentrifugalVector)"""
+
+        numberOfComponents = mesh.GetDimensionality()
+        numberOfIntegrationPoints = len(integrationWeights)
+        numberOfModes = reducedOrderBases[self.solutionName].shape[0]
+        numberOfNodes = mesh.GetNumberOfNodes()
+
+        componentReducedOrderBasis = []
+        for i in range(numberOfComponents):
+            componentReducedOrderBasis.append(reducedOrderBases[self.solutionName][:,i*numberOfNodes:(i+1)*numberOfNodes].T)
+
+        reducedPhiAtIntegPoints = np.empty((numberOfComponents,numberOfIntegrationPoints,numberOfModes))
+
+        for i in range(numberOfComponents):
+            reducedPhiAtIntegPoints[i] = phiAtIntegPoint.dot(componentReducedOrderBasis[i])
+
+        """unAssembledReducedUnitCentrifugalVector = np.einsum('ij,i,jik->ik', r, densityAtIntegrationPoints, reducedPhiAtIntegPoints, optimize = True)
+
+        self.reducedUnitCentrifugalVector = np.einsum('ij,i->j', unAssembledReducedUnitCentrifugalVector, integrationWeights, optimize = True)"""
+        self.unAssembledReducedUnitCentrifugalVector = np.einsum('ij,i,jik->ki', r, densityAtIntegrationPoints, reducedPhiAtIntegPoints, optimize = True)
+
+        print("self.unAssembledReducedUnitCentrifugalVector =", self.unAssembledReducedUnitCentrifugalVector)
+
+        self.reducedUnitCentrifugalVector = np.dot(self.unAssembledReducedUnitCentrifugalVector, integrationWeights)
+
+
+        return self.unAssembledReducedUnitCentrifugalVector, integrationWeights
+
+
+
+
+    def CompressOperatorOffline(self, unAssembledReducedUnitCentrifugalVectors, integrationWeights, JdetAtIntegPointRef):
+        from Mordicus.Modules.Safran.OperatorCompressors import ReducedQuadratureProcedure as RQP
+
+        reducedIntegrationPoints, reducedIntegrationWeights = RQP.ComputeReducedIntegrationScheme(integrationWeights, unAssembledReducedUnitCentrifugalVectors, 1.e-6)
+
+        self.reducedIntegrationWeights = reducedIntegrationWeights
+        self.reducedIntegrationPoints = reducedIntegrationPoints
+        self.reducedUnAssembledReducedUnitCentrifugalVector = self.unAssembledReducedUnitCentrifugalVector[:,reducedIntegrationPoints]
+
+        self.JdetAtReducedIntegPoint = JdetAtIntegPointRef[self.reducedIntegrationPoints]
+
+
+
+
+    def CompressOperatorOnline0(self, newMesh):
+
+        from Mordicus.Modules.Safran.FE import FETools as FT
+
+        newJdetAtReducedIntegPoint = FT.ComputeJdetAtIntegPoint(newMesh)[self.reducedIntegrationPoints]
+        q = np.divide(newJdetAtReducedIntegPoint, self.JdetAtReducedIntegPoint)
+        coef = np.multiply(q, self.reducedIntegrationWeights)
+
+        self.reducedUnitCentrifugalVectorHR = np.dot(self.reducedUnAssembledReducedUnitCentrifugalVector, coef)
+
+
+
+
+    def CompressOperatorOnline(self, newMesh, JdetAtReducedIntegPointRef, reducedIntegrationPoints, reducedIntegrationWeights):
+
+        from Mordicus.Modules.Safran.FE import FETools as FT
+
+        newJdetAtReducedIntegPoint = FT.ComputeJdetAtIntegPoint(newMesh)[reducedIntegrationPoints]
+        q = np.divide(newJdetAtReducedIntegPoint, JdetAtReducedIntegPointRef)
+        #q = np.ones(newJdetAtReducedIntegPoint.shape[0])
+        #q = np.divide(JdetAtReducedIntegPointRef, newJdetAtReducedIntegPoint)
+        #q = newJdetAtReducedIntegPoint
+        coef = np.multiply(q, reducedIntegrationWeights)
+
+        reducedUnAssembledReducedUnitCentrifugalVector = self.unAssembledReducedUnitCentrifugalVector[:,reducedIntegrationPoints]
+
+        self.reducedUnitCentrifugalVectorHR = np.dot(reducedUnAssembledReducedUnitCentrifugalVector, coef)
+
+
 
 
 
@@ -168,6 +245,9 @@ class Centrifugal(LoadingBase):
         assert isinstance(time, (float, np.float64))
 
         rotationVelocity = self.GetRotationVelocityAtTime(time)
+
+        #print("reducedUnitCentrifugalVector =", self.reducedUnitCentrifugalVector)
+        #print("reducedUnitCentrifugalVectorHR =", self.reducedUnitCentrifugalVectorHR)
 
         return (self.coefficient*rotationVelocity)**2*self.reducedUnitCentrifugalVector
 
@@ -185,8 +265,12 @@ class Centrifugal(LoadingBase):
         state["direction"] = self.direction
         state["coefficient"] = self.coefficient
         state["reducedUnitCentrifugalVector"] = self.reducedUnitCentrifugalVector
-            
-            
+
+        state["reducedIntegrationWeights"] = self.reducedIntegrationWeights
+        state["reducedIntegrationPoints"] = self.reducedIntegrationPoints
+        state["reducedUnAssembledReducedUnitCentrifugalVector"] = self.reducedUnAssembledReducedUnitCentrifugalVector
+        state["JdetAtReducedIntegPoint"] = self.JdetAtReducedIntegPoint
+
 
         return state
 

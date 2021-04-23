@@ -18,7 +18,8 @@ from Mordicus.Modules.Safran.BasicAlgorithms import LPEQP
 
 
 def ComputeReducedIntegrationScheme(integrationWeights, integrands, tolerance,\
-        imposedIndices, reducedIntegrationPointsInitSet, initByLPEQP = False):
+        imposedIndices = None, reducedIntegrationPointsInitSet = None,\
+        initByLPEQP = False, geoMorphingMultiplier = None):
     """
     Parameters
     ----------
@@ -44,6 +45,7 @@ def ComputeReducedIntegrationScheme(integrationWeights, integrands, tolerance,\
 
     reducedIntegrationPointsInitSet : np.ndarray
         of size (numberOfInitReducedIntegratonPoints,), dtype = int.
+        Optional.
         Initial guess for the indices of the reducedIntegrationScheme.
 
     initByLPEQP : bool
@@ -59,6 +61,16 @@ def ComputeReducedIntegrationScheme(integrationWeights, integrands, tolerance,\
         x: weights associated to the kepts integration points
         (reducedIntegrationWeights)
     """
+
+    if imposedIndices is None:
+        imposedIndices = []
+
+    if reducedIntegrationPointsInitSet is None:
+        reducedIntegrationPointsInitSet = []
+
+    if geoMorphingMultiplier is not None:
+        for i in range(integrands.shape[0]):
+            integrands[i] = np.multiply(geoMorphingMultiplier, integrands[i])
 
 
     print(TFormat.InGreen("Starting computing reduced integration scheme "\
@@ -105,10 +117,10 @@ def ComputeReducedIntegrationScheme(integrationWeights, integrands, tolerance,\
     s = np.array(list(s) + list(set(imposedIndices) - set(s)))
     dlength = s.shape[0] - l1
     x = np.hstack((x,np.zeros(dlength)))
-    
+
     print(TFormat.InBlue("Selection of "+\
         str(len(s))+" integration points (corresponding to "+str(round(100*\
-        len(s)/numberOfIntegrationPoints, 5))+"% of the total)")); sys.stdout.flush()    
+        len(s)/numberOfIntegrationPoints, 5))+"% of the total)")); sys.stdout.flush()
 
 
     return s, x

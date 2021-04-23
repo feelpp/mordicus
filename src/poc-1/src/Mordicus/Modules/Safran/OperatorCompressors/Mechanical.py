@@ -109,6 +109,7 @@ def PrepareOnline(onlineProblemData, operatorCompressionData):
 
 
     onlineCompressionData['reducedIntegrationWeights'] = np.copy(operatorCompressionData['reducedIntegrationWeights'])
+    onlineCompressionData['reducedIntegrationPoints'] = np.copy(operatorCompressionData['reducedIntegrationPoints'])
     onlineCompressionData['reducedEpsilonAtReducedIntegPoints'] = np.copy(operatorCompressionData['reducedEpsilonAtReducedIntegPoints'])
 
     onlineCompressionData['nbOfComponents'] = onlineCompressionData['reducedEpsilonAtReducedIntegPoints'].shape[0]
@@ -118,7 +119,7 @@ def PrepareOnline(onlineProblemData, operatorCompressionData):
 
 
 
-def ComputeOnline(onlineProblemData, timeSequence, operatorCompressionData, tolerance):
+def ComputeOnline(onlineProblemData, timeSequence, operatorCompressionData, tolerance, onlineCompressionData = None):
     """
     Compute the online stage using the method POD and ECM for a mechanical problem
 
@@ -129,6 +130,9 @@ def ComputeOnline(onlineProblemData, timeSequence, operatorCompressionData, tole
     folder = currentFolder + os.sep + onlineProblemData.GetDataFolder()
     os.chdir(folder)
 
+    if onlineCompressionData is None:
+        onlineCompressionData = PrepareOnline(onlineProblemData, operatorCompressionData)
+
 
     initialCondition = onlineProblemData.GetInitialCondition()
 
@@ -136,7 +140,6 @@ def ComputeOnline(onlineProblemData, timeSequence, operatorCompressionData, tole
     onlineCompressedSolution[timeSequence[0]] = initialCondition.GetReducedInitialSnapshot("U")
 
 
-    onlineCompressionData = PrepareOnline(onlineProblemData, operatorCompressionData)
     IndicesOfIntegPointsPerMaterial = onlineCompressionData['IndicesOfIntegPointsPerMaterial']
 
     for tag, intPoints in IndicesOfIntegPointsPerMaterial.items():
@@ -411,6 +414,17 @@ def CompressOperator(
         reducedListOTags[i].append("ALLELEMENT")
 
 
+    """#hyperreduce boundary conditions
+    reducedOrderBases = collectionProblemData.GetReducedOrderBases
+
+    #radiation:
+    integrationWeightsRadiation, phiAtIntegPointRadiation = FT.ComputePhiAtIntegPoint(mesh)
+    for _, problemData in collectionProblemData.GetProblemDatas().items():
+        centrifugalLoading = problemData.GetLoadingsOfType('centrifugal')
+        unAssembledReducedUnitCentrifugalVector, _ = centrifugalLoading.ReduceLoading(mesh, problemData, reducedOrderBases, integrationWeights = integrationWeightsRadiation, phiAtIntegPoint = phiAtIntegPointRadiation)"""
+    ################################
+
+
     dualReconstructionData = LearnDualReconstruction(collectionProblemData, listNameDualVarOutput, reducedIntegrationPoints, methodDualReconstruction, timeSequenceForDualReconstruction)
 
 
@@ -453,9 +467,7 @@ def ComputeSigmaEpsilon(collectionProblemData, reducedIntegrator, tolerance, tol
         reducedOrderBasisSigmaEspilon.shape = reducedOrderBasisSigmaEspilonShape
 
 
-
     else:
-
 
         snapshotsSigmaShape = snapshotsSigma.shape
         numberOfSigmaSnapshots = snapshotsSigmaShape[0]
