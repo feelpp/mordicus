@@ -58,10 +58,10 @@ class InitialCondition(InitialConditionBase):
         return self.reducedInitialSnapshot[solutionName]
 
 
-    def ReduceInitialSnapshot(self, reducedOrderBases, snapshotCorrelationOperator):
+    def ReduceInitialSnapshot(self, reducedOrderBases, snapshotCorrelationOperator = None):
 
         for solutionName in self.initialSnapshot.keys():
-            
+
             reducedOrderBasis = reducedOrderBases[solutionName]
 
             if self.dataType[solutionName] == "scalar":
@@ -75,7 +75,10 @@ class InitialCondition(InitialConditionBase):
             else:
                 initVector = self.initialSnapshot[solutionName]# pragma: no cover
 
-            matVecProduct = snapshotCorrelationOperator[solutionName].dot(initVector)
+            if snapshotCorrelationOperator is None:
+                matVecProduct = initVector
+            else:
+                matVecProduct = snapshotCorrelationOperator[solutionName].dot(initVector)
 
             localScalarProduct = np.dot(reducedOrderBasis, matVecProduct)
             globalScalarProduct = np.zeros(reducedOrderBasis.shape[0])
