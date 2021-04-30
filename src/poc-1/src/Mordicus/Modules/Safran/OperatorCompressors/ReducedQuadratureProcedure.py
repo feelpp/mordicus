@@ -68,9 +68,9 @@ def ComputeReducedIntegrationScheme(integrationWeights, integrands, tolerance,\
     if reducedIntegrationPointsInitSet is None:
         reducedIntegrationPointsInitSet = []
 
-    if geoMorphingMultiplier is not None:
+    """if geoMorphingMultiplier is not None:
         for i in range(integrands.shape[0]):
-            integrands[i] = np.multiply(geoMorphingMultiplier, integrands[i])
+            integrands[i] = np.multiply(geoMorphingMultiplier, integrands[i])"""
 
 
     print(TFormat.InGreen("Starting computing reduced integration scheme "\

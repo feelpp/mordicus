@@ -435,7 +435,7 @@ class CollectionProblemData(object):
         for _, problemData in self.GetProblemDatas().items():
             try:
                 nbeOfComponents.append(problemData.GetSolution(solutionName).GetNbeOfComponents())
-            except KeyError:
+            except KeyError:# pragma: no cover
                 continue
         assert nbeOfComponents.count(nbeOfComponents[0]) == len(nbeOfComponents)
 
@@ -462,7 +462,7 @@ class CollectionProblemData(object):
         for _, problemData in self.GetProblemDatas().items():
             try:
                 nbeOfDofs.append(problemData.GetSolution(solutionName).GetNumberOfDofs())
-            except KeyError:
+            except KeyError:# pragma: no cover
                 continue
         assert nbeOfDofs.count(nbeOfDofs[0]) == len(nbeOfDofs)
 
@@ -525,7 +525,7 @@ class CollectionProblemData(object):
                         localIterator = problemData.GetSolution(self.solutionName).GetSnapshotsList()[self.startIndex:]
                         for snapshot in localIterator:
                             yield snapshot
-                    except KeyError:
+                    except KeyError:# pragma: no cover
                         continue
 
         res = iterator(solutionName, skipFirst)
@@ -677,7 +677,7 @@ class CollectionProblemData(object):
         for _, problemData in self.problemDatas.items():
             try:
                 number += problemData.GetSolution(solutionName).GetNumberOfSnapshots() + offset
-            except KeyError:
+            except KeyError:# pragma: no cover
                 continue
         return number
 

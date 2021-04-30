@@ -56,6 +56,8 @@ def test():
     onlineProblemData.AddLoading(loadingList)
     for loading in onlineProblemData.GetLoadingsForSolution("U"):
         loading.ReduceLoading(mesh, onlineProblemData, reducedOrderBases, operatorCompressionData)
+        #if loading.GetType() == 'centrifugal':
+        #    loading.HyperReduceLoading(mesh, onlineProblemData, reducedOrderBases, operatorCompressionData)
 
 
     initialCondition = inputReader.ConstructInitialCondition()

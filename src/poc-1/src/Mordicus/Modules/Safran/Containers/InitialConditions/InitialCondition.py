@@ -102,3 +102,8 @@ class InitialCondition(InitialConditionBase):
     def __str__(self):
         res = "Initial Condition"
         return res
+
+if __name__ == "__main__":# pragma: no cover
+
+    from Mordicus import RunTestFile
+    RunTestFile(__file__)

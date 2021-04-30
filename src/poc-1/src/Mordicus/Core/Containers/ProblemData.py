@@ -311,7 +311,7 @@ class ProblemData(object):
         for loading in self.GetLoadings().values():
             if loading.GetIdentifier() == (solutionName,type,set):
                 return loading
-        else:
+        else:# pragma: no cover
             raise("loading "+str((solutionName, type, set))+" not available")
 
 
@@ -421,7 +421,7 @@ class ProblemData(object):
         try:
             solution = self.GetSolution(solutionName)
             solution.CompressSnapshots(snapshotCorrelationOperator, reducedOrderBasis)
-        except KeyError:
+        except KeyError:#pragma: no cover
             return
 
 

@@ -14,6 +14,8 @@ from Mordicus.Core.IO.SolutionReaderBase import SolutionReaderBase
 from Mordicus.Core.Containers.SolutionStructures.SolutionStructureBase import SolutionStructureBase
 
 from Mordicus.Core.IO import StateIO as SIO
+from Mordicus.Modules.Safran.Containers.Loadings import Temperature as T
+
 
 def test():
 
@@ -28,6 +30,9 @@ def test():
     problemData = ProblemData.ProblemData("computation1")
     problemData.AddSolution(solution)
 
+    loading = T.Temperature("U", "set1")
+    problemData.AddLoading(loading)
+
     reducedOrderBases = np.ones((2, 20))
 
     collectionProblemData = CPD.CollectionProblemData()
@@ -40,6 +45,7 @@ def test():
                                              quantity=("name", "unit"),
                                              description="Parameter long description")
     collectionProblemData.defineQuantity("U", "velocity", "m/s")
+    collectionProblemData.AddProblemData(problemData, mu1=0., mu2=0.)
     collectionProblemData.AddProblemData(problemData, mu1=0., mu2=0.)
     collectionProblemData.getNumberOfVariabilityAxes()
     collectionProblemData.GetProblemData(mu1=0., mu2=0.)
@@ -63,6 +69,8 @@ def test():
     collectionProblemData.GetCompressedSnapshots("U", skipFirst = True)
     collectionProblemData.GetSnapshotsAtTimes("U", np.array([0., 1.]))
     collectionProblemData.GetCompressedSnapshotsAtTimes("U", np.array([0., 1.]))
+    collectionProblemData.GetLoadingsOfType("temperature")
+
 
 
     for s in collectionProblemData.SnapshotsIterator("U"):

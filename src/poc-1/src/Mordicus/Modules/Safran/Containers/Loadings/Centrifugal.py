@@ -190,7 +190,7 @@ class Centrifugal(LoadingBase):
 
 
 
-    def CompressOperatorOffline(self, unAssembledReducedUnitCentrifugalVectors, integrationWeights, JdetAtIntegPointRef):
+    """def CompressOperatorOffline(self, unAssembledReducedUnitCentrifugalVectors, integrationWeights, JdetAtIntegPointRef):
         from Mordicus.Modules.Safran.OperatorCompressors import ReducedQuadratureProcedure as RQP
 
         reducedIntegrationPoints, reducedIntegrationWeights = RQP.ComputeReducedIntegrationScheme(integrationWeights, unAssembledReducedUnitCentrifugalVectors, 1.e-6)
@@ -231,7 +231,7 @@ class Centrifugal(LoadingBase):
         reducedUnAssembledReducedUnitCentrifugalVector = self.unAssembledReducedUnitCentrifugalVector[:,reducedIntegrationPoints]
 
         self.reducedUnitCentrifugalVectorHR = np.dot(reducedUnAssembledReducedUnitCentrifugalVector, coef)
-
+   """
 
 
 

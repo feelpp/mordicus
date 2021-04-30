@@ -132,7 +132,7 @@ class Temperature(LoadingBase):
 
     def HyperReduceLoading(self, mesh, problemData, reducedOrderBases, operatorCompressionData):
 
-        return
+        return# pragma: no cover
 
 
 

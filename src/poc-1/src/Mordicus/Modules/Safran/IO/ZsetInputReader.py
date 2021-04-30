@@ -80,7 +80,7 @@ class ZsetInputReader(InputReaderBase):
         list containing the input file as parsed by BasicTools.IO.ZebulonIO
     """
 
-    def __init__(self, inputFileName):
+    def __init__(self, inputFileName = None, string = None, rootpath = None):
         """
         Parameters
         ----------
@@ -88,17 +88,34 @@ class ZsetInputReader(InputReaderBase):
         """
         super(ZsetInputReader, self).__init__()
 
-        assert isinstance(inputFileName, str)
-
         self.inputFileName = inputFileName
-        self.inputFile = ZIO.ReadInp2(self.inputFileName)
+        self.string = string
+
+        if inputFileName is None and string is None:# pragma: no cover
+            raise("inputFileName and string cannot be both None")
+
+        if inputFileName is not None and string is not None:# pragma: no cover
+            raise("inputFileName and string cannot be both specified")
+
+        if string is not None and rootpath is None:# pragma: no cover
+            raise("when string is not None, rootpath must be defined")
+
+        if inputFileName is not None:
+            assert isinstance(inputFileName, str)
+            self.inputFile = ZIO.ReadInp2(fileName = inputFileName)
+            self.rootpath = os.path.dirname(self.inputFileName)
+        else:
+            self.inputFile = ZIO.ReadInp2(string = string, rootpath = rootpath)
+            self.rootpath = rootpath
+
+
         self.problemType = ZIO.GetProblemType(self.inputFile)
         assert self.problemType in  knownProblemTypes, "problemType "+self.problemType+" must refer be among "+str(knownProblemTypes)
 
 
 
     def UpdateFileName(self, fileName):
-        
+
         if MPI.COMM_WORLD.Get_size() > 1: # pragma: no cover
             stem = str(Path(fileName).stem)
             suffix = str(Path(fileName).suffix)
@@ -137,7 +154,8 @@ class ZsetInputReader(InputReaderBase):
 
         elif zSetInitialCondition[0] == 'file':  # pragma: no cover
             dataType = "vector"
-            data = ZIO.ReadBinaryFile(os.path.dirname(self.inputFileName) + os.sep + zSetInitialCondition[1])
+            data = ZIO.ReadBinaryFile(self.rootpath + os.sep + zSetInitialCondition[1])
+
 
         initialCondition.SetDataType(solutionName, dataType)
         initialCondition.SetInitialSnapshot(solutionName, data)
@@ -150,7 +168,7 @@ class ZsetInputReader(InputReaderBase):
 
         if not loadingTags:
            loadingTags = knownLoadingTags
-           
+
         inputTimeSequence = self.ReadInputTimeSequence()
 
         tables = ZIO.GetTables(self.inputFile)
@@ -225,13 +243,13 @@ class ZsetInputReader(InputReaderBase):
             loading.SetCoefficients(coefficients)
             loading.SetFieldsMap(fieldsMap)
 
-            folder = os.path.dirname(self.inputFileName) + os.sep
-            
+            folder = self.rootpath + os.sep
+
             fileName = self.UpdateFileName(name)
             fields = {name: ZIO.ReadBinaryFile(folder + fileName)}
 
             loading.SetFields(fields)
-            
+
             return loading
 
 
@@ -333,30 +351,30 @@ class ZsetInputReader(InputReaderBase):
 
 
         if key == "temperature":
-            
 
-                
+
+
             from Mordicus.Modules.Safran.Containers.Loadings import Temperature
 
             loading = Temperature.Temperature("U", set)
 
             fieldsMap = collections.OrderedDict()
             fields = {}
-            folder = os.path.dirname(self.inputFileName) + os.sep
-            
+            folder = self.rootpath + os.sep
+
             if 'base_temperature' in load[1] and 'max_temperature' in load[1]:
                 taleName = load[1]['table'][0]
                 timeTable = tables[taleName]['time']
                 fileTable = np.array(tables[taleName]['value'], dtype = str)
-            
+
             else:
-                
+
                 for info in load[1].values():
                     if isinstance(info, dict):
                         timeTable = info['timeTable']
                         fileTable = info['fileTable']
-                                    
-            
+
+
             lastTimeCycleLoading = float(timeTable[-1])
             nbeLoadingCycles = max(int(inputTimeSequence[-1]/lastTimeCycleLoading),1)
 
@@ -366,9 +384,9 @@ class ZsetInputReader(InputReaderBase):
 
             for j in range(nbeLoadingCycles):
                 for i, time in enumerate(timeTable[1:]):
-                    fieldsMap[time + j*lastTimeCycleLoading] = fileTable[i+1]     
-            
-            
+                    fieldsMap[time + j*lastTimeCycleLoading] = fileTable[i+1]
+
+
             if 'base_temperature' in load[1] and 'max_temperature' in load[1]:
 
                 temperatures = [load[1]['base_temperature'], load[1]['max_temperature']]
@@ -379,8 +397,6 @@ class ZsetInputReader(InputReaderBase):
                         temperatures[i] = float(temperature[1])*np.ones(nNodes)
                     elif temperature[0] == 'file':
                         fileName = self.UpdateFileName(temperature[1])
-                        print("folder+fileName =", folder+fileName)
-                        print("cwd =", os.getcwd())
                         temperatures[i] = ZIO.ReadBinaryFile(folder+fileName)
                     else:# pragma: no cover
                         raise("temperature bc not valid")
@@ -390,21 +406,21 @@ class ZsetInputReader(InputReaderBase):
                     if coef not in fields:
                         coefFloat = float(coef)
                         fields[coef] = coefFloat*temperatures[1] + (1-coefFloat)*temperatures[0]
-                    
+
             else:
-    
+
                 for file in fileTable:
-                    if file not in fields:                        
-                        fileName = self.UpdateFileName(file)                        
+                    if file not in fields:
+                        fileName = self.UpdateFileName(file)
                         fields[file] = ZIO.ReadBinaryFile(folder+fileName)
 
 
             fieldsMapTimes = np.array(list(fieldsMap.keys()), dtype = float)
-            fieldsMapValues = np.array(list(fieldsMap.values()), dtype = str)  
+            fieldsMapValues = np.array(list(fieldsMap.values()), dtype = str)
 
             loading.SetFieldsMap(fieldsMapTimes, fieldsMapValues)
             loading.SetFields(fields)
-            
+
             return loading
 
 
@@ -431,7 +447,8 @@ class ZsetInputReader(InputReaderBase):
 
         import os, sys
 
-        folder = os.path.dirname(self.inputFileName) + os.sep
+        folder = self.rootpath + os.sep
+
 
         behavior = ZIO.GetBehavior(folder + materialFileName)
 
