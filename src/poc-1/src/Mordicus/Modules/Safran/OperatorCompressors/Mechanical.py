@@ -119,7 +119,7 @@ def PrepareOnline(onlineProblemData, operatorCompressionData):
 
 
 
-def ComputeOnline(onlineProblemData, timeSequence, operatorCompressionData, tolerance, onlineCompressionData = None):
+def ComputeOnline(onlineProblemData, timeSequence, operatorCompressionData, tolerance, onlineCompressionData = None, callback = None):
     """
     Compute the online stage using the method POD and ECM for a mechanical problem
 
@@ -152,7 +152,10 @@ def ComputeOnline(onlineProblemData, timeSequence, operatorCompressionData, tole
         time = timeSequence[timeStep]
         dtime = time - previousTime
 
-        print("time =", time); sys.stdout.flush()
+        if callback == None:
+            print("time =", time); sys.stdout.flush()
+        else:
+            callback.CurrentTime(time)
 
         reducedExternalForcesTemp = PrepareNewtonIterations(onlineProblemData, onlineCompressionData, time, dtime)
         reducedExternalForces = np.zeros(reducedExternalForcesTemp.shape)
@@ -174,7 +177,6 @@ def ComputeOnline(onlineProblemData, timeSequence, operatorCompressionData, tole
             normRes = np.linalg.norm(reducedExternalForces-reducedInternalForces)/normExt
         else:
             normRes = np.linalg.norm(reducedExternalForces-reducedInternalForces) # pragma: no cover
-        print("normRes  =", normRes); sys.stdout.flush()
 
         count = 0
         while normRes > tolerance:
@@ -200,7 +202,10 @@ def ComputeOnline(onlineProblemData, timeSequence, operatorCompressionData, tole
             else:
                 normRes = np.linalg.norm(reducedExternalForces-reducedInternalForces)# pragma: no cover
 
-            print("normRes  =", normRes); sys.stdout.flush()
+            if callback == None:
+                print("normRes  =", normRes); sys.stdout.flush()
+            else:
+                callback.CurrentNormRes(normRes)
 
             count += 1
             if count == 50:
@@ -214,7 +219,10 @@ def ComputeOnline(onlineProblemData, timeSequence, operatorCompressionData, tole
 
             onlineCompressionData['dualVarOutput'][tag][time] = np.hstack((onlineCompressionData['stranIntForces'][intPoints], onlineCompressionData['sigIntForces'][intPoints], onlineCompressionData['statevIntForces'][tag]))
 
-        print("=== Newton iterations:", count); sys.stdout.flush()
+        if callback == None:
+            print("=== Newton iterations:", count); sys.stdout.flush()
+        else:
+            callback.CurrentNewtonIterations(count)
 
     os.chdir(currentFolder)
 
