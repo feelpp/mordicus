@@ -96,11 +96,11 @@ class ZsetSolutionReader(SolutionReaderBase):
             solutionFileName = folder + os.sep + stem + "-" + str(MPI.COMM_WORLD.Get_rank()+1).zfill(3) + suffix
         else:
             solutionFileName = solutionFileName
-            
+
         self.reader = UR.UtReader()
         self.reader.SetFileName(solutionFileName)
         self.reader.ReadMetaData()
-        
+
 
 
     def ReadSnapshotComponent(self, fieldName, time, primality=True):
@@ -129,6 +129,15 @@ class ZsetSolutionReader(SolutionReaderBase):
         return np.concatenate(res)
 
 
+    def ReadSnapshotComponentTimeSequence(self, fieldName, timeSequence, primality=True):
+
+        res = []
+        for time in timeSequence:
+            res.append(self.ReadSnapshotComponent(fieldName, time, primality))
+
+        return np.array(res)
+
+
     """def ReadSnapshotTimeSequenceAndAddToSolution(self, solution, timeSequence, fieldName):
 
         primality = solution.GetPrimality()
@@ -139,7 +148,7 @@ class ZsetSolutionReader(SolutionReaderBase):
 
 
     def ReadTimeSequenceFromSolutionFile(self):
-        
+
         return self.reader.time[:, 4]
 
 

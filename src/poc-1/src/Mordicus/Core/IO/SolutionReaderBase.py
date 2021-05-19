@@ -29,6 +29,26 @@ class SolutionReaderBase(object):
         """
         raise NotImplementedError("Not implemented in ReaderBase")  # pragma: no cover
 
+    def ReadSnapshotComponentTimeSequence(self, fieldName, timeSequence, primality):
+        """
+        Reads a snapshots from the solutions of name "fieldName", at time sequence "timeSequence" and of primality "primality", from the HF computation
+
+        Parameters
+        ----------
+        fieldName : str
+            name of the solution from which the snapshot is read
+        timeSequence : np.ndarray
+            of size (numberOfSnapshots,)
+        primality : bool
+            primality of the solution from which the snapshot is read
+
+        Returns
+        -------
+        np.ndarray
+            of size (numberOfSnapshots,numberOfDofs)
+        """
+        raise NotImplementedError("Not implemented in ReaderBase")  # pragma: no cover
+
     def ReadTimeSequenceFromSolutionFile(self):
         """
         Reads the time sequence from the solution file of the HF computation (may be different from the ones defined in the input data file if the solver chose to solve at additional time steps)
@@ -39,11 +59,11 @@ class SolutionReaderBase(object):
             of size (numberOfSnapshots,)
         """
         raise NotImplementedError("Not implemented in ReaderBase")  # pragma: no cover
-    
+
     def WriteReducedOrderBasis(self, fileName, solutionStructure, reducedOrderBasis, fieldName):
         """
         Converts Mordicus reduced order basis into the format for writing fields
-        
+
         Parameters
         ----------
         fileName : str
@@ -53,14 +73,14 @@ class SolutionReaderBase(object):
         reducedOrderBasis : nparray(numberOfModes, numberOfDofs)
             numpy array of the modes
         fieldName : str
-            name of field associated with the basis (e.g. "U", "sigma")      
+            name of field associated with the basis (e.g. "U", "sigma")
         """
         raise NotImplementedError("Not implemented in ReaderBase")  # pragma: no cover
 
     def WriteSparseFieldOfEmpiricalWeights(self, fileName, fieldStructure, np_coor_gauss, empirical_weights):
         """
         Writes found empirical_weights to a Gauss field
-        
+
         Parameters
         ----------
         fileName : str
@@ -78,7 +98,7 @@ class SolutionReaderBase(object):
         """
         Convert a Mordicus snapshot into a field, relying on SolutionStructure to build relations
         between the vector of values and the mesh.
-        
+
         Arguments
         ---------
         fileName : str
@@ -98,7 +118,7 @@ class SolutionReaderBase(object):
         This method is used to convert operators from a FEM code to the numbering system associated
             with the format of the results (for instance be able to get a consistent numbering between
             a mass matrix computed with Code_Aster and the results written to MED format)
-            
+
         Arguments
         ---------
         fileName : str
