@@ -2,20 +2,23 @@ import os
 import os.path as osp
 
 import subprocess
-
-from Mordicus.Modules.sorbonne.IO import GmshMeshReader as GMR
+import sys
+#from Mordicus.Modules.sorbonne.IO import GmshMeshReader as GMR
 from Mordicus.Modules.sorbonne.IO import MeshReader as MR
 from Mordicus.Core.Containers import ProblemData as PD
 from Mordicus.Core.Containers import CollectionProblemData as CPD
 from Mordicus.Core.Containers import Solution as S
 from Mordicus.Core.DataCompressors import SnapshotPOD as SP
 from Mordicus.Modules.Safran.FE import FETools as FT
-from  Mordicus.Modules.CT.IO import VTKSolutionReader as VTKSR
+from Mordicus.Modules.sorbonne.IO import VTKSolutionReader as VTKSR
+from Mordicus.Modules.sorbonne.IO import FFSolutionReader as FFSR
 from Mordicus.Modules.sorbonne.IO import numpyToVTKWriter as NpVTK
+from Mordicus.Modules.sorbonne.IO import InterpolationOperatorWriter as IOW
 from Mordicus.Core.IO import StateIO as SIO
+from Mordicus.Modules.sorbonne.MOR import Greedy as GD
 #from tkinter.constants import CURRENT
 from initCase import initproblem
-from initCase import basisFileToArray
+
 import numpy as np
 from pathlib import Path
 import array
@@ -44,7 +47,7 @@ externalFolder=osp.join(currentFolder,'External')
 print("-----------------------------------")
 print(" STEP0: start init                 ")
 print("-----------------------------------")
-initproblem(dataFolder)
+#initproblem(dataFolder)
 print("-----------------------------------")
 print(" STEP0: snapshots generated        ")
 print("-----------------------------------")
@@ -56,68 +59,63 @@ print("-----------------------------------")
 ----------------------------------------------------------------------------------------
 ----------------------------------------------------------------------------------------
 """
-import vtk
-import numpy as np
-from vtk.util.numpy_support import vtk_to_numpy
-nev=3   #nombre de modes
-ns=10
+
+nev=1   #number of modes
+if len(sys.argv)>1:
+        nev=int(sys.argv[1])
+
 time=0.0 
 dimension=2
-           
+fieldName="u"
 ###  convert mesh to GMSH if necessary and read it with Basictools
 
-meshFileName = dataFolder + "/mesh1.msh"
-print("init fine mesh: ",meshFileName)
-meshFileNameGMSH = dataFolder + "/mesh1GMSH.msh"
-GMR.CheckAndConvertMeshFFtoGMSH(meshFileName,meshFileNameGMSH)
-    
-meshReader = GMR.GmshMeshReader(meshFileNameGMSH)
+meshFileName = dataFolder + "/mesh1.msh" #finemesh
+coarsemeshFileName=dataFolder + "/mesh2.msh" #coarsemesh
+
+print("Fine mesh: ",meshFileName)
+meshReader=MR.MeshReader(meshFileName,dimension)
 mesh= meshReader.ReadMesh()
-mesh.GetInternalStorage().nodes = mesh.GetInternalStorage().nodes[:,:2] #CAS 2D
 
-### Convert mesh to VTU
-"""
-try:
-    FNULL=open(os.devnull,'w')
-    ret=subprocess.run(["meshio-convert", meshFileNameGMSH, dataFolder+"/mesh1.vtu"], stdout=FNULL, stderr=subprocess.PIPE)
-    ret.check_returncode()
-except subprocess.CalledProcessError:
-    retstr="Error File convertion with meshio\n" + "    Returns error:\n" + str(ret.stderr)
-    raise OSError(ret.returncode,retstr)
-
-VTKBase = MR.ReadVTKBase(dataFolder+"/mesh1.vtu")
-"""
-print("Mesh defined in " + meshFileNameGMSH + " has been read")
 nbeOfComponentsPrimal = 2 # vitesses 2D
 numberOfNodes = mesh.GetNumberOfNodes()
-#print("nbNodes",numberOfNodes)
-#print("dimmesh",mesh.GetDimensionality())
+print("nbNodes",numberOfNodes)
         
 collectionProblemData = CPD.CollectionProblemData()
-collectionProblemData.addVariabilityAxis('mu1',float,description="Reynolds number")
-collectionProblemData.defineQuantity("U", full_name="Velocity", unit="m/s")
-collectionProblemData.defineQuantity("UH", full_name="Velocity", unit="m/s")
+collectionProblemData.addVariabilityAxis('unused',float,description="unused parameter")
+collectionProblemData.defineQuantity("U", full_name=fieldName, unit="m/s")
+collectionProblemData.defineQuantity("UH", full_name=fieldName, unit="m/s")
+
+#convert FF++ solutions to vtu
+test=FFSR.FFSolutionReader(fieldName,meshFileName);
+test.FFReadToNp(dataFolder+"/snapshots.txt") #create folder + snapshots at vtu format
+
+coarsetest=FFSR.FFSolutionReader(fieldName,coarsemeshFileName);
+coarsetest.FFReadToNp(dataFolder+"/coarsesnapshots.txt") #create folder + snapshots at vtu format
+
+ns=1 #number of snapshots
+snapshotFiles=sorted(os.listdir(dataFolder+"/VTUSnapshots"))
+coarseSnapshotFiles=sorted(os.listdir(coarseDataFolder))
+print("number of snapshots in ", "VTUSnapshots", ": ",len(snapshotFiles))
+ns=len(snapshotFiles)  #number of snapshots
 parameters = [float(1+15*i) for i in range(ns)]   ###Reynolds
+
 #### Read solutions 
 for i in range(ns):
-    
-    test=VTKSR.VTKSolutionReader("u");
-    u1_np_array =test.VTKReadToNp(dataFolder+"/snapshot",i)
-    u1_np_arrayH=test.VTKReadToNp(dataFolder+"/snapshotH",i) #Snapshots grossiers
+    filename=dataFolder+"/VTUSnapshots/snapshot_"+str(i)+".vtu"
+    test=VTKSR.VTKSolutionReader(fieldName);
+    fineSnapshot =test.VTKReadToNp(filename).flatten()
+    coarseSnapshot=test.VTKReadToNp(dataFolder+"/snapshotH"+str(i)+".vtu").flatten() #Snapshots grossiers
     #instancie une solution
-    u1_np_array=u1_np_array.flatten()
-    print(np.shape(u1_np_array))
-    u1_np_arrayH=u1_np_arrayH.flatten()
-    print(np.shape(u1_np_arrayH))
     solutionU=S.Solution("U",dimension,numberOfNodes,True)
     solutionUH=S.Solution("UH",dimension,numberOfNodes,True)
     ### Only one snapshot --> time 0 
-    solutionU.AddSnapshot(u1_np_array,0)
-    solutionUH.AddSnapshot(u1_np_arrayH,0)
+    solutionU.AddSnapshot(fineSnapshot,0)
+    solutionUH.AddSnapshot(coarseSnapshot,0)
     problemData = PD.ProblemData(dataFolder+str(i))
     problemData.AddSolution(solutionU)
     problemData.AddSolution(solutionUH)
-    collectionProblemData.AddProblemData(problemData,mu1=parameters[i])
+    collectionProblemData.AddProblemData(problemData,unused=parameters[i])
+    
 snapshotsIterator = collectionProblemData.SnapshotsIterator("U")
 snapshots = []
 snapshotsHIterator = collectionProblemData.SnapshotsIterator("UH")
@@ -132,13 +130,13 @@ print("-----------------------------------")
 
 print("ComputeL2ScalarProducMatrix...")
 l2ScalarProducMatrix = FT.ComputeL2ScalarProducMatrix(mesh, 2)
+h1ScalarProducMatrix = FT.ComputeH10ScalarProductMatrix(mesh, 2)
+
 ListeNorm=[]
 for s in snapshotsIterator:
     snapshots.append(s)
     norm=s@(l2ScalarProducMatrix@s)
     ListeNorm.append(np.sqrt(norm))
-    print("norm",np.sqrt(norm))
-print("snap",np.shape(snapshots))
 
 for s in snapshotsHIterator:#snap grossiers
     snapshotsH.append(s)
@@ -146,51 +144,11 @@ for s in snapshotsHIterator:#snap grossiers
 #test=NpVTK.VTKWriter(VTKBase);
 
 ##### ALGO GREEDY
-
-nbdeg=numberOfNodes*nbeOfComponentsPrimal;
-reducedOrderBasisU=np.zeros((nev,numberOfNodes*nbeOfComponentsPrimal))
-reducedOrderBasisU[0,:]=snapshots[0]/ListeNorm[0] #premiere fct dans la base
-ListeIndex=[0]#premier snapshot utilise
-
-basis=[]
-basis.append(np.array(snapshots[0])/ListeNorm[0])
-
-for n in range(1,nev):
-    print("nev ",n)
-    testjl=[]
-    testjn=[]
-    for j in range(ns):
-        if not (j in ListeIndex):
-            
-            coef=[snapshots[j]@(l2ScalarProducMatrix@b) for b in basis]
-            w=snapshots[j]-np.sum(snapshots[j]@(l2ScalarProducMatrix@b)*b for b in basis)
-            norml2=np.sqrt(w@(l2ScalarProducMatrix@w))
-            #print("norml2 ",norml2)
-            testjnorm=norml2/ListeNorm[j]
-            testjl.append(testjnorm)
-            testjn.append(w)
-        
-        else:
-            testjl.append(-1)
-            testjn.append(-1)
-    maximum=max(testjl)
-    ind=testjl.index(max(testjl))
-    ListeIndex.append(ind)
-    norm=np.sqrt(testjn[ind]@(l2ScalarProducMatrix@testjn[ind]))
-    basis.append(testjn[ind]/norm)
-    reducedOrderBasisU[n,:]=(testjn[ind]/norm)
-    
-#collectionProblemData.SetSnapshotCorrelationOperator("U", l2ScalarProducMatrix)
+reducedOrderBasisU=GD.Greedy(snapshots,l2ScalarProducMatrix,h1ScalarProducMatrix,nev) # greedy algorithm
 collectionProblemData.AddReducedOrderBasis("U", reducedOrderBasisU)
-
-#print(np.shape(reducedOrderBasisU[0,:]))
-#for i in range(nev):
-#    namefile="PODbase"+str(i)+".vtu"
-#    test.numpyToVTKPODWrite("U", reducedOrderBasisU[i,:],namefile)
 collectionProblemData.CompressSolutions("U",snapshotCorrelationOperator=l2ScalarProducMatrix)
 
-#base orthonorme?
-
+#verification orthonormalization
 for i in range(nev):
     for j in range(nev):
         t=l2ScalarProducMatrix.dot(reducedOrderBasisU[i,:])
@@ -204,15 +162,13 @@ for i in range(ns):
     for j in range(nev):
         alpha[i,j]=snapshots[i]@(l2ScalarProducMatrix@reducedOrderBasisU[j,:])
         beta[i,j]=snapshotsH[i]@(l2ScalarProducMatrix@reducedOrderBasisU[j,:])
-        #print(alpha[i,j])
-        #print(beta[i,j])
+ 
 lambd=1e-10
 R=np.linalg.inv(beta.transpose()@beta+lambd*np.eye(nev))@beta.transpose()@alpha
 #print(" shape R ",np.shape(R))
 collectionProblemData.SetDataCompressionData("Rectification",R)
 
 ### Offline Errors
-
 compressionErrors=[]
 
 for _, problemData in collectionProblemData.GetProblemDatas().items():

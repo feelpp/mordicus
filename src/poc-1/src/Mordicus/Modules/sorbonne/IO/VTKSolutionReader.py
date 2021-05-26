@@ -31,6 +31,8 @@ class VTKSolutionReader(SolutionReaderBase):
         from vtk.numpy_interface import dataset_adapter as dsa
 
         data = LoadVtuWithVTK(FileName)
+        #print(data)
         npArray = dsa.WrapDataObject(data).GetPointData().GetArray(self.SolutionName)
+      
         return npArray
 
