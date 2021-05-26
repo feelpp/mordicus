@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 import numpy as np
 from Mordicus.Core.IO.MeshReaderBase import MeshReaderBase
+from Mordicus.Modules.sorbonne.IO import GmshMeshReader as GMR
+from Mordicus.Modules.sorbonne.IO import VTKMeshReader as VTKMR
 from mpi4py import MPI
 from pathlib import Path
 import os
 
 
-def ReadMesh(meshFileName):
+def ReadMesh(meshFileName,dimension):
     """
     Functional API
     
@@ -23,30 +25,9 @@ def ReadMesh(meshFileName):
         mesh of the HF computation
     """
 
-    reader = MeshReader(meshFileName=meshFileName)
-
-    return reader.ReadMesh()
-
-def ReadVTKBase(meshFileName):
-    """
-    Functional API
+    reader = MeshReader(meshFileName=meshFileName,dimension=dimension)
     
-    Reads the file "meshFileName" VTK (.vtu)
-            
-    Parameters
-    ----------
-    meshFileName : str
-        VTK mesh and fields file 
-                    
-    Returns
-    -------
-    VTK data structure (UnstructuredMesh)
-        mesh and fields of the HF computation
-    """
-    reader = MeshReader(meshFileName=meshFileName)
-    return reader.ReadVTKBase()
-
-
+    return reader.ReadMesh()
 
 class MeshReader(MeshReaderBase):
     """
@@ -58,7 +39,7 @@ class MeshReader(MeshReaderBase):
         name of the VTK mesh file (.vtu)
     """
 
-    def __init__(self, meshFileName):
+    def __init__(self, meshFileName,dimension):
         """
         Parameters
         ----------
@@ -66,20 +47,17 @@ class MeshReader(MeshReaderBase):
         """
         
         super(MeshReader, self).__init__()
-        
-
         assert isinstance(meshFileName, str)
             
-
         folder = str(Path(meshFileName).parents[0])
         suffix = str(Path(meshFileName).suffix)
         stem = str(Path(meshFileName).stem)
-        
         
         if MPI.COMM_WORLD.Get_size() > 1: # pragma: no cover 
             self.meshFileName = folder + os.sep + stem + "-pmeshes" + os.sep + stem + "-" + str(MPI.COMM_WORLD.Get_rank()+1).zfill(3) + suffix
         else:
             self.meshFileName = meshFileName
+        self.dimension=dimension
 
 
     def ReadMesh(self):
@@ -91,40 +69,29 @@ class MeshReader(MeshReaderBase):
         BasicToolsUnstructuredMesh
             mesh of the HF computation
         """
-        print("dans readmesh")
+        #print("dans readmesh")
         suffix = str(Path(self.meshFileName).suffix)
         if suffix == ".vtu":  # pragma: no cover
-            from BasicTools.IO.VtuReader import VtkToMesh as Read
-            from BasicTools.IO.VtuReader import LoadVtuWithVTK 
+            vtkmeshReader = VTKMR.VTKMeshReader(self.meshFileName)
+            mesh = vtkmeshReader.ReadMesh()
+            if self.dimension==2:
+                mesh.GetInternalStorage().nodes = mesh.GetInternalStorage().nodes[:,:2] #CAS 2D
+            return mesh
+     
+        elif suffix == ".msh":
+            folder = str(Path(self.meshFileName).parents[0])
+            suffix = str(Path(self.meshFileName).suffix)
+            stem = str(Path(self.meshFileName).stem)
 
-        else:  # pragma: no cover
-            raise ("FileName error!")
+            meshFileNameGMSH =  folder+stem+"GMSH"+suffix
+            GMR.CheckAndConvertMeshFFtoGMSH(self.meshFileName,meshFileNameGMSH,self.dimension)
+            GMSHmeshReader = GMR.GmshMeshReader(meshFileNameGMSH) #GMSHmeshReader
+            mesh= GMSHmeshReader.ReadMesh()
+            if self.dimension==2:
+                mesh.GetInternalStorage().nodes = mesh.GetInternalStorage().nodes[:,:2] #CAS 2D
+            return mesh
 
-        data = Read(LoadVtuWithVTK(self.meshFileName))
-        print(data)
-        from Mordicus.Modules.Safran.Containers.Meshes import BasicToolsUnstructuredMesh as BTUM
+        else:
+            raise ValueError  
 
-        mesh = BTUM.BasicToolsUnstructuredMesh(data)
-        
-        return mesh
 
-    def ReadVTKBase(self):
-        """
-        Read the HF mesh
-                    
-        Returns
-        -------
-        VTK data structure with mesh
-            mesh of the HF computation
-        """
-
-        suffix = str(Path(self.meshFileName).suffix)
-        if suffix == ".vtu":  # pragma: no cover
-            from BasicTools.IO.VtuReader import LoadVtuWithVTK 
-
-        else:  # pragma: no cover
-            raise ("FileName error!")
-
-        VTKBase = LoadVtuWithVTK(self.meshFileName)
-
-        return VTKBase

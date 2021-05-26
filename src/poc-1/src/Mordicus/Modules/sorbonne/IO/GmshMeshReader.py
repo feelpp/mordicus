@@ -61,7 +61,7 @@ class GmshMeshReader(MeshReaderBase):
 
     def ReadMesh(self):
         """
-        Read the HF mesh
+        Read the HF GMSH mesh
                     
         Returns
         -------
@@ -70,10 +70,9 @@ class GmshMeshReader(MeshReaderBase):
         """
         #from GmshReader import ReadGmsh as Read
         from BasicTools.IO.GmshReader import ReadGmsh as Read
-        print("namefile",self.meshFileName)
         data=Read(self.meshFileName)
        
-        print("data",data)
+        #print("data",data)
         from Mordicus.Modules.Safran.Containers.Meshes import BasicToolsUnstructuredMesh as BTUM
 
         mesh = BTUM.BasicToolsUnstructuredMesh(data)
@@ -81,7 +80,7 @@ class GmshMeshReader(MeshReaderBase):
         return mesh
  
 
-def CheckAndConvertMeshFFtoGMSH(meshFileName,meshFileNameGMSH):
+def CheckAndConvertMeshFFtoGMSH(meshFileName,meshFileNameGMSH,dimension):
      """
     Functional API
     
@@ -101,22 +100,20 @@ def CheckAndConvertMeshFFtoGMSH(meshFileName,meshFileNameGMSH):
      print("meshfilename: ",meshFileName)
      meshFile=open(meshFileName,"r")
      firstline=meshFile.readline()
-     firstlinebis="MeshFormat"
+     firstlineGMSH="MeshFormat"
 
-     if firstline[1:-1] == firstlinebis[:]: #si c'est deja au format GMSH 
+     if firstline[1:-1] == firstlineGMSH[:]: #if already in GMSH
          print("GMSH format")
          os.rename(meshFileName, meshFileNameGMSH)
-     else: #si c'est format FF++, on convertir au format GMSH
+     else: #if FreeFem++ format, convert to GMSH format
          print("Convert FF++ format to GMSH...")
      
-         ConvertFFtoGMSH2D(meshFileName,meshFileNameGMSH)
-         print("Converted!")
+         ConvertFFtoGMSH(meshFileName,meshFileNameGMSH,dimension)
+         print("Converted to GMSH!")
       
 
-
-    
-def ConvertFFtoGMSH2D(meshFileName,meshFileNameGMSH):
-   
+def ConvertFFtoGMSH(meshFileName,meshFileNameGMSH,dimension):
+    assert dimension==2 or dimension==3, "Error dimension must be 2 or 3"
     # Read file and store data
     infile = open(meshFileName, 'r') 
     outfile = open(meshFileNameGMSH, 'w') 
@@ -137,8 +134,11 @@ def ConvertFFtoGMSH2D(meshFileName,meshFileNameGMSH):
     # Points
     cpt = 1 #line counter
     outfile.write(str(nnodes)+"\n");
-    for i in range(nnodes): 
-        outfile.write(str(i+1)+ " " + Lines[cpt][:-2]+" "+str(0)+"\n");
+    for i in range(nnodes):
+        if(dimension==2):
+            outfile.write(str(i+1)+ " " + Lines[cpt][:-2]+" "+str(0)+"\n");
+        else:
+            outfile.write(str(i+1)+ " " + Lines[cpt]);
         cpt += 1
     outfile.write("$EndNodes\n");
     # Element
@@ -163,58 +163,3 @@ def ConvertFFtoGMSH2D(meshFileName,meshFileNameGMSH):
     # close everything
     infile.close()
     outfile.close()
-
-
-
-
-def ConvertFFtoGMSH3D(meshFileName,meshFileNameGMSH):
-   
-    # Read file and store data
-    infile = open(meshFileName, 'r') 
-    outfile = open(meshFileNameGMSH, 'w') 
-    Lines = infile.readlines()
-
-    # first line is "NNodes NTri Nseg"
-    data = Lines[0].strip('\n').split(" ")
-    nnodes = int(data[0])
-    nelem = []
-    nelem_tot = 0
-    for d in data[1:len(data)]:
-        nelem.append(int(d))
-        nelem_tot += int(d)
-    print("Nnodes = " + str(nnodes) + "\nNelem  = "+str(nelem_tot))
-
-    # Header
-    outfile.write("$MeshFormat\n2.2 0 8\n$EndMeshFormat\n$Nodes\n");
-    # Points
-    cpt = 1 #line counter
-    outfile.write(str(nnodes)+"\n");
-    for i in range(nnodes): 
-        outfile.write(str(i+1)+ " " + Lines[cpt]);
-        cpt += 1
-    outfile.write("$EndNodes\n");
-    # Element
-    outfile.write("$Elements\n");
-    outfile.write(str(nelem_tot)+"\n");
-    for i in range(nelem_tot):
-    #Loop on all element, without knowing what type they are
-        elem = Lines[cpt].strip('\n').split(" ")
-        if(len(elem)==3):
-      # Segment
-            outfile.write(str(i+1)+ " " ) # new element
-            outfile.write("1 2 " + str(elem[2])+ " 0 " + str(elem[0]) +" "+str(elem[1])+"\n")
-        elif(len(elem)==4):
-            #Triangle
-            outfile.write(str(i+1)+ " " ) # new element
-            outfile.write("2 2 " + str(elem[3])+ " 0 " + str(elem[0]) +" "+str(elem[1])+" "+str(elem[2])+"\n")
-        else:
-            #Do not know
-            print("unrecognized format! ")
-        cpt += 1
-    outfile.write("$EndElements\n");
-    # close everything
-    infile.close()
-    outfile.close()
-
-
-
