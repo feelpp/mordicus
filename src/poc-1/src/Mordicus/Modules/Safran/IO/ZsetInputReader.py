@@ -505,9 +505,19 @@ class ZsetInputReader(InputReaderBase):
 
                 suffix = self.UpdateFileName("")
 
+
+                if "vtkpython" in sys.executable:
+                    pythonExecutable = "pvpython"
+                    pyumatFolder = "pvpyumat"
+                else:
+                    pythonExecutable = sys.executable
+                    pyumatFolder = "pyumat"
+
+
+
                 code="""
 import sys
-from Mordicus.Modules.Safran.External.pyumat import py3umat as pyumat
+from Mordicus.Modules.Safran.External."""+pyumatFolder+""" import py3umat as pyumat
 import numpy as np
 
 cmname = '"""+materialFileName+"""'
@@ -521,7 +531,7 @@ stress = np.zeros(6)
 
 statev = np.zeros(nstatv)
 
-ddsdde = np.zeros((6,6),dtype=np.float)
+ddsdde = np.zeros((6,6),dtype=float)
 
 sse = 0.
 spd = 0.
@@ -584,7 +594,8 @@ ddsddeNew = pyumat.umat(stress=stress,statev=statev,ddsdde=ddsdde,sse=sse,spd=sp
                 while out == None:
                     try:
                         signal.alarm(10)
-                        out = subprocess.run([sys.executable, tmpFile+"materialtest"+suffix+".py"], stdout=subprocess.PIPE).stdout.decode("utf-8")
+                        out = subprocess.run([pythonExecutable, tmpFile+"materialtest"+suffix+".py"], stdout=subprocess.PIPE).stdout.decode("utf-8")
+
                     except:# pragma: no cover
                         True
                     signal.alarm(0)
@@ -600,6 +611,7 @@ ddsddeNew = pyumat.umat(stress=stress,statev=statev,ddsdde=ddsdde,sse=sse,spd=sp
                 outlines = outlines[seplines[-2]:]
 
                 names = ['Flux', 'Grad','var_int','var_aux','Extra Zmat']
+
 
                 def parser(fname, obj):
                         cont = 1
@@ -619,6 +631,7 @@ ddsddeNew = pyumat.umat(stress=stress,statev=statev,ddsdde=ddsdde,sse=sse,spd=sp
                                     line +=1
                             else:
                                 line +=1
+
 
                 constitutiveLawVariables['flux'] = []
                 constitutiveLawVariables['grad'] = []

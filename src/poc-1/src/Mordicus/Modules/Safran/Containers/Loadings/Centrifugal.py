@@ -180,7 +180,7 @@ class Centrifugal(LoadingBase):
         self.reducedUnitCentrifugalVector = np.einsum('ij,i->j', unAssembledReducedUnitCentrifugalVector, integrationWeights, optimize = True)"""
         self.unAssembledReducedUnitCentrifugalVector = np.einsum('ij,i,jik->ki', r, densityAtIntegrationPoints, reducedPhiAtIntegPoints, optimize = True)
 
-        print("self.unAssembledReducedUnitCentrifugalVector =", self.unAssembledReducedUnitCentrifugalVector)
+        #print("self.unAssembledReducedUnitCentrifugalVector =", self.unAssembledReducedUnitCentrifugalVector)
 
         self.reducedUnitCentrifugalVector = np.dot(self.unAssembledReducedUnitCentrifugalVector, integrationWeights)
 

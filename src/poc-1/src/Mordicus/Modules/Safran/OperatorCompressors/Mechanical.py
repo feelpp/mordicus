@@ -127,6 +127,7 @@ def ComputeOnline(onlineProblemData, timeSequence, operatorCompressionData, tole
     """
 
     currentFolder = os.getcwd()
+
     folder = currentFolder + os.sep + onlineProblemData.GetDataFolder()
     os.chdir(folder)
 
@@ -155,7 +156,7 @@ def ComputeOnline(onlineProblemData, timeSequence, operatorCompressionData, tole
         if callback == None:
             print("time =", time); sys.stdout.flush()
         else:
-            callback.CurrentTime(time)
+            callback.CurrentTime(timeStep, time)
 
         reducedExternalForcesTemp = PrepareNewtonIterations(onlineProblemData, onlineCompressionData, time, dtime)
         reducedExternalForces = np.zeros(reducedExternalForcesTemp.shape)
