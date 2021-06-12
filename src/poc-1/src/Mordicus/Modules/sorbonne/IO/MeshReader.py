@@ -83,7 +83,7 @@ class MeshReader(MeshReaderBase):
             suffix = str(Path(self.meshFileName).suffix)
             stem = str(Path(self.meshFileName).stem)
 
-            meshFileNameGMSH =  folder+stem+"GMSH"+suffix
+            meshFileNameGMSH =  folder+"/"+stem+"GMSH"+suffix
             GMR.CheckAndConvertMeshFFtoGMSH(self.meshFileName,meshFileNameGMSH,self.dimension)
             GMSHmeshReader = GMR.GmshMeshReader(meshFileNameGMSH) #GMSHmeshReader
             mesh= GMSHmeshReader.ReadMesh()

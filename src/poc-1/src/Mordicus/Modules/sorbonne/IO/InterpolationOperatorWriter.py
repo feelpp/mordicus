@@ -66,7 +66,7 @@ def InterpolationOperator(dataFolder,mesh1,mesh2,dimension,option=None):
     elif option=="basictools":
         
         #coarse mesh
-        
+        print("mesh 2",mesh2)
         meshReader2=MR.MeshReader(mesh2,dimension)
         mesh2 = meshReader2.ReadMesh()
         mesh2.GetInternalStorage().nodes = mesh2.GetInternalStorage().nodes
