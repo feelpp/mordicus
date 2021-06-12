@@ -102,6 +102,7 @@ FFCoarsetoVTKconvert.FFReadToNp(FFCoarseSolutionsFile) #create the snapshots wit
 #interpolation with GMSH mesh files
 option="basictools" #ff, basictools
 FineMeshFileNameGMSH =  str(Path(FineMeshFileName).parents[0])+"/"+str(Path(FineMeshFileName).stem)+"GMSH"+str(Path(FineMeshFileName).suffix)
+print(FineMeshFileNameGMSH)
 CoarseMeshFileNameGMSH =  str(Path(CoarseMeshFileName).parents[0])+"/"+str(Path(CoarseMeshFileName).stem)+"GMSH"+str(Path(CoarseMeshFileName).suffix)
 operator=IOW.InterpolationOperator(dataFolder,FineMeshFileNameGMSH,CoarseMeshFileNameGMSH,dimension,option=option)
 #operator=SIO.LoadState(dataFolder+"/Matrices/operator") #ff
@@ -120,7 +121,7 @@ for i in range(ns):
     SnapshotsReader=VTKSR.VTKSolutionReader(FieldName);
     FineSnapshot =SnapshotsReader.VTKReadToNp(FineFileName).flatten() #fine snapshots
     CoarseSnapshot=SnapshotsReader.VTKReadToNp(CoarseFileName)
-    CoarseSnapshot=operator.dot(CoarseSnapshot).flatten() #coarse snapshots
+    CoarseSnapshot=operator.dot(CoarseSnapshot).flatten() #coarse snapshots interpolated
 
     solutionU=S.Solution("U",dimension,numberOfNodes,True)
     solutionUH=S.Solution("UH",dimension,numberOfNodes,True)
@@ -182,8 +183,8 @@ for i in range(ns):
 lambd=1e-10
 R=np.linalg.inv(beta.transpose()@beta+lambd*np.eye(nev))@beta.transpose()@alpha
 #print(" shape R ",np.shape(R))
-collectionProblemData.SetDataCompressionData("Rectification",R)
-
+collectionProblemData.SetDataCompressionData("rectification",R)
+collectionProblemData.SetOperatorCompressionData(l2ScalarProducMatrix)
 ### Offline Errors
 compressionErrors=[]
 

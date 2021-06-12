@@ -84,8 +84,11 @@ class MeshReader(MeshReaderBase):
             stem = str(Path(self.meshFileName).stem)
 
             meshFileNameGMSH =  folder+"/"+stem+"GMSH"+suffix
-            GMR.CheckAndConvertMeshFFtoGMSH(self.meshFileName,meshFileNameGMSH,self.dimension)
-            GMSHmeshReader = GMR.GmshMeshReader(meshFileNameGMSH) #GMSHmeshReader
+            GMSH=GMR.CheckAndConvertMeshFFtoGMSH(self.meshFileName,meshFileNameGMSH,self.dimension) #1 if GMSH
+            if GMSH==1:
+                GMSHmeshReader = GMR.GmshMeshReader(self.meshFileName) #GMSHmeshReader
+            else:
+                GMSHmeshReader = GMR.GmshMeshReader(meshFileNameGMSH) #GMSHmeshReader
             mesh= GMSHmeshReader.ReadMesh()
             if self.dimension==2:
                 mesh.GetInternalStorage().nodes = mesh.GetInternalStorage().nodes[:,:2] #CAS 2D

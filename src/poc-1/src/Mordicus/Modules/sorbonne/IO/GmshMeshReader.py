@@ -104,13 +104,14 @@ def CheckAndConvertMeshFFtoGMSH(meshFileName,meshFileNameGMSH,dimension):
 
      if firstline[1:-1] == firstlineGMSH[:]: #if already in GMSH
          print("GMSH format")
-         os.rename(meshFileName, meshFileNameGMSH)
+         #os.rename(meshFileName, meshFileNameGMSH)
+         return 1
      else: #if FreeFem++ format, convert to GMSH format
          print("Convert FF++ format to GMSH...")
      
          ConvertFFtoGMSH(meshFileName,meshFileNameGMSH,dimension)
-         print("Converted to GMSH!")
-      
+         print("Converted!")
+         return 0
 
 def ConvertFFtoGMSH(meshFileName,meshFileNameGMSH,dimension):
     assert dimension==2 or dimension==3, "Error dimension must be 2 or 3"
