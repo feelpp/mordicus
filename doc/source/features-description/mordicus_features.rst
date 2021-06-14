@@ -8,8 +8,10 @@
 
 
 
+
 Types d'utilisateurs
 ====================
+
 
 Ici, **les utilisateurs sont classés en 3 grandes catégories, incluses les unes
 dans les autres** (la troisième catégorie contient la seconde, qui contient

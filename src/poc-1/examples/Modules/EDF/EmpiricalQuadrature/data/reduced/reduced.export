@@ -1,0 +1,13 @@
+P actions make_etude
+P time_limit 6000
+P memory_limit 4096
+P ncpus 1
+P mpi_nbcpu 1
+P mpi_nbnoeud 1
+P testlist validation sequential concrete
+
+R base ${mordicus_fixed_data} D 0
+F rmed ${mordicus_primal_modes}  D 24
+F rmed ${mordicus_empirical_weights}  D 25
+F comm reduced.comm D 1
+F rmed reduced.rmed R 80

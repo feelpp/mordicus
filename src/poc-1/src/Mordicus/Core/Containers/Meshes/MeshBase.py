@@ -22,7 +22,6 @@ class MeshBase(object):
     def __init__(self):
         self.__storage = None
 
-
     def SetInternalStorage(self, __storage):
         """
         Sets the internal storage

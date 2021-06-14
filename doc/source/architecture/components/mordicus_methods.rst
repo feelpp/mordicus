@@ -3,6 +3,7 @@
 Foreword
 ========
 
+
 On imagine un problème à résoudre dans un domaine quelconque, dont un modèle prend la forme d'une équations aux dérivées partielles, dont l'inconnue est :math:`u (x, t; \mu )`:
 
 .. math::
@@ -300,6 +301,7 @@ Nonparametrized geometrical variability
 ---------------------------------------
 
 We dispose of a baseline LES computation (and associated stable POD basis) and wish to fastly predict the influence of nonparametrized geometrical modifications locally in a mask. Under a new geometrical variation, a high fidelity prediction in the mask is computed efficiently using an immersed boundary solver, where the baseline velocity field is imposed outside this mask. A classical Gappy-POD is used to update the velocity fields outside the mask, and a stable POD basis is computed in the complete obtained snapshots. Then, a ROM-Galerkin for this new geometry is computed, and the obtained reduced coefficients (on the POD modes) are combined on the baseline stable POD basis to obtain the prediction outside the mask.
+
 
 
 
