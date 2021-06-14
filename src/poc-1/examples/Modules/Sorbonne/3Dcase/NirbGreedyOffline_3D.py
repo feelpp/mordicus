@@ -21,7 +21,6 @@ from Mordicus.Modules.sorbonne.IO import numpyToVTKWriter as NpVTK
 from Mordicus.Modules.sorbonne.IO import InterpolationOperatorWriter as IOW
 from Mordicus.Modules.sorbonne.MOR import Greedy as GD
 
-#import Mordicus.Modules.sorbonne.MOR.Greedy as GD
 #from initCase import initproblem
 
 import numpy as np
@@ -29,7 +28,6 @@ from pathlib import Path
 import array
 from Mordicus.Core.IO import StateIO as SIO
 from scipy import linalg
-#from Mordicus.Modules.sorbonne.IO.FFSolutionReader import FFSolutionReader
 
 """
 Create data (mesh1,mesh2,snapshots,uH) for Sorbonne usecase
@@ -46,10 +44,7 @@ dataFolder=osp.join(currentFolder,'3DData/FineSnapshots/')
 coarseDataFolder=osp.join(currentFolder,'3DData/CoarseSnapshots/')
 
 ## Script Files - Initiate data
-externalFolder=osp.join(currentFolder,'External')
-
-## Field name
-nameField="Velocity"
+#externalFolder=osp.join(currentFolder,'External')
 
 print("-----------------------------------")
 print(" STEP I. 0: start init             ")
@@ -74,6 +69,10 @@ if len(sys.argv)>1:
 
 print("number of modes: ",nev)
 
+time=0.0 
+dimension=3
+FieldName="Velocity"
+
 snapshotFiles=sorted(os.listdir(dataFolder))
 coarseSnapshotFiles=sorted(os.listdir(coarseDataFolder))
 
@@ -83,9 +82,8 @@ ns=len(snapshotFiles)  #number of snapshots
 assert ns>0, "no snapshots file provided"
 assert nev<=ns, " !! To many number of modes, nev must be less than ns !!"
 assert len(coarseSnapshotFiles)==ns, " not the same number of coarse and fine snapshots!! "
-time=0.0 #steady 
 
-dimension=3 #3D
+
 
 ## FINE MESH reader (vtu file)
 FineMeshFileName=dataFolder+snapshotFiles[0]
@@ -93,7 +91,7 @@ meshReader = MR.MeshReader(FineMeshFileName,dimension)
 fineMesh = meshReader.ReadMesh()
 print("Fine mesh defined in " + FineMeshFileName + " has been read")
 
-nbeOfComponentsPrimal = dimension # 3D field
+nbeOfComponentsPrimal = 3 
 numberOfNodes = fineMesh.GetNumberOfNodes()
 print("number of nodes for the fineMesh: ",numberOfNodes)
 
@@ -117,8 +115,8 @@ print("-----------------------------------")
 
 collectionProblemData = CPD.CollectionProblemData()
 collectionProblemData.addVariabilityAxis('unused',int,description=" variability")
-collectionProblemData.defineQuantity("U", full_name=nameField, unit="m/s")
-collectionProblemData.defineQuantity("UH", full_name=nameField, unit="m/s")
+collectionProblemData.defineQuantity("U", full_name=FieldName, unit="m/s")
+collectionProblemData.defineQuantity("UH", full_name=FieldName, unit="m/s")
 parameters=range(ns) #for problemdata
 
 cpt=0 #num snapshot
@@ -127,7 +125,7 @@ cpt=0 #num snapshot
 for file in snapshotFiles:
     print("Reading fine snapshot ", file)
     filename=dataFolder+file
-    VTKSnapshotReader=VTKSR.VTKSolutionReader(nameField)
+    VTKSnapshotReader=VTKSR.VTKSolutionReader(FieldName)
     Fine_snapshot_array=VTKSnapshotReader.VTKReadToNp(filename).flatten()
     solutionU=S.Solution("U",dimension,numberOfNodes,True) #Add each snapshot in collectionProblemData
     solutionU.AddSnapshot(Fine_snapshot_array,0) #time=0
@@ -142,7 +140,7 @@ cpt=0
 for file in coarseSnapshotFiles:
     print("Reading coarse snapshot ", file)
     filename=coarseDataFolder+file
-    VTKSnapshotReader=VTKSR.VTKSolutionReader(nameField)
+    VTKSnapshotReader=VTKSR.VTKSolutionReader(FieldName)
     
     Coarse_snapshot_array=VTKSnapshotReader.VTKReadToNp(filename)
     Coarse_snapshot_array=operator.dot(Coarse_snapshot_array).flatten() #interpolation on fineMesh
@@ -197,13 +195,14 @@ print("-----------------------------------")
 print(" STEP I. 2: Create basis functions ")
 print("-----------------------------------")
 
-reducedOrderBasisU=GD.Greedy(snapshots,l2ScalarProducMatrix,h1ScalarProducMatrix,nev) # greedy algorithm
+#reducedOrderBasisU=GD.Greedy(snapshots,l2ScalarProducMatrix,h1ScalarProducMatrix,nev) # greedy algorithm
+reducedOrderBasisU = SP.ComputeReducedOrderBasisFromCollectionProblemData(collectionProblemData, "U", 1.e-6, l2ScalarProducMatrix)
 
 ### Add basis to collectionProblemData
     
 collectionProblemData.AddReducedOrderBasis("U", reducedOrderBasisU)
 collectionProblemData.CompressSolutions("U", l2ScalarProducMatrix) #Mass matrix
-
+nev=collectionProblemData.GetReducedOrderBasisNumberOfModes("U")
 ## Ortho basis verification
 """
 for i in range(nev):

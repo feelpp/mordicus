@@ -4,131 +4,100 @@ import os.path as osp
 import subprocess
 
 from Mordicus.Modules.sorbonne.IO import GmshMeshReader as GMR
+from Mordicus.Modules.sorbonne.IO import MeshReader as MR
 from Mordicus.Core.Containers import ProblemData as PD
 from Mordicus.Core.Containers import CollectionProblemData as CPD
 from Mordicus.Core.Containers import Solution as S
 from Mordicus.Core.DataCompressors import SnapshotPOD as SP
 from Mordicus.Modules.Safran.FE import FETools as FT
-from  Mordicus.Modules.CT.IO import VTKSolutionReader as VTKSR
+from Mordicus.Modules.sorbonne.IO import FFSolutionReader as FFSR
+from Mordicus.Modules.sorbonne.IO import VTKSolutionReader as VTKSR
+from Mordicus.Modules.sorbonne.IO import numpyToVTKWriter as NpVTK
+from Mordicus.Modules.sorbonne.IO import InterpolationOperatorWriter as IOW
 from Mordicus.Core.IO import StateIO as SIO
 from initCase import initproblem
 from initCase import basisFileToArray
 import numpy as np
 from pathlib import Path
 import array
+import glob
 
 
-nev=5   #nombre de modes
-ns=10
-time=0.0
+
+time=0.0 
 dimension=2
 print("NIRB online...")
 ## Directories
 currentFolder=os.getcwd()
 dataFolder=osp.join(currentFolder,'StationaryNSData')
-parameters = [float(1+15*i) for i in range(ns)]   ###Reynolds
 
-## Script Files - Initiate data
-externalFolder=osp.join(currentFolder,'External')
-
-#scriptFreeFem=osp.join(externalFolder,'FFtoVTK.edp')
-uH=osp.join(dataFolder,'soluH.txt')
+FieldName="u"
 
 print("-----------------------------------")
-print(" STEP2: start Online nirb        ")
+print(" STEP2: start Online nirb          ")
 print("-----------------------------------")
 
     ##################################################
     # LOAD DATA FOR ONLINE
     ##################################################
-
-collectionProblemData = SIO.LoadState("collectionProblemData")
-snapshotCorrelationOperator = SIO.LoadState("snapshotCorrelationOperator")
-
-operatorCompressionData = collectionProblemData.GetOperatorCompressionData()
+collectionProblemData = SIO.LoadState(dataFolder+"/collectionProblemData")
+#snapshotCorrelationOperator = SIO.LoadState(dataFolder+"/Matrices/snapshotCorrelationOperator")
+#h1ScalarProducMatrix=SIO.LoadState(dataFolder+"/Matrices/h1ScalarProducMatrix")
+nev=collectionProblemData.GetReducedOrderBasisNumberOfModes("U")
+l2ScalarProducMatrix = collectionProblemData.GetOperatorCompressionData()
 reducedOrderBasisU = collectionProblemData.GetReducedOrderBasis("U")
 
-#Fine mesh
-meshFileNameGMSH=dataFolder +"/mesh1GMSH.msh"
-meshReader = GMR.GmshMeshReader(meshFileNameGMSH)
-mesh = meshReader.ReadMesh()
-mesh.GetInternalStorage().nodes = mesh.GetInternalStorage().nodes[:,:2]
 
-print("Mesh defined in " + meshFileNameGMSH + " has been read")
-nbeOfComponentsPrimal = 2 # vitesses 2D
-numberOfNodes = mesh.GetNumberOfNodes()
+## FINE MESH reader (vtu file)
+FineSolutionFileName=dataFolder+"/snapshot"+str(9)+".vtu"
+FineMeshFileName=FineSolutionFileName
+meshReader = MR.MeshReader(FineMeshFileName,dimension)
+fineMesh = meshReader.ReadMesh()
+print("Fine mesh defined in " + FineMeshFileName + " has been read")
 
-#Coarse mesh
-meshFileName2 = dataFolder + "/mesh2.msh"
-meshFileNameGMSH2 = dataFolder + "/mesh2GMSH.msh"
-print(meshFileName2)
-GMR.CheckAndConvertMeshFFtoGMSH(meshFileName2,meshFileNameGMSH2)
-print(" read mesh ok...")
+nbeOfComponentsPrimal = 2 #number of components
+numberOfNodes = fineMesh.GetNumberOfNodes()
 
-#lecture snapshot grossier
-test=VTKSR.VTKSolutionReader("u");
+## Coarse mesh
+CoarseFileName=dataFolder+"/"+"soluH_"+str(0)+".vtu"
+CoarseMeshFileName=CoarseFileName
+meshReader = MR.MeshReader(CoarseMeshFileName,dimension)
+coarseMesh = meshReader.ReadMesh()
+print("Coarse mesh defined in " + CoarseMeshFileName + " has been read")
 
-# Interpolation Solution maillage grossier vers maillage fin (FF ou Basictools)
-scriptFreeFemInterpolation=osp.join(externalFolder,'FF_Interpolation.edp')
-try:
-    FNULL = open(os.devnull, 'w')
-    ret = subprocess.run(["FreeFem++", scriptFreeFemInterpolation,
-                          "-m1"   , meshFileNameGMSH,
-                          "-m2"   , meshFileNameGMSH2,
-                          "-u", uH,
-                          "-outputDir", dataFolder
-                          ],
-                          stdout=FNULL,
-                          stderr=subprocess.PIPE)
-    ret.check_returncode()
-except subprocess.CalledProcessError:
-    retstr = "Error when calling Freefem++, interpolation script\n" + "    Returns error:\n" + str(ret.stderr)
-    raise OSError(ret.returncode, retstr)
+#coarse solution
+SnapshotsReader=VTKSR.VTKSolutionReader(FieldName);
+
+#interpolation
+option="basictools"
+
+operator=IOW.InterpolationOperator(dataFolder,FineMeshFileName,CoarseMeshFileName,dimension,option=option)
 
 
-u1_np_array_coarse =test.VTKReadToNp(dataFolder+"/uH",0)
-#instancie une solution
-u1_np_array_coarse_interpol=u1_np_array_coarse.flatten()
+CoarseSolution =SnapshotsReader.VTKReadToNp(CoarseFileName)
+CoarseSolution=operator.dot(CoarseSolution).flatten() #coarse snapshot interpolated
 
 solutionUH=S.Solution("U",dimension,numberOfNodes,True)
 
 ### ajouter la snapshot A solutionU
-solutionUH.AddSnapshot(u1_np_array_coarse_interpol,0)
+solutionUH.AddSnapshot(CoarseSolution,0)#time =0
 onlineproblemData = PD.ProblemData("Online")
 onlineproblemData.AddSolution(solutionUH)
-Newparam=110.0 #parameters[ns-1]
-collectionProblemData.AddProblemData(onlineproblemData,mu1=Newparam)
+Newparam=-1
+collectionProblemData.AddProblemData(onlineproblemData,unused=Newparam)
 
-l2ScalarProducMatrix = FT.ComputeL2ScalarProducMatrix(mesh, 2)
-
-
-#verification base orthonormee....
-for i in range(nev):
-        reducedOrderBasisUNorm=np.linalg.norm(reducedOrderBasisU[i,:])
-      
-for i in range(nev):
-    for j in range(nev):
-        if i==j:
-            print(i,"norm?")
-            t=l2ScalarProducMatrix.dot(reducedOrderBasisU[i,:])
-            norm=t.dot(reducedOrderBasisU[i,:])
-            print(norm)
-        else:
-            u11=np.array(reducedOrderBasisU[i,:])
-            u21=np.array(reducedOrderBasisU[j,:])
-            matVecProduct = l2ScalarProducMatrix.dot(u11)
-            a = np.dot(matVecProduct, u21)
-            print(i,j,"ortho?:",a)
-
+#l2ScalarProducMatrix = FT.ComputeL2ScalarProducMatrix(mesh, 2)
+#l2ScalarProducMatrix=snapshotCorrelationOperator
+h1ScalarProducMatrix= FT.ComputeH10ScalarProductMatrix(fineMesh, 2)
+            
     ##################################################
     # ONLINE COMPRESSION
     ##################################################
 print("-----------------------------------")
 print(" STEP3: Snapshot compression       ")
-print("-----------------------------------")
-solutionUH.CompressSnapshots(snapshotCorrelationOperator,reducedOrderBasisU)
+print("-----------------------------------")        
+solutionUH.CompressSnapshots(l2ScalarProducMatrix,reducedOrderBasisU)
 CompressedSolutionU = solutionUH.GetCompressedSnapshots()
-#print("compressedSolutionU",CompressedSolutionU)
 reconstructedCompressedSolution = np.dot(CompressedSolutionU[0], reducedOrderBasisU) #pas de tps 0
     ##################################################
     # ONLINE ERRORS
@@ -137,85 +106,29 @@ print("-----------------------------------")
 print(" STEP4: L2 and H1 errors           ")
 print("-----------------------------------")
 
-
 print("reading exact solution...")
-test=VTKSR.VTKSolutionReader("u");
-u1_np_array =test.VTKReadToNp(dataFolder+"/snapshot",ns-1)
 
-#instancie une solution
-u1_np_array=u1_np_array.flatten()
+FineSolution =SnapshotsReader.VTKReadToNp(FineSolutionFileName).flatten()
 
 solutionU=S.Solution("U",dimension,numberOfNodes,True)
-### Only one snapshot --> time 0
-solutionU.AddSnapshot(u1_np_array,0)
+solutionU.AddSnapshot(FineSolution,0)# Only one snapshot --> time 0
 problemData = PD.ProblemData(dataFolder)
 problemData.AddSolution(solutionU)
-collectionProblemData.AddProblemData(problemData,mu1=110.0)
-
-#problemData=collectionProblemData.GetProblemData(mu1=110.0)
-#solutionU=problemData.GetSolution("U")
-#print(solutionU)
+collectionProblemData.AddProblemData(problemData,unused=-1)
 exactSolution =solutionU.GetSnapshot(0)
 compressionErrors=[]
+H1compressionErrors=[]
+norml2ExactSolution=np.sqrt(exactSolution@(l2ScalarProducMatrix@exactSolution))
+normh1ExactSolution=np.sqrt(exactSolution@(h1ScalarProducMatrix@exactSolution))
 
-norml2ExactSolution = np.linalg.norm(exactSolution)
-
-#norml2ExactSolution=np.sqrt(np.dot(l2ScalarProducMatrix.dot(exactSolution),exactSolution))
-t=l2ScalarProducMatrix.dot(exactSolution)
-norml2ExactSolution=np.sqrt(t.dot(exactSolution))
-    
-if norml2ExactSolution != 0:
-    t=l2ScalarProducMatrix.dot(reconstructedCompressedSolution-exactSolution)
-    relError=np.sqrt(t.dot(reconstructedCompressedSolution-exactSolution))/norml2ExactSolution
-        
-    #print("rec",np.linalg.norm(reconstructedCompressedSolution))
-    #print("rec",np.linalg.norm(exactSolution))
-    #relError = np.linalg.norm(reconstructedCompressedSolution-exactSolution)/norml2ExactSolution
-#    relError=np.sqrt(np.dot(l2ScalarProducMatrix.dot(reconstructedCompressedSolution-exactSolution),reconstructedCompressedSolution-exactSolution))/norml2ExactSolution
+if norml2ExactSolution != 0 and normh1ExactSolution!=0:
+    t=reconstructedCompressedSolution-exactSolution
+    relError=np.sqrt(t@l2ScalarProducMatrix@t)/norml2ExactSolution
+    relH1Error=np.sqrt(t@h1ScalarProducMatrix@t)/normh1ExactSolution
+   
 else:
     relError = np.linalg.norm(reconstructedCompressedSolution-exactSolution)
+H1compressionErrors.append(relH1Error)
 compressionErrors.append(relError)
-print("compressionErrors =", compressionErrors)
-
-
-"""
-----------------------------
-              PLOT SOL
-----------------------------
-"""
-"""
-solutionFile = osp.join(os.getcwd(),'../test/data/solution.txt')
-"""
-
-"""
-Plot the solution with FF++
-
-Arguments:
-    meshFile (str): path to .msh file containing mesh
-    solution (str): path to .txt file containing snapshots
-
-"""
-
-"""
-#from tempfile import NamedTemporaryFile
-#with NamedTemporaryFile(delete=True) as f:
-#    tmpbase = f.name
-import subprocess
-# The following should be executed with python > 3.5
-import os
-import os.path as osp
-
-scriptFreeFem=osp.join(externalFolder,'PlotSol.edp')
-try:
-    ret = subprocess.run(["FreeFem++", scriptFreeFem,
-                          "-m1"   , meshFile1,
-                          "-uh", uh],
-                          stderr=subprocess.PIPE)
-    ret.check_returncode()
-except subprocess.CalledProcessError:
-    retstr = "Error when calling Freefem++\n" + "    Returns error:\n" + str(ret.stderr)
-    raise OSError(ret.returncode, retstr)
-
-#return 0
-"""
-
+print("H1compressionErrors =", H1compressionErrors)
+print("L2compressionErrors =", compressionErrors)

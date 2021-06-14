@@ -1,3 +1,8 @@
+# -*- coding: utf-8 -*-
+## NIRB script python Offline part (with FreeFem++)
+## Elise Grosjean
+## 01/2021
+
 import os
 import os.path as osp
 
@@ -39,7 +44,7 @@ dataFolder=osp.join(currentFolder,'StationaryNSData')
 
 
 ## Script Files - Initiate data
-externalFolder=osp.join(currentFolder,'External')
+#externalFolder=osp.join(currentFolder,'External')
 
 
 print("-----------------------------------")
@@ -61,6 +66,7 @@ print("-----------------------------------")
 nev=1   #number of modes
 if len(sys.argv)>1:
         nev=int(sys.argv[1])
+print("number of modes: ",nev)
 
 time=0.0 
 dimension=2
