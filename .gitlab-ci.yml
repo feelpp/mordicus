@@ -113,8 +113,8 @@ feelpp:
   before_script:
     - apt-get update
     - apt-get install wget gnupg
-    - echo "deb https://dl.bintray.com/feelpp/debian buster latest" | tee -a /etc/apt/sources.list
-    - wget -qO - https://bintray.com/user/downloadSubjectPublicKey?username=bintray | apt-key add -
+    - echo "deb https://feelpp.jfrog.io/artifactory/ubuntu focal latest" | sudo tee -a /etc/apt/sources.list
+    - wget -qO - https://feelpp.jfrog.io/artifactory/api/security/keypair/gpg-debian/public | apt-key add -
     - apt-get update
     - apt-get install -y python3-venv python3-feelpp feelpp-tools python3-mpi4py python3-sympy python3-feelpp-toolboxes python3-feelpp-mor
     - pip install --upgrade pip
