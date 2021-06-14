@@ -6,6 +6,9 @@ from Mordicus.Core.Containers import ProblemData
 from Mordicus.Core.Containers import Solution
 from Mordicus.Core.Containers import CollectionProblemData as CPD
 from Mordicus.Core.IO import StateIO as SIO
+
+from Mordicus.Core.Containers.Visitor import exportToXML
+
 def test():
 
     solution = Solution.Solution("U", 2, 10, True)
@@ -51,6 +54,8 @@ def test():
     collectionProblemData.GetReducedOrderBasisNumberOfModes("U")
     collectionProblemData.SetDataCompressionData("toto", 1.)
     collectionProblemData.GetDataCompressionData("toto")
+    collectionProblemData.SetOperatorCompressionData({"toto": np.array([1., 2.])})
+    collectionProblemData.GetOperatorCompressionData()
 
     projectedReducedOrderBasis = collectionProblemData.ComputeReducedOrderBasisProjection("U", np.ones((3, 20)))
     collectionProblemData.ConvertCompressedSnapshotReducedOrderBasis("U", projectedReducedOrderBasis)
@@ -58,6 +63,12 @@ def test():
 
     problemData.AddParameter(np.zeros(2), 0.0)
     collectionProblemData.GetParameterDimension()
+    solution.CompressSnapshots(np.eye(20), reducedOrderBases)
+    
+    exportToXML("/home/A34370/tmp/saveMordicus", collectionProblemData, reconstruct=False)
+    exportToXML("/home/A34370/tmp/saveMordicusFull", collectionProblemData, reconstruct=True)
+
+    
 
     SIO.SaveState("temp", collectionProblemData)
     SIO.LoadState("temp")

@@ -149,3 +149,9 @@ class SolverDataset(object):
         return SolverDataset(self.produced_object,
                              self.solver,
                              input_data)
+        
+    def accept(self, visitor, cpd):
+        """
+        Accept visitor
+        """
+        return visitor.visitDataSet(self, cpd)

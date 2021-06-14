@@ -438,7 +438,11 @@ class Solution(object):
             times, self.GetTimeSequenceFromCompressedSnapshots(), self.GetCompressedSnapshotsList()
         )
 
-
+    def accept(self, visitor):
+        """
+        Accept visitor
+        """
+        return visitor.visitSolution(self)
 
     def __getstate__(self):
 

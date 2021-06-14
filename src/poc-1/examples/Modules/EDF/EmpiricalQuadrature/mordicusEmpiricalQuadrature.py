@@ -23,8 +23,9 @@ from Mordicus.Core.DataCompressors import SnapshotPOD as SP
 
 from Mordicus.Modules.EDF.OperatorCompressors import EmpiricalQuadrature as EQ
 from Mordicus.Modules.EDF.DataCompressors.IncrementalSnapshotPOD import CompressData
-from Mordicus.Modules.EDF.BasicAlgorithms.GappyPOD import GappyPOD_EQ
+#from Mordicus.Modules.EDF.BasicAlgorithms.GappyPOD import GappyPOD_EQ
 
+from Mordicus.Core.Containers.Visitor import exportToXML
 # root folder to all study subfolders where solver input and output files will be put
 
 root_to_all = osp.join(osp.dirname(osp.abspath(__file__)), "data")
@@ -212,6 +213,9 @@ compute_residual_dataset = SolverDataset(ProblemData,
 
 collectionProblemData.specificDatasets["computeAPosterioriError"] = compute_residual_dataset
 
+exportToXML("/home/A34370/tmp/EDFMordicusSave", collectionProblemData, solutionReader=reader_solution, reconstruct=False)
+exportToXML("/home/A34370/tmp/EDFMordicusSaveFull", collectionProblemData, solutionReader=reader_solution, reconstruct=True)
+assert(False)
 
 # ------------------------------------------------------------------
 # XI. MAIN LOOP OF THE REDUCED BASIS METHOD

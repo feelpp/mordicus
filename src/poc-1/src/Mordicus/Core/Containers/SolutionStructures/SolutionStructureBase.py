@@ -60,3 +60,9 @@ class SolutionStructureBase(object):
         """
         raise NotImplementedError("Meant to be implemented in derived classes")
     
+    def accept(self, visitor, quantity):
+        """
+        Accepts visitor
+        """
+        return visitor.visitSolutionStructure(self, quantity)
+    

@@ -36,6 +36,25 @@ class NoAxisDuplicateDict(OrderedDict):
                     if ke == k:
                         raise ValueError("Parameter {0} is already handled with key {1}".format(ke, k))
         return OrderedDict.__setitem__(self, key, value)
+
+class QuantityDefinitionDict(OrderedDict):
+    """Override OrderedDict to implement visitor design pattern"""
+    
+    def accept(self, visitor):
+        """
+        Accept visitor
+        """
+        return visitor.visitQuantityDefinitionDict(self)
+
+class VariabilityDefinitionDict(OrderedDict):
+    """Override OrderedDict to implement visitor design pattern"""
+    
+    def accept(self, visitor):
+        """
+        Accept visitor
+        """
+        return visitor.visitVariabilityDefinitionDict(self)
+
 class CollectionProblemData(object):
     """
     Class containing a set of collection of problemData
@@ -70,9 +89,9 @@ class CollectionProblemData(object):
         self.reducedOrderBases = {}
 
         self.solutionStructures = {}
-        self.variabilityDefinition = {}
+        self.variabilityDefinition = VariabilityDefinitionDict()
         self.variabilitySupport = NoAxisDuplicateDict()
-        self.quantityDefinition = {}
+        self.quantityDefinition = QuantityDefinitionDict()
         self.templateDataset = None
         self.reducedTemplateDataset = None
         self.specificDatasets = {}
@@ -763,6 +782,12 @@ class CollectionProblemData(object):
         ndarrays = self.variabilitySupport.values()
         meshgrid = np.meshgrid(*ndarrays, indexing='ij')
         return np.column_stack(tuple(m.flatten() for m in meshgrid))
+    
+    def accept(self, visitor):
+        """
+        Visitor design pattern
+        """
+        return visitor.visitCPD(self)
 
     def __str__(self):
         res = "CollectionProblemData\n"

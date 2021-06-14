@@ -21,7 +21,7 @@ class ExternalSolvingProcedure(object):
         """
         Constructor
         """
-        list_argnames = ["solver_cfg", "solver_call_procedure_type", "call_script", "python_preprocessing"]
+        list_argnames = ["id", "solver_cfg", "solver_call_procedure_type", "call_script", "python_preprocessing"]
         for name in list_argnames:
             if name in kwargs:
                 setattr(self, name, kwargs[name])
@@ -44,7 +44,8 @@ class ExternalSolvingProcedure(object):
             script = script.format(**self.solver_cfg)
         seq = shlex.split(script)
         ret = subprocess.run(seq, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        #print(ret.stdout)
+
+        #print(str(ret.stdout).replace('\\n', '\n'))
         return ret
 
     def import_mordicus_data(self, input_data):
@@ -56,4 +57,10 @@ class ExternalSolvingProcedure(object):
             and str as values (value to substitute with)
         """
         raise NotImplementedError("To be implemented by subclasses")
+    
+    def accept(self, visitor):
+        """
+        Accept visitor
+        """
+        return visitor.visitSolver(self)
         
