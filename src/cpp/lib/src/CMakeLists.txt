@@ -1,5 +1,6 @@
 
 add_library (mordicus Mordicus.cpp Tools.cpp)
+target_compile_features(mordicus PUBLIC cxx_std_${MORDICUS_STD_CPP})
 generate_export_header (mordicus)
 file (COPY ${CMAKE_CURRENT_BINARY_DIR}/mordicus_export.h DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/mordicus)
 
