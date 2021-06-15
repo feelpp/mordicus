@@ -111,7 +111,8 @@ feelpp:
   stage: test
   image: feelpp/feelpp-mor:focal
   before_script:
-    - pip install --upgrade pip
+    - apt install python3-pip
+#    - pip install --upgrade pip
     - pip install -r ./src/poc-1/requirements.txt
     - export PYTHONPATH=$PWD/src/poc-1/src:$PYTHONPATH
     - export PYTHONPATH=$PWD/../basic-tools/src:$PYTHONPATH
