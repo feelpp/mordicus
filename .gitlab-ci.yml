@@ -116,7 +116,7 @@ feelpp:
     - echo "deb https://feelpp.jfrog.io/artifactory/debian buster latest" | tee -a /etc/apt/sources.list
     - wget -qO - https://feelpp.jfrog.io/artifactory/api/security/keypair/gpg-debian/public | apt-key add -
     - apt-get update
-    - apt-get install -y python3-venv python3-feelpp feelpp-tools python3-mpi4py python3-sympy python3-feelpp-toolboxes python3-feelpp-mor
+    - apt-get install -y python3-venv python3-feelpp feelpp-tools python3-mpi4py python3-sympy python3-feelpp-toolboxes python3-feelpp-mor cmake libfeelpp-dev
     - pip install --upgrade pip
     - pip install -r ./src/poc-1/requirements.txt
     - export PYTHONPATH=$PWD/src/poc-1/src:$PYTHONPATH
