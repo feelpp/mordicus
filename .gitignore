@@ -43,3 +43,4 @@ mordicus-config.cmake
 lib/test/t_scimesh.json
 *_export.h
 feelppdb/
+build-*
