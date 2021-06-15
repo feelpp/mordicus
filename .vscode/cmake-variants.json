@@ -1,0 +1,42 @@
+{
+    "cpp": {
+        "default": "cpp17",
+        "description": "Select C++ standard 17 or 20",
+        "choices": {
+            "cpp17": {
+                "short": "Cpp17",
+                "long": "Select C++17 standard.",
+                "settings": {
+                    "FEELPP_STD_CPP": "17"
+                }
+            },
+            "cpp20": {
+                "short": "Cpp20",
+                "long": "Select C++20 standard.",
+                "settings": {
+                    "FEELPP_STD_CPP": "20"
+                }
+            }
+        }
+    },
+    "cemosis": {
+        "default": "nocemosis",
+        "description": "Enable/Disable Cemosis Module",
+        "choices": {
+            "cemosis": {
+                "short": "Cemosis",
+                "long": "Enable Cemosis Module.",
+                "settings": {
+                    "MORDICUS_ENABLE_CEMOSIS": "ON"
+                }
+            },
+            "nocemosis": {
+                "short": "No Cemosis",
+                "long": "Disable Cemosis Module.",
+                "settings": {
+                    "MORDICUS_ENABLE_CEMOSIS": "OFF"
+                }
+            }
+        }
+    }
+}
