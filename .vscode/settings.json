@@ -1,0 +1,6 @@
+{
+    "cmake.configureOnOpen": false,
+    "cmake.parallelJobs": 5,
+    "cmake.sourceDirectory": "${workspaceFolder}/src/cpp",
+    "cmake.buildDirectory": "${workspaceFolder}/build-${buildType}-${variant:cpp}-${variant:cemosis}"
+}

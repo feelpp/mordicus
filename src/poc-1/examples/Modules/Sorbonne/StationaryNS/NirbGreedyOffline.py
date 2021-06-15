@@ -1,30 +1,36 @@
+# -*- coding: utf-8 -*-
+## NIRB script python Offline part (with FreeFem++)
+## Elise Grosjean
+## 01/2021
+
 import os
 import os.path as osp
 
 import subprocess
-
-from Mordicus.Modules.sorbonne.IO import GmshMeshReader as GMR
+import sys
+#from Mordicus.Modules.sorbonne.IO import GmshMeshReader as GMR
 from Mordicus.Modules.sorbonne.IO import MeshReader as MR
 from Mordicus.Core.Containers import ProblemData as PD
 from Mordicus.Core.Containers import CollectionProblemData as CPD
 from Mordicus.Core.Containers import Solution as S
 from Mordicus.Core.DataCompressors import SnapshotPOD as SP
 from Mordicus.Modules.Safran.FE import FETools as FT
-from  Mordicus.Modules.CT.IO import VTKSolutionReader as VTKSR
+from Mordicus.Modules.sorbonne.IO import VTKSolutionReader as VTKSR
+from Mordicus.Modules.sorbonne.IO import FFSolutionReader as FFSR
 from Mordicus.Modules.sorbonne.IO import numpyToVTKWriter as NpVTK
+from Mordicus.Modules.sorbonne.IO import InterpolationOperatorWriter as IOW
 from Mordicus.Core.IO import StateIO as SIO
+from Mordicus.Modules.sorbonne.MOR import Greedy as GD
 #from tkinter.constants import CURRENT
 from initCase import initproblem
-from initCase import basisFileToArray
+import glob
 import numpy as np
 from pathlib import Path
 import array
 
 
-#from Mordicus.Modules.sorbonne.IO.FFSolutionReader import FFSolutionReader
-
 """
-Create data (mesh1,mesh2,snapshots,uH) for Sorbonne usecase
+Create data (mesh1,mesh2,snapshots,uH,coarsesnapshots) for Sorbonne usecase
 """
 """ 
 ----------------------------
@@ -38,13 +44,13 @@ dataFolder=osp.join(currentFolder,'StationaryNSData')
 
 
 ## Script Files - Initiate data
-externalFolder=osp.join(currentFolder,'External')
+#externalFolder=osp.join(currentFolder,'External')
 
 
 print("-----------------------------------")
 print(" STEP0: start init                 ")
 print("-----------------------------------")
-initproblem(dataFolder)
+#initproblem(dataFolder) #initialization of the data
 print("-----------------------------------")
 print(" STEP0: snapshots generated        ")
 print("-----------------------------------")
@@ -56,146 +62,121 @@ print("-----------------------------------")
 ----------------------------------------------------------------------------------------
 ----------------------------------------------------------------------------------------
 """
-import vtk
-import numpy as np
-from vtk.util.numpy_support import vtk_to_numpy
-nev=3   #nombre de modes
-ns=10
+
+nev=1   #number of modes
+if len(sys.argv)>1:
+        nev=int(sys.argv[1])
+print("number of modes: ",nev)
+
 time=0.0 
 dimension=2
-           
-###  convert mesh to GMSH if necessary and read it with Basictools
+FieldName="u"
 
-meshFileName = dataFolder + "/mesh1.msh"
-print("init fine mesh: ",meshFileName)
-meshFileNameGMSH = dataFolder + "/mesh1GMSH.msh"
-GMR.CheckAndConvertMeshFFtoGMSH(meshFileName,meshFileNameGMSH)
-    
-meshReader = GMR.GmshMeshReader(meshFileNameGMSH)
-mesh= meshReader.ReadMesh()
-mesh.GetInternalStorage().nodes = mesh.GetInternalStorage().nodes[:,:2] #CAS 2D
+###  convert mesh to GMSH if FF++ format and read it with Basictools
+FineMeshFileName = dataFolder + "/mesh1.msh" #finemesh
+CoarseMeshFileName =dataFolder + "/mesh2.msh" #coarsemesh
 
-### Convert mesh to VTU
-"""
-try:
-    FNULL=open(os.devnull,'w')
-    ret=subprocess.run(["meshio-convert", meshFileNameGMSH, dataFolder+"/mesh1.vtu"], stdout=FNULL, stderr=subprocess.PIPE)
-    ret.check_returncode()
-except subprocess.CalledProcessError:
-    retstr="Error File convertion with meshio\n" + "    Returns error:\n" + str(ret.stderr)
-    raise OSError(ret.returncode,retstr)
+# FF++ snapshots filename
+FFFineSolutionsFile=dataFolder+"/snapshots.txt"
+FFCoarseSolutionsFile=dataFolder+"/coarsesnapshots.txt"
 
-VTKBase = MR.ReadVTKBase(dataFolder+"/mesh1.vtu")
-"""
-print("Mesh defined in " + meshFileNameGMSH + " has been read")
-nbeOfComponentsPrimal = 2 # vitesses 2D
-numberOfNodes = mesh.GetNumberOfNodes()
-#print("nbNodes",numberOfNodes)
-#print("dimmesh",mesh.GetDimensionality())
+#print("Fine mesh: ",FineMeshFileName)
+FineMeshReader=MR.MeshReader(FineMeshFileName,dimension)
+FineMesh= FineMeshReader.ReadMesh()
+
+#print("Coarse mesh: ",CoarseMeshFileName)
+CoarseMeshReader=MR.MeshReader(CoarseMeshFileName,dimension)
+CoarseMesh= CoarseMeshReader.ReadMesh()
+
+nbeOfComponentsPrimal = 2 # number of components 
+numberOfNodes = FineMesh.GetNumberOfNodes()
+#print("number Of Nodes in the Fine Mesh",numberOfNodes)
         
 collectionProblemData = CPD.CollectionProblemData()
-collectionProblemData.addVariabilityAxis('mu1',float,description="Reynolds number")
-collectionProblemData.defineQuantity("U", full_name="Velocity", unit="m/s")
-collectionProblemData.defineQuantity("UH", full_name="Velocity", unit="m/s")
-parameters = [float(1+15*i) for i in range(ns)]   ###Reynolds
+collectionProblemData.addVariabilityAxis('unused',int,description="unused parameter")
+collectionProblemData.defineQuantity("U", full_name=FieldName, unit="m/s") #fine
+collectionProblemData.defineQuantity("UH", full_name=FieldName, unit="m/s") #coarse
+
+#convert FreeFem++ solutions to vtk (read the FieldName provided)
+
+FFFinetoVTKconvert=FFSR.FFSolutionReader(FieldName,FineMeshFileName); 
+FFFinetoVTKconvert.FFReadToNp(FFFineSolutionsFile) #create the snapshots with vtu format
+
+FFCoarsetoVTKconvert=FFSR.FFSolutionReader(FieldName,CoarseMeshFileName);
+FFCoarsetoVTKconvert.FFReadToNp(FFCoarseSolutionsFile) #create the snapshots with vtu format
+
+#interpolation with GMSH mesh files
+option="basictools" #ff, basictools
+FineMeshFileNameGMSH =  str(Path(FineMeshFileName).parents[0])+"/"+str(Path(FineMeshFileName).stem)+"GMSH"+str(Path(FineMeshFileName).suffix)
+print(FineMeshFileNameGMSH)
+CoarseMeshFileNameGMSH =  str(Path(CoarseMeshFileName).parents[0])+"/"+str(Path(CoarseMeshFileName).stem)+"GMSH"+str(Path(CoarseMeshFileName).suffix)
+operator=IOW.InterpolationOperator(dataFolder,FineMeshFileNameGMSH,CoarseMeshFileNameGMSH,dimension,option=option)
+#operator=SIO.LoadState(dataFolder+"/Matrices/operator") #ff
+
+ns=1 #number of snapshots (number of files saved)
+FineSnapshotFiles=sorted(glob.glob(dataFolder+"/snapshots_*"))
+#print(FineSnapshotFiles)
+print("number of snapshots in ", dataFolder, ": ",len(FineSnapshotFiles))
+ns=len(FineSnapshotFiles)  #number of snapshots
+parameters = range(ns)#for problemdata
+
 #### Read solutions 
 for i in range(ns):
-    
-    test=VTKSR.VTKSolutionReader("u");
-    u1_np_array =test.VTKReadToNp(dataFolder+"/snapshot",i)
-    u1_np_arrayH=test.VTKReadToNp(dataFolder+"/snapshotH",i) #Snapshots grossiers
-    #instancie une solution
-    u1_np_array=u1_np_array.flatten()
-    print(np.shape(u1_np_array))
-    u1_np_arrayH=u1_np_arrayH.flatten()
-    print(np.shape(u1_np_arrayH))
+    FineFileName=dataFolder+"/"+str(Path(FFFineSolutionsFile).stem)+"_"+str(i)+".vtu"
+    CoarseFileName=dataFolder+"/"+str(Path(FFCoarseSolutionsFile).stem)+"_"+str(i)+".vtu"
+    SnapshotsReader=VTKSR.VTKSolutionReader(FieldName);
+    FineSnapshot =SnapshotsReader.VTKReadToNp(FineFileName).flatten() #fine snapshots
+    CoarseSnapshot=SnapshotsReader.VTKReadToNp(CoarseFileName)
+    CoarseSnapshot=operator.dot(CoarseSnapshot).flatten() #coarse snapshots interpolated
+
     solutionU=S.Solution("U",dimension,numberOfNodes,True)
     solutionUH=S.Solution("UH",dimension,numberOfNodes,True)
     ### Only one snapshot --> time 0 
-    solutionU.AddSnapshot(u1_np_array,0)
-    solutionUH.AddSnapshot(u1_np_arrayH,0)
+    solutionU.AddSnapshot(FineSnapshot,0)
+    solutionUH.AddSnapshot(CoarseSnapshot,0)
     problemData = PD.ProblemData(dataFolder+str(i))
     problemData.AddSolution(solutionU)
     problemData.AddSolution(solutionUH)
-    collectionProblemData.AddProblemData(problemData,mu1=parameters[i])
+    collectionProblemData.AddProblemData(problemData,unused=parameters[i])
+    
 snapshotsIterator = collectionProblemData.SnapshotsIterator("U")
 snapshots = []
 snapshotsHIterator = collectionProblemData.SnapshotsIterator("UH")
 snapshotsH = []
 
-numberOfIntegrationPoints = FT.ComputeNumberOfIntegrationPoints(mesh)
+#numberOfIntegrationPoints = FT.ComputeNumberOfIntegrationPoints(FineMesh)
 
 """ Greedy """
 print("-----------------------------------")
 print(" STEP1: GREEDY Offline                ")
 print("-----------------------------------")
 
-print("ComputeL2ScalarProducMatrix...")
-l2ScalarProducMatrix = FT.ComputeL2ScalarProducMatrix(mesh, 2)
-ListeNorm=[]
+print("ComputeL2ScalarProductMatrix and h1ScalarProductMatrix...")
+l2ScalarProducMatrix = FT.ComputeL2ScalarProducMatrix(FineMesh, 2)
+h1ScalarProducMatrix = FT.ComputeH10ScalarProductMatrix(FineMesh, 2)
+
+#ListeNormSnapshots=[]
 for s in snapshotsIterator:
     snapshots.append(s)
-    norm=s@(l2ScalarProducMatrix@s)
-    ListeNorm.append(np.sqrt(norm))
-    print("norm",np.sqrt(norm))
-print("snap",np.shape(snapshots))
+    #norm=s@(l2ScalarProducMatrix@s)
+    #ListeNormSnapshots.append(np.sqrt(norm))
 
-for s in snapshotsHIterator:#snap grossiers
+for s in snapshotsHIterator:# coarse snapshots
     snapshotsH.append(s)
 
-#test=NpVTK.VTKWriter(VTKBase);
-
 ##### ALGO GREEDY
-
-nbdeg=numberOfNodes*nbeOfComponentsPrimal;
-reducedOrderBasisU=np.zeros((nev,numberOfNodes*nbeOfComponentsPrimal))
-reducedOrderBasisU[0,:]=snapshots[0]/ListeNorm[0] #premiere fct dans la base
-ListeIndex=[0]#premier snapshot utilise
-
-basis=[]
-basis.append(np.array(snapshots[0])/ListeNorm[0])
-
-for n in range(1,nev):
-    print("nev ",n)
-    testjl=[]
-    testjn=[]
-    for j in range(ns):
-        if not (j in ListeIndex):
-            
-            coef=[snapshots[j]@(l2ScalarProducMatrix@b) for b in basis]
-            w=snapshots[j]-np.sum(snapshots[j]@(l2ScalarProducMatrix@b)*b for b in basis)
-            norml2=np.sqrt(w@(l2ScalarProducMatrix@w))
-            #print("norml2 ",norml2)
-            testjnorm=norml2/ListeNorm[j]
-            testjl.append(testjnorm)
-            testjn.append(w)
-        
-        else:
-            testjl.append(-1)
-            testjn.append(-1)
-    maximum=max(testjl)
-    ind=testjl.index(max(testjl))
-    ListeIndex.append(ind)
-    norm=np.sqrt(testjn[ind]@(l2ScalarProducMatrix@testjn[ind]))
-    basis.append(testjn[ind]/norm)
-    reducedOrderBasisU[n,:]=(testjn[ind]/norm)
-    
-#collectionProblemData.SetSnapshotCorrelationOperator("U", l2ScalarProducMatrix)
+reducedOrderBasisU=GD.Greedy(snapshots,l2ScalarProducMatrix,h1ScalarProducMatrix,nev) # greedy algorithm
 collectionProblemData.AddReducedOrderBasis("U", reducedOrderBasisU)
-
-#print(np.shape(reducedOrderBasisU[0,:]))
-#for i in range(nev):
-#    namefile="PODbase"+str(i)+".vtu"
-#    test.numpyToVTKPODWrite("U", reducedOrderBasisU[i,:],namefile)
 collectionProblemData.CompressSolutions("U",snapshotCorrelationOperator=l2ScalarProducMatrix)
 
-#base orthonorme?
-
+#verification orthonormalization
+"""
 for i in range(nev):
     for j in range(nev):
         t=l2ScalarProducMatrix.dot(reducedOrderBasisU[i,:])
         norm=t.dot(reducedOrderBasisU[j,:])
         print(i,j," ",norm)
+"""
 
 # Rectification
 alpha=np.zeros((ns,nev))
@@ -204,15 +185,13 @@ for i in range(ns):
     for j in range(nev):
         alpha[i,j]=snapshots[i]@(l2ScalarProducMatrix@reducedOrderBasisU[j,:])
         beta[i,j]=snapshotsH[i]@(l2ScalarProducMatrix@reducedOrderBasisU[j,:])
-        #print(alpha[i,j])
-        #print(beta[i,j])
+ 
 lambd=1e-10
 R=np.linalg.inv(beta.transpose()@beta+lambd*np.eye(nev))@beta.transpose()@alpha
 #print(" shape R ",np.shape(R))
-collectionProblemData.SetDataCompressionData("Rectification",R)
-
+collectionProblemData.SetDataCompressionData("rectification",R)
+collectionProblemData.SetOperatorCompressionData(l2ScalarProducMatrix)
 ### Offline Errors
-
 compressionErrors=[]
 
 for _, problemData in collectionProblemData.GetProblemDatas().items():
@@ -226,11 +205,11 @@ for _, problemData in collectionProblemData.GetProblemDatas().items():
         t=reconstructedCompressedSolution-exactSolution
        
         relError=t@(l2ScalarProducMatrix@t)/norml2ExactSolution
-        #        relError = np.linalg.norm(reconstructedCompressedSolution-exactSolution)/norml2ExactSolution
+       
     else:
         relError = np.linalg.norm(reconstructedCompressedSolution-exactSolution)
     compressionErrors.append(relError)
 print("compressionErrors =", compressionErrors)
 
-SIO.SaveState("collectionProblemData", collectionProblemData)
-SIO.SaveState("snapshotCorrelationOperator", l2ScalarProducMatrix)
+SIO.SaveState(dataFolder+"/collectionProblemData", collectionProblemData)
+#SIO.SaveState("snapshotCorrelationOperator", l2ScalarProducMatrix)

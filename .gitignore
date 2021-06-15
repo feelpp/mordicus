@@ -20,7 +20,6 @@ src/poc-1/coverageReports/*
 *.spyproject*
 *.png
 *.vtu
-*.vscode
 
 #autodoc generated files
 *_build*
@@ -43,3 +42,5 @@ compile_commands.json
 mordicus-config.cmake
 lib/test/t_scimesh.json
 *_export.h
+feelppdb/
+build-*

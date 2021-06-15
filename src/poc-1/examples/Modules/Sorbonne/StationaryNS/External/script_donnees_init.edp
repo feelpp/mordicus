@@ -22,7 +22,7 @@ string solFile=outputDir+"/soluH.txt";
 string meshFile1=outputDir+"/mesh1.msh"; 
 string meshFile2=outputDir+"/mesh2.msh"; 
 string param=outputDir+"/param.txt"; 
-
+string snapCoarseFile=outputDir+"/coarsesnapshots.txt";
 
 //getARGV("-outputSnap","err.log");  
 //string solFile=getARGV("-outputSol","err.log"); 
@@ -32,6 +32,7 @@ string param=outputDir+"/param.txt";
 
 
 ofstream snapshot(snapFile);
+ofstream CoarseSnapshot(snapCoarseFile);
 ofstream uH(solFile);
 ofstream paramfile(param);
 
@@ -69,8 +70,9 @@ NewMacro defProblem(Th,u,v,p,uu,vv,pp,up,vp,fine,file,paramfile)
 		if(j==ns-1){
 			[uhh,vhh]=[u,v];
 			//file<<u[];
-      			break;
+      			//break;
   		}
+		//file<<usnshh[j][];
 	     }
 	    //Re += 0.5;nu=1/Re;
 	    Re+=15;nu=1/Re;
@@ -110,14 +112,14 @@ uph[]=0.;
 real Re=1,nu=1/Re;
 defProblem(Th,u,v,p,uu,vv,pp,up,vp,1,snapshot,paramfile)
 Re=1;nu=1./Re;
-defProblem(Th2,uh,vh,ph,uuh,vvh,pph,uph,vph,0,uH,paramfile)
+defProblem(Th2,uh,vh,ph,uuh,vvh,pph,uph,vph,0,CoarseSnapshot,paramfile)
 //plot(Th2,[uhh,vhh],wait=1);
 
 
 fespace Xh(Th,[P1,P1]);
 fespace Mh2(Th2,[P1,P1]);
 Xh [usnshP1,vsnshP1];
-Xh [usnshhP1,vsnshhP1];
+Mh2 [usnshhP1,vsnshhP1];
 Mh2 [uhhP1,vhhP1];
 [uhhP1,vhhP1]=[uhh,vhh];
 
@@ -136,6 +138,7 @@ for(int i=0;i<ns;i++){
 	savevtk(fileC, Th, [usnshhP1, vsnshhP1],order=order,dataname="u",bin=0);
 	//solution grossiere
 	snapshot<<usnshP1[];
+	CoarseSnapshot<<usnshhP1[];
 }
 
 uH<<uhhP1[];

@@ -1,0 +1,67 @@
+
+load "iovtk"
+include "getARGV.idp"
+load "shell"
+
+mesh Th = getARGV("-mesh", "mesh1.msh");
+//plot(Th,wait=1);
+
+fespace Vh(Th,[P1,P1]);
+fespace Xh(Th,P1);
+
+string file = getARGV("-file", "snapshots.txt");
+string fieldName=getARGV("-fieldName", "u");
+string dossier=file(0:file.rfind("/"));
+cout<<"dossier "<<dossier<<endl;
+ifstream f(file);
+assert(f.good());
+string newfileName;
+newfileName=file(file.rfind("/")+1:file.find(".")-1);
+cout<<"newfileName :"<< newfileName<<endl;
+
+Vh [w,w2];
+
+int ns=1;
+int cpt=0;
+
+Vh[int] [usnsh,vsnsh](ns);
+
+int l=f.length;
+int nn,where;
+where=0;
+while(1){
+	int nn,where = f.tellg(); //store file position
+	if (where+1>=l) break; 
+	f>>nn;
+	if (f.good() && where >=0 ){
+	    f.seekg(where); //restore file position
+    	    f>>w[];
+	    
+	    if (cpt==ns){
+	       ns*=2;
+	       usnsh.resize(ns);
+	    }
+	    usnsh[cpt++][]=w[];
+    	    
+    	}
+    	else{
+		break;
+     	}
+}
+
+usnsh.resize(cpt);
+ns=cpt;
+cout<<"number of snapshots "<<ns<<endl;
+
+
+
+//if(isdir(dossier+"VTUSnapshots")==-1){ //if not already created
+//mkdir(dossier+"VTUSnapshots");
+//}
+
+int[int] Order=[1];
+for(int i=0;i<ns;i++){
+	//plot(usnsh[i],wait=1);
+	string filename=dossier+newfileName+"_"+i+".vtu";
+	savevtk(filename, Th, [usnsh[i],vsnsh[i]], dataname=fieldName, order=Order, bin=1);
+}

@@ -1,25 +1,32 @@
+# -*- coding: utf-8 -*-
+## NIRB script python Offline part (with VTK)
+## Elise Grosjean
+## 01/2021
+
 import os
 import os.path as osp
 
 import subprocess
-
-from Mordicus.Modules.sorbonne.IO import GmshMeshReader as GMR
+import sys
+#from Mordicus.Modules.sorbonne.IO import GmshMeshReader as GMR
 from Mordicus.Modules.sorbonne.IO import MeshReader as MR
 from Mordicus.Core.Containers import ProblemData as PD
 from Mordicus.Core.Containers import CollectionProblemData as CPD
 from Mordicus.Core.Containers import Solution as S
 from Mordicus.Core.DataCompressors import SnapshotPOD as SP
 from Mordicus.Modules.Safran.FE import FETools as FT
-from  Mordicus.Modules.CT.IO import VTKSolutionReader as VTKSR
+from Mordicus.Modules.sorbonne.IO import VTKSolutionReader as VTKSR
+from Mordicus.Modules.sorbonne.IO import FFSolutionReader as FFSR
 from Mordicus.Modules.sorbonne.IO import numpyToVTKWriter as NpVTK
+from Mordicus.Modules.sorbonne.IO import InterpolationOperatorWriter as IOW
 from Mordicus.Core.IO import StateIO as SIO
+from Mordicus.Modules.sorbonne.MOR import Greedy as GD
 #from tkinter.constants import CURRENT
 from initCase import initproblem
-from initCase import basisFileToArray
+import glob
 import numpy as np
 from pathlib import Path
 import array
-
 
 #from Mordicus.Modules.sorbonne.IO.FFSolutionReader import FFSolutionReader
 
@@ -56,75 +63,87 @@ print("-----------------------------------")
 ----------------------------------------------------------------------------------------
 ----------------------------------------------------------------------------------------
 """
-import vtk
-import numpy as np
-from vtk.util.numpy_support import vtk_to_numpy
-nev=5   #nombre de modes
-ns=10
+
+nev=1   #number of modes
+if len(sys.argv)>1:
+        nev=int(sys.argv[1])
+print("number of modes: ",nev)
+
 time=0.0
 dimension=2
-           
-###  convert mesh to GMSH if necessary and read it with Basictools
+FieldName="u"
 
-meshFileName = dataFolder + "/mesh1.msh"
-print("init fine mesh: ",meshFileName)
-meshFileNameGMSH = dataFolder + "/mesh1GMSH.msh"
-GMR.CheckAndConvertMeshFFtoGMSH(meshFileName,meshFileNameGMSH)
+FineSnapshotFiles=sorted(glob.glob(dataFolder+"/snapshots_*"))
+ns=len(FineSnapshotFiles)
+print("number of snapshots: ",ns)
 
-meshReader = GMR.GmshMeshReader(meshFileNameGMSH)
-mesh = meshReader.ReadMesh()
-mesh.GetInternalStorage().nodes = mesh.GetInternalStorage().nodes[:,:2] #CAS 2D
+#CoarseSnapshotFiles=sorted(glob.glob(dataFolder+"/coarsesnapshots_*"))
+#assert(len(CoarseSnapshotFiles) == ns), "not the same number of fine/coarse snapshots!"
 
-### Convert mesh to VTU
+## FINE MESH reader (vtu file)
+FineMeshFileName=FineSnapshotFiles[0]
+meshReader = MR.MeshReader(FineMeshFileName,dimension)
+fineMesh = meshReader.ReadMesh()
+print("Fine mesh defined in " + FineMeshFileName + " has been read")
+
+nbeOfComponentsPrimal = 2
+numberOfNodes = fineMesh.GetNumberOfNodes()
+print("number of nodes for the fineMesh: ",numberOfNodes)
+
+## COARSE MESH
 """
-try:
-    FNULL=open(os.devnull,'w')
-    ret=subprocess.run(["meshio-convert", meshFileNameGMSH, dataFolder+"/mesh1.vtu"], stdout=FNULL, stderr=subprocess.PIPE)
-    ret.check_returncode()
-except subprocess.CalledProcessError:
-    retstr="Error File convertion with meshio\n" + "    Returns error:\n" + str(ret.stderr)
-    raise OSError(ret.returncode,retstr)
+CoarseMeshFileName=CoarseSnapshotFiles[0]
+meshReader = MR.MeshReader(CoarseMeshFileName,dimension)
+coarseMesh = meshReader.ReadMesh()
+print("Coarse mesh defined in " + CoarseMeshFileName + " has been read")
 
-VTKBase = MR.ReadVTKBase(dataFolder+"/mesh1.vtu")
+
+## interpolation
+option="basictools" #ff, basictools 
+operator=IOW.InterpolationOperator(dataFolder,FineMeshFileName,CoarseMeshFileName,dimension,option=option)
 """
-print("Mesh defined in " + meshFileNameGMSH + " has been read")
-nbeOfComponentsPrimal = 2 # vitesses 2D
-numberOfNodes = mesh.GetNumberOfNodes()
-#print("nbNodes",numberOfNodes)
-#print("dimmesh",mesh.GetDimensionality())
 
 collectionProblemData = CPD.CollectionProblemData()
-collectionProblemData.addVariabilityAxis('mu1',float,description="Reynolds number")
-collectionProblemData.defineQuantity("U", full_name="Velocity", unit="m/s")
+collectionProblemData.addVariabilityAxis('unused',int,description=" variability")
+collectionProblemData.defineQuantity("U", full_name=FieldName, unit="m/s")
+#collectionProblemData.defineQuantity("UH", full_name=FieldName, unit="m/s")
+parameters=range(ns) #for problemdata
 
-parameters = [float(1+15*i) for i in range(ns)]   ###Reynolds
+suffix=str(Path(FineSnapshotFiles[0]).suffix)
+cpt=0 #num snapshot
 #### Read solutions 
 for i in range(ns):
-
-    test=VTKSR.VTKSolutionReader("u");
-    u1_np_array =test.VTKReadToNp(dataFolder+"/snapshot",i)
-
-    #instancie une solution
-    u1_np_array=u1_np_array.flatten()
+    VTKSnapshotReader=VTKSR.VTKSolutionReader(FieldName)
+    SnapshotFile=dataFolder+"/"+str(Path(FineSnapshotFiles[i]).stem)+suffix
+    print(SnapshotFile)
+    FineSnapshot=VTKSnapshotReader.VTKReadToNp(SnapshotFile).flatten()
 
     solutionU=S.Solution("U",dimension,numberOfNodes,True)
     ### Only one snapshot --> time 0
-    solutionU.AddSnapshot(u1_np_array,0)
+    solutionU.AddSnapshot(FineSnapshot,0)
+
     problemData = PD.ProblemData(dataFolder+str(i))
     problemData.AddSolution(solutionU)
-    collectionProblemData.AddProblemData(problemData,mu1=parameters[i])
+    collectionProblemData.AddProblemData(problemData,unused=parameters[i])
+
 snapshotsIterator = collectionProblemData.SnapshotsIterator("U")
 snapshots = []
+for s in snapshotsIterator:
+    snapshots.append(s)
+#print(np.shape(snapshots))
 
-numberOfIntegrationPoints = FT.ComputeNumberOfIntegrationPoints(mesh)
+
+#numberOfIntegrationPoints = FT.ComputeNumberOfIntegrationPoints(mesh)
 
 """ POD """
 print("-----------------------------------")
 print(" STEP1: POD Offline                ")
 print("-----------------------------------")
 
-print("ComputeL2ScalarProducMatrix...")
-l2ScalarProducMatrix = FT.ComputeL2ScalarProducMatrix(mesh, 2)
+print("ComputeL2ScalarProducMatrix ...")
+
+l2ScalarProducMatrix = FT.ComputeL2ScalarProducMatrix(fineMesh, nbeOfComponentsPrimal)
+h1ScalarProducMatrix = FT.ComputeH10ScalarProductMatrix(fineMesh, nbeOfComponentsPrimal)
 """for s in snapshotsIterator:
     snapshots.append(s)
     t=l2ScalarProducMatrix.dot(s)
@@ -134,44 +153,63 @@ print("snap",np.shape(snapshots))"""
 
 #test=NpVTK.VTKWriter(VTKBase);
 
-#collectionProblemData.SetSnapshotCorrelationOperator("U", l2ScalarProducMatrix)
-#snapshotCorrelationOperator=collectionProblemData.GetSnapshotCorrelationOperator("U")
-reducedOrderBasisU = SP.ComputeReducedOrderBasisFromCollectionProblemData(collectionProblemData, "U", 1.e-4, l2ScalarProducMatrix)
+reducedOrderBasisU = SP.ComputeReducedOrderBasisFromCollectionProblemData(collectionProblemData, "U", 1.e-6, l2ScalarProducMatrix)
 
 collectionProblemData.AddReducedOrderBasis("U", reducedOrderBasisU)
 
 collectionProblemData.CompressSolutions("U", l2ScalarProducMatrix)
 
 #base orthonorme?
-
+"""
 for i in range(nev):
     for j in range(nev):
         t=l2ScalarProducMatrix.dot(reducedOrderBasisU[i,:])
         norm=t.dot(reducedOrderBasisU[j,:])
         print(i,j," ",norm)
-
+"""
 
 ### Offline Errors
+print("-----------------------------------")
+print(" STEP I. 4: Offline  errors        ")
+print("-----------------------------------")
 
-compressionErrors=[]
+L2compressionErrors=[]
+H1compressionErrors=[]
 
-for _, problemData in collectionProblemData.GetProblemDatas().items():
+#Offline errors
+
+for _, problemData in collectionProblemData.GetProblemDatas().items(): #for each snapshot
     solutionU=problemData.GetSolution("U")
     CompressedSolutionU=solutionU.GetCompressedSnapshots()
     exactSolution = problemData.solutions["U"].GetSnapshot(0)
     reconstructedCompressedSolution = np.dot(CompressedSolutionU[0], reducedOrderBasisU) #pas de tps 0
-    t=l2ScalarProducMatrix.dot(exactSolution)
-    norml2ExactSolution=t.dot(exactSolution)
+    
+    norml2ExactSolution=np.sqrt(exactSolution@(l2ScalarProducMatrix@exactSolution))
+    normh1ExactSolution=np.sqrt(exactSolution@(h1ScalarProducMatrix@exactSolution))
+    
+    if norml2ExactSolution !=0 and normh1ExactSolution != 0:
+        err=reconstructedCompressedSolution-exactSolution
+        relL2Error=np.sqrt(err@l2ScalarProducMatrix@err)/norml2ExactSolution
+        relH1Error=np.sqrt(err@h1ScalarProducMatrix@err)/normh1ExactSolution
+    
+    else: #erreur absolue
+        relL2Error=np.sqrt(err@l2ScalarProducMatrix@err)
+        relH1Error=np.sqrt(err@h1ScalarProducMatrix@err)
         
-    if norml2ExactSolution != 0:
-        t=l2ScalarProducMatrix.dot(reconstructedCompressedSolution-exactSolution)
-        relError=t.dot(reconstructedCompressedSolution-exactSolution)/norml2ExactSolution
-        #        relError = np.linalg.norm(reconstructedCompressedSolution-exactSolution)/norml2ExactSolution
-    else:
-        relError = np.linalg.norm(reconstructedCompressedSolution-exactSolution)
-    compressionErrors.append(relError)
-print("compressionErrors =", compressionErrors)
+    L2compressionErrors.append(relL2Error)
+    H1compressionErrors.append(relH1Error)
+    
+print("compression relative errors L2 =", L2compressionErrors)
+print("compression relative errors H1 =", H1compressionErrors)
 
-SIO.SaveState("collectionProblemData", collectionProblemData)
-SIO.SaveState("snapshotCorrelationOperator", l2ScalarProducMatrix)
+print("Offline DONE ... ")
+print("to be continued, with the online part ... ")
+
+## save results
+print("Save state in ", currentFolder+"/collectionProblemData")
+
+collectionProblemData.SetOperatorCompressionData(l2ScalarProducMatrix)
+SIO.SaveState(dataFolder+"/collectionProblemData", collectionProblemData)
+#SIO.SaveState("h1ScalarProducMatrix", h1ScalarProducMatrix)
+#SIO.SaveState("snapshotCorrelationOperator", l2ScalarProducMatrix)
 

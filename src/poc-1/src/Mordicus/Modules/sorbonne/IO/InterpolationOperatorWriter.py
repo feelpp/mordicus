@@ -18,7 +18,7 @@ from scipy.sparse import coo_matrix
 from Mordicus.Modules.sorbonne.IO import MeshReader as MR
 
 #option=ff/basictools
-def InterpolationOperator(dataFolder,mesh1,mesh2,option=None):
+def InterpolationOperator(dataFolder,mesh1,mesh2,dimension,option=None):
     #os.chdir('../')
     #print(os.getcwd())
     externalFolder=osp.join(dataFolder,'../','External')
@@ -66,8 +66,8 @@ def InterpolationOperator(dataFolder,mesh1,mesh2,option=None):
     elif option=="basictools":
         
         #coarse mesh
-        
-        meshReader2=MR.MeshReader(mesh2)
+        print("mesh 2",mesh2)
+        meshReader2=MR.MeshReader(mesh2,dimension)
         mesh2 = meshReader2.ReadMesh()
         mesh2.GetInternalStorage().nodes = mesh2.GetInternalStorage().nodes
         inputmesh=FT.ConvertMeshToUnstructuredMesh(mesh2)
@@ -75,7 +75,7 @@ def InterpolationOperator(dataFolder,mesh1,mesh2,option=None):
         inputFEField =FEField(name="field",mesh=inputmesh)#,space=space,numbering=numberings[0])
         #inputFEField.SetDataFromPointRepresentation(mesh2, fillvalue=0.)
         #Fine mesh
-        meshReader = MR.MeshReader(mesh1)
+        meshReader = MR.MeshReader(mesh1,dimension)
         mesh = meshReader.ReadMesh()
         mesh.GetInternalStorage().nodes = mesh.GetInternalStorage().nodes
         outmesh=FT.ConvertMeshToUnstructuredMesh(mesh)
