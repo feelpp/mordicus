@@ -11,7 +11,7 @@ class Mesh : public mordicus::MeshBase <Elem, Node>
 {
 public:
     Mesh(Storage* _storage) : storage(_storage) {}
-    virtual ~SciMesh() {}
+    virtual ~Mesh() {}
 
     std::string getName() { return "Mesh"; }
 #if 0
