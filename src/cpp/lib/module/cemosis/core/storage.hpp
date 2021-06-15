@@ -1,6 +1,6 @@
 #pragma once
 
-#include <mordicus/module/cemosis/core/mordicus/hpp>
+#include <mordicus/module/cemosis/core/mordicus.hpp>
 #include <mordicus/core/io/MeshStorageBase.hpp>
 #include <vector>
 
