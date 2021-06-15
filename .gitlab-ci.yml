@@ -113,6 +113,7 @@ feelpp:
   before_script:
     - apt-get update
     - apt-get install wget gnupg
+    - echo "deb http://deb.debian.org/debian buster-backports main" | tee -a /etc/apt/sources.list
     - echo "deb https://feelpp.jfrog.io/artifactory/debian buster latest" | tee -a /etc/apt/sources.list
     - wget -qO - https://feelpp.jfrog.io/artifactory/api/security/keypair/gpg-debian/public | apt-key add -
     - apt-get update
