@@ -7,14 +7,14 @@
                 "short": "Cpp17",
                 "long": "Select C++17 standard.",
                 "settings": {
-                    "FEELPP_STD_CPP": "17"
+                    "MORDICUS_STD_CPP": "17"
                 }
             },
             "cpp20": {
                 "short": "Cpp20",
                 "long": "Select C++20 standard.",
                 "settings": {
-                    "FEELPP_STD_CPP": "20"
+                    "MORDICUS_STD_CPP": "20"
                 }
             }
         }
