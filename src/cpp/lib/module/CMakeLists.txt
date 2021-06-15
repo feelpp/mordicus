@@ -1,7 +1,8 @@
 
 macro(mordicus_add_module name)
-  option(MORDICUS_MODULE_ENABLE_${name} "Enable module ${name}" ON)
-  if (MORDICUS_MODULE_ENABLE_${name})
+  string(TOUPPER ${name} name_upper)
+  option(MORDICUS_MODULE_ENABLE_${name_upper} "Enable module ${name_upper}" ON)
+  if (MORDICUS_MODULE_ENABLE_${name_upper})
     set (sources ${ARGN})
     add_library (${name} SHARED ${sources})
     set_target_properties(${name} PROPERTIES PREFIX "")
@@ -34,3 +35,7 @@ endmacro()
 
 add_subdirectory (esigroup/io/SciMeshReader)
 add_subdirectory (esigroup/container/mesh/SciMesh)
+
+if ( MORDICUS_ENABLE_CEMOSIS )
+  add_subdirectory (cemosis)
+endif()
