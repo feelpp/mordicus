@@ -19,7 +19,10 @@ configure_package_config_file (
   INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/mordicus)
 install (FILES "${PROJECT_BINARY_DIR}/mordicus-config.cmake" DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/mordicus)
 
-set (CMAKE_CXX_STANDARD 17)
+if (NOT DEFINED MORDICUS_STD_CPP )
+  set(MORDICUS_STD_CPP "17") # DOC STRING "define feel++ standard c++ (default c++11), values can be : 11, 14, 17, 2a")
+endif()
+set (CMAKE_CXX_STANDARD ${MORDICUS_STD_CPP})
 
 enable_testing()
 add_subdirectory (lib)
