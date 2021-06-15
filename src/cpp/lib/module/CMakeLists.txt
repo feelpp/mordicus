@@ -36,6 +36,26 @@ endmacro()
 add_subdirectory (esigroup/io/SciMeshReader)
 add_subdirectory (esigroup/container/mesh/SciMesh)
 
-if ( MORDICUS_ENABLE_CEMOSIS )
-  add_subdirectory (cemosis)
-endif()
+
+
+#
+# Module Cemosis
+#
+OPTION(MORDICUS_ENABLE_CEMOSIS "Enable Cemosis Module" OFF)
+if ( MORDICUS_ENABLE_CEMOSIS)
+  if ( ${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_SOURCE_DIR} )
+    find_package(Feel++ COMPONENTS Toolboxes PATHS $ENV{FEELPP_DIR}/share/feelpp/feel/cmake/modules /usr/share/feelpp/feel/cmake/modules /usr/local/share/feelpp/feel/cmake/modules )
+    if(NOT FEELPP_FOUND)
+      message(FATAL_ERROR "[mordicus] Feel++ was not found on your system. Make sure to install it and specify the FEELPP_DIR to reference the installation directory.")
+    endif()
+    if (NOT FEELPP_TOOLBOXES_FOUND)
+      message(FATAL_ERROR "[mordicus] Feel++ was not installed with toolboxes")
+    endif()
+    message("[mordicus] enabling cemosis module with an installation of feel++")
+  else()
+    message("[mordicus] enabling cemosis module with feel++")
+    feelpp_get_environment()
+    set(FEELPP_DIR ${CMAKE_INSTALL_PREFIX})
+  endif()
+  add_subdirectory(cemosis)
+endif(MORDICUS_ENABLE_CEMOSIS)
