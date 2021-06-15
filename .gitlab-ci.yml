@@ -109,7 +109,7 @@ cpp-mingw:
 
 feelpp:
   stage: test
-  image: python:3.7
+  image: feelpp/feelpp-mor:focal
   before_script:
     - apt-get update
     - apt-get install wget gnupg
