@@ -34,3 +34,12 @@ x64/
 
 #python profiling
 *.pstats
+CMakeFiles/
+cmake_install.cmake
+CTestTestfile*
+Makefile
+CMakeCache.txt
+compile_commands.json
+mordicus-config.cmake
+lib/test/t_scimesh.json
+*_export.h
