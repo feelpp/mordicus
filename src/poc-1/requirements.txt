@@ -4,4 +4,5 @@ mpi4py
 openturns
 -e git+https://gitlab.com/drti/basic-tools.git#egg=basictools
 sympy
+lxml
 
