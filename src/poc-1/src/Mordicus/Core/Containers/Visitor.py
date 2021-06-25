@@ -1,5 +1,6 @@
 # coding: utf-8
 import lxml
+import lxml.etree as etree
 from lxml.etree import (Element, ElementTree)
 
 import numpy as np
@@ -101,7 +102,7 @@ class ExportToXMLVisitor(object):
         """
         Visit Solution Structure
         """
-        structureElement = Element("solutionStructure", attrib={"quantity": quantity, "derivedType": str(type(structure))})
+        structureElement = Element("solutionStructure", attrib={"quantity": quantity, "derivedType": type(structure).__name__})
         filepath = osp.join(self.folder, "solutionStructure" + quantity)
                 
         # It would be cool to have a file extension attribute to solutionStructure
@@ -116,8 +117,8 @@ class ExportToXMLVisitor(object):
         """
         # Initialize datasetructure element
         # Solver is only represented by a reference hosted by an attribute
-        attrib = {"derivedType"     : str(type(dataset)),
-                  "produced_object" : str(type(dataset.produced_object)),
+        attrib = {"derivedType"     : type(dataset).__name__,
+                  "produced_object" : type(dataset.produced_object).__name__,
                   "solver"          : dataset.solver.id}
         dsElement = Element("reducedDataset", attrib=attrib)
         
@@ -127,6 +128,7 @@ class ExportToXMLVisitor(object):
         # Copy the content of input_root_folder
         dest = osp.join(self.folder, "reducedDataset")
         shutil.copytree(input_data["input_root_folder"], dest)
+        attribData = {}
         attribData["input_root_folder"] = dest
         
         # Copy input_main_file and input_instruction_file if not already in tree
@@ -163,16 +165,21 @@ class ExportToXMLVisitor(object):
                 inputMordicusElement.append(inputModes)
             elif key in cpd.operatorCompressionData:
                 inputMordicusDataElement = Element("inputMordicusData", attrib={"key": key})
-                inputMordicusDataElement.text = osp.join(folder, "reducedOperator" + key)
+                inputMordicusDataElement.text = osp.join(self.folder, "reducedOperator" + key)
                 inputMordicusElement.append(inputMordicusDataElement)
             else:
                 inputMordicusDataElement = Element("inputMordicusData", attrib={"key": key})
                 cwd = os.getcwd()
                 os.chdir(input_data["input_root_folder"])
                 try:
+                    if not isinstance(value, str):
+                        value = value.GetInternalStorage()
                     if not osp.abspath(osp.realpath(value)).startswith(input_data["input_root_folder"]):
                         dest = osp.join(self.folder, "reducedDataset", osp.basename(value))
-                        shutil.copy2(value, dest)
+                        if osp.isdir(value):
+                            shutil.copytree(value, dest)
+                        else:
+                            shutil.copy2(value, dest)
                         inputMordicusDataElement.text = dest
                     else:
                         inputMordicusDataElement.text = value
@@ -252,5 +259,21 @@ def exportToXML(folder, cpd, solutionReader=None, reconstruct=False):
     visitor = ExportToXMLVisitor(folder, solutionReader=solutionReader, reconstruct=reconstruct)
     root_element = visitor.visitCPD(cpd)
     tree = ElementTree(root_element)
-    tree.write(osp.join(folder, "reducedModel.xml"), encoding='UTF-8', pretty_print=True)
-        
+    tree.write(osp.join(folder, "reducedModel.xml"), 
+               encoding='UTF-8',
+               pretty_print=True)
+    
+def checkValidity(xml_path):
+    """
+    Checks validity of XML file
+    """
+    xmlschema_doc = etree.parse(osp.join(osp.dirname(__file__), "Mordicus.xsd"))
+    xmlschema = etree.XMLSchema(xmlschema_doc)
+
+    xml_doc = etree.parse(xml_path)
+
+    try:
+        xmlschema.assertValid(xml_doc)
+    except etree.DocumentInvalid as xml_errors:
+        print ("List of errors:\r\n", xml_errors.error_log)
+    return xmlschema.validate(xml_doc)

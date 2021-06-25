@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+    <!--  Definition of types      -->
+    <xsd:complexType name="quantityDefinition">
+		<xsd:attribute name="name" type="xsd:string" use="required"/>
+		<xsd:attribute name="full_name" type="xsd:string"/>
+		<xsd:attribute name="unit" type="xsd:string"/>
+    </xsd:complexType>
+
+    <xsd:complexType name="quantityDefinitions">
+        <xsd:sequence>
+           <xsd:element name="quantityDefinition" type="quantityDefinition" minOccurs="0" maxOccurs="unbounded"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="variabilityDefinition">
+		<xsd:attribute name="name" type="xsd:string" use="required"/>
+		<xsd:attribute name="type" type="xsd:string" use="required"/>
+		<xsd:attribute name="quantity" type="xsd:string"/>
+		<xsd:attribute name="description" type="xsd:string"/>
+    </xsd:complexType>
+
+    <xsd:complexType name="variabilityDefinitions">
+        <xsd:sequence>
+           <xsd:element name="variabilityDefinition" type="variabilityDefinition" minOccurs="0" maxOccurs="unbounded"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="reducedOrderBasis">
+        <xsd:simpleContent>
+            <xsd:extension base="xsd:string">
+                <xsd:attribute name="quantity" type="xsd:string" use="required"/>
+           </xsd:extension>
+        </xsd:simpleContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="reducedOrderBases">
+        <xsd:sequence>
+           <xsd:element name="reducedOrderBasis" type="reducedOrderBasis" minOccurs="0" maxOccurs="unbounded"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="param">
+        <xsd:simpleContent>
+            <xsd:extension base="xsd:float">
+                <xsd:attribute name="name" type="xsd:string" use="required"/>
+           </xsd:extension>
+        </xsd:simpleContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="compressedSnapshot">
+        <xsd:simpleContent>
+            <xsd:extension base="xsd:string">
+                <xsd:attribute name="time" type="xsd:float" use="required"/>
+           </xsd:extension>
+        </xsd:simpleContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="Solution">
+        <xsd:sequence>
+           <xsd:element name="compressedSnapshot" type="compressedSnapshot" minOccurs="0" maxOccurs="unbounded"/>
+       </xsd:sequence>
+       <xsd:attribute name="nbeOfComponents" type="xsd:int"/>
+       <xsd:attribute name="numberOfNodes" type="xsd:int"/>
+       <xsd:attribute name="primality" type="xsd:boolean"/>
+       <xsd:attribute name="quantity" type="xsd:NCName" use="required"/>
+   </xsd:complexType>
+
+    <xsd:complexType name="ProblemData">
+        <xsd:sequence>
+           <xsd:element name="Solution" type="Solution" minOccurs="0" maxOccurs="unbounded"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="problemDataInstance">
+        <xsd:sequence>
+           <xsd:element name="param" type="param" minOccurs="0" maxOccurs="unbounded"/>
+           <xsd:element name="ProblemData" type="ProblemData" minOccurs="0" maxOccurs="unbounded"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="problemDatas">
+        <xsd:sequence>
+           <xsd:element name="problemDataInstance" type="problemDataInstance" minOccurs="0" maxOccurs="unbounded"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="reducedOperator">
+        <xsd:simpleContent>
+            <xsd:extension base="xsd:string">
+                <xsd:attribute name="key" type="xsd:string" use="required"/>
+           </xsd:extension>
+        </xsd:simpleContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="operatorCompressionData">
+        <xsd:sequence>
+           <xsd:element name="reducedOperator" type="reducedOperator" minOccurs="0" maxOccurs="unbounded"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <!--  Definition of instances  -->
+    <xsd:element name="quantityDefinitions" type="quantityDefinitions"/>
+    <xsd:element name="variabilityDefinitions" type="variabilityDefinitions"/>
+    <xsd:element name="operatorCompressionData" type="operatorCompressionData"/>
+    <xsd:element name="reducedOrderBases" type="reducedOrderBases"/>
+    <xsd:element name="problemDatas" type="problemDatas"/>
+
+    <!-- schema itself -->
+    <xsd:element name="CollectionProblemData">
+        <xsd:complexType>
+            <xsd:all>
+                <xsd:element ref="quantityDefinitions"/>
+                <xsd:element ref="variabilityDefinitions"/>
+                <xsd:element ref="operatorCompressionData"/>
+                <xsd:element ref="reducedOrderBases" minOccurs="0"/>
+                <xsd:element ref="problemDatas" minOccurs="0"/>
+            </xsd:all>
+        </xsd:complexType>
+    </xsd:element>
+
+
+</xsd:schema>

@@ -2,12 +2,16 @@
 
 import numpy as np
 import os
+import os.path as osp
+import tempfile
+import shutil
+
 from Mordicus.Core.Containers import ProblemData
 from Mordicus.Core.Containers import Solution
 from Mordicus.Core.Containers import CollectionProblemData as CPD
 from Mordicus.Core.IO import StateIO as SIO
 
-from Mordicus.Core.Containers.Visitor import exportToXML
+from Mordicus.Core.Containers.Visitor import (exportToXML, checkValidity)
 
 def test():
 
@@ -65,9 +69,17 @@ def test():
     collectionProblemData.GetParameterDimension()
     solution.CompressSnapshots(np.eye(20), reducedOrderBases)
     
-    exportToXML("/home/A34370/tmp/saveMordicus", collectionProblemData, reconstruct=False)
-    exportToXML("/home/A34370/tmp/saveMordicusFull", collectionProblemData, reconstruct=True)
-
+    save_repo = tempfile.mkdtemp(suffix="Light", prefix="SaveMordicus")
+    save_repo_full = tempfile.mkdtemp(suffix="Full", prefix="SaveMordicus")
+    try:
+        exportToXML(save_repo, collectionProblemData, reconstruct=False)
+        exportToXML(save_repo_full, collectionProblemData, reconstruct=True)
+        assert checkValidity(osp.join(save_repo, "reducedModel.xml")), "Produced xml is not valid"
+        assert checkValidity(osp.join(save_repo_full, "reducedModel.xml")), "Produced xml is not valid"
+    finally:
+        # Comment these two lines in order to debug XML file
+        shutil.rmtree(save_repo)
+        shutil.rmtree(save_repo_full)
     
 
     SIO.SaveState("temp", collectionProblemData)
