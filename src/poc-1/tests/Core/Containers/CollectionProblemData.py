@@ -11,7 +11,7 @@ from Mordicus.Core.Containers import Solution
 from Mordicus.Core.Containers import CollectionProblemData as CPD
 from Mordicus.Core.IO import StateIO as SIO
 
-from Mordicus.Core.Containers.Visitor import (exportToXML, checkValidity)
+from Mordicus.Core.Containers.Visitor import (exportToJSON, checkValidity)
 
 def test():
 
@@ -72,10 +72,10 @@ def test():
     save_repo = tempfile.mkdtemp(suffix="Light", prefix="SaveMordicus")
     save_repo_full = tempfile.mkdtemp(suffix="Full", prefix="SaveMordicus")
     try:
-        exportToXML(save_repo, collectionProblemData, reconstruct=False)
-        exportToXML(save_repo_full, collectionProblemData, reconstruct=True)
-        assert checkValidity(osp.join(save_repo, "reducedModel.xml")), "Produced xml is not valid"
-        assert checkValidity(osp.join(save_repo_full, "reducedModel.xml")), "Produced xml is not valid"
+        exportToJSON(save_repo, collectionProblemData, reconstruct=False)
+        exportToJSON(save_repo_full, collectionProblemData, reconstruct=True)
+        assert checkValidity(osp.join(save_repo, "reducedModel.json")), "Produced xml is not valid"
+        assert checkValidity(osp.join(save_repo_full, "reducedModel.json")), "Produced xml is not valid"
     finally:
         # Comment these two lines in order to debug XML file
         shutil.rmtree(save_repo)

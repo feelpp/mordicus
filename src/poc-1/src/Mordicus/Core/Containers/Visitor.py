@@ -1,16 +1,11 @@
-# coding: utf-8
-import lxml
-import lxml.etree as etree
-from lxml.etree import (Element, ElementTree)
-
+import json
+from jschon import Catalogue, JSON, JSONSchema
+from jschon.exceptions import CatalogueError
 import numpy as np
-
 import os
 import os.path as osp
 
-import shutil
-
-class ExportToXMLVisitor(object):
+class ExportToJSONVisitor(object):
     """
     Abstract visitor
     """
@@ -23,33 +18,31 @@ class ExportToXMLVisitor(object):
         self.solutionReader = solutionReader
 
     def visitCPD(self, cpd):
-        # Initiate Element
-        root = Element("CollectionProblemData")
-        
-        # Create elements for dictionary
-        attr_dict = ["quantityDefinition", "variabilityDefinition"]
-        for attr in attr_dict:
-            subelement = getattr(cpd, attr).accept(self)
-            root.append(subelement)
-        
-        if cpd.reducedTemplateDataset is not None:
-            subelement = cpd.reducedTemplateDataset.accept(self, cpd)
-            root.append(subelement)
-        
+        """
+        Visit Collection Problem Data Structure
+        """
+        root = {"CollectionProblemData": {}}
+
+        quantityDefinitions = cpd.quantityDefinition.accept(self)
+        root["CollectionProblemData"]["quantityDefinitions"] = quantityDefinitions
+        variabilityDefinitions = cpd.variabilityDefinition.accept(self)
+        root["CollectionProblemData"]["variabilityDefinitions"] = variabilityDefinitions
+
+        # if cpd.reducedTemplateDataset is not None:
+        #     subelement = cpd.reducedTemplateDataset.accept(self, cpd)
+        #     root["CollectionProblemData"].append(subelement)
+
         if self.reconstruct:
             # save solution structures
             if cpd.solutionStructures:
-                root_structures = Element("solutionStructures")
-                root.append(root_structures)
+                elts = []
                 for quantity, structure in cpd.solutionStructures.items():
-                    structureElement = structure.accept(self, quantity)
-                    root_structures.append(structureElement)
-
+                    elts.append(structure.accept(self, quantity))
+                    root["CollectionProblemData"]["solutionStructures"] = elts
+                    
             # save reduced bases
-            root_bases = Element("reducedOrderBases")
-            root.append(root_bases)
+            elts = []
             for quantity, basis in cpd.reducedOrderBases.items():
-                basisElement = Element("reducedOrderBasis", attrib={"quantity": quantity})
                 filepath = osp.join(self.folder, "reducedOrderBasis" + quantity)
                 
                 # Try to write it to custom format, otherwise to numpy
@@ -60,31 +53,25 @@ class ExportToXMLVisitor(object):
                         os.remove(filepath)
                     filepath = filepath + ".npy"
                     np.save(filepath, basis)
-                    
-                basisElement.text = filepath
-                root_bases.append(basisElement)
-            
+                elts.append({"path": filepath, "quantity": quantity })
+            root["CollectionProblemData"]["reducedOrderBases"] = elts
+
             # save problem datas
-            root_pbds = Element("problemDatas")
-            root.append(root_pbds)
+            elts = []
             for paramValues, problemData in cpd.problemDatas.items():
-                root_pbd = Element("problemDataInstance")
-                root_pbds.append(root_pbd)
+                params = []
                 param_names = [k for k in cpd.variabilityDefinition.keys()]
                 for i, val in enumerate(paramValues):
-                    param_elem = Element("param", attrib={"name": param_names[i]})
-                    param_elem.text = str(val)
-                    root_pbd.append(param_elem)
-                pbdElement = problemData.accept(self)
-                root_pbd.append(pbdElement)
-                
-                
+                    params.append({"value":val, "name":param_names[i]})
+                    
+                pb_data = problemData.accept(self)
+                elts.append({"params": params, "ProblemData": pb_data})
+            root["CollectionProblemData"]["problemDatas"] = elts
+
         # loop operatorCompressionData
-        root_reduced_operators = Element("operatorCompressionData")
-        root.append(root_reduced_operators)
+        elts = []
         for key, reducedOperator in cpd.operatorCompressionData.items():
             # Try exporting through reader, and numpy if this fails
-            reducedOperatorElement = Element("reducedOperator", attrib={"key": key})
             filepath = osp.join(self.folder, "reducedOperator" + key)
             try:
                 self.solutionReader.WriteOperatorCompressionData(filepath, key, cpd)
@@ -93,35 +80,30 @@ class ExportToXMLVisitor(object):
                     os.remove(filepath)
                 filepath = filepath + ".npy"
                 np.save(filepath, reducedOperator)
-            reducedOperatorElement.text = filepath
-            root_reduced_operators.append(reducedOperatorElement)
-        
+            elts.append({"path": filepath, "key": key})
+        root["CollectionProblemData"]["operatorCompressionData"] = elts
+
         return root
-       
+
     def visitSolutionStructure(self, structure, quantity):
         """
         Visit Solution Structure
         """
-        structureElement = Element("solutionStructure", attrib={"quantity": quantity, "derivedType": type(structure).__name__})
         filepath = osp.join(self.folder, "solutionStructure" + quantity)
                 
         # It would be cool to have a file extension attribute to solutionStructure
         self.solutionReader.WriteSolutionStructure(filepath, structure, quantity)
         structureElement.text = filepath
-            
-        return structureElement
-    
+        return {"path": filepath, "quantity": quantity, "derivedType": type(structure).__name__}
+
     def visitDataSet(self, dataset, cpd):
         """
         Visit Dataset
         """
-        # Initialize datasetructure element
-        # Solver is only represented by a reference hosted by an attribute
         attrib = {"derivedType"     : type(dataset).__name__,
                   "produced_object" : type(dataset.produced_object).__name__,
                   "solver"          : dataset.solver.id}
-        dsElement = Element("reducedDataset", attrib=attrib)
-        
+
         # Handle input_data
         input_data = dataset.input_data
         
@@ -154,21 +136,16 @@ class ExportToXMLVisitor(object):
         #     - if key is "modes": reference reducedOrderBases
         #     - if key is in operatorCompressionData: reference reducedOperator<key>
         #     - otherwise, copy and reference original path
-        inputMordicusElement = Element("inputMordicusDatas")
+        inputMordicus = []
         for key, value in input_data["input_mordicus_data"].items():
             if key in ("modes", ):
-                inputModes = Element("inputMordicusModes")
+                inputModes = []
                 for k in value.keys():
-                    inputMode = Element("inputMordicusMode", attrib={"quantity": k})
-                    inputMode.text = osp.join(self.folder, "reducedOrderBasis" + k)
-                    inputModes.append(inputMode)
-                inputMordicusElement.append(inputModes)
+                    inputModes.append({"quantity": k, "path": osp.join(self.folder, "reducedOrderBasis"+k)})
+                inputMordicus.append(inputModes)
             elif key in cpd.operatorCompressionData:
-                inputMordicusDataElement = Element("inputMordicusData", attrib={"key": key})
-                inputMordicusDataElement.text = osp.join(self.folder, "reducedOperator" + key)
-                inputMordicusElement.append(inputMordicusDataElement)
+                inputMordicus.append({"key": key, "path": osp.join(self.folder, "reducedOperator" + key)})
             else:
-                inputMordicusDataElement = Element("inputMordicusData", attrib={"key": key})
                 cwd = os.getcwd()
                 os.chdir(input_data["input_root_folder"])
                 try:
@@ -180,30 +157,28 @@ class ExportToXMLVisitor(object):
                             shutil.copytree(value, dest)
                         else:
                             shutil.copy2(value, dest)
-                        inputMordicusDataElement.text = dest
+                        path = dest
                     else:
-                        inputMordicusDataElement.text = value
+                        path = value
                 finally:
                     os.chdir(cwd)
-                inputMordicusElement.append(inputMordicusDataElement)
-                
-        inputDataElement = Element("inputData", attrib=attribData)
-        inputDataElement.append(inputMordicusElement)
+                inputMordicus.append({"key": key, "path": path})
 
-        dsElement.append(inputDataElement)
-        return dsElement
-    
+        attribData["inputMordicusDatas"] = inputMordicus
+        attrib["inputData"] = attribData
+
+        return attrib
+
     def visitQuantityDefinitionDict(self, defdict):
         """Visit quantity definition dictionary"""
-        qdefsElement = Element("quantityDefinitions")
+        elts = []
         for name, (full_name, unit) in defdict.items():
-            qdefElement = Element("quantityDefinition", attrib={"name": name, "full_name": full_name, "unit": unit})
-            qdefsElement.append(qdefElement)
-        return qdefsElement
+            elts.append({"name":name, "full_name":full_name, "unit":unit})
+        return elts
 
     def visitVariabilityDefinitionDict(self, defdict):
         """Visit variability definition dictionary"""
-        varsElement = Element("variabilityDefinitions")
+        elts = []
         for name, valdict in defdict.items():
             attrib = valdict.copy()
             attrib["name"] = name
@@ -212,68 +187,60 @@ class ExportToXMLVisitor(object):
                     attrib[k] = v.__name__
                 if k == "quantity":
                     attrib[k] = v[0]
-            varElement = Element("variabilityDefinition", attrib=attrib)
-            varsElement.append(varElement)
-        return varsElement
+            elts.append(attrib)
+        return elts
 
     def visitProblemData(self, problemData):
         """Visit problemData"""
-        pbElement = Element("ProblemData")
+        elts = []
         for quantity, solution in problemData.solutions.items():
-            solutionElement = solution.accept(self)
-            pbElement.append(solutionElement)
-        return pbElement
-    
+            elts.append(solution.accept(self))
+        return elts
+
     def visitSolution(self, solution):
         """Visit solution"""
         attrib = {"quantity": solution.solutionName,
-                  "nbeOfComponents": str(solution.nbeOfComponents),
-                  "numberOfNodes": str(solution.numberOfNodes), 
+                  "nbeOfComponents": solution.nbeOfComponents,
+                  "numberOfNodes": solution.numberOfNodes, 
                   "primality": str(solution.primality).lower()}
-        solutionElement = Element("Solution", attrib=attrib)
+        elts = []
         for t, arr in solution.compressedSnapshots.items():
-            snapElement = Element("compressedSnapshot", attrib={"time": str(t)})
-            snapElement.text = np.array2string(arr, precision=8)
-            solutionElement.append(snapElement)
-        return solutionElement
-    
+            elts.append({"time": str(t), "values": np.array2string(arr, precision=8)})
+        attrib["compressedSnapshots"] = elts
+        return attrib
+
     def visitSolver(self, solver):
         """Visit Solver"""
         attrib = {"id": solver.id,
                   "solver_call_procedure_type": solver.solver_call_procedure_type,
                   "call_script": solver.call_script}
-        solverElement = Element("ExternalSolvingProcedure", attrib=attrib)
-        solverConfiguration = Element("SolverConfiguration")
+        cfgs = []
         for key, value in solver.solver_cfg:
-            solverCfgEntry = Element("SolverCfgEntry", attrib={"name": key})
-            solverCfgEntry.text = value
-            solverConfiguration.append(solverCfgEntry)
-        solverElement.append(solverConfiguration)
-        return solverElement
+            cfgs.append({"name": key, "value": value})
+        attrib["SolverConfiguration"] = cfgs
+        return attrib
 
-def exportToXML(folder, cpd, solutionReader=None, reconstruct=False):
+
+def exportToJSON(folder, cpd, solutionReader=None, reconstruct=False):
     """
-    Export study to a folder with directing XML file
+    Export study to a folder with directing JSON file
     """
     os.makedirs(folder, exist_ok=True)
-    visitor = ExportToXMLVisitor(folder, solutionReader=solutionReader, reconstruct=reconstruct)
-    root_element = visitor.visitCPD(cpd)
-    tree = ElementTree(root_element)
-    tree.write(osp.join(folder, "reducedModel.xml"), 
-               encoding='UTF-8',
-               pretty_print=True)
-    
-def checkValidity(xml_path):
-    """
-    Checks validity of XML file
-    """
-    xmlschema_doc = etree.parse(osp.join(osp.dirname(__file__), "Mordicus.xsd"))
-    xmlschema = etree.XMLSchema(xmlschema_doc)
+    visitor = ExportToJSONVisitor(folder, solutionReader=solutionReader, reconstruct=reconstruct)
+    root = visitor.visitCPD(cpd)
+    with open(osp.join(folder, "reducedModel.json"), "w") as out_file:
+        json.dump(root, out_file, indent=2)
 
-    xml_doc = etree.parse(xml_path)
-
+def checkValidity(json_path):
+    """
+    Checks validity of JSON file
+    """
     try:
-        xmlschema.assertValid(xml_doc)
-    except etree.DocumentInvalid as xml_errors:
-        print ("List of errors:\r\n", xml_errors.error_log)
-    return xmlschema.validate(xml_doc)
+        Catalogue.create_default_catalogue('2020-12')
+    except CatalogueError:
+        pass
+    with open(osp.join(osp.dirname(__file__), "Mordicus.json")) as schema_file:
+        schema = JSONSchema(json.load(schema_file))
+    with open(json_path) as json_file:
+        json_doc = JSON(json.load(json_file))
+    return schema.evaluate(json_doc)
