@@ -27,6 +27,24 @@ def ReadMesh(meshFileName):
     reader = GmshMeshReader(meshFileName=meshFileName)
     return reader.ReadMesh()
 
+def ReadGMSHBase(meshFileName):
+    """
+    Functional API
+    
+    Reads the file "meshFileName" VTK (.vtu)
+            
+    Parameters
+    ----------
+    meshFileName : str
+        VTK mesh and fields file 
+                    
+    Returns
+    -------
+    VTK data structure (UnstructuredMesh)
+        mesh and fields of the HF computation
+    """
+    reader = GmshMeshReader(meshFileName=meshFileName)
+    return reader.ReadGmshBase()
 
 class GmshMeshReader(MeshReaderBase):
     """
@@ -78,7 +96,16 @@ class GmshMeshReader(MeshReaderBase):
         mesh = BTUM.BasicToolsUnstructuredMesh(data)
 
         return mesh
- 
+    def ReadGmshBase(self):
+        
+        
+        suffix = str(Path(self.meshFileName).suffix)
+        assert suffix == ".msh", "! Filename error !"
+      
+        from BasicTools.IO.GmshReader import ReadGmsh as Read
+        GMSHBase=Read(self.meshFileName)
+
+        return GMSHBase
 
 def CheckAndConvertMeshFFtoGMSH(meshFileName,meshFileNameGMSH,dimension):
      """

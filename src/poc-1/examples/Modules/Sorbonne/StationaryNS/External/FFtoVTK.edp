@@ -2,9 +2,21 @@
 load "iovtk"
 include "getARGV.idp"
 load "shell"
+load "gmsh"
 
-mesh Th = getARGV("-mesh", "mesh1.msh");
+string Thfile = getARGV("-mesh", "mesh1.msh");
+mesh Th;
+if(Thfile((Thfile.rfind(".")-4):Thfile.rfind(".")-1) == "GMSH"  ){
+
+	Th=gmshload(Thfile);
+	}
+	else{
+	Th = readmesh(Thfile);
+}
+	
 //plot(Th,wait=1);
+
+//int NbreComponents=2;
 
 fespace Vh(Th,[P1,P1]);
 fespace Xh(Th,P1);

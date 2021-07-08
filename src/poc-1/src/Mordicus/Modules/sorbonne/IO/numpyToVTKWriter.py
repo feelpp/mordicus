@@ -14,26 +14,22 @@ from BasicTools.Containers import Filters
 primalSolutionComponents = {1:[""], 2:["1", "2"], 3:["1", "2", "3"]}
 
 
-def WritePOD(VTKBase, solutionName, reducedOrderBasis):
+def WriteVTK(VTKBase, solutionName, reducedOrderBasis):
     """
     Functional API
     
-    Reads a snapshots from the Z-set solution file "solutionFileName" (.ut), at time "time" and of primality "primality", from the HF computation
+    Write a solution from numpy array to vtk format
             
     Parameters
     ----------
-    solutionFileName : str
-        Z-set solution file
-    fieldName : str
-        name of the solution from which the snapshot is read
+    solutionFieldName : str
+        name of the solution 
     time : float
         time at which the snapshot is read
-    primality : bool
-        primality of the solution from which the snapshot is read
-                    
+    
     Returns
     -------
-    np.ndarray
+    vtk file
         of size (numberOfDofs,)
     """
     writer = VTKWriter(VTKBase = VTKBase)
@@ -64,7 +60,11 @@ class VTKWriter(SolutionReaderBase):
 
 
     def numpyToVTKPODWrite(self, solutionName, reducedOrderBasis,filename):
-
+        """
+        write the reduced basis in vtk format from numpy array
+        ----------
+        VTKBase : vtu data structure
+        """
         nmpyPODModes_array = reducedOrderBasis
         #print('\nPOD modes (numberOfModes, numberOfDOFs) ', nmpyPODModes_array.shape)
         
@@ -124,24 +124,81 @@ class VTKWriter(SolutionReaderBase):
 
 
         
-    def numpyToVTKSanpWrite(self, SnapshotsList, solutionName="RecSol.vtu"):
-
+    def numpyToVTKSanpWrite(self, SnapshotsList, FieldName="U", solutionName="Approximation.vtu"):
+        """
+        write the solution in vtk format from numpy array
+        ----------
+        VTKBase : vtu data structure
+        """
         numpySnap_array = SnapshotsList#[0]
-        print("shape vtkfile", np.shape(numpySnap_array))
+        #print("shape vtkfile", np.shape(numpySnap_array))
+        
         p = self.VTKBase.GetPointData()
-             #VTK_data = numpy_support.numpy_to_vtk(num_array=numpySnap_array.ravel(), deep=True, array_type=vtk.VTK_FLOAT)
+        #print("P",p)
+        #print("vtkbase ", self.VTKBase)
+        #VTK_data = numpy_support.numpy_to_vtk(num_array=numpySnap_array.ravel(), deep=True, array_type=vtk.VTK_FLOAT)
         VTK_data = numpy_support.numpy_to_vtk(num_array=numpySnap_array, deep=True, array_type=vtk.VTK_FLOAT)
         size = VTK_data.GetSize()
-        print("size array", size)
-        VTK_data.SetName("Velocity")
+        #print("size array", size)
+        VTK_data.SetName(FieldName)
         name = VTK_data.GetName()
         p.AddArray(VTK_data)
         
-        out_fname = solutionName#'RecSol.vtu'
+        out_fname = solutionName #'RecSol.vtu'
 
         writer = vtk.vtkXMLUnstructuredGridWriter()
         writer.SetFileName(out_fname)
         writer.SetInputData(self.VTKBase)
+        writer.SetDataModeToAscii()
+        writer.Write()
+        print('\nfile ', out_fname, ' written\n' )
+
+
+    def numpyToVTKSanpWriteFromGMSH(self, SnapshotsList,FieldName="U", solutionName="Approximation.vtu"): #GMSH + NUMPY_ARRAY
+        """
+        write the solution in vtk format from numpy array and gmsh mesh
+        ----------
+        VTKBase : vtu data structure
+        """
+        
+        numpySnap_array = SnapshotsList#[0]
+        #print("shape vtkfile", np.shape(numpySnap_array))
+        
+        p=self.VTKBase.nodes
+        numberOfNodes=np.shape(p)[0]
+        
+        vtkPts = vtk.vtkPoints()
+        #for i in range(numberOfNodes):
+        #    vtkPts.InsertNextPoint(p[i])
+        vtkPts.SetData(numpy_support.numpy_to_vtk(p, deep=True))
+        VTKBase = vtk.vtkUnstructuredGrid()
+        VTKBase.SetPoints(vtkPts)#pts
+        #print(VTKBase)
+        
+        #VTK_data = numpy_support.numpy_to_vtk(num_array=numpySnap_array.ravel(), deep=True, array_type=vtk.VTK_FLOAT)
+        VTK_data = numpy_support.numpy_to_vtk(num_array=numpySnap_array, deep=True, array_type=vtk.VTK_FLOAT)
+        
+        size = VTK_data.GetSize()
+        #print("size array", size)
+        VTK_data.SetName(FieldName)
+        name = VTK_data.GetName()
+        VTKBase.GetPointData().AddArray(VTK_data)
+
+        triangulation = vtk.vtkDelaunay2D()
+        triangulation.SetInputData(VTKBase)
+        triangulation.Update()
+
+        appendFilter = vtk.vtkAppendFilter()
+        appendFilter.AddInputData(triangulation.GetOutput())
+        appendFilter.Update()
+
+        VTKBase.ShallowCopy(appendFilter.GetOutput())
+
+        out_fname = solutionName #'RecSol.vtu'
+        #print("solutionName")
+        writer = vtk.vtkXMLUnstructuredGridWriter()
+        writer.SetFileName(out_fname)
+        writer.SetInputData(VTKBase)
         writer.SetDataModeToAscii()
         writer.Write()
         print('\nfile ', out_fname, ' written\n' )
