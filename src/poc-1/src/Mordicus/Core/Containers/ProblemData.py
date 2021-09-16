@@ -260,16 +260,20 @@ class ProblemData(object):
 
         Returns
         -------
-        int
+        int or None
             common parameterDimension
         """
         listParameterDimension = [
             parameter.shape[0] for _, parameter in self.GetParameters().items()
         ]
-        assert listParameterDimension.count(listParameterDimension[0]) == len(
-            listParameterDimension
-        )
-        return listParameterDimension[0]
+        if len(listParameterDimension)>0:
+            assert listParameterDimension.count(listParameterDimension[0]) == len(
+                listParameterDimension
+            )
+            return listParameterDimension[0]
+        else:
+            return None
+
 
 
     def GetParameterAtTime(self, time):
@@ -284,11 +288,14 @@ class ProblemData(object):
         np.ndarray
             parameter
         """
-        from Mordicus.Core.BasicAlgorithms import Interpolation as TI
 
-        return TI.PieceWiseLinearInterpolation(
+        return self.parameters[time]
+
+        """
+            from Mordicus.Core.BasicAlgorithms import Interpolation as TI
+            return TI.PieceWiseLinearInterpolation(
             time, list(self.parameters.keys()), list(self.parameters.values())
-        )
+        )"""
 
 
     def GetLoadings(self):

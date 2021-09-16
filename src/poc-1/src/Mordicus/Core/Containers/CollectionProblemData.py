@@ -31,11 +31,12 @@ class NoAxisDuplicateDict(OrderedDict):
                 try:
                     itk = iter(k)
                     if any([ke == i for i in itk]):
-                        raise ValueError("Parameter {0} is already handled with key {1}".format(ke, k))                       
+                        raise ValueError("Parameter {0} is already handled with key {1}".format(ke, k))
                 except TypeError:
                     if ke == k:
                         raise ValueError("Parameter {0} is already handled with key {1}".format(ke, k))
         return OrderedDict.__setitem__(self, key, value)
+
 class CollectionProblemData(object):
     """
     Class containing a set of collection of problemData
@@ -535,6 +536,11 @@ class CollectionProblemData(object):
     def GetSnapshots(self, solutionName, skipFirst = False):
         """
         GetSnapshots
+
+        Returns
+        -------
+        np.ndarray
+            of size (nbSnapshots, numberOfDofs)
         """
         self._checkSolutionName(solutionName)
         nbSnapshots = self.GetGlobalNumberOfSnapshots(solutionName, skipFirst)
@@ -777,27 +783,27 @@ class CollectionProblemData(object):
     def SetTemplateDataset(self, templateDataset):
         """
         Template dataset to compute high-fidelity solution
-        
+
         Parameters:
         -----------
         templateDataset : Dataset
         """
         self.templateDataset = templateDataset
-        
+
     def SetReducedTemplateDataset(self, reducedTemplateDataset):
         """
         Template dataset to compute reduced solution
-        
+
         Parameters:
         -----------
         templateDataset : Dataset
         """
         self.reducedTemplateDataset = reducedTemplateDataset
-        
+
     def solve(self, **kwargs):
         """
         New high-fidelity model evaluation
-        
+
         Parameters:
         -----------
         kwargs: (parameter_name=value) name of the variability as key and value stays value.
@@ -807,7 +813,7 @@ class CollectionProblemData(object):
         solutionReaderType = kwargs.pop("solutionReaderType", None)
 
         dataset = self.templateDataset.instantiate(**kwargs)
-        
+
         # populate information for the structure
         return dataset.run(extract=extract,
                            solutionStructures=self.solutionStructures,
@@ -817,7 +823,7 @@ class CollectionProblemData(object):
     def solve_reduced(self, **kwargs):
         """
         New high-fidelity model evaluation
-        
+
         Parameters:
         -----------
          kwargs: (parameter_name=value) name of the variability as key and value stays value.
@@ -828,7 +834,7 @@ class CollectionProblemData(object):
 
         kwargs["reduced"] = True
         dataset = self.reducedTemplateDataset.instantiate(**kwargs)
-        
+
         # populate information for the structure
         return (dataset.run(extract=extract,
                            solutionStructures=self.solutionStructures,
@@ -850,14 +856,14 @@ class CollectionProblemData(object):
         ----------
         solutionName : str
            identifier of the physical quantity, e.g. "U", "sigma"
-           
+
         Returns
         -------
         SolutionStructureBase
             solution structure for the demanded solution
         """
         return self.solutionStructures[solutionName]
-    
+
     def SetSolutionStructure(self, solutionName, solutionStructure):
         """
         Parameters
@@ -877,11 +883,11 @@ class CollectionProblemData(object):
             iterable over the identifiers (str or tuple(str)) of parameters
         ndarrays : iterable
             iterable over the discrete support for each identifier
-            
+
         Note:
             Parameters may have a tuple of parameters as a component, when the discrete
             support along these two or more parameters is not cartesian.
-            
+
             Then, the corresponding ndarray has shape (numberOfPoints, numerOfParametersInTuple)
 
             The whole discrete support is generated as a cartesian product of discrete supports.
@@ -895,12 +901,12 @@ class CollectionProblemData(object):
     def generateVariabilitySupport(self):
         """
         Realizes the catersian product to generate full grid for variability support
-        
+
         Returns
         -------
         ndarray
             ndarray of shape(totalNumberOfPoints, numberOfParameters) with the coordinates of points
-            
+
         Note
         ----
             on the last axis, parameters values are those of the parameters

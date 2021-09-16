@@ -264,7 +264,7 @@ class Solution(object):
             raise RuntimeError("Snapshots for solutionName "+self.solutionName+" not initialized")
 
         return TI.PieceWiseLinearInterpolation(
-            time, self.GetTimeSequenceFromSnapshots(), self.GetSnapshotsList()
+            time, timeSequenceFromSnapshots, self.GetSnapshotsList()
         )
 
 
@@ -370,10 +370,30 @@ class Solution(object):
         import collections
         snapshots = collections.OrderedDict()
 
-        for time, compressedSnapshot in self.compressedSnapshots.items():
+        for time, compressedSnapshot in self.GetCompressedSnapshots().items():
             snapshots[time] = np.dot(compressedSnapshot, reducedOrderBasis)
 
         self.SetSnapshots(snapshots)
+
+
+
+
+    def UncompressSnapshotAtTime(self, reducedOrderBasis, time):
+        """
+        Uncompress snapshot at time using reducedOrderBasis
+
+        Parameters
+        ----------
+        reducedOrderBasis : np.ndarray
+            of size (numberOfModes, numberOfDOFs)
+        time : float
+        """
+
+        if time in self.snapshots:
+            print("Solution already uncompressed at time "+str(time)+". Replacing it anyway")  # pragma: no cover
+
+
+        self.snapshots[time] = np.dot(self.GetCompressedSnapshotsAtTime(time), reducedOrderBasis)
 
 
 
@@ -422,7 +442,7 @@ class Solution(object):
         return TI.PieceWiseLinearInterpolation(
             time, self.GetTimeSequenceFromCompressedSnapshots(), self.GetCompressedSnapshotsList()
         )
-
+        #return self.compressedSnapshots[time]
 
 
     def GetCompressedSnapshotsAtTimes(self, times):
