@@ -37,10 +37,17 @@ def GridSearchCVRegression(regressor, paramGrid, X, y):
     X = scalerX.transform(X)
     y = scalery.transform(y)
 
+    verbose = 2
+    cv = min(X.shape[0],4)
 
-    from sklearn.model_selection import GridSearchCV
-    #model = GridSearchCV(estimator = regressor, param_grid = paramGrid, scoring = 'neg_mean_squared_error', cv = 4, verbose = 2, n_jobs=-1)
-    model = GridSearchCV(estimator = regressor, param_grid = paramGrid, cv = 4, verbose = 2, n_jobs=-1)
+    if cv >1:
+
+        from sklearn.model_selection import GridSearchCV
+        #model = GridSearchCV(estimator = regressor, param_grid = paramGrid, scoring = 'neg_mean_squared_error', cv = 4, verbose = verbose, n_jobs=-1)
+        model = GridSearchCV(estimator = regressor, param_grid = paramGrid, cv = cv, verbose = verbose, n_jobs=-1)
+    else:
+        model = regressor
+
     model.fit(X, y)
 
     return model, scalerX, scalery
@@ -68,7 +75,7 @@ class MyGPR(GaussianProcessRegressor):
 
     def _constrained_optimization(self, obj_func, initial_theta, bounds):
         if self.optimizer == "fmin_l_bfgs_b":
-            opt_res = scipy.optimize.minimize(obj_func, initial_theta, method="L-BFGS-B", jac=True, bounds=bounds, options={'maxiter':10000000000, 'gtol': 1.e-6})
+            opt_res = scipy.optimize.minimize(obj_func, initial_theta, method="L-BFGS-B", jac=True, bounds=bounds, options={'maxiter':int(1.e9), 'gtol': 1.e-5})
             _check_optimize_result("lbfgs", opt_res)
             theta_opt, func_min = opt_res.x, opt_res.fun
         elif callable(self.optimizer):# pragma: no cover
