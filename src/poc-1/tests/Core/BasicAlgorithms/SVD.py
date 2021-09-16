@@ -9,6 +9,7 @@ def test():
     Mat[np.triu_indices(10, 1)] = 0.0
 
     SVD.TruncatedSVDSymLower(Mat, 1.0e-6)
+    SVD.TruncatedSVDSymLower(Mat, nbModes = 5)
 
     return "ok"
 

@@ -16,7 +16,7 @@ from Mordicus.Core.BasicAlgorithms import SVD as SVD
 
 
 def CompressData(
-    collectionProblemData, solutionName, tolerance, snapshotCorrelationOperator = None, snapshots = None, compressSolutions = False
+    collectionProblemData, solutionName, tolerance = None, snapshotCorrelationOperator = None, snapshots = None, compressSolutions = False, nbModes = None
 ):
     """
     Computes a reducedOrderBasis using the SnapshotPOD algorithm, from the snapshots contained in the solutions of name "solutionName" from all problemDatas in collectionProblemData, with tolerance as target accuracy of the data compression
@@ -38,6 +38,12 @@ def CompressData(
         of size (numberOfModes, numberOfDOFs)
     """
     assert isinstance(solutionName, str)
+
+    if tolerance == None and nbModes == None:# pragma: no cover
+        raise("must specify epsilon or nbModes")
+
+    if tolerance != None and nbModes != None:# pragma: no cover
+        raise("cannot specify both epsilon and nbModes")
 
     if snapshots is None:
         snapshots = collectionProblemData.GetSnapshots(solutionName)
@@ -61,7 +67,10 @@ def CompressData(
     mpiReducedCorrelationMatrix = np.zeros((numberOfSnapshots, numberOfSnapshots))
     MPI.COMM_WORLD.Allreduce([correlationMatrix,  MPI.DOUBLE], [mpiReducedCorrelationMatrix,  MPI.DOUBLE])
 
-    eigenValuesRed, eigenVectorsRed = SVD.TruncatedSVDSymLower(mpiReducedCorrelationMatrix, tolerance)
+    if tolerance != None:
+        eigenValuesRed, eigenVectorsRed = SVD.TruncatedSVDSymLower(mpiReducedCorrelationMatrix, tolerance)
+    else:
+        eigenValuesRed, eigenVectorsRed = SVD.TruncatedSVDSymLower(mpiReducedCorrelationMatrix, nbModes = nbModes)
 
     nbePODModes = eigenValuesRed.shape[0]
 
@@ -94,7 +103,10 @@ def CompressData(
         mpiReducedCorrelationMatrix = np.zeros((numberOfSnapshots, numberOfSnapshots))
         MPI.COMM_WORLD.Allreduce([correlationMatrix,  MPI.DOUBLE], [mpiReducedCorrelationMatrix,  MPI.DOUBLE])
 
-        eigenValuesRed, eigenVectorsRed = SVD.TruncatedSVDSymLower(mpiReducedCorrelationMatrix, tolerance)
+        if tolerance != None:
+            eigenValuesRed, eigenVectorsRed = SVD.TruncatedSVDSymLower(mpiReducedCorrelationMatrix, tolerance)
+        else:
+            eigenValuesRed, eigenVectorsRed = SVD.TruncatedSVDSymLower(mpiReducedCorrelationMatrix, nbModes = nbModes)
 
         nbePODModes = eigenValuesRed.shape[0]
 

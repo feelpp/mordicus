@@ -10,7 +10,7 @@ if MPI.COMM_WORLD.Get_size() > 1: # pragma: no cover
 import numpy as np
 
 
-def TruncatedSVDSymLower(matrix, epsilon):
+def TruncatedSVDSymLower(matrix, epsilon = None, nbModes = None):
     """
     Computes a truncatd singular value decomposition of a symetric definite
     matrix in scipy.sparse.csr format. Only the lower triangular part needs
@@ -22,6 +22,8 @@ def TruncatedSVDSymLower(matrix, epsilon):
         the input matrix
     epsilon : float
         the truncation tolerence, determining the number of keps eigenvalues
+    nbModes : int
+        the number of keps eigenvalues
 
     Returns
     -------
@@ -31,28 +33,39 @@ def TruncatedSVDSymLower(matrix, epsilon):
         kept eigenvectors, of size (numberOfEigenvalues, numberOfSnapshots)
     """
 
+    if epsilon == None and nbModes == None:# pragma: no cover
+        raise("must specify epsilon or nbModes")
+
+    if epsilon != None and nbModes != None:# pragma: no cover
+        raise("cannot specify both epsilon and nbModes")
+
     eigenValues, eigenVectors = np.linalg.eigh(matrix, UPLO="L")
 
     idx = eigenValues.argsort()[::-1]
     eigenValues = eigenValues[idx]
     eigenVectors = eigenVectors[:, idx]
 
-    id_max = 0
-    bound = (epsilon ** 2) * eigenValues[0]
-    for e in eigenValues:
-        if e > bound:
-            id_max += 1
-    id_max2 = 0
-    bound = (1 - epsilon ** 2) * np.sum(eigenValues)
-    temp = 0
-    for e in eigenValues:
-        temp += e
-        if temp < bound:
-            id_max2 += 1  # pragma: no cover
+    if nbModes == None:
+        nbModes = 0
+        bound = (epsilon ** 2) * eigenValues[0]
+        for e in eigenValues:
+            if e > bound:
+                nbModes += 1
+        id_max2 = 0
+        bound = (1 - epsilon ** 2) * np.sum(eigenValues)
+        temp = 0
+        for e in eigenValues:
+            temp += e
+            if temp < bound:
+                id_max2 += 1  # pragma: no cover
 
-    id_max = max(id_max, id_max2)
+        nbModes = max(nbModes, id_max2)
 
-    return eigenValues[0:id_max], eigenVectors[:, 0:id_max]
+    if nbModes > matrix.shape[0]:
+        print("nbModes taken to max possible value of "+str(matrix.shape[0])+" instead of pprovided value "+str(nbModes))
+        nbModes = matrix.shape[0]
+
+    return eigenValues[0:nbModes], eigenVectors[:, 0:nbModes]
 
 
 if __name__ == "__main__":# pragma: no cover
