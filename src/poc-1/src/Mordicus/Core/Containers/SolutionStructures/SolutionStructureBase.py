@@ -12,9 +12,14 @@ class SolutionStructureBase(object):
         contextualization element to interpret the vector as a field
     mesh : MeshBase
         reference mesh for the definition solution is defined 
+    discr : str
+        Discretization. One of 'node', 'gauss', 'cell'
     """
-    def __init__(self, mesh, discr):
+    def __init__(self, mesh=None, discr=None, fixed=None):
         self.__storage = None
+        if fixed is not None:
+            self.fixed = fixed
+            return
         if not isinstance(mesh, MeshBase):
             raise ValueError("Attribute mesh of SolutionStructureBase should be an instance of MeshBase")
         self.mesh = mesh
@@ -52,11 +57,15 @@ class SolutionStructureBase(object):
         """
         Returns number of points in the support of the solution
         """
+        if hasattr(self, "fixed"):
+            return self.fixed[0]
         raise NotImplementedError("Meant to be implemented in derived classes")
 
     def GetNumberOfComponents(self):
         """
         Returns number of components of the solution
         """
+        if hasattr(self, "fixed"):
+            return self.fixed[1]
         raise NotImplementedError("Meant to be implemented in derived classes")
     

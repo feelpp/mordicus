@@ -1,3 +1,4 @@
+# coding: utf-8
 """
 Created on 26 févr. 2020
 
@@ -12,9 +13,6 @@ from Mordicus.Core.Containers.FixedData.FixedDataBase import FixedDataBase
 from Mordicus.Core.Containers.ResolutionData.ResolutionDataBase import ResolutionDataBase
 from Mordicus.Core.Containers.ProblemData import ProblemData
 from Mordicus.Core.Containers.Solution import Solution
-
-from Mordicus.Modules.EDF.IO.MEDSolutionReader import MEDSolutionReader
-
 
 class SolverDataset(object):
     """
@@ -131,20 +129,16 @@ class SolverDataset(object):
             shutil.rmtree(dirname)
         # Create file in directory name
         os.makedirs(dirname, exist_ok=False)
-        with open(osp.join(dirname, basestr + ".comm"), "w") as f:
+        with open(osp.join(dirname, osp.basename(self.input_data["input_instruction_file"])), "w") as f:
             f.write(myinstance)
-        shutil.copyfile(osp.join(self.input_data["input_root_folder"], self.input_data["input_main_file"]), 
-                        osp.join(dirname, basestr + ".export"))
-        # tmp to emule
-        shutil.copyfile(osp.join(self.input_data["input_root_folder"], self.input_data["input_result_path"]), 
-                        osp.join(dirname, basestr + ".rmed"))        
-        # end tmp to emule
+        shutil.copyfile(osp.join(self.input_data["input_root_folder"], osp.basename(self.input_data["input_main_file"])), 
+                        osp.join(dirname, osp.basename(self.input_data["input_main_file"])))
         input_data = {"input_root_folder"      : dirname,
-                      "input_main_file"        : basestr + ".export",
-                      "input_instruction_file" : basestr + ".comm",
+                      "input_main_file"        : osp.basename(self.input_data["input_main_file"]),
+                      "input_instruction_file" : osp.basename(self.input_data["input_instruction_file"]),
                       "input_mordicus_data"    : self.input_data["input_mordicus_data"],
-                      "input_result_path"      : basestr + ".rmed",
-                      "input_result_type"      : "med_file"}
+                      "input_result_path"      : osp.basename(self.input_data["input_result_path"]),
+                      "input_result_type"      : self.input_data["input_result_type"]}
 
         return SolverDataset(self.produced_object,
                              self.solver,
