@@ -283,8 +283,8 @@ def ComputeReducedInternalForcesAndTangentMatrix(onlineProblemData, onlineCompre
             dtemp = onlineCompressionData["temperatureAtReducedIntegrationPoints"][intPoints] - onlineCompressionData["temperatureAtReducedIntegrationPoints0"][intPoints]
 
         else:
-            temperature = None  #pragma: no cover
-            dtemp = None        #pragma: no cover
+            temperature = 20.+np.zeros(intPoints.shape[0])   #pragma: no cover
+            dtemp = np.zeros(intPoints.shape[0])             #pragma: no cover
 
         stran = onlineCompressionData['stranIntForces'][intPoints]
 
