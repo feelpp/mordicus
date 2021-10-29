@@ -209,9 +209,18 @@ def test():
     onlineCompressedSolution = Meca.ComputeOnline(onlineProblemData, timeSequence, operatorCompressionData, 1.e-6)
 
 
+    class callback():
+        def CurrentTime(timeStep, time):
+            print("time =", time)
+        def CurrentNormRes(normRes):
+            print("normRes  =", normRes)
+        def CurrentNewtonIterations(count):
+            print("=== Newton iterations:", count)
+
+
     elasConsitutiveLaw = inputReader.ConstructOneConstitutiveLaw("elas", 'ALLELEMENT')
     onlineProblemData.AddConstitutiveLaw(elasConsitutiveLaw)
-    onlineCompressedSolution = Meca.ComputeOnline(onlineProblemData, timeSequence, operatorCompressionData, 1.e-6)
+    onlineCompressedSolution = Meca.ComputeOnline(onlineProblemData, timeSequence, operatorCompressionData, 1.e-6, callback = callback)
 
     os.system("rm -rf collectionProblemData.pkl")
     os.system("rm -rf snapshotCorrelationOperator.pkl")

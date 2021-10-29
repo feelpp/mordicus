@@ -13,7 +13,7 @@ from Mordicus.Core.Containers.ConstitutiveLaws.ConstitutiveLawBase import Consti
 
 
 import sys
-if "vtkpython" in sys.executable:
+if "vtkpython" in sys.executable:# pragma: no cover
     from Mordicus.Modules.Safran.External.pvpyumat import py3umat as pyumat
 else:
     from Mordicus.Modules.Safran.External.pyumat import py3umat as pyumat
