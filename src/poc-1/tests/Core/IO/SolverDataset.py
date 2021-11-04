@@ -6,7 +6,7 @@ from Mordicus.Core.Containers.FixedData.FixedDataBase import FixedDataBase
 
 from Mordicus.Core.IO.SolverDataset import SolverDataset
 from Mordicus.Core.IO.ExternalSolvingProcedure import ExternalSolvingProcedure
-from Mordicus.Core.Containers import ProblemData
+from Mordicus.Core.Containers.ProblemData import ProblemData
 
 from Mordicus.Core.IO.SolutionReaderBase import SolutionReaderBase
 
@@ -24,11 +24,12 @@ ${solver_install} ${input_main_file}
     data_dir = osp.join(osp.dirname(osp.abspath(__file__)), "data")
     solver_cfg = {"solver_install" : "/bin/bash"}
     solver = ExternalSolvingProcedure(solver_call_procedure_type="shell",
+                                      solver_cfg=solver_cfg,
                                       call_script=call_script)
     input_data = {"input_root_folder"        : data_dir,
                   "input_main_file"          : "input_main_file.sh",
-                  "input_instruction_file"   : "input_instruction_file.py",
-                  "input_mordicus_data"      : {"mordicus_npy_data": "input_instruction_file.py"},
+                  "input_instruction_file"   : "input_instruction_file",
+                  "input_mordicus_data"      : {"mordicus_npy_data": "input_instruction_file"},
                   "input_result_path"        : "snapshot.npy",
                   "input_result_type"        : "numpy_file"}
     dataset = SolverDataset(ProblemData, solver, input_data)
@@ -36,13 +37,13 @@ ${solver_install} ${input_main_file}
     dataset.instantiate(mu1=0.0, mu2=0.0)
 
     class NumPySolutionReader(SolutionReaderBase):
-        def __init__(self, fileName):
+        def __init__(self, fileName, timeIt):
             self.fileName = fileName # To make generic later on
 
-        def ReadTimeSequenceFromSolutionFile(self):
+        def ReadTimeSequenceFromSolutionFile(self, filename):
             return np.array([0.])
 
-        def ReadSnapshotComponent(self, fieldName, time, primality):
+        def ReadSnapshotComponent(self, fieldName, time, primality, structure):
             return np.load(self.fileName)
 
     # extract_result is called by run

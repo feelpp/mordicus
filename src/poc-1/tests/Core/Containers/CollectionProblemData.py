@@ -74,31 +74,35 @@ def test():
 
     # Adding a dummy solver that does nothing
     call_script = """
-bash "${input_main_file}"
+bash "{input_root_folder}/{input_main_file}"
     """
     # Adding a dataset
     data_dir = osp.join(osp.dirname(osp.abspath(__file__)), "data")
     solver_cfg = {"solver_name" : "Foo"}
     solver = ExternalSolvingProcedure(solver_call_procedure_type="shell",
+                                      solver_cfg=solver_cfg,
                                       call_script=call_script)
     input_data = {"input_root_folder" : data_dir,
+                  "input_main_file"   : "generate_snapshots.sh",
+                  "input_instruction_file" : "generate_snapshots.sh",
+                  "input_mordicus_data": {},
                   "input_result_path" : "snapshot.npy",
                   "input_result_type" : "numpy_file"}
-    dataset = SolverDataset(ProblemData, solver, input_data)
+    dataset = SolverDataset(ProblemData.ProblemData, solver, input_data)
     collectionProblemData.SetTemplateDataset(dataset)
 
     class NumPySolutionReader(SolutionReaderBase):
-        def __init__(self, fileName):
+        def __init__(self, fileName, timeIt):
             self.fileName = fileName # To make generic later on
 
-        def ReadTimeSequenceFromSolutionFile(self):
+        def ReadTimeSequenceFromSolutionFile(self, filename):
             return np.array([0.])
 
-        def ReadSnapshotComponent(self, fieldName, time, primality):
+        def ReadSnapshotComponent(self, fieldName, time, primality, structure):
             return np.load(self.fileName)
 
     collectionProblemData.SetSolutionStructure("U", SolutionStructureBase(fixed=(20, 1)))
-    _ = collectionProblemData.GetSolutionStructure("U")
+    solStruct = collectionProblemData.GetSolutionStructure("U")
 
     problemData = collectionProblemData.solve(mu1=0., mu2=1.,
                                               extract=("U", ),
@@ -110,9 +114,9 @@ bash "${input_main_file}"
                                                       primalities={"U": True},
                                                       solutionReaderType=NumPySolutionReader)
     collectionProblemData.specificDatasets["computeAPosterioriError"] = dataset
-    problemData = collectionProblemData.computeAPosterioriError(mu1=0., mu2=1.,
-                                                                extract=("U", ),
+    problemData = collectionProblemData.computeAPosterioriError(extract=("U", ),
                                                                 primalities={"U": True},
+                                                                solutionStructures={"U": solStruct},
                                                                 solutionReaderType=NumPySolutionReader)
     # Define the support of varying parameters
     arr_mu1 = np.array([0. , 1.])

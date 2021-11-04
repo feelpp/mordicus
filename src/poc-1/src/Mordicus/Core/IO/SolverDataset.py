@@ -131,8 +131,9 @@ class SolverDataset(object):
         os.makedirs(dirname, exist_ok=False)
         with open(osp.join(dirname, osp.basename(self.input_data["input_instruction_file"])), "w") as f:
             f.write(myinstance)
-        shutil.copyfile(osp.join(self.input_data["input_root_folder"], osp.basename(self.input_data["input_main_file"])), 
-                        osp.join(dirname, osp.basename(self.input_data["input_main_file"])))
+        # Using shutil.copy2 to preserve permissions
+        shutil.copy2(osp.join(self.input_data["input_root_folder"], osp.basename(self.input_data["input_main_file"])), 
+                     osp.join(dirname, osp.basename(self.input_data["input_main_file"])))
         input_data = {"input_root_folder"      : dirname,
                       "input_main_file"        : osp.basename(self.input_data["input_main_file"]),
                       "input_instruction_file" : osp.basename(self.input_data["input_instruction_file"]),
@@ -143,3 +144,4 @@ class SolverDataset(object):
         return SolverDataset(self.produced_object,
                              self.solver,
                              input_data)
+

@@ -2,6 +2,9 @@
 import subprocess
 import shlex
 
+import os.path as osp
+from string import Template
+
 class ExternalSolvingProcedure(object):
     """
     This objects says how to call an external solver from Mordicus
