@@ -45,9 +45,9 @@ class Solution(object):
         numberOfNodes : int
         primality : np.bool
         """
-        assert isinstance(solutionName, str)
-        assert isinstance(nbeOfComponents, int)
-        assert isinstance(numberOfNodes, int)
+        for attr, typ in zip(["solutionName", "nbeOfComponents", "numberOfNodes"], [str, int, int]):
+            if not isinstance(locals()[attr], typ):
+                raise TypeError("Attribute {0} should be of type {1}".format(attr, str(typ)))
 
         self.solutionName = solutionName
         self.nbeOfComponents = nbeOfComponents
@@ -70,7 +70,8 @@ class Solution(object):
             time of the snapshot
         """
         time = float(time)
-        assert len(snapshot.shape) == 1 and snapshot.shape[0] == self.numberOfDOFs
+        if not len(snapshot.shape) == 1 or not snapshot.shape[0] == self.numberOfDOFs:
+            raise ValueError("Provided numpy array should be a vector of length {}".format(self.numberOfDOFs))
 
         if time in self.snapshots:
             print(
@@ -256,7 +257,6 @@ class Solution(object):
         np.ndarray
             snapshot at time, of size (numberOfDOFs), using PieceWiseLinearInterpolation
         """
-        # assert type of time
         time = float(time)
 
         return TI.PieceWiseLinearInterpolation(
@@ -272,8 +272,8 @@ class Solution(object):
         ----------
         compressedSnapshots : collections.OrderedDict()
         """
-        # assert type of compressedSnapshots
-        assert isinstance(compressedSnapshots, collections.OrderedDict)
+        if not isinstance(compressedSnapshots, collections.OrderedDict):
+            raise TypeError("compressedSnapshots should be an instance of OrderedDict")
 
         self.compressedSnapshots = compressedSnapshots
 
@@ -286,8 +286,8 @@ class Solution(object):
         ----------
         snapshots : collections.OrderedDict()
         """
-        # assert type of snapshots
-        assert isinstance(snapshots, collections.OrderedDict)
+        if not isinstance(snapshots, collections.OrderedDict):
+            raise TypeError("snapshots should be an instance of OrderedDict")
 
         self.snapshots = snapshots
 
@@ -304,7 +304,8 @@ class Solution(object):
             time of the compressedSnapshot
         """
         time = float(time)
-        assert len(compressedSnapshot.shape) == 1
+        if not len(compressedSnapshot.shape) == 1:
+            raise ValueError("compressedSnapshot should be a vector, not a multidimensional array")
 
         if time in self.compressedSnapshots:
             print(
@@ -412,7 +413,6 @@ class Solution(object):
         np.ndarray
             compressedSnapshot value at time, of size (numberOfModes), using PieceWiseLinearInterpolation
         """
-        # assert type of time
         time = float(time)
 
         return TI.PieceWiseLinearInterpolation(
