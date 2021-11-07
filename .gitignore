@@ -16,7 +16,6 @@ src/poc-1/coverageReports/*
 *.so
 *.kate-swp
 *.msg
-*.rst
 *.spyproject*
 *.png
 *.vtu
