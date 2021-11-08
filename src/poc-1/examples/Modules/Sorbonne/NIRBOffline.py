@@ -209,7 +209,7 @@ for file in FineSnapshotFiles:
     filename=file
     VTKSnapshotReader=VTKSR.VTKSolutionReader(FieldName)
     Fine_snapshot_array=VTKSnapshotReader.VTKReadToNp(filename).flatten()
-    solutionU=S.Solution("U",dimension,numberOfNodes,True) #Add each snapshot in collectionProblemData
+    solutionU=S.Solution("U",nbeOfComponentsPrimal,numberOfNodes,True) #Add each snapshot in collectionProblemData
     solutionU.AddSnapshot(Fine_snapshot_array,0) #time=0
     problemData = PD.ProblemData(FineDataFolder+str(cpt)) #name of problemData
     problemData.AddSolution(solutionU)
@@ -229,7 +229,7 @@ if Rectification == 1:
                 
                 Coarse_snapshot_array=VTKSnapshotReader.VTKReadToNp(filename)
                 Coarse_snapshot_array=operator.dot(Coarse_snapshot_array).flatten() #interpolation on fineMesh
-                solutionUH=S.Solution("UH",dimension,numberOfNodes,True) #Add each snapshot in collectionProblemData
+                solutionUH=S.Solution("UH",nbeOfComponentsPrimal,numberOfNodes,True) #Add each snapshot in collectionProblemData
                 collectionProblemData._checkSolutionName("UH")
                 solutionUH.AddSnapshot(Coarse_snapshot_array,0) #time=0
                 labelPD=FineDataFolder+str(cpt)

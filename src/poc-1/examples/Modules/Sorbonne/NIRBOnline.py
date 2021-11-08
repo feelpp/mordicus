@@ -181,7 +181,7 @@ CoarseSolutionFile=CoarseSolutionFile[0]
 VTKSnapshotReader=VTKSR.VTKSolutionReader(FieldName);
 CoarseSolution =VTKSnapshotReader.VTKReadToNp(CoarseSolutionFile)#.flatten()
 CoarseSolutionInterp=operator.dot(CoarseSolution).flatten()
-solutionUHh=S.Solution("U",dimension,numberOfNodes,True)
+solutionUHh=S.Solution("U",nbeOfComponentsPrimal,numberOfNodes,True)
 solutionUHh.AddSnapshot(CoarseSolutionInterp,0)
 
 onlineproblemData = PD.ProblemData("Online") #create online problem data
@@ -251,7 +251,7 @@ if ComputingError==1:
     VTKSnapshotReader=VTKSR.VTKSolutionReader(FieldNameExactSolution);
     exactSolution =VTKSnapshotReader.VTKReadToNp(FineSolutionFile).flatten()
 
-    solutionU=S.Solution("U",dimension,numberOfNodes,True)
+    solutionU=S.Solution("U",nbeOfComponentsPrimal,numberOfNodes,True)
     solutionU.AddSnapshot(exactSolution,0) #only one snapshot->time=0
 
     problemData = PD.ProblemData("Online")
