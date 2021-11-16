@@ -8,7 +8,7 @@ public:
     ~ModuleBase() {}
 
     template <class T>
-    T* As() { return static_cast<T*>(this); }
+    T* As() { return dynamic_cast<T*>(this); }
 
     virtual std::string getType() = 0;
     virtual std::string getName() = 0;
