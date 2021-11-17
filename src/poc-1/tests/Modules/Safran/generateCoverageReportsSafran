@@ -1,7 +1,5 @@
 #!/bin/bash
 
-cd Modules/Safran/
 pytest --cov=../../../src/Mordicus/Modules/Safran --cov-report=html:../../../coverageReports/coverageReportModuleSafran
 firefox ../../../coverageReports/coverageReportModuleSafran/index.html
 
-cd ../

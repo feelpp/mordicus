@@ -1,7 +1,6 @@
 #!/bin/bash
 
-cd Core/
 pytest --cov=../../src/Mordicus/Core --cov-report=html:../../coverageReports/coverageReportCore
 firefox ../../coverageReports/coverageReportCore/index.html
 
-cd ../
+
