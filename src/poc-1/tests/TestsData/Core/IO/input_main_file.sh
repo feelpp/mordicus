@@ -4,4 +4,6 @@
 echo "Generating data from input_instruction_file\n"
 
 # Testing substitution with parameters for the dataset
-python "input_instruction_file"
+python $(dirname ${BASH_SOURCE[0]})/input_instruction_file
+
+mv snapshot.npy $(dirname ${BASH_SOURCE[0]})/snapshot.npy

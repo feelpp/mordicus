@@ -77,7 +77,7 @@ def test():
 bash "{input_root_folder}/{input_main_file}"
     """
     # Adding a dataset
-    data_dir = osp.join(osp.dirname(osp.abspath(__file__)), "data")
+    data_dir = osp.join(osp.dirname(osp.abspath(__file__)), osp.pardir, osp.pardir, "TestsData", "Core", "Containers")
     solver_cfg = {"solver_name" : "Foo"}
     solver = ExternalSolvingProcedure(solver_call_procedure_type="shell",
                                       solver_cfg=solver_cfg,

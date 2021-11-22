@@ -16,12 +16,10 @@ def test():
     # Doing a template dataset calling a file
     # Adding a dummy solver that does nothing
     call_script = """
-echo "Calling a bash script that will emulate generation of the snapshot \n"
-
-${solver_install} ${input_main_file}
+{solver_install} "{input_root_folder}/{input_main_file}"
     """
     # Adding a dataset
-    data_dir = osp.join(osp.dirname(osp.abspath(__file__)), "data")
+    data_dir = osp.abspath(osp.join(osp.dirname(osp.abspath(__file__)), osp.pardir, osp.pardir, "TestsData", "Core", "IO"))
     solver_cfg = {"solver_install" : "/bin/bash"}
     solver = ExternalSolvingProcedure(solver_call_procedure_type="shell",
                                       solver_cfg=solver_cfg,
@@ -32,9 +30,9 @@ ${solver_install} ${input_main_file}
                   "input_mordicus_data"      : {"mordicus_npy_data": "input_instruction_file"},
                   "input_result_path"        : "snapshot.npy",
                   "input_result_type"        : "numpy_file"}
-    dataset = SolverDataset(ProblemData, solver, input_data)
+    dataset_template = SolverDataset(ProblemData, solver, input_data)
 
-    dataset.instantiate(mu1=0.0, mu2=0.0)
+    dataset_instance = dataset_template.instantiate(mu1=0.0, mu2=0.0)
 
     class NumPySolutionReader(SolutionReaderBase):
         def __init__(self, fileName, timeIt):
@@ -47,14 +45,14 @@ ${solver_install} ${input_main_file}
             return np.load(self.fileName)
 
     # extract_result is called by run
-    dataset.run(extract=("U", ),
-                primalities={"U": True},
-                solutionStructures={"U": SolutionStructureBase(fixed=(20, 1))},
-                solutionReaderType=NumPySolutionReader)
+    dataset_instance.run(extract=("U", ),
+                         primalities={"U": True},
+                         solutionStructures={"U": SolutionStructureBase(fixed=(20, 1))},
+                         solutionReaderType=NumPySolutionReader)
 
     # Now, call extract_result for other types of results for coverage, that is FixedDataBase and ResolutionDataBase
     input_data = {"input_root_folder"        : data_dir,
-                  "input_main_file"          : "input_main_file.sh",
+                  "input_main_file"          : "input_main_file_resolution.sh",
                   "input_instruction_file"   : "input_instruction_file_resolution.py",
                   "input_mordicus_data"      : {"mordicus_npy_data": "input_instruction_file_resolution.py"},
                   "input_result_path"        : "snapshot.npy",
@@ -64,7 +62,7 @@ ${solver_install} ${input_main_file}
     nparray = resolution_data.GetInternalStorage()
 
     input_data = {"input_root_folder"        : data_dir,
-                  "input_main_file"          : "input_main_file.sh",
+                  "input_main_file"          : "input_main_file_resolution.sh",
                   "input_instruction_file"   : "input_instruction_file_resolution.py",
                   "input_mordicus_data"      : {"mordicus_npy_data": "input_instruction_file_resolution.py"},
                   "input_result_path"        : "snapshot.npy",
