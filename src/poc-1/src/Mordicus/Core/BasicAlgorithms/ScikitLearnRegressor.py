@@ -45,7 +45,7 @@ def GridSearchCVRegression(regressor, paramGrid, X, y):
         from sklearn.model_selection import GridSearchCV
         #model = GridSearchCV(estimator = regressor, param_grid = paramGrid, scoring = 'neg_mean_squared_error', cv = 4, verbose = verbose, n_jobs=-1)
         model = GridSearchCV(estimator = regressor, param_grid = paramGrid, cv = cv, verbose = verbose, n_jobs=-1)
-    else:
+    else:# pragma: no cover
         model = regressor
 
     model.fit(X, y)

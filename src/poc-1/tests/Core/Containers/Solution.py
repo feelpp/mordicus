@@ -66,7 +66,6 @@ def test():
     snapshots[1.0] = np.ones(20)
     solution.SetSnapshots(snapshots)
     solution.SetCompressedSnapshots(compressedSnapshots)
-
     assert solution.GetCompressedSnapshots() is compressedSnapshots, "Compressed snapshots were not properly set"
     cslist = solution.GetCompressedSnapshotsList()
     numpy.testing.assert_almost_equal(cslist[0], np.ones(2))
@@ -82,6 +81,7 @@ def test():
     numpy.testing.assert_almost_equal(solution.GetSnapshot(1.0), np.arange(20.) + np.arange(20., 40.))
     solution.CompressSnapshots(np.eye(20), np.arange(40.).reshape((2,20)))
     numpy.testing.assert_almost_equal(solution.GetCompressedSnapshotsAtTime(1.0), np.array([ 8740., 24340.]))
+
     print(solution)
     return "ok"
 

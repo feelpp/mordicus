@@ -271,7 +271,7 @@ class ProblemData(object):
                 listParameterDimension
             )
             return listParameterDimension[0]
-        else:
+        else:# pragma: no cover
             return None
 
 
