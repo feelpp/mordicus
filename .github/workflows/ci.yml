@@ -26,14 +26,13 @@ jobs:
     runs-on: ubuntu-20.04
     if: "!contains(github.event.head_commit.message, 'ci skip')"
     name: Check Build, Install, Run
-#    container: ghcr.io/feelpp/feelpp-mor-dev:latest
+    container: ghcr.io/feelpp/feelpp-mor-dev:latest
     steps:
     - uses: actions/checkout@v2
     - name: Build Mordicus
       run: |
         cmake --preset install
         cmake --build --preset install
-      working-directory: src/cpp
     - name: Upload 
       uses: actions/upload-artifact@v2
       with:
