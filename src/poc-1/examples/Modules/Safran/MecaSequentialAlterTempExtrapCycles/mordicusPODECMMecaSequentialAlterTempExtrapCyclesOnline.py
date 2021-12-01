@@ -21,7 +21,7 @@ def test():
     ##################################################
 
     collectionProblemData = SIO.LoadState("collectionProblemData")
-    
+
     operatorCompressionData = collectionProblemData.GetOperatorCompressionData()
 
     reducedOrderBases = collectionProblemData.GetReducedOrderBases()
@@ -38,27 +38,28 @@ def test():
 
 
     onlineProblemData = collectionProblemData.GetProblemData(config = "case-1")
-    
- 
+    onlineProblemData.SetDataFolder(folder)
+
+
     timeSequence = inputReader.ReadInputTimeSequence()
 
     inputLoadingTemperature = inputReader.ConstructLoadingsList(loadingTags = ["temperature"])[0]
     assert inputLoadingTemperature.type == "temperature"
-    
+
 
     onlineProblemDataTempLoading = onlineProblemData.GetLoadingsOfType("temperature")[0]
     onlineProblemDataTempLoading.UpdateLoading(inputLoadingTemperature)
-    onlineProblemDataTempLoading.ReduceLoading() 
+    onlineProblemDataTempLoading.ReduceLoading()
 
 
     import time
     start = time.time()
     onlineCompressedSolution, onlineCompressionData = Meca.ComputeOnline(onlineProblemData, timeSequence, operatorCompressionData, 1.e-8)
     print(">>>> DURATION ONLINE =", time.time() - start)
-    
-    
+
+
     numberOfIntegrationPoints = onlineProblemData.GetSolution("evrcum").numberOfDOFs
-    
+
 
     dualNames = ["evrcum", "sig12", "sig23", "sig31", "sig11", "sig22", "sig33", "eto12", "eto23", "eto31", "eto11", "eto22", "eto33"]
 
@@ -71,7 +72,7 @@ def test():
         solutionsDual.SetCompressedSnapshots(onlineDualCompressedSolution)
 
         onlineProblemData.AddSolution(solutionsDual)
-    
+
 
     onlineEvrcumCompressedSolution = onlineProblemData.GetSolution("evrcum").GetCompressedSnapshots()
 
@@ -81,11 +82,11 @@ def test():
     nbeOfComponentsPrimal = onlineProblemData.GetSolution("U").nbeOfComponents
     numberOfNodes = onlineProblemData.GetSolution("U").numberOfNodes
 
-    
+
     solutionFileName = "MecaAlternateTempDefinition/cube.ut"
     solutionReader = ZSR.ZsetSolutionReader(solutionFileName)
     outputTimeSequence = solutionReader.ReadTimeSequenceFromSolutionFile()
-    
+
     solutionEvrcumExact  = S.Solution("evrcum", 1, numberOfIntegrationPoints, primality = False)
     solutionUExact = S.Solution("U", nbeOfComponentsPrimal, numberOfNodes, primality = True)
     for t in outputTimeSequence:
@@ -97,13 +98,13 @@ def test():
     solutionEvrcumApprox = S.Solution("evrcum", 1, numberOfIntegrationPoints, primality = False)
     solutionEvrcumApprox.SetCompressedSnapshots(onlineEvrcumCompressedSolution)
     solutionEvrcumApprox.UncompressSnapshots(reducedOrderBases["evrcum"])
-    
+
     solutionUApprox = S.Solution("U", nbeOfComponentsPrimal, numberOfNodes, primality = True)
     solutionUApprox.SetCompressedSnapshots(onlineCompressedSolution)
     solutionUApprox.UncompressSnapshots(reducedOrderBases["U"])
 
     ROMErrorsU = []
-    ROMErrorsEvrcum = []    
+    ROMErrorsEvrcum = []
     for t in outputTimeSequence:
         exactSolution = solutionEvrcumExact.GetSnapshotAtTime(t)
         approxSolution = solutionEvrcumApprox.GetSnapshotAtTime(t)
@@ -113,7 +114,7 @@ def test():
         else:
             relError = np.linalg.norm(approxSolution-exactSolution)
         ROMErrorsEvrcum.append(relError)
-        
+
         exactSolution = solutionUExact.GetSnapshotAtTime(t)
         approxSolution = solutionUApprox.GetSnapshotAtTime(t)
         norml2ExactSolution = np.linalg.norm(exactSolution)
@@ -122,16 +123,16 @@ def test():
         else:
             relError = np.linalg.norm(approxSolution-exactSolution)
         ROMErrorsU.append(relError)
-        
+
 
     print("ROMErrors U =", ROMErrorsU)
     print("ROMErrors Evrcum =", ROMErrorsEvrcum)
 
 
     onlineProblemData.AddSolution(solutionUApprox)
-    
+
     meshFileName = folder + "cube.geof"
-    mesh = ZMR.ReadMesh(meshFileName)    
+    mesh = ZMR.ReadMesh(meshFileName)
     ZSW.WriteZsetSolution(mesh, meshFileName, "reduced", collectionProblemData, onlineProblemData, "U")
 
 

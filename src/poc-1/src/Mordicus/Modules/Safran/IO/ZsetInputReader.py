@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import os
+import os, sys
 from mpi4py import MPI
 if MPI.COMM_WORLD.Get_size() > 1: # pragma: no cover
     os.environ["OMP_NUM_THREADS"] = "1"
@@ -80,7 +80,7 @@ class ZsetInputReader(InputReaderBase):
         list containing the input file as parsed by BasicTools.IO.ZebulonIO
     """
 
-    def __init__(self, inputFileName):
+    def __init__(self, inputFileName = None, string = None, rootpath = None):
         """
         Parameters
         ----------
@@ -88,23 +88,29 @@ class ZsetInputReader(InputReaderBase):
         """
         super(ZsetInputReader, self).__init__()
 
-        assert isinstance(inputFileName, str)
-
         self.inputFileName = inputFileName
-        self.inputFile = ZIO.ReadInp2(self.inputFileName)
+        self.string = string
+
+        if inputFileName is None and string is None:# pragma: no cover
+            raise("inputFileName and string cannot be both None")
+
+        if inputFileName is not None and string is not None:# pragma: no cover
+            raise("inputFileName and string cannot be both specified")
+
+        if string is not None and rootpath is None:# pragma: no cover
+            raise("when string is not None, rootpath must be defined")
+
+        if inputFileName is not None:
+            assert isinstance(inputFileName, str)
+            self.inputFile = ZIO.ReadInp2(fileName = inputFileName)
+            self.rootpath = os.path.dirname(self.inputFileName)
+        else:
+            self.inputFile = ZIO.ReadInp2(string = string, rootpath = rootpath)
+            self.rootpath = rootpath
+
         self.problemType = ZIO.GetProblemType(self.inputFile)
         assert self.problemType in  knownProblemTypes, "problemType "+self.problemType+" must refer be among "+str(knownProblemTypes)
 
-
-
-    def UpdateFileName(self, fileName):
-        
-        if MPI.COMM_WORLD.Get_size() > 1: # pragma: no cover
-            stem = str(Path(fileName).stem)
-            suffix = str(Path(fileName).suffix)
-            fileName = stem + "-" + str(MPI.COMM_WORLD.Get_rank()+1).zfill(3) + suffix
-
-        return fileName
 
 
 
@@ -137,7 +143,8 @@ class ZsetInputReader(InputReaderBase):
 
         elif zSetInitialCondition[0] == 'file':  # pragma: no cover
             dataType = "vector"
-            data = ZIO.ReadBinaryFile(os.path.dirname(self.inputFileName) + os.sep + zSetInitialCondition[1])
+            data = ZIO.ReadBinaryFile(self.rootpath + os.sep + zSetInitialCondition[1])
+
 
         initialCondition.SetDataType(solutionName, dataType)
         initialCondition.SetInitialSnapshot(solutionName, data)
@@ -150,7 +157,7 @@ class ZsetInputReader(InputReaderBase):
 
         if not loadingTags:
            loadingTags = knownLoadingTags
-           
+
         inputTimeSequence = self.ReadInputTimeSequence()
 
         tables = ZIO.GetTables(self.inputFile)
@@ -225,13 +232,13 @@ class ZsetInputReader(InputReaderBase):
             loading.SetCoefficients(coefficients)
             loading.SetFieldsMap(fieldsMap)
 
-            folder = os.path.dirname(self.inputFileName) + os.sep
-            
-            fileName = self.UpdateFileName(name)
+            folder = self.rootpath + os.sep
+
+            fileName = UpdateFileName(name)
             fields = {name: ZIO.ReadBinaryFile(folder + fileName)}
 
             loading.SetFields(fields)
-            
+
             return loading
 
 
@@ -333,30 +340,30 @@ class ZsetInputReader(InputReaderBase):
 
 
         if key == "temperature":
-            
 
-                
+
+
             from Mordicus.Modules.Safran.Containers.Loadings import Temperature
 
             loading = Temperature.Temperature("U", set)
 
             fieldsMap = collections.OrderedDict()
             fields = {}
-            folder = os.path.dirname(self.inputFileName) + os.sep
-            
+            folder = self.rootpath + os.sep
+
             if 'base_temperature' in load[1] and 'max_temperature' in load[1]:
                 taleName = load[1]['table'][0]
                 timeTable = tables[taleName]['time']
                 fileTable = np.array(tables[taleName]['value'], dtype = str)
-            
+
             else:
-                
+
                 for info in load[1].values():
                     if isinstance(info, dict):
                         timeTable = info['timeTable']
                         fileTable = info['fileTable']
-                                    
-            
+
+
             lastTimeCycleLoading = float(timeTable[-1])
             nbeLoadingCycles = max(int(inputTimeSequence[-1]/lastTimeCycleLoading),1)
 
@@ -366,9 +373,9 @@ class ZsetInputReader(InputReaderBase):
 
             for j in range(nbeLoadingCycles):
                 for i, time in enumerate(timeTable[1:]):
-                    fieldsMap[time + j*lastTimeCycleLoading] = fileTable[i+1]     
-            
-            
+                    fieldsMap[time + j*lastTimeCycleLoading] = fileTable[i+1]
+
+
             if 'base_temperature' in load[1] and 'max_temperature' in load[1]:
 
                 temperatures = [load[1]['base_temperature'], load[1]['max_temperature']]
@@ -378,9 +385,7 @@ class ZsetInputReader(InputReaderBase):
                     if temperature[0] == 'constant':
                         temperatures[i] = float(temperature[1])*np.ones(nNodes)
                     elif temperature[0] == 'file':
-                        fileName = self.UpdateFileName(temperature[1])
-                        print("folder+fileName =", folder+fileName)
-                        print("cwd =", os.getcwd())
+                        fileName = UpdateFileName(temperature[1])
                         temperatures[i] = ZIO.ReadBinaryFile(folder+fileName)
                     else:# pragma: no cover
                         raise("temperature bc not valid")
@@ -390,28 +395,27 @@ class ZsetInputReader(InputReaderBase):
                     if coef not in fields:
                         coefFloat = float(coef)
                         fields[coef] = coefFloat*temperatures[1] + (1-coefFloat)*temperatures[0]
-                    
+
             else:
-    
+
                 for file in fileTable:
-                    if file not in fields:                        
-                        fileName = self.UpdateFileName(file)                        
+                    if file not in fields:
+                        fileName = UpdateFileName(file)
                         fields[file] = ZIO.ReadBinaryFile(folder+fileName)
 
 
             fieldsMapTimes = np.array(list(fieldsMap.keys()), dtype = float)
-            fieldsMapValues = np.array(list(fieldsMap.values()), dtype = str)  
+            fieldsMapValues = np.array(list(fieldsMap.values()), dtype = str)
 
             loading.SetFieldsMap(fieldsMapTimes, fieldsMapValues)
             loading.SetFields(fields)
-            
+
             return loading
 
 
 
 
     def ConstructConstitutiveLawsList(self):
-
 
         materialFiles = ZIO.GetMaterialFiles(self.inputFile)
 
@@ -429,9 +433,8 @@ class ZsetInputReader(InputReaderBase):
         1
         """
 
-        import os, sys
+        folder = self.rootpath + os.sep
 
-        folder = os.path.dirname(self.inputFileName) + os.sep
 
         behavior = ZIO.GetBehavior(folder + materialFileName)
 
@@ -471,26 +474,44 @@ class ZsetInputReader(InputReaderBase):
             behavior = ZIO.GetBehavior(folder + materialFileName)
             density = ZIO.GetDensity(folder + materialFileName)
 
-            if behavior == "gen_evp":
+            return ConstructOneMechanicalConstitutiveLaw(folder, materialFileName, behavior, density, set)
 
-                from Mordicus.Modules.Safran.Containers.ConstitutiveLaws import ZmatConstitutiveLaw as ZCL
 
-                constitutiveLaw = ZCL.ZmatConstitutiveLaw(set)
 
-                constitutiveLaw.SetDensity(density)
 
-                constitutiveLaw.SetBehavior(behavior)
+def ConstructOneMechanicalConstitutiveLaw(folder, materialFileName, behavior, density = None, set = "ALLELEMENT"):
 
-                constitutiveLawVariables = {}
 
-                curFolder = os.getcwd()
-                os.chdir(folder)
 
-                suffix = self.UpdateFileName("")
+    if behavior == "gen_evp":
 
-                code="""
+        from Mordicus.Modules.Safran.Containers.ConstitutiveLaws import ZmatConstitutiveLaw as ZCL
+
+        constitutiveLaw = ZCL.ZmatConstitutiveLaw(set)
+
+        constitutiveLaw.SetDensity(density)
+
+        constitutiveLaw.SetBehavior(behavior)
+
+        constitutiveLawVariables = {}
+
+        curFolder = os.getcwd()
+        os.chdir(folder)
+
+        suffix = UpdateFileName("")
+
+        if "vtkpython" in sys.executable:#pragma: no cover
+            pythonExecutable = "pvpython"
+            pyumatFolder = "pvpyumat"
+        else:
+            pythonExecutable = sys.executable
+            pyumatFolder = "pyumat"
+
+
+
+        code="""
 import sys
-from Mordicus.Modules.Safran.External.pyumat import py3umat as pyumat
+from Mordicus.Modules.Safran.External."""+pyumatFolder+""" import py3umat as pyumat
 import numpy as np
 
 cmname = '"""+materialFileName+"""'
@@ -504,7 +525,7 @@ stress = np.zeros(6)
 
 statev = np.zeros(nstatv)
 
-ddsdde = np.zeros((6,6),dtype=np.float)
+ddsdde = np.zeros((6,6),dtype=float)
 
 sse = 0.
 spd = 0.
@@ -544,152 +565,168 @@ kstep = np.array([1,1,0,0], dtype=int)
 kinc  = 1
 
 ddsddeNew = pyumat.umat(stress=stress,statev=statev,ddsdde=ddsdde,sse=sse,spd=spd,scd=scd,rpl=rpl,ddsddt=ddsddt,drplde=drplde,drpldt=drpldt,stran=stran,dstran=dstran,time=timesim,dtime=dtime,
-                        temp=temperature,dtemp=dtemp,predef=predef,dpred=dpred,cmname=cmname,ndi=ndi,nshr=nshr,ntens=ntens,nstatv=nstatv,props=props,nprops=nprops,coords=coords,drot=drot,pnewdt=pnewdt,celent=celent,dfgrd0=dfgrd0,
-        dfgrd1=dfgrd1,noel=noel,npt=npt,kslay=kslay,kspt=kspt,kstep=kstep,kinc=kinc)"""
+                temp=temperature,dtemp=dtemp,predef=predef,dpred=dpred,cmname=cmname,ndi=ndi,nshr=nshr,ntens=ntens,nstatv=nstatv,props=props,nprops=nprops,coords=coords,drot=drot,pnewdt=pnewdt,celent=celent,dfgrd0=dfgrd0,
+dfgrd1=dfgrd1,noel=noel,npt=npt,kslay=kslay,kspt=kspt,kstep=kstep,kinc=kinc)"""
 
-                import tempfile
-                tmpFile = tempfile.gettempdir()+os.sep
-
-
-                f = open(tmpFile+"materialtest"+suffix+".py","w")
-                f.write(code)
-                f.close()
-
-                import subprocess
-                import signal
-
-                def handler(signum, frame):# pragma: no cover
-                    raise Exception("end of time")
-
-                signal.signal(signal.SIGALRM, handler)
-
-                out = None
-                while out == None:
-                    try:
-                        signal.alarm(10)
-                        out = subprocess.run([sys.executable, tmpFile+"materialtest"+suffix+".py"], stdout=subprocess.PIPE).stdout.decode("utf-8")
-                    except:# pragma: no cover
-                        True
-                    signal.alarm(0)
-
-                outlines = out.split(u"\n")
-
-                seplines = []
-                for i in range(len(outlines)):
-                    if "============================================" in outlines[i]:
-                        seplines.append(i)
-                    if "done with material file reading" in outlines[i]:
-                        lastline = i
-                outlines = outlines[seplines[-2]:]
-
-                names = ['Flux', 'Grad','var_int','var_aux','Extra Zmat']
-
-                def parser(fname, obj):
-                        cont = 1
-                        line = 0
-                        while line < len(outlines):
-                            if fname in outlines[line]:
-                                line +=1
-                                while any(word in outlines[line].strip() for word in names) == False and len(outlines[line].strip())>0  and outlines[line][0] != "=":
-                                    if outlines[line][0] != " ":
-                                        break# pragma: no cover
-                                    fnames = outlines[line].strip().split()
-                                    for i in range(len(fnames)):
-                                        if '--' in fnames[i]:
-                                            cont = 0
-                                        if cont == 1:
-                                            obj.append(fnames[i].split("(")[0])
-                                    line +=1
-                            else:
-                                line +=1
-
-                constitutiveLawVariables['flux'] = []
-                constitutiveLawVariables['grad'] = []
-                constitutiveLawVariables['var_int'] = []
-                constitutiveLawVariables['var_aux'] = []
-                constitutiveLawVariables['var_extra'] = []
-                parser("Flux", constitutiveLawVariables['flux'])
-                parser("Grad", constitutiveLawVariables['grad'])
-                parser("var_int", constitutiveLawVariables['var_int'])
-                parser("var_aux", constitutiveLawVariables['var_aux'])
-                parser("Extra Zmat", constitutiveLawVariables['var_extra'])
-                #print("constitutiveLawVariables['var_int']   =", constitutiveLawVariables['var_int'])
-                #print("constitutiveLawVariables['var_aux']   =", constitutiveLawVariables['var_aux'])
-                #print("constitutiveLawVariables['var_extra'] =", constitutiveLawVariables['var_extra'])
-                os.system("rm -rf "+tmpFile+"materialtest"+suffix+".py")
-
-                constitutiveLawVariables['var'] = constitutiveLawVariables['grad'] + constitutiveLawVariables['flux'] + constitutiveLawVariables['var_int'] + constitutiveLawVariables['var_aux'] + constitutiveLawVariables['var_extra']
-
-                #Initialize Zmat quantities
-                constitutiveLawVariables['cmname']      = materialFileName
-                constitutiveLawVariables['nstatv']      = len(constitutiveLawVariables['var_int']) + len(constitutiveLawVariables['var_aux']) +  len(constitutiveLawVariables['var_extra'])
-                constitutiveLawVariables['ndi']         = 3
-                constitutiveLawVariables['nshr']        = 3
-                constitutiveLawVariables['ntens']       = constitutiveLawVariables['ndi'] + constitutiveLawVariables['nshr']
-                constitutiveLawVariables['statev']      = np.zeros(constitutiveLawVariables['nstatv'])
-                constitutiveLawVariables['ddsddt']      = np.zeros(constitutiveLawVariables['ntens'])
-                constitutiveLawVariables['drplde']      = np.zeros(constitutiveLawVariables['ntens'])
-                constitutiveLawVariables['stress']      = np.zeros(6)
-                constitutiveLawVariables['ddsdde']      = np.zeros((6,6),dtype=np.float)
-                constitutiveLawVariables['sse']         = 0.
-                constitutiveLawVariables['spd']         = 0.
-                constitutiveLawVariables['scd']         = 0.
-                constitutiveLawVariables['rpl']         = 0.
-                constitutiveLawVariables['drpldt']      = 0.
-                constitutiveLawVariables['stran']       = np.zeros(6)
-                constitutiveLawVariables['dstran']      = np.zeros(6)
-                constitutiveLawVariables['timesim']     = np.array([0.,0.1])
-                constitutiveLawVariables['dtime']       = 1.
-                constitutiveLawVariables['temperature'] = 0.
-                constitutiveLawVariables['dtemp']       = 0.
-                constitutiveLawVariables['predef']      = np.zeros(1)
-                constitutiveLawVariables['dpred']       = np.zeros(1)
-                constitutiveLawVariables['nprops']      = 1
-                constitutiveLawVariables['props']       = np.zeros(constitutiveLawVariables['nprops'])
-                constitutiveLawVariables['coords']      = np.zeros(3, dtype= float)
-                constitutiveLawVariables['drot']        = np.zeros((3,3), dtype= float)
-                constitutiveLawVariables['pnewdt']      = 1.
-                constitutiveLawVariables['celent']      = 1.
-                constitutiveLawVariables['dfgrd0']      = np.zeros((3,3), dtype = float)
-                constitutiveLawVariables['dfgrd1']      = np.zeros((3,3), dtype = float)
-                constitutiveLawVariables['noel']        = 0
-                constitutiveLawVariables['npt']         = 0
-                constitutiveLawVariables['kslay']       = 1
-                constitutiveLawVariables['kspt']        = 1
-                constitutiveLawVariables['kstep']       = np.array([1,1,0,0], dtype=int)
-                constitutiveLawVariables['kinc']        = 1
-
-                constitutiveLaw.SetConstitutiveLawVariables(constitutiveLawVariables)
-
-                os.chdir(curFolder)
+        import tempfile
+        tmpFile = tempfile.gettempdir()+os.sep
 
 
-                return constitutiveLaw
+        f = open(tmpFile+"materialtest"+suffix+".py","w")
+        f.write(code)
+        f.close()
 
-            if behavior == "linear_elastic":
+        import subprocess
+        import signal
 
-                from Mordicus.Modules.Safran.Containers.ConstitutiveLaws import MecaUniformLinearElasticity as MULE
+        def handler(signum, frame):# pragma: no cover
+            raise Exception("end of time")
 
-                data = ZIO.ReadInp2(folder + materialFileName, startingNstar=3)
-                elasticity = ZIO.GetFromInp(data,{'3':['behavior'], '2':['elasticity']})[0]
+        signal.signal(signal.SIGALRM, handler)
 
-                ranks = {}
-                for i in range(3):
-                    ranks[elasticity[i][0]] = i
+        out = None
+        while out == None:
+            try:
+                signal.alarm(10)
+                out = subprocess.run([pythonExecutable, tmpFile+"materialtest"+suffix+".py"], stdout=subprocess.PIPE).stdout.decode("utf-8")
 
-                if elasticity[ranks['elasticity']][1] != "isotropic":
-                    raise ValueError("only isotropic elasticity available for linear-elastic laws")#pragma: no cover
+            except:# pragma: no cover
+                True
+            signal.alarm(0)
 
-                young = float(elasticity[ranks['young']][1])
-                if young =="temperature":
-                    raise ValueError("only uniform young available for linear-elastic laws")#pragma: no cover
+        outlines = out.split(u"\n")
 
-                poisson = float(elasticity[ranks['poisson']][1])
+        seplines = []
+        for i in range(len(outlines)):
+            if "============================================" in outlines[i]:
+                seplines.append(i)
+            if "done with material file reading" in outlines[i]:
+                lastline = i
+        outlines = outlines[seplines[-2]:]
 
-                return MULE.TestMecaConstitutiveLaw(set, young, poisson, density)
+        names = ['Flux', 'Grad','var_int','var_aux','Extra Zmat']
 
-            else:
-                raise ValueError("behavior law of type "+behavior+" not known")#pragma: no cover
+
+        def parser(fname, obj):
+                cont = 1
+                line = 0
+                while line < len(outlines):
+                    if fname in outlines[line]:
+                        line +=1
+                        while any(word in outlines[line].strip() for word in names) == False and len(outlines[line].strip())>0  and outlines[line][0] != "=":
+                            if outlines[line][0] != " ":
+                                break# pragma: no cover
+                            fnames = outlines[line].strip().split()
+                            for i in range(len(fnames)):
+                                if '--' in fnames[i]:
+                                    cont = 0
+                                if cont == 1:
+                                    obj.append(fnames[i].split("(")[0])
+                            line +=1
+                    else:
+                        line +=1
+
+
+        constitutiveLawVariables['flux'] = []
+        constitutiveLawVariables['grad'] = []
+        constitutiveLawVariables['var_int'] = []
+        constitutiveLawVariables['var_aux'] = []
+        constitutiveLawVariables['var_extra'] = []
+        parser("Flux", constitutiveLawVariables['flux'])
+        parser("Grad", constitutiveLawVariables['grad'])
+        parser("var_int", constitutiveLawVariables['var_int'])
+        parser("var_aux", constitutiveLawVariables['var_aux'])
+        parser("Extra Zmat", constitutiveLawVariables['var_extra'])
+        #print("constitutiveLawVariables['var_int']   =", constitutiveLawVariables['var_int'])
+        #print("constitutiveLawVariables['var_aux']   =", constitutiveLawVariables['var_aux'])
+        #print("constitutiveLawVariables['var_extra'] =", constitutiveLawVariables['var_extra'])
+        os.system("rm -rf "+tmpFile+"materialtest"+suffix+".py")
+
+        constitutiveLawVariables['var'] = constitutiveLawVariables['grad'] + constitutiveLawVariables['flux'] + constitutiveLawVariables['var_int'] + constitutiveLawVariables['var_aux'] + constitutiveLawVariables['var_extra']
+
+        #Initialize Zmat quantities
+        constitutiveLawVariables['cmname']      = materialFileName
+        constitutiveLawVariables['nstatv']      = len(constitutiveLawVariables['var_int']) + len(constitutiveLawVariables['var_aux']) +  len(constitutiveLawVariables['var_extra'])
+        constitutiveLawVariables['ndi']         = 3
+        constitutiveLawVariables['nshr']        = 3
+        constitutiveLawVariables['ntens']       = constitutiveLawVariables['ndi'] + constitutiveLawVariables['nshr']
+        constitutiveLawVariables['statev']      = np.zeros(constitutiveLawVariables['nstatv'])
+        constitutiveLawVariables['ddsddt']      = np.zeros(constitutiveLawVariables['ntens'])
+        constitutiveLawVariables['drplde']      = np.zeros(constitutiveLawVariables['ntens'])
+        constitutiveLawVariables['stress']      = np.zeros(6)
+        constitutiveLawVariables['ddsdde']      = np.zeros((6,6),dtype=np.float)
+        constitutiveLawVariables['sse']         = 0.
+        constitutiveLawVariables['spd']         = 0.
+        constitutiveLawVariables['scd']         = 0.
+        constitutiveLawVariables['rpl']         = 0.
+        constitutiveLawVariables['drpldt']      = 0.
+        constitutiveLawVariables['stran']       = np.zeros(6)
+        constitutiveLawVariables['dstran']      = np.zeros(6)
+        constitutiveLawVariables['timesim']     = np.array([0.,0.1])
+        constitutiveLawVariables['dtime']       = 1.
+        constitutiveLawVariables['temperature'] = 0.
+        constitutiveLawVariables['dtemp']       = 0.
+        constitutiveLawVariables['predef']      = np.zeros(1)
+        constitutiveLawVariables['dpred']       = np.zeros(1)
+        constitutiveLawVariables['nprops']      = 1
+        constitutiveLawVariables['props']       = np.zeros(constitutiveLawVariables['nprops'])
+        constitutiveLawVariables['coords']      = np.zeros(3, dtype= float)
+        constitutiveLawVariables['drot']        = np.zeros((3,3), dtype= float)
+        constitutiveLawVariables['pnewdt']      = 1.
+        constitutiveLawVariables['celent']      = 1.
+        constitutiveLawVariables['dfgrd0']      = np.zeros((3,3), dtype = float)
+        constitutiveLawVariables['dfgrd1']      = np.zeros((3,3), dtype = float)
+        constitutiveLawVariables['noel']        = 0
+        constitutiveLawVariables['npt']         = 0
+        constitutiveLawVariables['kslay']       = 1
+        constitutiveLawVariables['kspt']        = 1
+        constitutiveLawVariables['kstep']       = np.array([1,1,0,0], dtype=int)
+        constitutiveLawVariables['kinc']        = 1
+
+        constitutiveLaw.SetConstitutiveLawVariables(constitutiveLawVariables)
+
+        os.chdir(curFolder)
+
+
+        return constitutiveLaw
+
+
+    if behavior == "linear_elastic":
+
+        from Mordicus.Modules.Safran.Containers.ConstitutiveLaws import MecaUniformLinearElasticity as MULE
+
+        data = ZIO.ReadInp2(folder + materialFileName, startingNstar=3)
+        elasticity = ZIO.GetFromInp(data,{'3':['behavior'], '2':['elasticity']})[0]
+
+        ranks = {}
+        for i in range(3):
+            ranks[elasticity[i][0]] = i
+
+        if elasticity[ranks['elasticity']][1] != "isotropic":
+            raise ValueError("only isotropic elasticity available for linear-elastic laws")#pragma: no cover
+
+        young = float(elasticity[ranks['young']][1])
+        if young =="temperature":
+            raise ValueError("only uniform young available for linear-elastic laws")#pragma: no cover
+
+        poisson = float(elasticity[ranks['poisson']][1])
+
+        return MULE.TestMecaConstitutiveLaw(set, young, poisson, density)
+
+    else:
+        raise ValueError("behavior law of type "+behavior+" not known")#pragma: no cover
+
+
+
+def UpdateFileName(fileName):
+
+    if MPI.COMM_WORLD.Get_size() > 1: # pragma: no cover
+        stem = str(Path(fileName).stem)
+        suffix = str(Path(fileName).suffix)
+        fileName = stem + "-" + str(MPI.COMM_WORLD.Get_rank()+1).zfill(3) + suffix
+
+    return fileName
+
 
 
 if __name__ == "__main__":# pragma: no cover

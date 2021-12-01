@@ -10,7 +10,13 @@ if MPI.COMM_WORLD.Get_size() > 1: # pragma: no cover
 import numpy as np
 
 from Mordicus.Core.Containers.ConstitutiveLaws.ConstitutiveLawBase import ConstitutiveLawBase
-from Mordicus.Modules.Safran.External.pyumat import py3umat as pyumat
+
+
+import sys
+if "vtkpython" in sys.executable:# pragma: no cover
+    from Mordicus.Modules.Safran.External.pvpyumat import py3umat as pyumat
+else:
+    from Mordicus.Modules.Safran.External.pyumat import py3umat as pyumat
 
 indices = [0,1,2,3,5,4]
 #indices = [0,1,2,3,4,5]
@@ -87,7 +93,7 @@ class ZmatConstitutiveLaw(ConstitutiveLawBase):
             ddsdde[k,:,:] = self.PyumatCall(k, temperature, dtemp, stran, dstran, statev)
 
             stress[k,:] = self.constitutiveLawVariables['stress']
-            
+
 
         ddsdde = ddsdde[:,:,indices]
         ddsdde = ddsdde[:,indices,:]

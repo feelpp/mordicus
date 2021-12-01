@@ -17,14 +17,14 @@ def UpdateFileName(fileName):
 
 
 
-def SaveState(fileName, object):
+def SaveState(fileName, obj):
     """
     1
     """
     outputName = UpdateFileName(fileName) + ".pkl"
 
     output = open(outputName, "wb")
-    pickle.dump(object, output)
+    pickle.dump(obj, output)
     output.close()
 
 

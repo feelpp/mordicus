@@ -31,6 +31,7 @@ def test():
     collectionProblemData.AddReducedOrderBasis("U", reducedOrdrBasis)
     collectionProblemData.CompressSolutions("U")
 
+
     return "ok"
 
 

@@ -44,7 +44,8 @@ def test():
     meshFileName = folder + "cube.geof"
     mesh = ZMR.ReadMesh(meshFileName)
 
-    onlineProblemData = PD.ProblemData(folder)
+    onlineProblemData = PD.ProblemData("Online")
+    onlineProblemData.SetDataFolder(folder)
 
     timeSequence = inputReader.ReadInputTimeSequence()
 
@@ -54,7 +55,7 @@ def test():
     loadingList = inputReader.ConstructLoadingsList()
     onlineProblemData.AddLoading(loadingList)
     for loading in onlineProblemData.GetLoadingsForSolution("U"):
-        loading.ReduceLoading(mesh, onlineProblemData, reducedOrderBases, operatorCompressionData) 
+        loading.ReduceLoading(mesh, onlineProblemData, reducedOrderBases, operatorCompressionData)
 
     initialCondition = inputReader.ConstructInitialCondition()
     onlineProblemData.SetInitialCondition(initialCondition)
@@ -129,7 +130,7 @@ def test():
 
     folderHandler.SwitchToExecutionFolder()
 
-    assert np.max(ROMErrors) < 1.e-3, "!!! Regression detected !!! ROMErrors have become too large"
+    assert np.max(ROMErrors) < 5.e-3, "!!! Regression detected !!! ROMErrors have become too large"
 
 
 

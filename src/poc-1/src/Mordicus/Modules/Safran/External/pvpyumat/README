@@ -1,0 +1,85 @@
+############################################ Safran Tech / M&S / CAM ################################################## 
+################### Interface python pour les solveurs de loi de comportement Abaqus et Zebulon #######################
+
+
+################### Description ###################
+
+Les packages pyumat et py3umat (en python2 et python3 respectivement) permettent des appels natifs de l'API umat
+d'Abaqus, avec des objets numpy comme parametres de sortie en d entree. 
+
+La doc Abaqus de l'API umat est disponible a l adresse
+https://help.3ds.com/2017/english/dssimulia_established/simacaesubrefmap/simasub-c-umat.htm?contextscope=all
+
+Le detail des parametres d entree (D) et de sortie (S) sont reproduits ci-dessous:
+
+D/S stress (NTENS): The measure of stress used is "true" (Cauchy) stress 
+D/S statev (NSTATV): An array containing the solution-dependent state variables
+S ddsdde (NTENS,NTENS):  matrice tangente DDeltasigma/dDeltaEpsilon 
+
+D/S sse (1): Specific elastic strain energy (has no effect on the solution)
+D/S spd (1): plastic dissipation (has no effect on the solution)
+D/S scd (1): "creep" dissipation (has no effect on the solution)
+
+
+(only in fully coupled)
+S rpl (1): Volumetric heat generation
+S ddsddt (NTENS): Variation of the stress increments with respect to the temperature
+S drplde (NTENS): Variation of RPL with respect to the strain increments
+S drpldt (1):Variation of RPL with respect to the temperature.
+
+
+D stran (NTENS): total strains at the beginning of the increment.
+D dstran (NTENS): Array of strain increments.                                                                                     
+D time (2): [value of the step time at the beginning of the current increment, Value of total time at the beginning of the current increment.]
+D dtime (1): time increment  
+D temp (1) : Temperature at the start of the increment.
+D dtemp (1): increment of temperature 
+
+D predef (?) : Array of interpolated values of predefined field variables at this point at the start of the increment, based on the values read in at the nodes.
+D dpred (?) : Array of increments of predefined field variables.
+D cmname (8) : 
+User-defined material name, left justified. Some internal material models are given names starting with the ?ABQ_? character string. To avoid conflict, you should not use "ABQ_" as the leading string for CMNAME.
+D ndi (1) : Number of direct stress components at this point.
+D nshr (1): Number of engineering shear stress components at this point.
+D ntens (1) : Size of the stress or strain component array (NDI + NSHR).
+D nstatv (1): Number of solution-dependent state variables that are associated with this material type (defined as described in Allocating space).
+D props(NPROPS) : User-specified array of material constants associated with this user material.
+D NPROPS (1): User-defined number of material constants associated with this user material.
+D COORDS (3) : An array containing the coordinates of this point. These are the current coordinates if geometric nonlinearity is accounted for during the step (see Defining an analysis); otherwise, the array contains the original coordinates of the point.
+D drot (3,3): rotation increment matrix
+
+S pnewdt (1): ratio of suggested new time increment to the time increment being used
+D celent (1) : Characteristic element length
+D dfgrd0 (3,3) : Array containing the deformation gradient at the beginning of the increment
+D dfgrd1 (3,3) : Array containing the deformation gradient at the end of the increment
+D noel (1): Element number 
+D npt (1): Integration point number
+
+
+D kslay (1): Layer number (for composite shells and layered solids).
+D KSPT (1): Section point number within the current layer.
+D JSTEP(4) : Step number.
+             Procedure type key (see ?Results file output format,? Section 5.1.2 of the Abaqus Analysis User?s Guide).
+             1 if NLGEOM=YES for the current step; 0 otherwise.
+             1 if current step is a linear perturbation procedure; 0 otherwise.
+D KINC(1) :  Increment number
+
+
+################### Compilation ###################
+use the makefile for up to date conpilation recepies
+
+
+To compile with a python compatible with paraview calls !
+You need a python, a compiler and a version of Zset to compile and use !
+
+Tested with compilers/gnu-7.2.0, zset/9.1.0 and conda env PourParaView5.9.1
+
+python3 :
+f2py3 umat.f -m py3umat -h umat3.pyf --overwrite-signature
+sed -i '13s/.*/            real*8 dimension(ntens,ntens),intent(in,out),depend(ntens,ntens) :: ddsdde/' umat3.pyf
+f2py3 -c umat3.pyf umat.f -m py3umat -L${Z7PATH}PUBLIC/lib-Linux_64 -lZmat_base -lZfem_base --build-dir ./build
+
+
+################### Convention ###################
+Attention aux conventions sur les tenseurs, differentes entre Zebulon et Abaqus. Se referer aux tests.
+

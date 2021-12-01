@@ -8,7 +8,10 @@ def test():
     Mat = np.random.rand(10, 10)
     Mat[np.triu_indices(10, 1)] = 0.0
 
+    SVD.TruncatedSVDSymLower(Mat)
     SVD.TruncatedSVDSymLower(Mat, 1.0e-6)
+    SVD.TruncatedSVDSymLower(Mat, nbModes = 5)
+    SVD.TruncatedSVDSymLower(Mat, nbModes = 11)
 
     return "ok"
 

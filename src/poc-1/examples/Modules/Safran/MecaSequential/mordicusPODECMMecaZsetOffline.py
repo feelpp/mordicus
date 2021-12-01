@@ -84,7 +84,7 @@ def test():
 
     SP.CompressData(collectionProblemData, "U", 1.e-6, snapshotCorrelationOperator["U"])
     for name in dualNames:
-        SP.CompressData(collectionProblemData, name, 1.e-6)
+        SP.CompressData(collectionProblemData, name, 1.e-6, compressSolutions = True)
 
 
     collectionProblemData.CompressSolutions("U", snapshotCorrelationOperator["U"])
@@ -108,7 +108,10 @@ def test():
 
     print("compressionErrors =", compressionErrors)
 
-    Mechanical.CompressOperator(collectionProblemData, operatorPreCompressionData, mesh, 1.e-5, listNameDualVarOutput = dualNames, listNameDualVarGappyIndicesforECM = ["evrcum"])
+    Mechanical.CompressOperator(collectionProblemData, operatorPreCompressionData, \
+                                mesh, 1.e-5, listNameDualVarOutput = dualNames, \
+                                listNameDualVarGappyIndicesforECM = ["evrcum"])
+
 
     print("CompressOperator done")
 
@@ -119,6 +122,8 @@ def test():
     folderHandler.SwitchToExecutionFolder()
 
     assert np.max(compressionErrors) < 1.e-5, "!!! Regression detected !!! compressionErrors have become too large"
+
+
 
 
 if __name__ == "__main__":

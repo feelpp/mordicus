@@ -32,11 +32,11 @@ def FitAndCost(ModesAtMask, fieldAtMask):
     fieldAtMask: maskSize
     """
     lstqr = lsq_linear(ModesAtMask.T, fieldAtMask)
- 
+
     normFieldAtMask = np.linalg.norm(fieldAtMask)
     if normFieldAtMask > 1.e-10:
         cost = lstqr['cost']/np.linalg.norm(fieldAtMask)
-    else:
+    else:# pragma: no cover
         cost = lstqr['cost']
 
     return lstqr['x'], cost

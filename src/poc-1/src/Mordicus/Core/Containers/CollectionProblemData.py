@@ -31,11 +31,12 @@ class NoAxisDuplicateDict(OrderedDict):
                 try:
                     itk = iter(k)
                     if any([ke == i for i in itk]):
-                        raise ValueError("Parameter {0} is already handled with key {1}".format(ke, k))                       
+                        raise ValueError("Parameter {0} is already handled with key {1}".format(ke, k))
                 except TypeError:
                     if ke == k:
                         raise ValueError("Parameter {0} is already handled with key {1}".format(ke, k))
         return OrderedDict.__setitem__(self, key, value)
+
 class CollectionProblemData(object):
     """
     Class containing a set of collection of problemData
@@ -120,7 +121,7 @@ class CollectionProblemData(object):
             return None # pragma: no cover
         else:
             return self.reducedOrderBases[solutionName]
-        
+
 
     def GetReducedOrderBases(self):
         """
@@ -131,7 +132,7 @@ class CollectionProblemData(object):
         reducedOrderBases : dict
             dictionary with solutionNames (str) as keys and reducedOrderBases (np.ndarray of size (numberOfModes, numberOfDOFs)) as values
         """
-        return self.reducedOrderBases        
+        return self.reducedOrderBases
 
 
     def GetReducedOrderBasisNumberOfModes(self, solutionName):
@@ -344,6 +345,10 @@ class CollectionProblemData(object):
             problemData, ProblemData.ProblemData
         ), "wrong type for problemData"
         self._checkPointInParameterSpace(**kwargs)
+
+        if tuple(kwargs.values()) in self.problemDatas.keys():
+            print("Warning: problemData at key "+str(tuple(kwargs.values()))+" already existing, overwriting it anyway")
+
         self.problemDatas[tuple(kwargs.values())] = problemData
         return
 
@@ -410,29 +415,6 @@ class CollectionProblemData(object):
         """
         return list(self.GetProblemDatas().keys())
 
-    def GetGlobalNumberOfSnapshots(self, solutionName, skipFirst = False):
-        """
-        Iterates over problemDatas to return the complete number of snpashots for solutions of name "solutionName"
-
-        Parameters
-        ----------
-        solutionName : str
-            name of the solutions for which we want to compute the total number of snapshots
-
-        Returns
-        -------
-        int
-            number of snpashots for solutions of name "solutionName"
-        """
-        if skipFirst == False:
-            offset = 0
-        else:
-            offset = -1
-
-        number = 0
-        for _, problemData in self.problemDatas.items():
-            number += problemData.solutions[solutionName].GetNumberOfSnapshots() + offset
-        return number
 
     def GetSolutionsNumberOfComponents(self, solutionName):
         """
@@ -449,13 +431,17 @@ class CollectionProblemData(object):
         int
             nbeOfComponents of solutions of name "solutionName"
         """
-        nbeOfComponents = [
-            problemData.solutions[solutionName].GetNbeOfComponents()
-            for _, problemData in self.GetProblemDatas().items()
-        ]
+
+        nbeOfComponents = []
+        for _, problemData in self.GetProblemDatas().items():
+            try:
+                nbeOfComponents.append(problemData.GetSolution(solutionName).GetNbeOfComponents())
+            except KeyError:# pragma: no cover
+                continue
         assert nbeOfComponents.count(nbeOfComponents[0]) == len(nbeOfComponents)
 
         return nbeOfComponents[0]
+
 
     def GetSolutionsNumberOfDofs(self, solutionName):
         """
@@ -472,13 +458,17 @@ class CollectionProblemData(object):
         int
             nbeOfDofs of solutions of name "solutionName"
         """
-        nbeOfDofs = [
-            problemData.solutions[solutionName].GetNumberOfDofs()
-            for _, problemData in self.GetProblemDatas().items()
-        ]
+
+        nbeOfDofs = []
+        for _, problemData in self.GetProblemDatas().items():
+            try:
+                nbeOfDofs.append(problemData.GetSolution(solutionName).GetNumberOfDofs())
+            except KeyError:# pragma: no cover
+                continue
         assert nbeOfDofs.count(nbeOfDofs[0]) == len(nbeOfDofs)
 
         return nbeOfDofs[0]
+
 
     def GetSolutionsNumberOfNodes(self, solutionName):
         """
@@ -518,23 +508,26 @@ class CollectionProblemData(object):
         iterator
             an iterator over snapshots of solutions of name "solutionName" in all problemDatas
         """
+
         this = self
         self._checkSolutionName(solutionName)
         class iterator:
             def __init__(self, solutionName, skipFirst):
                 self.solutionName = solutionName
-                self.skipFirst = skipFirst
                 self.problemDatas = this.problemDatas
+                if skipFirst == False:
+                    self.startIndex = 0
+                else:
+                    self.startIndex = 1
 
             def __iter__(self):
                 for problemData in self.problemDatas.values():
-                    if self.skipFirst == False:
-                        localIterator = problemData.solutions[self.solutionName].snapshots.values()
-                    else:
-                        localIterator = list(problemData.solutions[self.solutionName].snapshots.values())[1:]
-                    for snapshot in localIterator:
-                        yield snapshot
-
+                    try:
+                        localIterator = problemData.GetSolution(self.solutionName).GetSnapshotsList()[self.startIndex:]
+                        for snapshot in localIterator:
+                            yield snapshot
+                    except KeyError:# pragma: no cover
+                        continue
 
         res = iterator(solutionName, skipFirst)
         return res
@@ -543,18 +536,177 @@ class CollectionProblemData(object):
     def GetSnapshots(self, solutionName, skipFirst = False):
         """
         GetSnapshots
+
+        Returns
+        -------
+        np.ndarray
+            of size (nbSnapshots, numberOfDofs)
         """
         self._checkSolutionName(solutionName)
         nbSnapshots = self.GetGlobalNumberOfSnapshots(solutionName, skipFirst)
-        nbDofs = self.GetSolutionsNumberOfDofs(solutionName)
+        numberOfDofs = self.GetSolutionsNumberOfDofs(solutionName)
 
-        snapshots = np.empty((nbSnapshots, nbDofs))
-
+        snapshots = np.empty((nbSnapshots, numberOfDofs))
         for i, s in enumerate(self.SnapshotsIterator(solutionName, skipFirst)):
             snapshots[i,:] = s
 
         return snapshots
 
+
+
+    def GetLoadingsOfType(self, type):
+        """
+        GetBoundaryConditionsOfType
+        """
+        li = []
+        for _, problemData in self.GetProblemDatas().items():
+            li.extend(problemData.GetLoadingsOfType(type))
+        return li
+
+
+
+    def GetSnapshotsAtTimes(self, solutionName, timeSequence):
+        """
+        GetSnapshotsAtTimes
+        """
+        self._checkSolutionName(solutionName)
+        nbTimeSteps = np.array(timeSequence).shape[0]
+        nbProblemDatas = self.GetNumberOfProblemDatas()
+        numberOfDofs = self.GetSolutionsNumberOfDofs(solutionName)
+
+        snapshots = np.empty((nbTimeSteps*nbProblemDatas, numberOfDofs))
+        count = 0
+        for problemData in self.problemDatas.values():
+            solution = problemData.GetSolution(solutionName)
+            for t in timeSequence:
+                snapshots[count,:] = solution.GetSnapshotAtTime(t)
+                count += 1
+
+        return snapshots
+
+
+
+    def CompressedSnapshotsIterator(self, solutionName, skipFirst = False):
+        """
+        Constructs an iterator over compressedSnapshots of solutions of name "solutionName" in all problemDatas.
+
+        Parameters
+        ----------
+        solutionName : str
+            name of the solutions on which we want to iterate over compressedSnapshots
+
+        Returns
+        -------
+        iterator
+            an iterator over compressedSnapshots of solutions of name "solutionName" in all problemDatas
+        """
+        this = self
+        self._checkSolutionName(solutionName)
+        class iterator:
+            def __init__(self, solutionName, skipFirst):
+                self.solutionName = solutionName
+                self.problemDatas = this.problemDatas
+                if skipFirst == False:
+                    self.startIndex = 0
+                else:
+                    self.startIndex = 1
+
+            def __iter__(self):
+                for problemData in self.problemDatas.values():
+                    localIterator  = problemData.GetSolution(self.solutionName).GetCompressedSnapshotsList()[self.startIndex :]
+                    for snapshot in localIterator:
+                        yield snapshot
+
+        res = iterator(solutionName, skipFirst)
+        return res
+
+
+
+    def GetCompressedSnapshots(self, solutionName, skipFirst = False):
+        """
+        GetReducedSnapshots
+        """
+        self._checkSolutionName(solutionName)
+        nbSnapshots = self.GetGlobalNumberOfSnapshots(solutionName, skipFirst)
+        numberOfModes = self.GetReducedOrderBasisNumberOfModes(solutionName)
+
+        compressedSnapshots = np.empty((nbSnapshots, numberOfModes))
+
+        for i, s in enumerate(self.CompressedSnapshotsIterator(solutionName, skipFirst)):
+            compressedSnapshots[i,:] = s
+
+        return compressedSnapshots
+
+
+
+    def GetCompressedSnapshotsAtTimes(self, solutionName, timeSequence):
+        """
+        GetCompressedSnapshotsAtTimes
+        """
+        self._checkSolutionName(solutionName)
+        nbTimeSteps = np.array(timeSequence).shape[0]
+        nbProblemDatas = self.GetNumberOfProblemDatas()
+        numberOfModes = self.GetReducedOrderBasisNumberOfModes(solutionName)
+
+        compressedSnapshots = np.empty((nbTimeSteps*nbProblemDatas, numberOfModes))
+        count = 0
+        for problemData in self.problemDatas.values():
+            solution = problemData.GetSolution(solutionName)
+            for t in timeSequence:
+                compressedSnapshots[count,:] = solution.GetCompressedSnapshotsAtTime(t)
+                count += 1
+
+        return compressedSnapshots
+
+
+
+    def GetGlobalNumberOfSnapshots(self, solutionName, skipFirst = False):
+        """
+        Iterates over problemDatas to return the complete number of snpashots for solutions of name "solutionName"
+
+        Parameters
+        ----------
+        solutionName : str
+            name of the solutions for which we want to compute the total number of snapshots
+
+        Returns
+        -------
+        int
+            number of snpashots for solutions of name "solutionName"
+        """
+        if skipFirst == False:
+            offset = 0
+        else:
+            offset = -1
+
+        number = 0
+        for _, problemData in self.problemDatas.items():
+            try:
+                number += problemData.GetSolution(solutionName).GetNumberOfSnapshots() + offset
+            except KeyError:# pragma: no cover
+                continue
+        return number
+
+
+    def GetSolutionTimeSteps(self, solutionName, skipFirst = False):
+        """
+        GetTimeSteps
+
+        Parameters
+        ----------
+        solutionName : str
+            name of the solutions for which we want to compute the total number of snapshots
+        """
+        if skipFirst == False:
+            startIndex = 0
+        else:
+            startIndex = 1
+
+        solutionTimeSteps = np.array([])
+        for _, problemData in self.problemDatas.items():
+            solutionTimeSteps = np.append(solutionTimeSteps, problemData.GetSolution(solutionName).GetTimeSequenceFromSnapshots()[startIndex:], 0)
+
+        return solutionTimeSteps
 
 
     def CompressSolutions(self, solutionName, snapshotCorrelationOperator = None):
@@ -631,27 +783,27 @@ class CollectionProblemData(object):
     def SetTemplateDataset(self, templateDataset):
         """
         Template dataset to compute high-fidelity solution
-        
+
         Parameters:
         -----------
         templateDataset : Dataset
         """
         self.templateDataset = templateDataset
-        
+
     def SetReducedTemplateDataset(self, reducedTemplateDataset):
         """
         Template dataset to compute reduced solution
-        
+
         Parameters:
         -----------
         templateDataset : Dataset
         """
         self.reducedTemplateDataset = reducedTemplateDataset
-        
+
     def solve(self, **kwargs):
         """
         New high-fidelity model evaluation
-        
+
         Parameters:
         -----------
         kwargs: (parameter_name=value) name of the variability as key and value stays value.
@@ -661,7 +813,7 @@ class CollectionProblemData(object):
         solutionReaderType = kwargs.pop("solutionReaderType", None)
 
         dataset = self.templateDataset.instantiate(**kwargs)
-        
+
         # populate information for the structure
         return dataset.run(extract=extract,
                            solutionStructures=self.solutionStructures,
@@ -671,7 +823,7 @@ class CollectionProblemData(object):
     def solve_reduced(self, **kwargs):
         """
         New high-fidelity model evaluation
-        
+
         Parameters:
         -----------
          kwargs: (parameter_name=value) name of the variability as key and value stays value.
@@ -682,7 +834,7 @@ class CollectionProblemData(object):
 
         kwargs["reduced"] = True
         dataset = self.reducedTemplateDataset.instantiate(**kwargs)
-        
+
         # populate information for the structure
         return (dataset.run(extract=extract,
                            solutionStructures=self.solutionStructures,
@@ -704,14 +856,14 @@ class CollectionProblemData(object):
         ----------
         solutionName : str
            identifier of the physical quantity, e.g. "U", "sigma"
-           
+
         Returns
         -------
         SolutionStructureBase
             solution structure for the demanded solution
         """
         return self.solutionStructures[solutionName]
-    
+
     def SetSolutionStructure(self, solutionName, solutionStructure):
         """
         Parameters
@@ -731,11 +883,11 @@ class CollectionProblemData(object):
             iterable over the identifiers (str or tuple(str)) of parameters
         ndarrays : iterable
             iterable over the discrete support for each identifier
-            
+
         Note:
             Parameters may have a tuple of parameters as a component, when the discrete
             support along these two or more parameters is not cartesian.
-            
+
             Then, the corresponding ndarray has shape (numberOfPoints, numerOfParametersInTuple)
 
             The whole discrete support is generated as a cartesian product of discrete supports.
@@ -749,12 +901,12 @@ class CollectionProblemData(object):
     def generateVariabilitySupport(self):
         """
         Realizes the catersian product to generate full grid for variability support
-        
+
         Returns
         -------
         ndarray
             ndarray of shape(totalNumberOfPoints, numberOfParameters) with the coordinates of points
-            
+
         Note
         ----
             on the last axis, parameters values are those of the parameters

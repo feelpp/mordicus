@@ -1,6 +1,7 @@
 # Ignoring build directory
 build/
 .metadata/
+.venv/
 RemoteSystemsTempFiles/.project
 *~
 *.DS_Store
@@ -15,8 +16,6 @@ src/poc-1/coverageReports/*
 *.so
 *.kate-swp
 *.msg
-*.sh
-*.rst
 *.spyproject*
 *.png
 *.vtu
@@ -45,3 +44,5 @@ lib/test/t_scimesh.json
 feelppdb/
 build-*
 __pycache__
+#IDE
+src/poc-1/.vscode/

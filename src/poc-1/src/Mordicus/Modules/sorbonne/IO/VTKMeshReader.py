@@ -119,11 +119,9 @@ class VTKMeshReader(MeshReaderBase):
         """
 
         suffix = str(Path(self.meshFileName).suffix)
-        if suffix == ".vtu":  # pragma: no cover
-            from BasicTools.IO.VtuReader import LoadVtuWithVTK 
-
-        else:  # pragma: no cover
-            raise ("FileName error!")
+        assert suffix == ".vtu", "! Filename error !"
+      
+        from BasicTools.IO.VtuReader import LoadVtuWithVTK 
 
         VTKBase = LoadVtuWithVTK(self.meshFileName)
 

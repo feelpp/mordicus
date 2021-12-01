@@ -20,11 +20,12 @@ def test():
     FT.ComputeH10ScalarProductMatrix(mesh, 1)
     FT.ComputeNumberOfIntegrationPoints(mesh)
     listOfTags = FT.ComputeIntegrationPointsTags(mesh, 3)
-    
+
     FT.ComputePhiAtIntegPoint(mesh)
     FT.ComputeGradPhiAtIntegPoint(mesh)
     FT.ComputeNormalsAtIntegPoint(mesh)
-    
+    FT.ComputeJdetAtIntegPoint(mesh)
+
     FT.ComputeIndicesOfIntegPointsPerMaterial(listOfTags, set(["EVP","ELAS"]))
 
     length = len(mesh.GetInternalStorage().elements["quad4"].tags["x0"].GetIds())
@@ -37,4 +38,4 @@ def test():
 
 if __name__ == "__main__":
     print(test())  # pragma: no cover
-    
+

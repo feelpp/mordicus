@@ -1,79 +1,89 @@
-//Readme pour le module NIRB:
+//Readme NIRB Sorbonne module:
+
+// General script
+
+
+In NIRBOffline.py:
+
+modify:
+	. the names of the folders
+
+	"""
+	# 3D Case (3D example)
+	externalFolder=osp.join(currentFolder,'3Dcase/External') #FreeFem scripts
+	OfflineResuFolder=osp.join(currentFolder,'3Dcase/3DData/FineSnapshots/') #folder for offline resu
+	FineDataFolder=osp.join(currentFolder,'3Dcase/3DData/FineSnapshots/') #folder for fine snapshots
+	CoarseDataFolder=osp.join(currentFolder,'3Dcase/3DData/CoarseSnapshots/') #folder for coarse snapshots
+	FineMeshFolder=osp.join(currentFolder,'3Dcase/3DData/FineMesh/') #folder for fine mesh (needed with Freefem snapshots)
+	CoarseMeshFolder=osp.join(currentFolder,'3Dcase/3DData/CoarseMesh/') #folder for coarse mesh (needed with Freefem)
+
+	"""
+	# 2D case (2D example)
+	externalFolder=osp.join(currentFolder,'StationaryNS/External') #FreeFem scripts
+	OfflineResuFolder=osp.join(currentFolder,'StationaryNS/StationaryNSData/FineSnapshots/') #folder for offline resu
+	FineDataFolder=osp.join(currentFolder,'StationaryNS/StationaryNSData/FineSnapshots/') #folder for fine snapshots
+	CoarseDataFolder=osp.join(currentFolder,'StationaryNS/StationaryNSData/CoarseSnapshots/') #folder for coarse snapshots
+	FineMeshFolder=osp.join(currentFolder,'StationaryNS/StationaryNSData/FineMesh/') #folder for fine mesh (needed with Freefem snapshots)
+	CoarseMeshFolder=osp.join(currentFolder,'StationaryNS/StationaryNSData/CoarseMesh/') #folder for coarse mesh (needed with Freefem)
+
+
+      . the parameters
+
+
+      dimension=2 #dimension spatial domain
+      nbeOfComponentsPrimal = 2 # number of primal components 
+      FieldName="Velocity" #Snapshots fieldname
+      Format= "FreeFem" # FreeFem or VTK
+      Method="Greedy" #POD or Greedy
+      Rectification=1 #1 with Rectification post-process (Coarse Snapshots required) or 0 without
+
+
+
 
 ************************************** 2D *******************************************************
-peut lire les maillages .msh de gmsh ou FF++ et les maillages format .vtu  
+can read .msh meshes from gmsh or FreeFem++ and .vtu meshes
 
 
-utilisation:
-_avec base Greedy (nev à priori)
-offline: python mordicus/src/poc-1/examples/Modules/Sorbonne/StationaryNS/NirbGreedyOffline.py nev
-online: python mordicus/src/poc-1/examples/Modules/Sorbonne/StationaryNS/NirbGreedyOnline.py
+use:
+_with Greedy algorithm (nev a priori/ *****  RIC needs to be added ****** )
 
-avec greedy posttraitement Rectification ajoutée
-+ interpolation basictools (basictools ajoutee dans le pythonpath)
+offline: python mordicus/src/poc-1/examples/Modules/Sorbonne/NIRBOffline.py nev
+online: python mordicus/src/poc-1/examples/Modules/Sorbonne/NIRBOnline.py
 
-_possible avec avec base pod:
-dans mordicus/src/poc-1/examples/Modules/Sorbonne/StationaryNS/NirbGreedyOffline.py: au lieu de "reducedOrderBasisU=GD.Greedy(snapshots,l2ScalarProducMatrix,h1ScalarProducMatrix,nev) # greedy algorithm" utiliser la snapshotPOD
+with greedy posttreatement Rectification added (if Rectification=1)
++ interpolation basictools (basictools must be in the pythonpath!)
+
+_possible with pod basis:
+Method="POD" #POD or Greedy (nev with RIC)
+
+
 
 _ Indications:
-FineMesh et CoarseMesh correspondent aux maillages fins et maillages grossiers
-Maillage et snapshots calculés au préalable avec FreeFem dans mordicus/src/poc-1/examples/Modules/Sorbonne/StationaryNS/script_donnees_init.edp
-(ici au format freefem, convertit en GMSH, et lit avec Basictools;)
-ns=nombre de snapshots (au début de chaque script)
-ici cas FreeFem++, avec un fichier .txt contenant tous les snapshots (ns est directement calculé, ok avec du P1)
-Ensuite les snapshots sont convertis au format vtk et sauvegardés puis lus (FFSolutionReader dans module sorbonne).
-les solutions sont ensuite lues dans une boucle et transformées en nparrays.
-Interpolations des snapshots grossiers (utilisés pour le post-traitement de la rectification avec un operator calculé à l'aide du module sorbonne InterpolationOperatorWriter (fonction InterpolationOperator peut utiliser FreeFem ou Basictools), module griddata possible en 2D avec python directement.
 
-_ Pour lancer avec un nouveau cas test 2D avec FreeFem:
+FineMesh and CoarseMesh correspond to fine and coarse meshes
+Meshes and snapshots computed beforehand with FreeFem in mordicus/src/poc-1/examples/Modules/Sorbonne/StationaryNS/script_donnees_init.edp or other solver + output in VTK
+(test freefem, converted in GMSH, and read with Basictools)
+ns=number of snapshots (directly calculated from the number of vtu files)
+Test 2D FreeFem++ case, with only one  .txt with all the snapshots (ns directly calculated, ok with P1 ******  case P2 + several fields, given in parameter needs to be added *********)
+
+Snapshots FreeFEm++: the snapshots are converted in vtk, saved and read  (FFSolutionReader in  sorbonne module). Then the solutions are read in a forloop and transformed in nparrays
+
+interpolations of the coarse snapshots (used for post-treatment or online part) : operator calculated with the sorbonne module  InterpolationOperatorWriter (InterpolationOperator function can use FreeFem or Basictools). In 2D, griddata can also be used directly
+
+_ To launch a new case :
   #### OFFLINE ####
-  mettre le maillage fin sous la forme "mesh1.msh" dans  mordicus/src/poc-1/examples/Modules/Sorbonne/StationaryNS/StationaryNSData) ou modifier ligne 76 (script offline)
-  mettre le maillage grossier sous la forme "mesh2.msh" dans StationaryNSData ou modifier ligne 77 (script offline)
-  mettre les snapshots fins dans le fichier "snapshots.txt dans StationaryNSData (ou modifier l. 81)
-  mettre les snapshots grossiers dans le fichier "coarsesnapshots.txt" (ou modifier l.82)
-  -> sortie script offline: collectionProblemData.pkl (+ Maillages au format GMSH )
-   #### ONLINE ####
+  Fine mesh in ".msh" in the folder "FineMeshFolder" (not necessary with .vtu)
+  If rectification posttreatment, coarse mesh with ".msh" in "CoarseMeshFolder"  
+  Fine snapshots in "FineDataFolder" (one file .txt for FF++)
+  If rectification,coarse snapshots in the folder " "CoarseDataFolder"
+  -> output of script offline in OfflineResuFolder: collectionProblemData.pkl (+ Meshes in GMSH format if FreeFem++ in the folders of the meshes)
   
-_ Pour lancer avec un nouveau cas test 2D avec le format VTK (et par exemple la PODSnapshots)
-   #### OFFLINE ####
-  mettre le maillage fin et les snapshots fins dans StationaryNSData (format .vtu)
-  modifier nom des fichiers snapshots sous la forme snapshots_i.vtu (i=0....ns) ou modifier l. 76 (FineSnapshotFiles=sorted(glob.glob(dataFolder+"/snapshots_*")))
-  modifier FieldName= "u" l. 74 
-  modifier le nombre de champs à lire nbeOfComponentsPrimal = 2 l.89
-  -> sortie script offline: Resultats dans collectionProblemData.pkl 
    #### ONLINE ####
-    mettre les maillages fin/grossier et les solutions fine/grossiere dans StationaryNSData (format .vtu)
-    modifier nom solution grossier soluH_0.vtu ou modifier l. 61
-    modifier nom solution fine snapshot_9.vtu l.52
-    modifier FieldName= "u" l. 34 
-    modifier le nombre de champs à lire nbeOfComponentsPrimal = 2 l.58
- -> sortie erreur H1/L2 (+ possible: approximation au format .vtu)
-
-************************************** 3D *******************************************************
-peut lire les maillages .msh de gmsh ou FF++ et les maillages .vtu
-
-attention ns: nombre de snapshots, lecture direct de ns en comptant le nombre de fichiers dans le dossier 3DData/FineSnapshots/
-
-utilisation:
-_avec base Greedy (posttraitement rectification ajoutee)
-offline: python mordicus/src/poc-1/examples/Modules/Sorbonne/3Dcase/NirbGreedyOffline_3D.py (on peut ajouter nev)
-#attention nev<=ns nombre de snapshots
-
-online: python mordicus/src/poc-1/examples/Modules/Sorbonne/3Dcase/NirbGreedyOnline_3D.py
-#interpolation avec Basictools ou FF++
-
-ns=nombre de snapshots (au début de chaque script)
-mettre les snapshots au format vtu dans 3DData/FineSnapshots sous le nom "snapshot"+str(i)+".vtu"
-pour les maillages (fin et grossier) mettre sous le nom "mesh1.vtu" et "mesh2.vtu" (format ascii .vtk pour l'interpolation dans freefem) dans 3DData/FineMesh et 3DData/CoarseMesh
-
-la solution grossiere est uHgrossier0.vtu (et sinon uHgrossier.vtk doit être au format ascii également si FF++)
-la solution grossiere peut etre lu avec basictools ou ff++
-la placer dans le repertoire 3DData/CoarseSolution
-(la solution grossiere uHgrossier.vtk doit être au format ascii également si ff++)
-
-Si greedy avec rectification: placer les vecteurs grossiers dans 3DData/CoarseSnapshots en .vtu
-
-Resultats dans 3DData/ONLINE_RESU/ (erreur et approximation)
+  Fine mesh in ".msh" in the folder "FineMeshFolder" (not necessary with .vtu)
+  If rectification posttreatment, coarse mesh with ".msh" in "CoarseMeshFolder"  
+  If computing errors (H1, L2), fine solution in "FineDataFolder" (one file .txt for FF++)
+  Coarse solution in the folder " "CoarseDataFolder"
+  -> output of script online in OnlineResuFolder: .vtu +errors (options)
 
 
 

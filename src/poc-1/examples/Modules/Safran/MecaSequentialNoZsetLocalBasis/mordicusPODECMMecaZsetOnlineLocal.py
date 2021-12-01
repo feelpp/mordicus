@@ -44,20 +44,21 @@ def test():
     meshFileName = folder + "cube.geof"
     mesh = ZMR.ReadMesh(meshFileName)
 
-    onlineProblemData = PD.ProblemData(folder)
+    onlineProblemData = PD.ProblemData("Online")
+    onlineProblemData.SetDataFolder(folder)
 
     constitutiveLawsList = inputReader.ConstructConstitutiveLawsList()
     onlineProblemData.AddConstitutiveLaw(constitutiveLawsList)
 
     loadingList = inputReader.ConstructLoadingsList()
     onlineProblemData.AddLoading(loadingList)
-        
-    
+
+
     initialCondition = inputReader.ConstructInitialCondition()
     onlineProblemData.SetInitialCondition(initialCondition)
 
     initialCondition.ReduceInitialSnapshot(reducedOrderBases[0], snapshotCorrelationOperator)
-    
+
 
     timeSequence = inputReader.ReadInputTimeSequence()
     timeSequences = [timeSequence[:len(timeSequence)//2], timeSequence[len(timeSequence)//2-1:]]

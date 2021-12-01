@@ -36,7 +36,7 @@ def test():
 
 
     compressedSnapshots = Regression.ComputeOnline(
-        onlineProblemData, operatorCompressionData
+        onlineProblemData, "TP", operatorCompressionData
     )
 
 
@@ -90,6 +90,8 @@ def test():
         compressionErrors.append(relError)
 
     folderHandler.SwitchToExecutionFolder()
+    
+    print("compressionErrors =", compressionErrors)
 
     assert np.max(compressionErrors) < 0.12, "!!! Regression detected !!! compressionErrors have become too large"
 

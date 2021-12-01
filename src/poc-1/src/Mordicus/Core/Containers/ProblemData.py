@@ -19,8 +19,10 @@ class ProblemData(object):
 
     Attributes
     ----------
+    problemName : str
+        name of the ProblemData object
     dataFolder : str
-        name of the folder containing the data of the problemData, relative to the mordicus client script
+        name of folder containing the data of the problemData, relative to the mordicus client script
     solutions : dict
         dictionary with solutionNames (str) as keys and solution (Solution) as values
     initialCondition : InitialConditionBase
@@ -33,23 +35,31 @@ class ProblemData(object):
         dictionary with time indices as keys and a np.ndarray of size (parameterDimension,) containing the parameters
     """
 
-    def __init__(self, dataFolder):
+    def __init__(self, problemName):
         """
         Parameters
         ----------
-        dataFolder : str
+        problemName : str
         solutions : dict
         initialCondition : InitialConditionBase
         loadings : dict
         constitutiveLaws : dict
         parametersValues : collections.OrderedDict
         """
-        self.dataFolder = dataFolder
+        self.problemName = problemName
+        self.dataFolder = None
         self.solutions = {}
         self.initialCondition = None
         self.loadings = {}
         self.constitutiveLaws = {}
         self.parameters = collections.OrderedDict()
+
+
+    def SetDataFolder(self, dataFolder):
+        """
+        Sets dataFolder
+        """
+        self.dataFolder = dataFolder
 
 
     def GetDataFolder(self):
@@ -83,8 +93,8 @@ class ProblemData(object):
             )
 
         self.solutions[solution.GetSolutionName()] = solution
-        
-    
+
+
 
     def DeleteSolutions(self):
         """
@@ -250,16 +260,20 @@ class ProblemData(object):
 
         Returns
         -------
-        int
+        int or None
             common parameterDimension
         """
         listParameterDimension = [
             parameter.shape[0] for _, parameter in self.GetParameters().items()
         ]
-        assert listParameterDimension.count(listParameterDimension[0]) == len(
-            listParameterDimension
-        )
-        return listParameterDimension[0]
+        if len(listParameterDimension)>0:
+            assert listParameterDimension.count(listParameterDimension[0]) == len(
+                listParameterDimension
+            )
+            return listParameterDimension[0]
+        else:# pragma: no cover
+            return None
+
 
 
     def GetParameterAtTime(self, time):
@@ -274,11 +288,14 @@ class ProblemData(object):
         np.ndarray
             parameter
         """
-        from Mordicus.Core.BasicAlgorithms import Interpolation as TI
 
-        return TI.PieceWiseLinearInterpolation(
+        return self.parameters[time]
+
+        """
+            from Mordicus.Core.BasicAlgorithms import Interpolation as TI
+            return TI.PieceWiseLinearInterpolation(
             time, list(self.parameters.keys()), list(self.parameters.values())
-        )
+        )"""
 
 
     def GetLoadings(self):
@@ -290,6 +307,19 @@ class ProblemData(object):
         """
         return self.loadings
 
+
+
+    def GetLoading(self, solutionName, type, set):
+        """
+        Returns
+        -------
+        loading
+        """
+        for loading in self.GetLoadings().values():
+            if loading.GetIdentifier() == (solutionName,type,set):
+                return loading
+        else:# pragma: no cover
+            raise("loading "+str((solutionName, type, set))+" not available")
 
 
     def GetLoadingsOfType(self, type):
@@ -304,7 +334,7 @@ class ProblemData(object):
             if loading.GetType() == type:
                 li.append(loading)# pragma: no cover
         return li
-    
+
 
     def GetLoadingsForSolution(self, solutionName):
         """
@@ -343,7 +373,7 @@ class ProblemData(object):
             if law.GetType() == type:
                 li.append(law)# pragma: no cover
         return li
-    
+
 
 
     def GetSetsOfConstitutiveOfType(self, type):
@@ -388,15 +418,18 @@ class ProblemData(object):
         """
         assert isinstance(solutionName, str)
 
-        if solutionName not in self.solutions:
+        """if solutionName not in self.solutions:
             raise AttributeError(
                 "You must provide solutions "
                 + solutionName
-                + "before trying to compress them"
-            )  # pragma: no cover
+                + " before trying to compress them"
+            )  # pragma: no cover"""
 
-        solution = self.GetSolution(solutionName)
-        solution.CompressSnapshots(snapshotCorrelationOperator, reducedOrderBasis)
+        try:
+            solution = self.GetSolution(solutionName)
+            solution.CompressSnapshots(snapshotCorrelationOperator, reducedOrderBasis)
+        except KeyError:#pragma: no cover
+            return
 
 
     def ConvertCompressedSnapshotReducedOrderBasis(self, solutionName, projectedReducedOrderBasis):
@@ -440,7 +473,8 @@ class ProblemData(object):
 
 
     def __str__(self):
-        res = "Solutions:" + str(list(self.solutions.keys()))
+        res = "ProblemData of name: "+self.problemName+"\n"
+        #res += "Solutions:" + str(list(self.solutions.keys()))
         return res
 
 

@@ -56,40 +56,44 @@ class Dirichlet(LoadingBase):
 
         from Mordicus.Modules.Safran.FE import FETools as FT
         integrationWeightsSet, phiAtIntegPointSet = FT.ComputePhiAtIntegPoint(mesh, [self.set], -1)
-        
+
         numberOfNodes = mesh.GetNumberOfNodes()
 
         positionIntegPointsOnSet = phiAtIntegPointSet.dot(mesh.GetNodes())
-        
+
         #print("mesh.GetNodes() =", mesh.GetNodes())
         numberOfComponents = reducedOrderBases[self.solutionName].shape[1]//numberOfNodes
         numberOfModes = reducedOrderBases[self.solutionName].shape[0]
         numberOfIntegrationPointsSet = phiAtIntegPointSet.shape[0]
-        
-        assert numberOfComponents == self.function(positionIntegPointsOnSet[0]).shape[0], 'dirichlet condition do not have the same number of components as the provided reducedOrderBasis'        
+
+        assert numberOfComponents == self.function(positionIntegPointsOnSet[0]).shape[0], 'dirichlet condition do not have the same number of components as the provided reducedOrderBasis'
 
         valueAtIntegPointSet = np.empty((numberOfIntegrationPointsSet,numberOfComponents))
         for i in range(numberOfIntegrationPointsSet):
             valueAtIntegPointSet[i,:] = self.function(positionIntegPointsOnSet[i])
 
-        
+
         componentReducedOrderBasis = []
         for i in range(numberOfComponents):
             componentReducedOrderBasis.append(reducedOrderBases[self.solutionName][:,i*numberOfNodes:(i+1)*numberOfNodes].T)
 
 
         reducedPhiAtIntegPointSet = np.empty((numberOfComponents,numberOfIntegrationPointsSet,numberOfModes))
-    
+
         for i in range(numberOfComponents):
             reducedPhiAtIntegPointSet[i] = phiAtIntegPointSet.dot(componentReducedOrderBasis[i])
 
- 
+
         #print(np.einsum("ti,ti,t", valueAtIntegPointSet, valueAtIntegPointSet, integrationWeightsSet, optimize = True))
         #print(np.einsum("ti,itj,t->j", valueAtIntegPointSet, reducedPhiAtIntegPointSet, integrationWeightsSet, optimize = True))
         #1./0.
         self.assembledBC = np.einsum("ti,itj,t->j", valueAtIntegPointSet, reducedPhiAtIntegPointSet, integrationWeightsSet, optimize = True)
-        
-                
+
+
+
+    def HyperReduceLoading(self, mesh, problemData, reducedOrderBases, operatorCompressionData):
+
+        return# pragma: no cover
 
 
 

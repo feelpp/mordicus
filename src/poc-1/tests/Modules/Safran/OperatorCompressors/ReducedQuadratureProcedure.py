@@ -15,6 +15,9 @@ def test():
     tolerance = 1.e-6
 
     RQP.ComputeReducedIntegrationScheme(integrationWeights, integrands,\
+        tolerance)
+
+    RQP.ComputeReducedIntegrationScheme(integrationWeights, integrands,\
         tolerance, imposedIndices, reducedIntegrationPointsInitSet)
 
     reducedIntegrationPointsInitSet = [3, 4]

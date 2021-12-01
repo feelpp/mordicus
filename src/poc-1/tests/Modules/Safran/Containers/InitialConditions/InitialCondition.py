@@ -10,17 +10,28 @@ def test():
 
     print(initialCondition)
 
+    reducedOrderBases = {"U":np.random.rand(2,3)}
+
     initialCondition.SetDataType("U", "scalar")
     initialCondition.GetDataType("U")
     initialCondition.SetInitialSnapshot("U", 0.)
     initialCondition.SetReducedInitialSnapshot("U", np.zeros(2))
+    initialCondition.ReduceInitialSnapshot(reducedOrderBases)
     initialCondition.GetReducedInitialSnapshot("U")
-    reducedOrderBases = {"U":np.random.rand(2,3)}
     snapshotCorrelationOperator = {"U":np.eye(3)}
+
     initialCondition.ReduceInitialSnapshot(reducedOrderBases, snapshotCorrelationOperator)
+    initialCondition.ReduceInitialSnapshot(reducedOrderBases)
 
     initialCondition.SetInitialSnapshot("U", 1.)
     initialCondition.ReduceInitialSnapshot(reducedOrderBases, snapshotCorrelationOperator)
+    initialCondition.ReduceInitialSnapshot(reducedOrderBases)
+
+
+    initialCondition.SetDataType("U", "vector")
+    initialCondition.SetInitialSnapshot("U", np.ones(3))
+    initialCondition.ReduceInitialSnapshot(reducedOrderBases, snapshotCorrelationOperator)
+    initialCondition.ReduceInitialSnapshot(reducedOrderBases)
 
     initialCondition.__getstate__()
 

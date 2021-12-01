@@ -8,10 +8,11 @@ if MPI.COMM_WORLD.Get_size() > 1: # pragma: no cover
     os.environ["VECLIB_MAXIMUM_THREADS"] = "1"
     os.environ["NUMEXPR_NUM_THREADS"] = "1"
 import numpy as np
+from Mordicus.Core.BasicAlgorithms import  ScikitLearnRegressor as SLR
 
 
 def ComputeOnline(
-    onlineProblemData, operatorCompressionOutputData
+    onlineProblemData, solutionName, operatorCompressionOutputData
 ):
     """
     Compute the online stage using the method of POD on the snapshots and a regression on the coefficients
@@ -22,6 +23,8 @@ def ComputeOnline(
     ----------
     onlineProblemData : ProblemData
         definition of the testing configuration data in a CollectionProblemData object
+    solutionName : str
+        names of the solution to be treated
     operatorCompressionOutputData : (regressor, scaler, scaler)
         (fitted regressor, fitted scaler on the coefficients, fitted scaler on the parameters)
 
@@ -30,17 +33,17 @@ def ComputeOnline(
     collections.OrderedDict
         onlineCompressedSnapshots; dictionary with time indices as keys and a np.ndarray of size (numberOfModes,) containing the coefficients of the reduced solution
     """
-    regressor = operatorCompressionOutputData[0]
-    scalerParameter = operatorCompressionOutputData[1]
-    scalerCoefficients = operatorCompressionOutputData[2]
-
-    timeSequence = onlineProblemData.GetParametersTimeSequence()
+    regressor = operatorCompressionOutputData[solutionName][0]
+    scalerParameter = operatorCompressionOutputData[solutionName][1]
+    scalerCoefficients = operatorCompressionOutputData[solutionName][2]
 
     onlineParameters = onlineProblemData.GetParametersList()
 
-    onlineParameters = scalerParameter.transform(onlineParameters)
-    onlineCoefficients = regressor.predict(onlineParameters)
-    onlineCoefficients = scalerCoefficients.inverse_transform(onlineCoefficients)
+
+    onlineCoefficients = SLR.ComputeRegressionApproximation(regressor, scalerParameter, scalerCoefficients, onlineParameters)
+
+    timeSequence = onlineProblemData.GetParametersTimeSequence()
+
 
     import collections
     onlineCompressedSnapshots = collections.OrderedDict()
@@ -52,7 +55,7 @@ def ComputeOnline(
 
 
 def CompressOperator(
-    collectionProblemData, solutionName, operatorCompressionInputData
+    collectionProblemData, solutionNames, operatorCompressionInputData
 ):
     """
     Computes the offline operator compression stage using the method of POD on the snapshots and a regression on the coefficients
@@ -61,60 +64,58 @@ def CompressOperator(
     ----------
     collectionProblemData : CollectionProblemData
         definition of the training data in a CollectionProblemData object
-    solutionName : str
-        name of the solution to be treated
-    operatorCompressionInputData : class satisfying the scikit-learn regressors API
+    solutionNames : list of str
+        names of the solution to be treated
+    operatorCompressionInputData : dict of objects satisfying the scikit-learn regressors API
         input regressor to be fitted
     """
-    assert isinstance(solutionName, str)
 
-    regressor = operatorCompressionInputData
+    operatorCompressionData = {}
 
-    numberOfModes = collectionProblemData.GetReducedOrderBasisNumberOfModes(
-        solutionName
-    )
-    numberOfSnapshots = collectionProblemData.GetGlobalNumberOfSnapshots(solutionName)
-    parameterDimension = collectionProblemData.GetParameterDimension()
+    regressors = operatorCompressionInputData[0]
+    paramGrids = operatorCompressionInputData[1]
 
-    # print("numberOfModes      =", numberOfModes)
-    # print("numberOfSnapshots  =", numberOfSnapshots)
-    # print("parameterDimension =", parameterDimension)
+    for solutionName in solutionNames:
 
-    coefficients = np.zeros((numberOfSnapshots, numberOfModes))
-    parameters = np.zeros((numberOfSnapshots, parameterDimension))
 
-    count = 0
-    for key, problemData in collectionProblemData.GetProblemDatas().items():
+        regressor = regressors[solutionName]
+        paramGrid = paramGrids[solutionName]
 
-        localNumberOfSnapshots = problemData.GetSolution(
-            solutionName
-        ).GetNumberOfSnapshots()
+        numberOfModes = collectionProblemData.GetReducedOrderBasisNumberOfModes(solutionName)
+        numberOfSnapshots = collectionProblemData.GetGlobalNumberOfSnapshots(solutionName)
+        parameterDimension = collectionProblemData.GetParameterDimension()
 
-        times = problemData.GetSolution(solutionName).GetTimeSequenceFromCompressedSnapshots()
+        # print("numberOfModes      =", numberOfModes)
+        # print("numberOfSnapshots  =", numberOfSnapshots)
+        # print("parameterDimension =", parameterDimension)
 
-        coefficients[count : count + localNumberOfSnapshots, :] = (
-            problemData.GetSolution(solutionName).GetCompressedSnapshotsList()
-        )
+        coefficients = np.zeros((numberOfSnapshots, numberOfModes))
+        parameters = np.zeros((numberOfSnapshots, parameterDimension))
 
-        localParameters = np.array([problemData.GetParameterAtTime(t) for t in times])
-        parameters[count : count + localNumberOfSnapshots, :] = localParameters
+        count = 0
+        for key, problemData in collectionProblemData.GetProblemDatas().items():
 
-        count += localNumberOfSnapshots
+            localNumberOfSnapshots = problemData.GetSolution(
+                solutionName
+            ).GetNumberOfSnapshots()
 
-    from sklearn.preprocessing import MinMaxScaler
+            times = problemData.GetSolution(solutionName).GetTimeSequenceFromCompressedSnapshots()
 
-    scalerParameter = MinMaxScaler()
-    scalerCoefficients = MinMaxScaler()
+            coefficients[count : count + localNumberOfSnapshots, :] = (
+                problemData.GetSolution(solutionName).GetCompressedSnapshotsList()
+            )
 
-    scalerParameter.fit(parameters)
-    scalerCoefficients.fit(coefficients)
+            localParameters = np.array([problemData.GetParameterAtTime(t) for t in times])
+            parameters[count : count + localNumberOfSnapshots, :] = localParameters
 
-    parameters = scalerParameter.transform(parameters)
-    coefficients = scalerCoefficients.transform(coefficients)
+            count += localNumberOfSnapshots
 
-    regressor.fit(parameters, coefficients)
 
-    collectionProblemData.SetOperatorCompressionData((regressor, scalerParameter, scalerCoefficients))
+        model, scalerParameter, scalerCoefficients = SLR.GridSearchCVRegression(regressor, paramGrid, parameters, coefficients)
+
+        operatorCompressionData[solutionName] = (model, scalerParameter, scalerCoefficients)
+
+    collectionProblemData.SetOperatorCompressionData(operatorCompressionData)
 
 
 
