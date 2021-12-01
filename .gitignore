@@ -1,5 +1,6 @@
 # Ignoring build directory
 build/
+install/
 .metadata/
 .venv/
 RemoteSystemsTempFiles/.project
