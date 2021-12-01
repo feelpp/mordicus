@@ -25,7 +25,7 @@ endif()
 set (CMAKE_CXX_STANDARD ${MORDICUS_STD_CPP})
 
 enable_testing()
-add_subdirectory (lib)
+add_subdirectory (src/cpp/lib)
 
 if (BUILD_PYTHON)
   find_package (PythonInterp)
@@ -43,7 +43,7 @@ if (BUILD_PYTHON)
     include (pybind11Tools)
   endif ()
   if (PythonLibs_FOUND AND pybind11_FOUND)
-    add_subdirectory (python)
+    add_subdirectory (src/cpp/python)
   endif ()
 endif ()
 
