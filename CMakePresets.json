@@ -64,8 +64,8 @@
             "jobs": 10
         },
         {
-            "name": "install-local",
-            "configurePreset": "install-local",
+            "name": "install-usrlocal",
+            "configurePreset": "install-usrlocal",
             "inherits": "default",
             "targets": [
                 "all","install","package"
