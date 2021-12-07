@@ -45,14 +45,12 @@ jobs:
         path: build/install/assets/mordicus-*
 
   deliver:
-    runs-on: self-docker
+    runs-on: ubuntu-20.04
     needs: build
     # needs: check
     name: Docker Build, Tag, Push
 
     steps:
-    - name: change permissions
-      run: sudo chown -R $USER:$USER ${{ github.workspace }}
     - uses: actions/checkout@v2
       with:
         lfs: true
