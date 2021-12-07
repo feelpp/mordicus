@@ -4,7 +4,7 @@ if (NOT DEFINED CMAKE_BUILD_TYPE)
   set (CMAKE_BUILD_TYPE Release CACHE STRING "Build type")
 endif ()
 
-project (Mordicus VERSION 0.1.0)
+project (mordicus VERSION 0.1.0)
 
 option (BUILD_SHARED_LIBS "build shared/static libs" ON)
 option (BUILD_PYTHON "build Python module" ON)
