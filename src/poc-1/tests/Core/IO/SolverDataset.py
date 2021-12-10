@@ -21,9 +21,12 @@ def test():
     # Adding a dataset
     data_dir = osp.abspath(osp.join(osp.dirname(osp.abspath(__file__)), osp.pardir, osp.pardir, "TestsData", "Core", "IO"))
     solver_cfg = {"solver_install" : "/bin/bash"}
+    def python_preprocessing(dataset):
+        return
     solver = ExternalSolvingProcedure(solver_call_procedure_type="shell",
                                       solver_cfg=solver_cfg,
-                                      call_script=call_script)
+                                      call_script=call_script,
+                                      python_preprocessing=python_preprocessing)
     input_data = {"input_root_folder"        : data_dir,
                   "input_main_file"          : "input_main_file.sh",
                   "input_instruction_file"   : "input_instruction_file",
@@ -32,7 +35,7 @@ def test():
                   "input_result_type"        : "numpy_file"}
     dataset_template = SolverDataset(ProblemData, solver, input_data)
 
-    dataset_instance = dataset_template.instantiate(mu1=0.0, mu2=0.0)
+    dataset_instance = dataset_template.instantiate(mu1="0.0", mu2=0.0)
 
     class NumPySolutionReader(SolutionReaderBase):
         def __init__(self, fileName, timeIt):

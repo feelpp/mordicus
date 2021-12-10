@@ -46,9 +46,9 @@ def test():
     numpy.testing.assert_almost_equal(solution.GetCompressedSnapshotsAtTime(0.), np.array([1., 5., 9.]))
 
     solution.ConvertCompressedSnapshotReducedOrderBasisAtTime(np.arange(12.0).reshape((4,3)), 0.)
-    numpy.testing.assert_almost_equal(solution.GetCompressedSnapshotsAtTime(0.), 
+    numpy.testing.assert_almost_equal(solution.GetCompressedSnapshotsAtTime(0.),
                                       np.array([ 23.,  68., 113., 158.]))
-    
+
     assert solution.GetPrimality(), "Primality should be True as set at the beginning."
 
     assert solution.GetTimeSequenceFromSnapshots() == pytest.approx([0., 1.]), "Time sequence should be [0, 1]"
@@ -79,8 +79,11 @@ def test():
 
     solution.UncompressSnapshots(np.arange(40.).reshape((2,20)))
     numpy.testing.assert_almost_equal(solution.GetSnapshot(1.0), np.arange(20.) + np.arange(20., 40.))
+    solution.UncompressSnapshotAtTime(np.arange(40.).reshape((2,20)),1.)
+    numpy.testing.assert_almost_equal(solution.GetSnapshot(1.0), np.arange(20.) + np.arange(20., 40.))
     solution.CompressSnapshots(np.eye(20), np.arange(40.).reshape((2,20)))
     numpy.testing.assert_almost_equal(solution.GetCompressedSnapshotsAtTime(1.0), np.array([ 8740., 24340.]))
+
 
     print(solution)
     return "ok"

@@ -2,6 +2,7 @@
 import numpy as np
 from Mordicus.Core.BasicAlgorithms import ScikitLearnRegressor as SLR
 
+
 def test():
 
     from sklearn.gaussian_process.kernels import WhiteKernel, RBF, ConstantKernel

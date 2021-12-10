@@ -17,28 +17,28 @@ from Mordicus.Core.Containers.Solution import Solution
 class SolverDataset(object):
     """
     Gathers all data to be provided to a *SolvingProcedure*
-    
+
     Attributes:
     -----------
-    
+
     - produced_object (cls) : class of produced python object (after callback is called)
-    
+
     - solver (SolvingProcedure) : solver object associated with the dataset
-    
-    - input data (dict) : dictionary of all parameters to be passed to the calling procedure 
+
+    - input data (dict) : dictionary of all parameters to be passed to the calling procedure
     """
 
 
     def __init__(self, produced_object, solver, input_data):
         """
         Constructor
-        
+
         Arguments
         """
         self.produced_object = produced_object
         self.solver = solver
         self.input_data = input_data
-        
+
     def run(self, **kwargs):
         """
         Executes the dataset with its solver
@@ -50,11 +50,11 @@ class SolverDataset(object):
             self.solver.python_preprocessing(self)
         self.solver.execute(script_after_substitutions)
         return self.extract_result(**kwargs)
-    
+
     def extract_result(self, extract=None, solutionStructures=None, primalities=None, solutionReaderType=None):
         """
         Calls constructor of object to import the file into a data structure
-        
+
         Arguments
         ---------
         extract : tuple(str)
@@ -75,8 +75,8 @@ class SolverDataset(object):
             if self.input_data["input_result_type"] == "matrix":
                 obj.SetInternalStorage(np.load(result_file_path))
         if self.produced_object == ProblemData:
-            
-            if extract is None or solutionStructures is None or primalities is None:
+
+            if extract is None or solutionStructures is None or primalities is None:# pragma: no cover
                 raise ValueError("To extract a ProblemData, all optional arguments to extract_result shall be present")
             # to be changed with the new syntax for defining parameters
             problemData = ProblemData("dummy")
@@ -84,29 +84,29 @@ class SolverDataset(object):
             # create reader and get time sequence
             solutionReader = solutionReaderType(result_file_path, 0.0)
             outputTimeSequence = solutionReader.ReadTimeSequenceFromSolutionFile(extract[0])
-            
+
             # loop over field to extract
             for field_name in extract:
-            
+
                 # primal field
                 solutionStructure = solutionStructures[field_name]
                 nbeOfComponents = solutionStructure.GetNumberOfComponents()
                 numberOfNodes = solutionStructure.GetNumberOfNodes()
                 primality = primalities[field_name]
-            
+
                 solution = Solution(field_name, nbeOfComponents, numberOfNodes, primality=primality)
-                
+
                 # Read the solutions from file
                 for time in outputTimeSequence:
                     snap = solutionReader.ReadSnapshotComponent(field_name, time, primality, solutionStructure)
                     solution.AddSnapshot(snap, time)
-                    
+
                 problemData.AddSolution(solution)
-            
+
             return problemData
 
         return obj
-    
+
         # typical code to read the solution on one parameter value
 
     def instantiate(self, **kwargs):
@@ -144,7 +144,7 @@ class SolverDataset(object):
         #os.chmod(target_file, 0o755)
         # Using shutil.copy2 to preserve permissions
         target_file = osp.join(dirname, osp.basename(self.input_data["input_main_file"]))
-        shutil.copy2(osp.join(self.input_data["input_root_folder"], osp.basename(self.input_data["input_main_file"])), 
+        shutil.copy2(osp.join(self.input_data["input_root_folder"], osp.basename(self.input_data["input_main_file"])),
                      target_file)
         #os.chmod(target_file, 0o755)
         input_data = {"input_root_folder"      : dirname,

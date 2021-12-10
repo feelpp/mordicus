@@ -30,9 +30,9 @@ class NoAxisDuplicateDict(OrderedDict):
             for ke in it:
                 try:
                     itk = iter(k)
-                    if any([ke == i for i in itk]):
+                    if any([ke == i for i in itk]):#pragma: no cover
                         raise ValueError("Parameter {0} is already handled with key {1}".format(ke, k))
-                except TypeError:
+                except TypeError:#pragma: no cover
                     if ke == k:
                         raise ValueError("Parameter {0} is already handled with key {1}".format(ke, k))
         return OrderedDict.__setitem__(self, key, value)
@@ -892,7 +892,7 @@ class CollectionProblemData(object):
 
             The whole discrete support is generated as a cartesian product of discrete supports.
         """
-        if len(parameters) != len(ndarrays):
+        if len(parameters) != len(ndarrays):#pragma: no cover
             raise ValueError("Arguments 'parameters' and 'ndarrays' of defineVariabilitySupport should be of the same length.")
 
         for k, v in zip(parameters, ndarrays):

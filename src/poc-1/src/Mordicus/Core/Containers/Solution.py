@@ -46,7 +46,7 @@ class Solution(object):
         primality : np.bool
         """
         for attr, typ in zip(["solutionName", "nbeOfComponents", "numberOfNodes"], [str, int, int]):
-            if not isinstance(locals()[attr], typ):
+            if not isinstance(locals()[attr], typ):#pragma: no cover
                 raise TypeError("Attribute {0} should be of type {1}".format(attr, str(typ)))
 
         self.solutionName = solutionName
@@ -70,7 +70,7 @@ class Solution(object):
             time of the snapshot
         """
         time = float(time)
-        if not len(snapshot.shape) == 1 or not snapshot.shape[0] == self.numberOfDOFs:
+        if not len(snapshot.shape) == 1 or not snapshot.shape[0] == self.numberOfDOFs:#pragma: no cover
             raise ValueError("Provided numpy array should be a vector of length {}".format(self.numberOfDOFs))
 
         if time in self.snapshots:
@@ -276,7 +276,7 @@ class Solution(object):
         ----------
         compressedSnapshots : collections.OrderedDict()
         """
-        if not isinstance(compressedSnapshots, collections.OrderedDict):
+        if not isinstance(compressedSnapshots, collections.OrderedDict):#pragma: no cover
             raise TypeError("compressedSnapshots should be an instance of OrderedDict")
 
         self.compressedSnapshots = compressedSnapshots
@@ -290,7 +290,7 @@ class Solution(object):
         ----------
         snapshots : collections.OrderedDict()
         """
-        if not isinstance(snapshots, collections.OrderedDict):
+        if not isinstance(snapshots, collections.OrderedDict):#pragma: no cover
             raise TypeError("snapshots should be an instance of OrderedDict")
 
         self.snapshots = snapshots
@@ -308,7 +308,7 @@ class Solution(object):
             time of the compressedSnapshot
         """
         time = float(time)
-        if not len(compressedSnapshot.shape) == 1:
+        if not len(compressedSnapshot.shape) == 1:#pragma: no cover
             raise ValueError("compressedSnapshot should be a vector, not a multidimensional array")
 
         if time in self.compressedSnapshots:

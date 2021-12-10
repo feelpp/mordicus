@@ -32,7 +32,7 @@ class TestMecaConstitutiveLaw(ConstitutiveLawBase):
         assert isinstance(set, str)
 
         super(TestMecaConstitutiveLaw, self).__init__(set, "mechanical")
-        
+
 
         self.young = young
         self.poisson = poisson
@@ -88,7 +88,11 @@ class TestMecaConstitutiveLaw(ConstitutiveLawBase):
         ddsdde = np.tile(self.constitutiveLawVariables['ddsdde'],(nbIntPoints, 1, 1))
         stress = np.einsum('klm,kl->km', ddsdde, stran, optimize = True)
 
-        return ddsdde, stress
+        return ddsdde, stress, statev
+
+
+    def UpdateInternalState(self):
+        return
 
 
     def __str__(self):

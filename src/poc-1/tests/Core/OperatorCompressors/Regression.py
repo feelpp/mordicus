@@ -44,7 +44,7 @@ def test():
     kernel = ConstantKernel(constant_value=1.0, constant_value_bounds=(0.01, 10.0)) * RBF(length_scale_bounds=(1e-2, 1e2)) + WhiteKernel(noise_level_bounds=(1e-10, 1e0))
 
     regressors = {"U":GaussianProcessRegressor(kernel=kernel)}
-    
+
     paramGrids = {}
     paramGrids["U"] = {'kernel__k1__k1__constant_value':[0.1, 1.], 'kernel__k1__k2__length_scale': [1., 10.], 'kernel__k2__noise_level': [1., 2.]}
 

@@ -654,7 +654,7 @@ dfgrd1=dfgrd1,noel=noel,npt=npt,kslay=kslay,kspt=kspt,kstep=kstep,kinc=kinc)"""
         constitutiveLawVariables['ddsddt']      = np.zeros(constitutiveLawVariables['ntens'])
         constitutiveLawVariables['drplde']      = np.zeros(constitutiveLawVariables['ntens'])
         constitutiveLawVariables['stress']      = np.zeros(6)
-        constitutiveLawVariables['ddsdde']      = np.zeros((6,6),dtype=np.float)
+        constitutiveLawVariables['ddsdde']      = np.zeros((6,6),dtype=float)
         constitutiveLawVariables['sse']         = 0.
         constitutiveLawVariables['spd']         = 0.
         constitutiveLawVariables['scd']         = 0.

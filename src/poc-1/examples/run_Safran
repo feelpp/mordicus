@@ -1,21 +1,4 @@
 #!/bin/bash
 
-cd Modules/Safran/MecaParallel/
-mpirun -n 2 python3 mordicusPODECMMecaZsetOfflinePar.py
-mpirun -n 2 python3 mordicusPODECMMecaZsetOnlinePar.py
-
-cd ../MecaSequential/
-python3 mordicusPODECMMecaZsetOffline.py
-python3 mordicusPODECMMecaZsetOnline.py
-
-cd ../MecaSequentialLinear/
-python3 mordicusPODECMMecaZsetOfflineLin.py
-python3 mordicusPODECMMecaZsetOnlineLin.py
-
-cd ../MecaSequentialNoZsetLocalBasis/
-python3 mordicusPODECMMecaZsetOfflineLocal.py
-python3 mordicusPODECMMecaZsetOnlineLocal.py
-
-cd ../MecaSequentialOtherOnline/
-python3 mordicusPODECMMecaZsetOnlineOther.py
-
+pytest -m "not mpi" Modules/Safran
+mpirun -n 2 pytest -m "mpi" Modules/Safran

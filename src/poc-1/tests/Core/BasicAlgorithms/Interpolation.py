@@ -49,7 +49,7 @@ def test():
     testlist = np.array([0.0, 1.0, 2.5, 10.])
     valList = np.array([-1., 11., 0.6, 2.0, 2.6, 9.9, 1.0])
 
-    ref = np.array([0, 3, 0, 1, 2, 2, 1], dtype = np.int)
+    ref = np.array([0, 3, 0, 1, 2, 2, 1], dtype = int)
     res = TI.BinarySearchVectorized(testlist, valList)
 
     for i, val in enumerate(valList):

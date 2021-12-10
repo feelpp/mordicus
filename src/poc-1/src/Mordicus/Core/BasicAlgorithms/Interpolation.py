@@ -41,7 +41,7 @@ def BinarySearchVectorized(orderedList, items):
     """
     Vectorized version of BinarySearch (items is now a list or one-dimensional np.ndarray)
     """
-    return np.fromiter(map(lambda item: BinarySearch(orderedList, item), items), dtype = np.int)
+    return np.fromiter(map(lambda item: BinarySearch(orderedList, item), items), dtype = int)
 
 
 
