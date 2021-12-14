@@ -9,6 +9,7 @@ class SolutionReaderBase(object):
     def __init__(self):
         pass
 
+
     def ReadSnapshotComponent(self, fieldName, time, primality):
         """
         Reads a snapshots from the solutions of name "fieldName", at time "time" and of primality "primality", from the HF computation
@@ -28,6 +29,7 @@ class SolutionReaderBase(object):
             of size (numberOfDofs,)
         """
         raise NotImplementedError("Not implemented in ReaderBase")  # pragma: no cover
+
 
     def ReadSnapshotComponentTimeSequence(self, fieldName, timeSequence, primality):
         """
@@ -49,6 +51,7 @@ class SolutionReaderBase(object):
         """
         raise NotImplementedError("Not implemented in ReaderBase")  # pragma: no cover
 
+
     def ReadTimeSequenceFromSolutionFile(self):
         """
         Reads the time sequence from the solution file of the HF computation (may be different from the ones defined in the input data file if the solver chose to solve at additional time steps)
@@ -59,6 +62,7 @@ class SolutionReaderBase(object):
             of size (numberOfSnapshots,)
         """
         raise NotImplementedError("Not implemented in ReaderBase")  # pragma: no cover
+
 
     def WriteReducedOrderBasis(self, fileName, solutionStructure, reducedOrderBasis, fieldName):
         """
@@ -77,6 +81,7 @@ class SolutionReaderBase(object):
         """
         raise NotImplementedError("Not implemented in ReaderBase")  # pragma: no cover
 
+
     def WriteSparseFieldOfEmpiricalWeights(self, fileName, fieldStructure, np_coor_gauss, empirical_weights):
         """
         Writes found empirical_weights to a Gauss field
@@ -93,6 +98,7 @@ class SolutionReaderBase(object):
             numpy array of empirical weights
         """
         raise NotImplementedError("Not implemented in ReaderBase")  # pragma: no cover
+
 
     def WriteSolution(self, fileName, fieldStructure, solution, fieldName, nameInFile=None, append=False):
         """
@@ -111,6 +117,7 @@ class SolutionReaderBase(object):
             identifier of the physical quantity for the field
         """
         raise NotImplementedError("Not implemented in ReaderBase")  # pragma: no cover
+
 
     def WriteNumbering(self, fileName, fieldStructure, fieldName, nameInFile=None):
         """

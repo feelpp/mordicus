@@ -120,7 +120,7 @@ class PXDMFWriter(object):
         """
 
         assert isinstance(
-            compressedSnapshots, collections.OrderedDict
+            compressedSnapshots, dict
         )
 
         if MPI.COMM_WORLD.Get_size() > 1:  # pragma: no cover

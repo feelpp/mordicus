@@ -18,7 +18,14 @@ def test():
     y = np.array([[1.0, 1.0],[1.0, 1.5],[2.0, 0.5],[2.0, 2.0]])
 
     model, scalerX, scalery = SLR.GridSearchCVRegression(regressor, paramGrids, X, y)
-    SLR.ComputeRegressionApproximation(model, scalerX, scalery, X)
+    yPred = SLR.ComputeRegressionApproximation(model, scalerX, scalery, X)
+
+    yPredRef = np.array([[1.00000037, 1.00000134],
+                         [1.00000037, 1.49999866],
+                         [1.9999994 , 0.50000105],
+                         [1.9999994 , 1.99999895]])
+
+    np.testing.assert_almost_equal(yPred, yPredRef)
 
     return "ok"
 

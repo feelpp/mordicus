@@ -5,10 +5,18 @@ from Mordicus.Core.Containers.SolutionStructures import SolutionStructureBase as
 from Mordicus.Core.Containers.Meshes import MeshBase as MB
 
 
-meshBase = MB.MeshBase()
-solutionStructure = SSB.SolutionStructureBase(meshBase, 'node')
+def test():
 
-solutionStructure.SetInternalStorage("storage")
-solutionStructure.SetInternalStorage("storage")
-solutionStructure.GetInternalStorage()
+    meshBase = MB.MeshBase()
+    solutionStructure = SSB.SolutionStructureBase(meshBase, 'node')
+
+    solutionStructure.SetInternalStorage("storage")
+    solutionStructure.SetInternalStorage("storage")
+    assert solutionStructure.GetInternalStorage() == "storage"
+
+
+
+if __name__ == "__main__":
+    print(test())  # pragma: no cover
+
 

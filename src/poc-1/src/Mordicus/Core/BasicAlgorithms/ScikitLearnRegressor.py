@@ -18,15 +18,15 @@ def GridSearchCVRegression(regressor, paramGrid, X, y):
 
     Returns
     -------
-    np.ndarray
-        kept eigenvalues, of size (numberOfEigenvalues)
-    np.ndarray
-        kept eigenvectors, of size (numberOfEigenvalues, numberOfSnapshots)
+    sklearn.model_selection._search.GridSearchCV
+        trained and optimized scikit learn regressor
+    sklearn.preprocessing._data.StandardScaler
+        scaler trained on input data
+    sklearn.preprocessing._data.StandardScaler
+        scaler trained on output data
     """
 
-
     from sklearn import preprocessing
-
 
     scalerX = preprocessing.StandardScaler()#MinMaxScaler()
     scalery = preprocessing.StandardScaler()#MinMaxScaler()
@@ -57,6 +57,27 @@ def GridSearchCVRegression(regressor, paramGrid, X, y):
 
 
 def ComputeRegressionApproximation(model, scalerX, scalery, XTest):
+    """
+    Computes the prediction of the Regressor,taking into account prelearned scalers for input and output
+
+    Parameters
+    ----------
+    model : sklearn.model_selection._search.GridSearchCV
+        trained and optimized scikit learn regressor
+    scalerX : sklearn.preprocessing._data.StandardScaler
+        scaler trained on input data
+    scalery : sklearn.preprocessing._data.StandardScaler
+        scaler trained on output data
+    XTest : np.ndarray
+        testing data
+
+    Returns
+    -------
+    np.ndarray
+        kept eigenvalues, of size (numberOfEigenvalues)
+    np.ndarray
+        kept eigenvectors, of size (numberOfEigenvalues, numberOfSnapshots)
+    """
 
     XTest = scalerX.transform(XTest)
     yTest = model.predict(XTest)
@@ -70,6 +91,9 @@ from sklearn.utils.optimize import _check_optimize_result
 import scipy
 
 class MyGPR(GaussianProcessRegressor):
+    """
+    Customization of scikit-learn's GaussianProcessRegressor
+    """
     def __init__(self, kernel):
         super().__init__(kernel)
 

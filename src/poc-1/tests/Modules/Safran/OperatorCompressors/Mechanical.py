@@ -68,10 +68,10 @@ def test():
     problemData.AddSolution(solutionEvrcum)
 
     collectionProblemData = CollectionProblemData.CollectionProblemData()
-    collectionProblemData.addVariabilityAxis("config", str)
-    collectionProblemData.defineQuantity("U", "displacement", "m")
-    collectionProblemData.defineQuantity("sigma", "stress", "Pa")
-    collectionProblemData.defineQuantity("evrcum", "cumulated plasticity", "none")
+    collectionProblemData.AddVariabilityAxis("config", str)
+    collectionProblemData.DefineQuantity("U", "displacement", "m")
+    collectionProblemData.DefineQuantity("sigma", "stress", "Pa")
+    collectionProblemData.DefineQuantity("evrcum", "cumulated plasticity", "none")
     collectionProblemData.AddProblemData(problemData, config="case-1")
 
 

@@ -10,6 +10,7 @@ from Mordicus.Modules.Safran.OperatorCompressors import Mechanical as Meca
 from Mordicus.Core.IO import StateIO as SIO
 from Mordicus.Core.Helpers import FolderHandler as FH
 import numpy as np
+import os.path
 
 
 def test():
@@ -55,6 +56,13 @@ def test():
     MfrontLaw.SetDensity(1.e-8)
     internalVariables = ['eel11', 'eel22', 'eel33', 'eel12', 'eel23', 'eel31', 'epcum']
     nRedIntegPoints = len(operatorCompressionData['reducedIntegrationPoints'])
+    
+    if os.path.isfile(folder+'src/libBehaviour.so') == False:
+        import subprocess
+        os.chdir(folder)
+        subprocess.call("./compileMfrontLaw.sh")	
+        folderHandler.SwitchToScriptFolder()
+    
     MfrontLaw.SetLawModelling('Tridimensional', 'IsotropicLinearHardeningMises', folder+'src/libBehaviour.so', internalVariables, nRedIntegPoints)
     onlineProblemData.AddConstitutiveLaw([MfrontLaw])
 

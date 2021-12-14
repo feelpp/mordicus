@@ -1,4 +1,5 @@
 # coding: utf-8
+
 import subprocess
 import shlex
 
@@ -8,15 +9,15 @@ from string import Template
 class ExternalSolvingProcedure(object):
     """
     This objects says how to call an external solver from Mordicus
-    
+
     Attributes:
     -----------
-    
-    - solver_cfg (dict): dictionary of environment variables useful to the call procedure
-    
-    - solver_call_procedure_type (str): one of ("shell", "python"), tells what to execute the script with
 
-    - call_script=call_script (str): launching script
+    - solverCfg (dict): dictionary of environment variables useful to the call procedure
+
+    - solverCallProcedureType (str): one of ("shell", "python"), tells what to execute the script with
+
+    - callScript=callScript (str): launching script
     """
 
 
@@ -24,47 +25,63 @@ class ExternalSolvingProcedure(object):
         """
         Constructor
         """
-        list_argnames = ["solver_cfg", "solver_call_procedure_type", "call_script", "python_preprocessing"]
+        list_argnames = ["solverCfg", "solverCallProcedureType", "callScript", "PythonPreprocessing"]
         for name in list_argnames:
             if name in kwargs:
                 setattr(self, name, kwargs[name])
-    
-    def execute(self, script):
+
+    def Execute(self, script):
         """
         Executes as_run as a script
-        
-        Arguments
-        ---------
+
+        Parameters
+        ----------
         script : str
             shell script to execute
-        
+
         Returns
         -------
         int
             return code
         """
-        if hasattr(self, "solver_cfg"):
-            script = script.format(**self.solver_cfg)
+        if hasattr(self, "solverCfg"):
+            script = script.format(**self.solverCfg)
         seq = shlex.split(script)
         ret = subprocess.run(seq, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         #print(ret.stdout)
         return ret
 
-    def import_mordicus_data(self, input_data):
+    def importMordicusData(self, inputData):
         """
         Sets input files from mordicus into launch procedure
-        
-        mordicusData: dict
-            dictionary with str as key (used as key to substitute in template of input_main_file and input_instruction_file)
+
+        Parameters
+        ----------
+        inputData: dict
+            dictionary with str as key (used as key to substitute in template of inputMainFile and input_instruction_file)
             and str as values (value to substitute with)
         """
-        mordicus_data = input_data.pop("input_mordicus_data", {})
-        input_instruction_file_path = osp.join(input_data["input_root_folder"], input_data["input_main_file"])
-        with open(input_instruction_file_path, "r") as f:
+        mordicusData = inputData.pop("input_mordicusData", {})
+        inputInstructionFilePath = osp.join(inputData["inputRootFolder"], inputData["inputMainFile"])
+        with open(inputInstructionFilePath, "r") as f:
             mystr = f.read()
             mytemplate = Template(mystr)
-            kws = {k: str(v) for k,v in mordicus_data.items()}
+            kws = {k: str(v) for k,v in mordicusData.items()}
             myinstance = mytemplate.safe_substitute(**kws)
-        with open(input_instruction_file_path, "w") as f:
+        with open(inputInstructionFilePath, "w") as f:
             f.write(myinstance)
-        
+
+
+    def __str__(self):
+        res = "ExternalSolvingProcedure\n"
+        res += "solverCfg               : " + str(self.solverCfg) + "\n"
+        res += "solverCallProcedureType : " + str(self.solverCallProcedureType) + "\n"
+        res += "callScript              : " + str(self.callScript)
+        return res
+
+
+if __name__ == "__main__":# pragma: no cover
+
+    from Mordicus import RunTestFile
+    RunTestFile(__file__)
+

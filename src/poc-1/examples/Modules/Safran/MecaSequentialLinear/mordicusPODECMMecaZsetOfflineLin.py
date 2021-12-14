@@ -62,11 +62,11 @@ def test():
     problemData.AddSolution(solutionSigma)
 
     collectionProblemData = CPD.CollectionProblemData()
-    collectionProblemData.addVariabilityAxis('config',
+    collectionProblemData.AddVariabilityAxis('config',
                                              str,
                                              description="dummy variability")
-    collectionProblemData.defineQuantity("U", "displacement", "m")
-    collectionProblemData.defineQuantity("sigma", "stress", "Pa")
+    collectionProblemData.DefineQuantity("U", "displacement", "m")
+    collectionProblemData.DefineQuantity("sigma", "stress", "Pa")
     collectionProblemData.AddProblemData(problemData, config="case-1")
 
 
@@ -76,7 +76,7 @@ def test():
 
     SP.CompressData(collectionProblemData, "U", 1.e-6, snapshotCorrelationOperator["U"])
     collectionProblemData.CompressSolutions("U", snapshotCorrelationOperator["U"])
-    
+
     reducedOrderBasisU = collectionProblemData.GetReducedOrderBasis("U")
 
     CompressedSolutionU = solutionU.GetCompressedSnapshots()

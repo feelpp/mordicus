@@ -37,8 +37,8 @@ def test():
     problemData.AddSolution(solution)
 
     collectionProblemData = CollectionProblemData.CollectionProblemData()
-    collectionProblemData.addVariabilityAxis("config", str)
-    collectionProblemData.defineQuantity("U")
+    collectionProblemData.AddVariabilityAxis("config", str)
+    collectionProblemData.DefineQuantity("U")
     collectionProblemData.AddProblemData(problemData, config="case-1")
 
     FusedSnapshotPOD.CompressData(

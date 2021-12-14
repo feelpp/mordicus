@@ -4,7 +4,7 @@ from Mordicus.Modules.Safran.Containers.ConstitutiveLaws import MfrontConstituti
 from Mordicus import GetTestDataPath
 
 import numpy as np
-
+import os
 
 def test():
 
@@ -29,7 +29,16 @@ def test():
 
     internalVariables = ['eel11', 'eel22', 'eel33', 'eel12', 'eel23', 'eel31', 'epcum']
 
-    constitutiveLaw.SetLawModelling('Tridimensional', 'IsotropicLinearHardeningMises', GetTestDataPath()+'Zset/MecaSequentialSimpleMises/src/libBehaviour.so', internalVariables, ngauss)
+
+    folder = GetTestDataPath()+'Zset'+os.sep+'MecaSequentialSimpleMises'+os.sep
+
+    if os.path.isfile(folder+'src/libBehaviour.so') == False:
+        import subprocess
+        os.chdir(folder)
+        subprocess.call("./compileMfrontLaw.sh")
+
+
+    constitutiveLaw.SetLawModelling('Tridimensional', 'IsotropicLinearHardeningMises', folder+'src'+os.sep+'libBehaviour.so', internalVariables, ngauss)
 
 
     temperature = 293.15 + np.zeros(ngauss)

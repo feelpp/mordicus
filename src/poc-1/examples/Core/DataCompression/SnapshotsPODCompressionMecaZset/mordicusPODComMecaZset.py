@@ -41,8 +41,8 @@ def test():
 
 
     collectionProblemData = CPD.CollectionProblemData()
-    collectionProblemData.defineVariabilityAxes(('config',), (str, ))
-    collectionProblemData.defineQuantity("U", "displacement", "m")
+    collectionProblemData.DefineVariabilityAxes(('config',), (str, ))
+    collectionProblemData.DefineQuantity("U", "displacement", "m")
     collectionProblemData.AddProblemData(problemData, config="case-1")
     print(
         "A collectionProblemData with problemDatas "

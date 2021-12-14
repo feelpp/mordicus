@@ -39,7 +39,7 @@ def BinarySearch(orderedList, item):
 
 def BinarySearchVectorized(orderedList, items):
     """
-    Vectorized version of BinarySearch (items is now a list or one-dimensional np.ndarray)
+    BinarySearch for more than one call (items is now a list or one-dimensional np.ndarray)
     """
     return np.fromiter(map(lambda item: BinarySearch(orderedList, item), items), dtype = int)
 
@@ -124,7 +124,7 @@ def PieceWiseLinearInterpolationWithMap(item, itemIndices, vectors, vectorsMap):
 
 def PieceWiseLinearInterpolationVectorized(items, itemIndices, vectors):
     """
-    Vectorized version of PieceWiseLinearInterpolation (items is now a list or one-dimensional np.ndarray)
+    PieceWiseLinearInterpolation for more than one call (items is now a list or one-dimensional np.ndarray)
     """
     return [PieceWiseLinearInterpolation(item, itemIndices, vectors) for item in items]
     #return np.fromiter(map(lambda item: PieceWiseLinearInterpolation(item, itemIndices, vectors), items), dtype = type(vectors[0]))
@@ -133,7 +133,7 @@ def PieceWiseLinearInterpolationVectorized(items, itemIndices, vectors):
 
 def PieceWiseLinearInterpolationVectorizedWithMap(items, itemIndices, vectors, vectorsMap):
     """
-    Vectorized version of PieceWiseLinearInterpolation (items is now a list or one-dimensional np.ndarray)
+    PieceWiseLinearInterpolation for more than one call (items is now a list or one-dimensional np.ndarray)
     """
     return [PieceWiseLinearInterpolationWithMap(item, itemIndices, vectors, vectorsMap) for item in items]
     #return np.fromiter(map(lambda item: PieceWiseLinearInterpolationWithMap(item, itemIndices, vectors, vectorsMap), items), dtype = np.float)

@@ -7,7 +7,16 @@ from mpi4py import MPI
 
 def UpdateFileName(fileName):
     """
-    1
+    Appends filename with numbering in case of parallel execution
+
+    Parameters
+    ----------
+    fileName : str
+        name of the file on disk
+
+    Returns
+    -------
+    str
     """
 
     if MPI.COMM_WORLD.Get_size() > 1: # pragma: no cover
@@ -19,7 +28,14 @@ def UpdateFileName(fileName):
 
 def SaveState(fileName, obj):
     """
-    1
+    Saves the data structure on disk
+
+    Parameters
+    ----------
+    fileName : str
+        name of the file on disk
+    obj : custom_data_format
+        object to save on disk
     """
     outputName = UpdateFileName(fileName) + ".pkl"
 
@@ -37,6 +53,10 @@ def LoadState(fileName):
     ----------
     fileName : str
         name of the file on disk
+
+    Returns
+    -------
+    custom_data_format
     """
     inputName = UpdateFileName(fileName) + ".pkl"
 

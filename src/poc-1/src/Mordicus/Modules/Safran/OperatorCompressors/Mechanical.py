@@ -376,7 +376,7 @@ def CompressOperator(
     print("CompressOperator starting..."); sys.stdout.flush()
 
     if toleranceCompressSnapshotsForRedQuad > 0:
-        collectionProblemData.defineQuantity("SigmaECM")
+        collectionProblemData.DefineQuantity("SigmaECM")
 
     listOfTags = operatorPreCompressionData["listOfTags"]
 

@@ -23,10 +23,10 @@ def test():
     Ninteg = FE.ComputeNumberOfIntegrationPoints(mesh)
 
     collectionProblemData = CPD.CollectionProblemData()
-    collectionProblemData.addVariabilityAxis("config", str)
-    collectionProblemData.defineQuantity("U")
+    collectionProblemData.AddVariabilityAxis("config", str)
+    collectionProblemData.DefineQuantity("U")
     collectionProblemData.AddReducedOrderBasis("U", np.random.rand(2,dim*Nnode))
-    collectionProblemData.defineQuantity("p")
+    collectionProblemData.DefineQuantity("p")
     collectionProblemData.AddReducedOrderBasis("p", np.random.rand(3,Ninteg))
 
     solutionU = Solution.Solution("U", dim, Nnode, True)

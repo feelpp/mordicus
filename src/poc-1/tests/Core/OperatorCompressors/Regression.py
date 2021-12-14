@@ -28,8 +28,8 @@ def test():
     problemData.AddParameter(np.array([2.0, 2.0, 1.0, 0.9]), 2.0)
 
     collectionProblemData = CollectionProblemData.CollectionProblemData()
-    collectionProblemData.addVariabilityAxis("config", str)
-    collectionProblemData.defineQuantity("U")
+    collectionProblemData.AddVariabilityAxis("config", str)
+    collectionProblemData.DefineQuantity("U")
     collectionProblemData.AddProblemData(problemData, config="case-1")
 
     reducedOrdrBasis = SP.ComputeReducedOrderBasisFromCollectionProblemData(

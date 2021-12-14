@@ -1,9 +1,5 @@
 # coding: utf-8
-"""
-Created on 26 févr. 2020
 
-@author: Guilhem Ferté
-"""
 import os
 import os.path as osp
 import shutil
@@ -14,44 +10,44 @@ from Mordicus.Core.Containers.ResolutionData.ResolutionDataBase import Resolutio
 from Mordicus.Core.Containers.ProblemData import ProblemData
 from Mordicus.Core.Containers.Solution import Solution
 
+
 class SolverDataset(object):
     """
     Gathers all data to be provided to a *SolvingProcedure*
 
     Attributes:
     -----------
-
-    - produced_object (cls) : class of produced python object (after callback is called)
-
-    - solver (SolvingProcedure) : solver object associated with the dataset
-
-    - input data (dict) : dictionary of all parameters to be passed to the calling procedure
+    producedObject : cls
+        class of produced python object (after callback is called)
+    solver : SolvingProcedure
+        solver object associated with the dataset
+    inputData : dict
+        dictionary of all parameters to be passed to the calling procedure
     """
 
-
-    def __init__(self, produced_object, solver, input_data):
+    def __init__(self, producedObject, solver, inputData):
         """
         Constructor
-
-        Arguments
         """
-        self.produced_object = produced_object
+        self.producedObject = producedObject
         self.solver = solver
-        self.input_data = input_data
+        self.inputData = inputData
 
-    def run(self, **kwargs):
+
+    def Run(self, **kwargs):
         """
         Executes the dataset with its solver
         """
-        if "input_mordicus_data" in self.input_data:
-            self.solver.import_mordicus_data(self.input_data)
-        script_after_substitutions = self.solver.call_script.format(**self.input_data, **self.solver.solver_cfg)
-        if hasattr(self.solver, "python_preprocessing"):
-            self.solver.python_preprocessing(self)
-        self.solver.execute(script_after_substitutions)
-        return self.extract_result(**kwargs)
+        if "inputMordicusData" in self.inputData:
+            self.solver.importMordicusData(self.inputData)
+        scriptAfterSubstitutions = self.solver.callScript.format(**self.inputData, **self.solver.solverCfg)
+        if hasattr(self.solver, "PythonPreprocessing"):
+            self.solver.PythonPreprocessing(self)
+        self.solver.Execute(scriptAfterSubstitutions)
+        return self.ExtractResult(**kwargs)
 
-    def extract_result(self, extract=None, solutionStructures=None, primalities=None, solutionReaderType=None):
+
+    def ExtractResult(self, extract=None, solutionStructures=None, primalities=None, solutionReaderType=None):
         """
         Calls constructor of object to import the file into a data structure
 
@@ -66,39 +62,39 @@ class SolverDataset(object):
         solutionReaderType : type
             specific solution reader to use
         """
-        result_file_path = osp.join(self.input_data["input_root_folder"], self.input_data["input_result_path"])
-        if self.produced_object == FixedDataBase:
-            obj = self.produced_object()
-            obj.SetInternalStorage(result_file_path)
-        if self.produced_object == ResolutionDataBase:
-            obj = self.produced_object()
-            if self.input_data["input_result_type"] == "matrix":
-                obj.SetInternalStorage(np.load(result_file_path))
-        if self.produced_object == ProblemData:
+        resultFilePath = osp.join(self.inputData["inputRootFolder"], self.inputData["inputResultPath"])
+        if self.producedObject == FixedDataBase:
+            obj = self.producedObject()
+            obj.SetInternalStorage(resultFilePath)
+        if self.producedObject == ResolutionDataBase:
+            obj = self.producedObject()
+            if self.inputData["inputResultType"] == "matrix":
+                obj.SetInternalStorage(np.load(resultFilePath))
+        if self.producedObject == ProblemData:
 
             if extract is None or solutionStructures is None or primalities is None:# pragma: no cover
-                raise ValueError("To extract a ProblemData, all optional arguments to extract_result shall be present")
+                raise ValueError("To extract a ProblemData, all optional arguments to ExtractResult shall be present")
             # to be changed with the new syntax for defining parameters
             problemData = ProblemData("dummy")
 
             # create reader and get time sequence
-            solutionReader = solutionReaderType(result_file_path, 0.0)
+            solutionReader = solutionReaderType(resultFilePath, 0.0)
             outputTimeSequence = solutionReader.ReadTimeSequenceFromSolutionFile(extract[0])
 
             # loop over field to extract
-            for field_name in extract:
+            for fieldName in extract:
 
                 # primal field
-                solutionStructure = solutionStructures[field_name]
+                solutionStructure = solutionStructures[fieldName]
                 nbeOfComponents = solutionStructure.GetNumberOfComponents()
                 numberOfNodes = solutionStructure.GetNumberOfNodes()
-                primality = primalities[field_name]
+                primality = primalities[fieldName]
 
-                solution = Solution(field_name, nbeOfComponents, numberOfNodes, primality=primality)
+                solution = Solution(fieldName, nbeOfComponents, numberOfNodes, primality=primality)
 
                 # Read the solutions from file
                 for time in outputTimeSequence:
-                    snap = solutionReader.ReadSnapshotComponent(field_name, time, primality, solutionStructure)
+                    snap = solutionReader.ReadSnapshotComponent(fieldName, time, primality, solutionStructure)
                     solution.AddSnapshot(snap, time)
 
                 problemData.AddSolution(solution)
@@ -107,18 +103,17 @@ class SolverDataset(object):
 
         return obj
 
-        # typical code to read the solution on one parameter value
 
-    def instantiate(self, **kwargs):
+    def Instantiate(self, **kwargs):
         """
         Instantiate a template dataset. Replace parameters in file by their values
         """
         if "reduced" in kwargs and kwargs.pop("reduced"):
-            basestr = "run_reduced"
+            basestr = "runReduced"
         else:
-            basestr = "run_full"
+            basestr = "runFull"
         from string import Template
-        with open(osp.join(self.input_data["input_root_folder"], self.input_data["input_instruction_file"]), "r") as f:
+        with open(osp.join(self.inputData["inputRootFolder"], self.inputData["inputInstructionFile"]), "r") as f:
             mystr = f.read()
             mytemplate = Template(mystr)
             kws = {k: str(v) for k,v in kwargs.items()}
@@ -133,28 +128,40 @@ class SolverDataset(object):
         # The following does not take into account parameters that are not floats
         # dirbname = basestr + "_".join(["{0}_{1:.3e}".format(k, v) for k,v in kws.items()])
 
-        dirname = osp.join(osp.dirname(self.input_data["input_root_folder"]), dirbname)
+        dirname = osp.join(osp.dirname(self.inputData["inputRootFolder"]), dirbname)
         if osp.exists(dirname):
-            shutil.rmtree(dirname)
+            shutil.rmtree(dirname)# pragma:no cover
         # Create file in directory name
         os.makedirs(dirname, exist_ok=False)
-        target_file = osp.join(dirname, osp.basename(self.input_data["input_instruction_file"]))
-        with open(target_file, "w") as f:
+        targetFile = osp.join(dirname, osp.basename(self.inputData["inputInstructionFile"]))
+        with open(targetFile, "w") as f:
             f.write(myinstance)
-        #os.chmod(target_file, 0o755)
+        #os.chmod(targetFile, 0o755)
         # Using shutil.copy2 to preserve permissions
-        target_file = osp.join(dirname, osp.basename(self.input_data["input_main_file"]))
-        shutil.copy2(osp.join(self.input_data["input_root_folder"], osp.basename(self.input_data["input_main_file"])),
-                     target_file)
-        #os.chmod(target_file, 0o755)
-        input_data = {"input_root_folder"      : dirname,
-                      "input_main_file"        : osp.basename(self.input_data["input_main_file"]),
-                      "input_instruction_file" : osp.basename(self.input_data["input_instruction_file"]),
-                      "input_mordicus_data"    : self.input_data["input_mordicus_data"],
-                      "input_result_path"      : osp.basename(self.input_data["input_result_path"]),
-                      "input_result_type"      : self.input_data["input_result_type"]}
+        targetFile = osp.join(dirname, osp.basename(self.inputData["inputMainFile"]))
+        shutil.copy2(osp.join(self.inputData["inputRootFolder"], osp.basename(self.inputData["inputMainFile"])),
+                     targetFile)
+        #os.chmod(targetFile, 0o755)
+        inputData = {"inputRootFolder"       : dirname,
+                      "inputMainFile"        : osp.basename(self.inputData["inputMainFile"]),
+                      "inputInstructionFile" : osp.basename(self.inputData["inputInstructionFile"]),
+                      "inputMordicusData"    : self.inputData["inputMordicusData"],
+                      "inputResultPath"      : osp.basename(self.inputData["inputResultPath"]),
+                      "inputResultType"      : self.inputData["inputResultType"]}
 
-        return SolverDataset(self.produced_object,
+        return SolverDataset(self.producedObject,
                              self.solver,
-                             input_data)
+                             inputData)
 
+    def __str__(self):
+        res = "SolverDataset\n"
+        res += "producedObject: " + str(self.producedObject) + "\n"
+        res += "solver        : " + str(self.solver) + "\n"
+        res += "inputData     : " + str(self.inputData)
+        return res
+
+
+if __name__ == "__main__":# pragma: no cover
+
+    from Mordicus import RunTestFile
+    RunTestFile(__file__)
