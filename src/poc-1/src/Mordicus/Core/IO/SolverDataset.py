@@ -15,8 +15,8 @@ class SolverDataset(object):
     """
     Gathers all data to be provided to a *SolvingProcedure*
 
-    Attributes:
-    -----------
+    Attributes
+    ----------
     producedObject : cls
         class of produced python object (after callback is called)
     solver : SolvingProcedure

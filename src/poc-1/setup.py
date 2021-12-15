@@ -7,10 +7,8 @@ __version__='0.1.0'
 name = 'Mordicus'
 contact=""
 
-### For BasicTools installation disable the cython part 
-import os
-os.environ["BASICTOOLS_BUILD_CYTHON"] = "False"
 
+import os
 try:
     from setuptools import setup, find_packages
 except ImportError:
@@ -70,7 +68,7 @@ setup(
     description="",
     long_description="",
     license="",
-    url="https://gitlab.pam-retd.fr/mordicus/mordicus",
+    url="",
     classifiers=[
         'Development Status :: 1 - Beta',
     ],

@@ -10,16 +10,15 @@ class ExternalSolvingProcedure(object):
     """
     This objects says how to call an external solver from Mordicus
 
-    Attributes:
-    -----------
-
-    - solverCfg (dict): dictionary of environment variables useful to the call procedure
-
-    - solverCallProcedureType (str): one of ("shell", "python"), tells what to execute the script with
-
-    - callScript=callScript (str): launching script
+    Attributes
+    ----------
+    solverCfg : dict
+        dictionary of environment variables useful to the call procedure
+    solverCallProcedureType : str
+        one of ("shell", "python"), tells what to execute the script with
+    callScript : str
+        launching script
     """
-
 
     def __init__(self, **kwargs):
         """

@@ -237,8 +237,8 @@ class CollectionProblemData(object):
         """
         Gets the number of variability axes.
 
-        Returns:
-        --------
+        Returns
+        -------
         int
             number of variability axes
         """
@@ -249,8 +249,8 @@ class CollectionProblemData(object):
         """
         Checks keys and values provided as parameter point.
 
-        Raises:
-        -------
+        Raises
+        ------
         ValueError
             if the number of components provided is wrong
         KeyError
@@ -271,13 +271,13 @@ class CollectionProblemData(object):
         """
         Checks that solutionName has been defined as a quantity identifier before.
 
-        Argument:
-        ---------
+        Argument
+        --------
         solutionName:
             candidate identifier
 
-        Raises:
-        -------
+        Raises
+        ------
         ValueError:
            if not
         """
@@ -856,8 +856,8 @@ class CollectionProblemData(object):
         """
         Template dataset to compute high-fidelity solution
 
-        Parameters:
-        -----------
+        Parameters
+        ----------
         templateDataset : Dataset
         """
         self.templateDataset = templateDataset
@@ -867,9 +867,9 @@ class CollectionProblemData(object):
         """
         Template dataset to compute reduced solution
 
-        Parameters:
-        -----------
-        templateDataset : Dataset
+        Parameters
+        ----------
+        reducedTemplateDataset : Dataset
         """
         self.reducedTemplateDataset = reducedTemplateDataset
 
@@ -878,8 +878,8 @@ class CollectionProblemData(object):
         """
         New high-fidelity model evaluation
 
-        Parameters:
-        -----------
+        Parameters
+        ----------
         kwargs: (parameter_name=value) name of the variability as key and value stays value.
         """
         extract = kwargs.pop("extract", None)
@@ -899,8 +899,8 @@ class CollectionProblemData(object):
         """
         New high-fidelity model evaluation
 
-        Parameters:
-        -----------
+        Parameters
+        ----------
          kwargs: (parameter_name=value) name of the variability as key and value stays value.
         """
         extract = kwargs.pop("extract", None)

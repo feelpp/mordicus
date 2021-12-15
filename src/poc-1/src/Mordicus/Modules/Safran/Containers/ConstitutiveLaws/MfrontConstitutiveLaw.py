@@ -8,13 +8,8 @@ if MPI.COMM_WORLD.Get_size() > 1: # pragma: no cover
     os.environ["VECLIB_MAXIMUM_THREADS"] = "1"
     os.environ["NUMEXPR_NUM_THREADS"] = "1"
 import numpy as np
-#import mfront
-import mgis.behaviour as mgis_bv
-
 from Mordicus.Core.Containers.ConstitutiveLaws.ConstitutiveLawBase import ConstitutiveLawBase
 
-
-availableHypothesis = {'Tridimensional': mgis_bv.Hypothesis.TRIDIMENSIONAL}
 
 
 
@@ -79,6 +74,10 @@ class MfrontConstitutiveLaw(ConstitutiveLawBase):
 
     def SetLawModelling(self, hypothesis, behavior, behaviorFile, internalVariables, nbIntPoints):
 
+        #import mfront
+        import mgis.behaviour as mgis_bv
+        availableHypothesis = {'Tridimensional': mgis_bv.Hypothesis.TRIDIMENSIONAL}
+
         assert hypothesis in availableHypothesis, "hypothesis '"+hypothesis+"' not available"
 
         h = availableHypothesis[hypothesis]
@@ -90,6 +89,8 @@ class MfrontConstitutiveLaw(ConstitutiveLawBase):
 
 
     def ComputeConstitutiveLaw(self, temperature, dtemp, stran, dstran, statev):
+
+        import mgis.behaviour as mgis_bv
 
         mgis_bv.setExternalStateVariable(self.m.s0, "Temperature", temperature, mgis_bv.MaterialStateManagerStorageMode.LocalStorage)
         mgis_bv.setExternalStateVariable(self.m.s1, "Temperature", temperature + dtemp, mgis_bv.MaterialStateManagerStorageMode.LocalStorage)
@@ -115,6 +116,8 @@ class MfrontConstitutiveLaw(ConstitutiveLawBase):
         return ddsdde, stress, statev
 
     def UpdateInternalState(self):
+
+        import mgis.behaviour as mgis_bv
 
         mgis_bv.update(self.m)
 
