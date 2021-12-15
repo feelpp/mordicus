@@ -16,8 +16,7 @@ from Mordicus.Core.Containers.ConstitutiveLaws.ConstitutiveLawBase import Consti
 
 availableHypothesis = {'Tridimensional': mgis_bv.Hypothesis.TRIDIMENSIONAL}
 
-indices = [0,1,2,3,5,4]
-#indices = [0,1,2,3,4,5]
+
 
 class MfrontConstitutiveLaw(ConstitutiveLawBase):
     """

@@ -153,7 +153,7 @@ class CollectionProblemData(object):
 
         Returns
         -------
-        int
+        int :
             numberOfModes
         """
         assert isinstance(solutionName, str), "name must be of type string"
