@@ -800,7 +800,7 @@ class CollectionProblemData(object):
         reducedOrderBasis = self.GetReducedOrderBasis(solutionName)
 
         for _, problemData in self.GetProblemDatas().items():
-            problemData.CompressSolution(solutionName, snapshotCorrelationOperator, reducedOrderBasis)
+            problemData.CompressSolution(solutionName, reducedOrderBasis, snapshotCorrelationOperator)
 
 
     def ConvertCompressedSnapshotReducedOrderBasis(self, solutionName, projectedReducedOrderBasis):

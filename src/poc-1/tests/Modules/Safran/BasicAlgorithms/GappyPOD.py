@@ -5,10 +5,14 @@ from Mordicus.Modules.Safran.BasicAlgorithms import GappyPOD as GP
 
 def test():
 
-    ModesAtMask = np.array([[1., 0., 0.], [0., 1., 0.]])
+    modesAtMask = np.array([[1., 0., 0.], [0., 1., 0.]])
     fieldAtMask = np.array([1., 0., 1.])
-    GP.Fit(ModesAtMask, fieldAtMask)
-    GP.FitAndCost(ModesAtMask, fieldAtMask)
+
+    np.testing.assert_almost_equal(GP.Fit(modesAtMask, fieldAtMask), [1., 0.])
+
+    res, cost = GP.FitAndCost(modesAtMask, fieldAtMask)
+    np.testing.assert_almost_equal(res, [1., 0.])
+    np.testing.assert_almost_equal(cost, 0.35355339059327373)
 
     return "ok"
 

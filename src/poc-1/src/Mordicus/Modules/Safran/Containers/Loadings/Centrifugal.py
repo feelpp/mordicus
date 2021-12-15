@@ -10,7 +10,6 @@ if MPI.COMM_WORLD.Get_size() > 1: # pragma: no cover
 import numpy as np
 
 from Mordicus.Core.Containers.Loadings.LoadingBase import LoadingBase
-import collections
 
 
 class Centrifugal(LoadingBase):
@@ -18,7 +17,7 @@ class Centrifugal(LoadingBase):
 
     Attributes
     ----------
-    rotationVelocity: collections.OrderedDict()
+    rotationVelocity: dict
         dictionary with time indices (float) as keys and temporal coefficients (float) as values
     center    : np.ndarray
         np.ndarray of size 1, 2 or 3, containing the coordinates of the center of rotation
@@ -38,7 +37,7 @@ class Centrifugal(LoadingBase):
 
         super(Centrifugal, self).__init__("U", set, "centrifugal")
 
-        #self.rotationVelocity = collections.OrderedDict
+        #self.rotationVelocity = dict
 
         self.rotationVelocityTimes = None
         self.rotationVelocityValues = None
@@ -61,10 +60,10 @@ class Centrifugal(LoadingBase):
 
         Parameters
         ----------
-        rotationVelocity : collections.OrderedDict
+        rotationVelocity : dict
         """
         # assert type of rotationVelocity
-        assert isinstance(rotationVelocity, collections.OrderedDict)
+        assert isinstance(rotationVelocity, dict)
         assert np.all(
             [isinstance(key, (float, np.float64)) for key in list(rotationVelocity.keys())]
         )
@@ -276,10 +275,11 @@ class Centrifugal(LoadingBase):
 
     def __str__(self):
         res = "Centrifugal Loading with set "+self.GetSet()+"\n"
-        res += "rotationVelocityTimes : "+str(self.rotationVelocityTimes)+"\n"
+        res += "rotationVelocityTimes  : "+str(self.rotationVelocityTimes)+"\n"
         res += "rotationVelocityValues : "+str(self.rotationVelocityValues)+"\n"
-        res += "center : "+str(self.center)+"\n"
-        res += "direction : "+str(self.direction)
+        res += "center                 : "+str(self.center)+"\n"
+        res += "direction              : "+str(self.direction)+"\n"
+        res += "coefficient            : "+str(self.coefficient)
         return res
 
 

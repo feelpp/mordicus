@@ -93,7 +93,7 @@ class Dirichlet(LoadingBase):
 
     def HyperReduceLoading(self, mesh, problemData, reducedOrderBases, operatorCompressionData):
 
-        return# pragma: no cover
+        return
 
 
 

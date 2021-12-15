@@ -104,13 +104,14 @@ def LPEQP(integrationWeights, integrands, integrals, normIntegrals, tolerance):
 
         indices = x>1.e-7*totalWeights
 
-        if len(indices) > 0.15*len(integrationWeights):
+        reducedIntegrationPoints, reducedIntegrationWeights = np.where(indices)[0], x[indices]
 
-            return np.array([]), np.array([])
+        if len(reducedIntegrationPoints) > 0.15*len(integrationWeights):
+            print(str(100*len(reducedIntegrationPoints)/len(integrationWeights))+"% of nonzero integration weights")
+            return  np.array([]), np.array([])
+        else:
+            return  reducedIntegrationPoints, reducedIntegrationWeights
 
-        else:# pragma: no cover
-
-            return  np.where(indices)[0], x[indices]
 
     else:# pragma: no cover
         # return an empty solution
@@ -120,8 +121,29 @@ def LPEQP(integrationWeights, integrands, integrals, normIntegrals, tolerance):
 
 
 def CallOptimizer(c, A_ub, b_ub, method, options):
+    """
+    Exemple of scipy optimizer wrapper (here linprog)
 
+    Parameters
+    ----------
+    c : 1-D array
+        The coefficients of the linear objective function to be minimized.
+    A_ub : 2-D array
+        The inequality constraint matrix. Each row of ``A_ub`` specifies the
+        coefficients of a linear inequality constraint on ``x``.
+    b_ub : 1-D array
+        The inequality constraint vector. Each element represents an
+        upper bound on the corresponding value of ``A_ub @ x``.
+    method : str, optional
+        The algorithm used to solve the standard form problem.
+    options : dict, optional
+        A dictionary of solver options.
 
+    Returns
+    -------
+    res : OptimizeResult
+        see the class `scipy.optimize.OptimizeResult`
+    """
     from scipy.optimize import linprog as lp
 
     return lp(c = c, A_ub = A_ub, b_ub = b_ub, method = method,\

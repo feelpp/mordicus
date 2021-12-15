@@ -23,9 +23,8 @@ primalSolutionComponents = {1:[""], 2:["1", "2"], 3:["1", "2", "3"]}
 
 
 
-
 def WriteZsetSolution(mesh, meshFileName, solutionFileName,\
-                      collectionProblemData, problemData, solutionNameRef,\
+                      collectionProblemData, problemData, solutionNameRef = None,\
                       timeSequence = [], outputReducedOrderBasis = False):
 
     """
@@ -54,9 +53,7 @@ def WriteZsetSolution(mesh, meshFileName, solutionFileName,\
         solutionFileName = folder + os.sep + stem + "-" + str(MPI.COMM_WORLD.Get_rank()+1).zfill(3) + suffix
         meshFileName = folderMesh + os.sep + stemMesh + "-pmeshes" + os.sep + stemMesh + "-" + str(MPI.COMM_WORLD.Get_rank()+1).zfill(3) + suffixMesh
 
-
     __string = u"**meshfile "+meshFileName+"\n"
-
 
     __stringNode = "**node "
     __stringInteg = "**integ "
@@ -99,9 +96,6 @@ def WriteZsetSolution(mesh, meshFileName, solutionFileName,\
     resFileInteg = open(solutionFileName+".integ", "a")
 
 
-
-
-
     resFile.write(__string)
 
 
@@ -126,14 +120,12 @@ def WriteZsetSolution(mesh, meshFileName, solutionFileName,\
     if outputReducedOrderBasis:
         timeSequence = np.arange(maxNumberOfModes)
     elif len(timeSequence) == 0:
+        assert solutionNameRef != None, "solutionNameRef must be specified"
         timeSequence = problemData.GetSolution(solutionNameRef).GetTimeSequenceFromCompressedSnapshots()
-
-
 
 
     #nbDofs = problemData.GetSolution(solutionNameRef).GetNumberOfDofs()
     nbNodes = mesh.GetNumberOfNodes()
-
 
 
     count = 0
@@ -192,6 +184,8 @@ def WriteZsetSolution(mesh, meshFileName, solutionFileName,\
         with open(globalSolutionFileName+".cut", "w") as f:
             f.write(__string)
         f.close()
+
+
 
 
 if __name__ == "__main__":# pragma: no cover

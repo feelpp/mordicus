@@ -7,10 +7,10 @@ if MPI.COMM_WORLD.Get_size() > 1: # pragma: no cover
     os.environ["MKL_NUM_THREADS"] = "1"
     os.environ["VECLIB_MAXIMUM_THREADS"] = "1"
     os.environ["NUMEXPR_NUM_THREADS"] = "1"
-import numpy as np
 
+import numpy as np
 from Mordicus.Core.Containers.Loadings.LoadingBase import LoadingBase
-#import collections
+
 
 
 class Temperature(LoadingBase):
@@ -18,7 +18,7 @@ class Temperature(LoadingBase):
 
     Attributes
     ----------
-    fieldsMap : collections.OrderedDict()
+    fieldsMap : dict
         dictionary with time indices (float) as keys and temperature fields tags (str) as values
     fields : dict
         dictionary with pressure vectors tags (str) keys and pressure vectors (np.ndarray of size (numberOfElementsInSet,)) as values
@@ -33,11 +33,11 @@ class Temperature(LoadingBase):
         super(Temperature, self).__init__(solutionName, set, "temperature")
 
 
-        #self.fieldsMap = collections.OrderedDict
+        #self.fieldsMap = dict
         self.fieldsMapTimes = None
         self.fieldsMapValues = None
 
-        self.PhiAtReducedIntegPoint = None
+        self.phiAtReducedIntegPoint = None
 
         self.fields = {}
         self.fieldsAtReducedIntegrationPoints = {}
@@ -49,10 +49,10 @@ class Temperature(LoadingBase):
 
         Parameters
         ----------
-        fieldsMap : collections.OrderedDict
+        fieldsMap : dict
         """
         # assert type of fieldsMap
-        #assert isinstance(fieldsMap, collections.OrderedDict)
+        #assert isinstance(fieldsMap, dict)
         #assert np.all(
         #    [isinstance(key, (float, np.float64)) for key in list(fieldsMap.keys())]
         #)
@@ -111,13 +111,13 @@ class Temperature(LoadingBase):
 
     def PreReduceLoading(self, mesh, operatorCompressionData):
 
-        if self.PhiAtReducedIntegPoint == None:
+        if self.phiAtReducedIntegPoint == None:
 
             assert 'reducedIntegrationPoints' in operatorCompressionData, "operatorCompressionData must contain a key 'reducedIntegrationPoints'"
 
             from Mordicus.Modules.Safran.FE import FETools as FT
-            _, PhiAtIntegPoint = FT.ComputePhiAtIntegPoint(mesh)
-            self.PhiAtReducedIntegPoint = PhiAtIntegPoint.tocsr()[operatorCompressionData["reducedIntegrationPoints"],:]
+            _, phiAtIntegPoint = FT.ComputePhiAtIntegPoint(mesh)
+            self.phiAtReducedIntegPoint = phiAtIntegPoint.tocsr()[operatorCompressionData["reducedIntegrationPoints"],:]
 
 
     def ReduceLoading(self, mesh = None, problemData = None, reducedOrderBases = None, operatorCompressionData = None):
@@ -127,12 +127,12 @@ class Temperature(LoadingBase):
         self.fieldsAtReducedIntegrationPoints = {}
         for key, field in self.fields.items():
 
-            self.fieldsAtReducedIntegrationPoints[key] = self.PhiAtReducedIntegPoint.dot(field)
+            self.fieldsAtReducedIntegrationPoints[key] = self.phiAtReducedIntegPoint.dot(field)
 
 
     def HyperReduceLoading(self, mesh, problemData, reducedOrderBases, operatorCompressionData):
 
-        return# pragma: no cover
+        return
 
 
 
@@ -162,7 +162,7 @@ class Temperature(LoadingBase):
         state["fieldsAtReducedIntegrationPoints"] = self.fieldsAtReducedIntegrationPoints
         state["fieldsMapTimes"] = self.fieldsMapTimes
         state["fieldsMapValues"] = self.fieldsMapValues
-        state["PhiAtReducedIntegPoint"] = self.PhiAtReducedIntegPoint
+        state["phiAtReducedIntegPoint"] = self.phiAtReducedIntegPoint
         state["fields"] = {}
         for f in self.fields.keys():
             state["fields"][f] = None
@@ -172,7 +172,7 @@ class Temperature(LoadingBase):
     def __str__(self):
         res = "Temperature Loading with set "+self.GetSet()+"\n"
         res += "fieldsMapValues : "+str(self.fieldsMapValues)+"\n"
-        res += "fields : "+str(self.fields)
+        #res += "fields : "+str(self.fields)
         return res
 
 

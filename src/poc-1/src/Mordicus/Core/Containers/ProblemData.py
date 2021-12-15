@@ -8,6 +8,7 @@ if MPI.COMM_WORLD.Get_size() > 1: # pragma: no cover
     os.environ["VECLIB_MAXIMUM_THREADS"] = "1"
     os.environ["NUMEXPR_NUM_THREADS"] = "1"
 import numpy as np
+from scipy import sparse
 
 from Mordicus.Core.Containers import Solution
 
@@ -376,7 +377,7 @@ class ProblemData(object):
         return self.constitutiveLaws
 
 
-    def GetConstitutiveOfType(self, type):
+    def GetConstitutiveLawsOfType(self, type):
         """
         Returns all constitutive laws of a specific type, in a list
 
@@ -402,7 +403,7 @@ class ProblemData(object):
             set of strings of elementSets
         """
         se = []
-        for law in self.GetConstitutiveOfType(type):
+        for law in self.GetConstitutiveLawsOfType(type):
             se.append(law.GetSet())
         return set(se)
 
@@ -423,7 +424,19 @@ class ProblemData(object):
         return self.solutions[solutionName]
 
 
-    def CompressSolution(self, solutionName, snapshotCorrelationOperator, reducedOrderBasis):
+    def GetSolutions(self):
+        """
+        Returns the solutions of problemData
+
+        Returns
+        -------
+        dict
+            solutions
+        """
+        return self.solutions
+
+
+    def CompressSolution(self, solutionName, reducedOrderBasis, snapshotCorrelationOperator = None):
         """
         Compress solutions of name solutionName ; does nothing if no solution of name solutionName exists
 
@@ -437,6 +450,9 @@ class ProblemData(object):
             of size (numberOfModes, numberOfDOFs)
         """
         assert isinstance(solutionName, str)
+
+        if snapshotCorrelationOperator is None:
+            snapshotCorrelationOperator = sparse.eye(self.GetSolution(solutionName).GetNumberOfDofs())
 
         try:
             solution = self.GetSolution(solutionName)

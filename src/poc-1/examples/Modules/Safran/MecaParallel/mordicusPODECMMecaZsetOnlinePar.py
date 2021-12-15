@@ -102,7 +102,8 @@ def test():
 
     print("onlineCompressionData.keys() =", list(onlineCompressionData.keys()))
 
-    PW.WritePXDMF(mesh, onlineCompressedSolution, reducedOrderBases["U"], "U")
+    PW.WriteCompressedSolution(mesh, onlineCompressedSolution, reducedOrderBases["U"], "U")
+
     print("The compressed solution has been written in PXDMF Format")
 
 

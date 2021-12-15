@@ -133,7 +133,7 @@ def test():
     print("ROMErrors U =", ROMErrorsU)
     print("ROMErrors Evrcum =", ROMErrorsEvrcum)
 
-    PW.WritePXDMF(mesh, onlineCompressedSolution, reducedOrderBases["U"], "U")
+    PW.WriteCompressedSolution(mesh, onlineCompressedSolution, reducedOrderBases["U"], "U")
     print("The compressed solution has been written in PXDMF Format")
 
     onlineProblemData.AddSolution(solutionUApprox)

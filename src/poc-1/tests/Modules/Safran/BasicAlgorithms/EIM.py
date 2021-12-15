@@ -7,7 +7,8 @@ def test():
 
     basis = np.array([[1., 0.], [0., 1.]])
 
-    EIM.QDEIM(basis)
+    np.testing.assert_almost_equal(EIM.QDEIM(basis), [0., 1.])
+
 
     return "ok"
 

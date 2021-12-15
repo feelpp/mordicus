@@ -42,6 +42,14 @@ def ReadInputTimeSequence(inputFileName):
     return reader.ReadInputTimeSequence()
 
 
+def ConstructInitialCondition(inputFileName):
+    """
+    1
+    """
+    reader = ZsetInputReader(inputFileName=inputFileName)
+    return reader.ConstructInitialCondition()
+
+
 def ConstructLoadingsList(inputFileName, loadingTags = None):
     """
     Constructs the loadings defined in the Z-set input file "inputFileName" (.inp)
@@ -122,9 +130,6 @@ class ZsetInputReader(InputReaderBase):
         return ZIO.GetInputTimeSequence(self.inputFile)
 
 
-
-
-
     def ConstructInitialCondition(self):
 
 
@@ -200,8 +205,6 @@ class ZsetInputReader(InputReaderBase):
             the constructed loading in one of the formats defined in Containers.Loadings
         """
 
-        import collections
-
         set = load[0]
 
         if key == "pressure":
@@ -212,8 +215,8 @@ class ZsetInputReader(InputReaderBase):
             sequence = tables[load[3]]
             name = load[2]
 
-            coefficients = collections.OrderedDict()
-            fieldsMap = collections.OrderedDict()
+            coefficients = {}
+            fieldsMap    = {}
 
             coefficients[float(sequence["time"][0])] = sequence["value"][0]
             fieldsMap[sequence["time"][0]] = name
@@ -265,7 +268,7 @@ class ZsetInputReader(InputReaderBase):
             sequence = tables[load[count]]
 
 
-            rotationVelocity = collections.OrderedDict()
+            rotationVelocity = {}
 
             rotationVelocity[float(sequence["time"][0])] = sequence["value"][0]
 
@@ -303,7 +306,7 @@ class ZsetInputReader(InputReaderBase):
             coefficient = float(load[2])
             sequence = tables[load[3]]
 
-            Text = collections.OrderedDict()
+            Text = {}
             for i, time in enumerate(sequence["time"]):
                 Text[float(time)] = coefficient*sequence["value"][i]
 
@@ -325,11 +328,11 @@ class ZsetInputReader(InputReaderBase):
             coefficient = float(load[4])
             sequence = tables[load[5]]
 
-            h = collections.OrderedDict()
+            h = {}
             h[sequence["time"][0]]  = coefH
             h[sequence["time"][-1]] = coefH
 
-            Text = collections.OrderedDict()
+            Text = {}
             for i, time in enumerate(sequence["time"]):
                 Text[float(time)] = coefficient*sequence["value"][i]
 
@@ -347,7 +350,7 @@ class ZsetInputReader(InputReaderBase):
 
             loading = Temperature.Temperature("U", set)
 
-            fieldsMap = collections.OrderedDict()
+            fieldsMap = {}
             fields = {}
             folder = self.rootpath + os.sep
 

@@ -73,7 +73,8 @@ class InitialCondition(InitialConditionBase):
                     initVector = self.initialSnapshot[solutionName] * np.ones(reducedOrderBasis.shape[1])
 
             else:
-                initVector = self.initialSnapshot[solutionName]# pragma: no cover
+                initVector = self.initialSnapshot[solutionName]
+
 
             if snapshotCorrelationOperator is None:
                 matVecProduct = initVector
@@ -81,12 +82,9 @@ class InitialCondition(InitialConditionBase):
                 matVecProduct = snapshotCorrelationOperator[solutionName].dot(initVector)
 
             localScalarProduct = np.dot(reducedOrderBasis, matVecProduct)
-            globalScalarProduct = np.zeros(reducedOrderBasis.shape[0])
+            globalScalarProduct = np.zeros(localScalarProduct.shape)
             MPI.COMM_WORLD.Allreduce([localScalarProduct, MPI.DOUBLE], [globalScalarProduct, MPI.DOUBLE])
-
-            self.SetReducedInitialSnapshot(solutionName, globalScalarProduct)# pragma: no cover
-
-
+            self.SetReducedInitialSnapshot(solutionName, globalScalarProduct)
 
 
     def __getstate__(self):

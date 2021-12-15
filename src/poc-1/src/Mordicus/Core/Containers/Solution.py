@@ -127,6 +127,23 @@ class Solution(object):
         return self.snapshots[time]
 
 
+    def GetCompressedSnapshot(self, time):
+        """
+        Returns the compressed snapshot at time time
+
+        Parameters
+        ----------
+        time : float
+            time at which the compressed snapshot is retrieved
+
+        Returns
+        -------
+        np.ndarray
+            compressed snapshot
+        """
+        return self.compressedSnapshots[time]
+
+
     def GetTimeSequenceFromSnapshots(self):
         """
         Returns the time sequence from the snapshots dictionary
@@ -223,6 +240,18 @@ class Solution(object):
         return self.primality
 
 
+    def GetSnapshots(self):
+        """
+        Returns the complete snapshots dictionary
+
+        Returns
+        -------
+        dict
+            the snapshots dictionary of the solution
+        """
+        return self.snapshots
+
+
     def GetCompressedSnapshots(self):
         """
         Returns the complete compressedSnapshots dictionary
@@ -308,6 +337,9 @@ class Solution(object):
         """
         if not isinstance(snapshots, dict):#pragma: no cover
             raise TypeError("snapshots should be an instance of dict")
+        for time, snapshot in snapshots.items():
+            if not len(snapshot.shape) == 1 or not snapshot.shape[0] == self.numberOfDOFs:#pragma: no cover
+                raise ValueError("Provided numpy array for time "+str(time)+" should be a vector of length {}".format(self.numberOfDOFs))
 
         self.snapshots = snapshots
 

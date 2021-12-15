@@ -97,12 +97,14 @@ def test():
     print("duration online =", time.time() - start)
 
 
-    PW.WritePXDMF(mesh, onlineCompressedSnapshots[0], reducedOrderBases[0]["U"], "U_reduced0")
-    PW.WritePXDMF(mesh, onlineCompressedSnapshots[1], reducedOrderBases[1]["U"], "U_reduced1")
+    PW.WriteCompressedSolution(mesh, onlineCompressedSnapshots[0], reducedOrderBases[0]["U"], "U_reduced0")
+    PW.WriteCompressedSolution(mesh, onlineCompressedSnapshots[1], reducedOrderBases[1]["U"], "U_reduced1")
+
     print("The compressed solution has been written in PXDMF Format")
 
-    PW.WriteReducedOrderBasisToPXDMF(mesh, reducedOrderBases[0]["U"], "U0")
-    PW.WriteReducedOrderBasisToPXDMF(mesh, reducedOrderBases[1]["U"], "U1")
+    PW.WriteReducedOrderBasis(mesh, reducedOrderBases[0]["U"], "U0")
+    PW.WriteReducedOrderBasis(mesh, reducedOrderBases[1]["U"], "U1")
+
     print("The reduced order basis has been written in PXDMF Format")
 
 

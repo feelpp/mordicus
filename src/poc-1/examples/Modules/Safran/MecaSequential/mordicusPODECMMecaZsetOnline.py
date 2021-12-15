@@ -6,6 +6,7 @@ from Mordicus.Core.Containers import ProblemData as PD
 from Mordicus.Core.Containers import Solution as S
 from Mordicus.Modules.Safran.FE import FETools as FT
 from Mordicus.Modules.Safran.IO import PXDMFWriter as PW
+from Mordicus.Modules.Safran.IO import XDMFWriter as XW
 from Mordicus.Modules.Safran.OperatorCompressors import Mechanical as Meca
 from Mordicus.Core.IO import StateIO as SIO
 from Mordicus.Core.Helpers import FolderHandler as FH
@@ -30,7 +31,6 @@ def test():
 
     operatorCompressionData = collectionProblemData.GetOperatorCompressionData()
     reducedOrderBases = collectionProblemData.GetReducedOrderBases()
-
 
     ##################################################
     # ONLINE
@@ -84,6 +84,8 @@ def test():
         onlineDualCompressedSolution, errorGappy = Meca.ReconstructDualQuantity(name, operatorCompressionData, onlineCompressionData, timeSequence = list(onlineCompressedSolution.keys()))
 
         solutionsDual.SetCompressedSnapshots(onlineDualCompressedSolution)
+
+        solutionsDual.UncompressSnapshots(reducedOrderBases[name])
 
         onlineProblemData.AddSolution(solutionsDual)
 
@@ -142,13 +144,19 @@ def test():
     print("ROMErrors U =", ROMErrorsU)
     print("ROMErrors Evrcum =", ROMErrorsEvrcum)
 
-    PW.WritePXDMF(mesh, onlineCompressedSolution, reducedOrderBases["U"], "U")
-    print("The compressed solution has been written in PXDMF Format")
+    PW.WriteCompressedSolution(mesh, onlineCompressedSolution, reducedOrderBases["U"], "U")
+    PW.WriteReducedOrderBasis(mesh, reducedOrderBases["U"], "ROB_U")
+    PW.WriteSolution(mesh, solutionUApprox, reducedOrderBases["U"])
+
 
     onlineProblemData.AddSolution(solutionUApprox)
 
+    XW.WriteSolution(mesh, solutionUApprox, 'OnlineU')
+    XW.WriteProblemDataSolutions(mesh, onlineProblemData, 'U', 'Online')
+    XW.WriteReducedOrderBases(mesh, onlineProblemData, reducedOrderBases, 'ROB')
 
     ZSW.WriteZsetSolution(mesh, meshFileName, "reduced", collectionProblemData, onlineProblemData, "U")
+    ZSW.WriteZsetSolution(mesh, meshFileName, "ROB", collectionProblemData, onlineProblemData, outputReducedOrderBasis = True)
 
 
     folderHandler.SwitchToExecutionFolder()

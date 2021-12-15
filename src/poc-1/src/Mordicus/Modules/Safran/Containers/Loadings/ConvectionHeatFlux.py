@@ -11,7 +11,6 @@ import numpy as np
 
 from Mordicus.Core.Containers.Loadings.LoadingBase import LoadingBase
 from Mordicus.Core.BasicAlgorithms import Interpolation as TI
-import collections
 
 
 class ConvectionHeatFlux(LoadingBase):
@@ -21,9 +20,9 @@ class ConvectionHeatFlux(LoadingBase):
 
     Attributes
     ----------
-    h : collections.OrderedDict()
+    h : dict
         dictionary with time indices (float) as keys and h (float) as values
-    Text    : collections.OrderedDict()
+    Text : dict
         dictionary with time indices (float) as keys and Text (str) as values
     reducedPhiT : numpy.ndarray
         size (numberOfModes)
@@ -34,13 +33,13 @@ class ConvectionHeatFlux(LoadingBase):
     def __init__(self, solutionName, set):
         assert isinstance(set, str)
         assert isinstance(solutionName, str)
-        assert solutionName == "T", "ConvectionHeatFlux loading can only be applied on T solution types"        
+        assert solutionName == "T", "ConvectionHeatFlux loading can only be applied on T solution types"
 
         super(ConvectionHeatFlux, self).__init__("T", set, "convection_heat_flux")
 
 
-        #self.h = collections.OrderedDict
-        #self.Text = collections.OrderedDict
+        #self.h = dict
+        #self.Text = dict
 
         self.hTimes = None
         self.hValues = None
@@ -58,10 +57,10 @@ class ConvectionHeatFlux(LoadingBase):
 
         Parameters
         ----------
-        h : collections.OrderedDict
+        h : dict
         """
         # assert type of h
-        assert isinstance(h, collections.OrderedDict)
+        assert isinstance(h, dict)
         assert np.all(
             [isinstance(key, (float, np.float64)) for key in list(h.keys())]
         )
@@ -85,10 +84,10 @@ class ConvectionHeatFlux(LoadingBase):
 
         Parameters
         ----------
-        Text : collections.OrderedDict
+        Text : dict
         """
         # assert type of Text
-        assert isinstance(Text, collections.OrderedDict)
+        assert isinstance(Text, dict)
         assert np.all(
             [isinstance(key, (float, np.float64)) for key in list(Text.keys())]
         )
@@ -128,22 +127,17 @@ class ConvectionHeatFlux(LoadingBase):
         return h, Text
 
 
-
-
     def ReduceLoading(self, mesh, problemData, reducedOrderBases, operatorCompressionData):
 
         from Mordicus.Modules.Safran.FE import FETools as FT
-        
+
         integrationWeights, phiAtIntegPoint = FT.ComputePhiAtIntegPoint(mesh, [self.GetSet()], relativeDimension = -1)
 
         reducedPhiTAtIntegPoints = phiAtIntegPoint.dot(reducedOrderBases[self.solutionName].T)
-        
+
         self.reducedPhiTPhiT = np.einsum('tk,tl,t->kl', reducedPhiTAtIntegPoints, reducedPhiTAtIntegPoints, integrationWeights, optimize = True)
 
         self.reducedPhiT = np.einsum('tk,t->k', reducedPhiTAtIntegPoints, integrationWeights, optimize = True)
-        
-
-
 
 
     def ComputeContributionToReducedExternalForces(self, time):

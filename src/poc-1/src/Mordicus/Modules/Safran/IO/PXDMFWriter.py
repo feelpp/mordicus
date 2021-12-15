@@ -10,14 +10,13 @@ if MPI.COMM_WORLD.Get_size() > 1: # pragma: no cover
     os.environ["NUMEXPR_NUM_THREADS"] = "1"
 import numpy as np
 
-import collections
 from mpi4py import MPI
 
 from BasicTools.IO import XdmfWriter as XW
 from Mordicus.Modules.Safran.FE import FETools as FT
 
 
-def WritePXDMF(mesh, compressedSnapshots, reducedOrderBasis, outputName):
+def WriteCompressedSolution(mesh, compressedSnapshots, reducedOrderBasis, outputName):
     """
     Functional API
 
@@ -27,7 +26,7 @@ def WritePXDMF(mesh, compressedSnapshots, reducedOrderBasis, outputName):
     ----------
     mesh : MeshBase
         the geometric support of the solution from one of the formats defined in Containers.Meshes
-    compressedSnapshots : collections.OrderedDict
+    compressedSnapshots : dict
         dictionary with time indices as keys and a np.ndarray of size (numberOfModes,) containing the coefficients of the reduced solution
     reducedOrderBasis : np.ndarray
             of size (numberOfModes, numberOfDOFs)
@@ -40,7 +39,7 @@ def WritePXDMF(mesh, compressedSnapshots, reducedOrderBasis, outputName):
 
 
 
-def WriteReducedOrderBasisToPXDMF(mesh, reducedOrderBasis, outputName):
+def WriteReducedOrderBasis(mesh, reducedOrderBasis, outputName):
     """
     Functional API
 
@@ -50,26 +49,26 @@ def WriteReducedOrderBasisToPXDMF(mesh, reducedOrderBasis, outputName):
     ----------
     mesh : MeshBase
         the geometric support of the solution from one of the formats defined in Containers.Meshes
-    compressedSnapshots : collections.OrderedDict
+    compressedSnapshots : dict
         dictionary with time indices as keys and a np.ndarray of size (numberOfModes,) containing the coefficients of the reduced solution
     reducedOrderBasis : np.ndarray
             of size (numberOfModes, numberOfDOFs)
     outputName : str, optional
         name of the file on disk where the solution is written
     """
-    indices = collections.OrderedDict()
+    indices = {}
     euclideanBasis = np.eye(reducedOrderBasis.shape[0])
 
     for i in range(reducedOrderBasis.shape[0]):
         indices[float(i)] = euclideanBasis[i]
 
-    writer = PXDMFWriter("ReducedOrderBasis_"+outputName)
+    writer = PXDMFWriter(outputName)
     writer.Write(mesh, indices, reducedOrderBasis)
 
 
 
 
-def WritePXDMFFromSolution(mesh, solution, reducedOrderBasis):
+def WriteSolution(mesh, solution, reducedOrderBasis):
     """
     Functional API
 
@@ -113,7 +112,7 @@ class PXDMFWriter(object):
         ----------
         mesh : MeshBase
             the geometric support of the solution from one of the formats defined in Containers.Meshes
-        compressedSnapshots : collections.OrderedDict
+        compressedSnapshots : dict
             dictionary with time indices as keys and a np.ndarray of size (numberOfModes,) containing the coefficients of the reduced solution
         reducedOrderBasis : np.ndarray
             of size (numberOfModes, numberOfDOFs)

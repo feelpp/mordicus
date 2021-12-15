@@ -11,8 +11,6 @@ if MPI.COMM_WORLD.Get_size() > 1: # pragma: no cover
 import numpy as np
 import sys
 
-from mpi4py import MPI
-import collections
 from Mordicus.Modules.Safran.FE import FETools as FT
 from Mordicus.Modules.Safran.OperatorCompressors import ReducedQuadratureProcedure as RQP
 from Mordicus.Modules.Safran.BasicAlgorithms import EIM
@@ -53,7 +51,7 @@ from Mordicus.Modules.Safran.DataCompressors import FusedSnapshotPOD as SP
 - stranIntForces
 - sigIntForces
 - dualVarOutputNames
-- dualVarOutput: collections.OrderedDict; keys:time : values: np.ndarray of size (nReducedIntegrationPoints, 2*nbeDualComponents+maxNstatv
+- dualVarOutput: dict; keys:time : values: np.ndarray of size (nReducedIntegrationPoints, 2*nbeDualComponents+maxNstatv
 - temperatureAtReducedIntegrationPoints0
 - temperatureAtReducedIntegrationPoints
 
@@ -103,7 +101,7 @@ def PrepareOnline(onlineProblemData, operatorCompressionData):
         onlineCompressionData["statevIntForcesTemp"][tag] = np.zeros((localNbIntPoints,nstatv))
         onlineCompressionData["dualVarOutputNames"][tag] = law.GetOneConstitutiveLawVariable("var")
 
-        onlineCompressionData["dualVarOutput"][tag] = collections.OrderedDict()
+        onlineCompressionData["dualVarOutput"][tag] = {}
 
 
     onlineCompressionData['IndicesOfIntegPointsPerMaterial'] = IndicesOfIntegPointsPerMaterial
@@ -138,7 +136,7 @@ def ComputeOnline(onlineProblemData, timeSequence, operatorCompressionData, tole
 
     initialCondition = onlineProblemData.GetInitialCondition()
 
-    onlineCompressedSolution = collections.OrderedDict()
+    onlineCompressedSolution = {}
     onlineCompressedSolution[timeSequence[0]] = initialCondition.GetReducedInitialSnapshot("U")
 
 
@@ -613,9 +611,8 @@ def LearnDualReconstruction(collectionProblemData, listNameDualVarOutput, reduce
 
 def ReconstructDualQuantity(nameDualQuantity, operatorCompressionData, onlineCompressionData, timeSequence):
 
-    import collections
 
-    onlineDualCompressedSolution = collections.OrderedDict()
+    onlineDualCompressedSolution = {}
 
 
     """nTimeSteps = np.array(timeSequence).shape[0]

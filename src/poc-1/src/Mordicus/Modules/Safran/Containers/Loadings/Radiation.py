@@ -11,7 +11,6 @@ import numpy as np
 
 from Mordicus.Core.Containers.Loadings.LoadingBase import LoadingBase
 from Mordicus.Core.BasicAlgorithms import Interpolation as TI
-import collections
 
 
 class Radiation(LoadingBase):
@@ -20,23 +19,23 @@ class Radiation(LoadingBase):
 
     Attributes
     ----------
-    Text : collections.OrderedDict()
+    Text : dict
         dictionary with time indices (float) as keys and temporal Text (float) as values
     StefanBoltzmannConstant    : float
         the Stefan Boltzmann constant used for the boundary condition computation
     reducedPhiT : numpy.ndarray
         size (numberOfModes)
     """
-        
+
     def __init__(self, solutionName, set):
         assert isinstance(set, str)
         assert isinstance(solutionName, str)
-        assert solutionName == "T", "Radiation loading can only be applied on T solution types"  
+        assert solutionName == "T", "Radiation loading can only be applied on T solution types"
 
         super(Radiation, self).__init__("T", set, "radiation")
 
-        self.StefanBoltzmannConstant = None
-        self.Text = collections.OrderedDict
+        self.stefanBoltzmannConstant = 0.
+        #self.Text = {}
 
         self.TextTimes = None
         self.TextValues = None
@@ -50,10 +49,10 @@ class Radiation(LoadingBase):
 
         Parameters
         ----------
-        Text : collections.OrderedDict
+        Text : dict
         """
         # assert type of Text
-        assert isinstance(Text, collections.OrderedDict)
+        assert isinstance(Text, dict)
         assert np.all(
             [isinstance(key, (float, np.float64)) for key in list(Text.keys())]
         )
@@ -64,10 +63,10 @@ class Radiation(LoadingBase):
             ]
         )
 
-        self.Text = Text
+        #self.Text = Text
 
-        self.TextTimes = np.array(list(self.Text.keys()), dtype = float)
-        self.TextValues = np.array(list(self.Text.values()), dtype = float)
+        self.TextTimes = np.array(list(Text.keys()), dtype = float)
+        self.TextValues = np.array(list(Text.values()), dtype = float)
 
 
     def SetStefanBoltzmannConstant(self, stefanBoltzmannConstant):
@@ -105,22 +104,16 @@ class Radiation(LoadingBase):
         return Text
 
 
-
     def ReduceLoading(self, mesh, problemData, reducedOrderBases, operatorCompressionData):
 
         from Mordicus.Modules.Safran.FE import FETools as FT
-        
+
 
         integrationWeights, phiAtIntegPoint = FT.ComputePhiAtIntegPoint(mesh, [self.GetSet()], relativeDimension = -1)
 
         reducedPhiTAtIntegPoints = phiAtIntegPoint.dot(reducedOrderBases[self.solutionName].T)
 
         self.reducedPhiT = np.einsum('tk,t->k', reducedPhiTAtIntegPoints, integrationWeights, optimize = True)
-        
-
-        """self.reducedPhiT0 = FT.IntegrateOrderOneTensorOnSurface(mesh, self.set, reducedOrderBases[self.solutionName])
-
-        print("rel dif =", np.linalg.norm(self.reducedPhiT - self.reducedPhiT0) / np.linalg.norm(self.reducedPhiT0))"""
 
 
 
@@ -134,10 +127,6 @@ class Radiation(LoadingBase):
         Text = self.GetTextAtTime(time)
 
         return self.stefanBoltzmannConstant*(Text**4)*self.reducedPhiT
-
-
-
-
 
 
     def __str__(self):

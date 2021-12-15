@@ -72,7 +72,6 @@ def test():
     np.testing.assert_almost_equal(collectionProblemData.GetCompressedSnapshotsAtTimes("U", np.array([0., 1.])), [np.ones(2),2.*np.ones(2)])
     assert id(collectionProblemData.GetLoadingsOfType("temperature")[0]) == id(loading)
 
-
     for s in collectionProblemData.SnapshotsIterator("U"):
         pass
     for s in collectionProblemData.SnapshotsIterator("U", skipFirst = True):
@@ -94,6 +93,8 @@ def test():
 
     problemData.AddParameter(np.zeros(2), 0.0)
     assert collectionProblemData.GetParameterDimension() == 2
+
+    collectionProblemData.CompressSolutions("U")
 
     SIO.SaveState("temp", collectionProblemData)
     SIO.LoadState("temp")

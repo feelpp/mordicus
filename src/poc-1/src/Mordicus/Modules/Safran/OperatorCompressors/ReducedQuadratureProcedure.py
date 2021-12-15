@@ -19,7 +19,7 @@ from Mordicus.Modules.Safran.BasicAlgorithms import LPEQP
 
 def ComputeReducedIntegrationScheme(integrationWeights, integrands, tolerance,\
         imposedIndices = None, reducedIntegrationPointsInitSet = None,\
-        initByLPEQP = False, geoMorphingMultiplier = None):
+        initByLPEQP = False, nRandom = 1, geoMorphingMultiplier = None):
     """
     Parameters
     ----------
@@ -107,7 +107,7 @@ def ComputeReducedIntegrationScheme(integrationWeights, integrands, tolerance,\
     print(TFormat.InGreen("NNOMPA stage"))
 
     s, x = NNOMPA.NNOMPA(integrationWeights,integrands,integrals,normIntegrals,\
-                       tolerance, s)
+                       tolerance, s, nRandom = nRandom)
     PrintReducedSchemeStatistics(s, x, integrands, integrals, normIntegrals)
 
 

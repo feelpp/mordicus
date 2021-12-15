@@ -1,15 +1,23 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
-import collections
 from Mordicus.Modules.Safran.Containers.Loadings import PressureBC as PBC
+from Mordicus.Modules.Safran.IO import ZsetMeshReader as ZMR
+from Mordicus import GetTestDataPath
 
 
 def test():
 
-    coefficients = collections.OrderedDict()
-    fieldsMap = collections.OrderedDict()
-    fields = {}
+    loading = PBC.PressureBC("U", "x0")
+
+    assert loading.GetSet() == "x0"
+    assert loading.GetType() == "pressure"
+    assert loading.GetSolutionName() == "U"
+    assert loading.GetIdentifier() == ("U","pressure","x0")
+
+    coefficients = {}
+    fieldsMap    = {}
+    fields       = {}
 
     coefficients[0.0] = 1.0
     coefficients[1.0] = 1.5
@@ -19,15 +27,41 @@ def test():
     fieldsMap[1.0] = "pressure2"
     fieldsMap[2.0] = "pressure1"
 
-    fields["pressure1"] = np.zeros(10)
-    fields["pressure2"] = np.ones(10)
+    fields["pressure1"] = np.arange(36)
+    fields["pressure2"] = np.ones(36)
 
-    loading = PBC.PressureBC("U", "set1")
+
+
     loading.SetCoefficients(coefficients)
     loading.SetFieldsMap(fieldsMap)
     loading.SetFields(fields)
-    
+
+    assert id(loading.GetFields()) == id(fields)
+
+    folder = GetTestDataPath() + "Zset/MecaSequential/"
+    meshFileName = folder + "cube.geof"
+
+    mesh = ZMR.ReadMesh(meshFileName)
+
+    nbDofs = mesh.GetNumberOfNodes()*mesh.GetDimensionality()
+    reducedOrderBases = {"U":np.arange(2*nbDofs).reshape((2,-1))}
+    dummy = 1
+
+    loading.ReduceLoading(mesh, dummy, reducedOrderBases, dummy)
+
+    assembledReducedFields = loading.assembledReducedFields
+    np.testing.assert_almost_equal(1e-3*assembledReducedFields["pressure1"],\
+                                   1e-3*np.array([-3817.91666667, -21825.41666667]))
+    np.testing.assert_almost_equal(1e-3*assembledReducedFields["pressure2"],\
+                                   1e-3*np.array([-168., -1197.]))
+
+
+    np.testing.assert_almost_equal(1e-3*loading.GetAssembledReducedFieldAtTime(0.2),\
+                                   1e-3*np.array([-3396.72666667, -19469.70666667]))
+
+    loading.HyperReduceLoading(mesh, dummy, reducedOrderBases, dummy)
     loading.__getstate__()
+
 
     print(loading)
     return "ok"

@@ -43,7 +43,6 @@ class TestMecaConstitutiveLaw(ConstitutiveLawBase):
 
         mu2 = 3.5*mu
 
-
         self.constitutiveLawVariables = {}
         self.constitutiveLawVariables['nstatv'] = 0
         self.constitutiveLawVariables['ddsdde'] = np.array([[mu2, lambd, lambd,      0.,       0.,         0.], [lambd, mu2, lambd,      0.,       0.,         0.], [lambd, lambd, mu2,      0.,       0.,         0.], [0.,              0.,              0.,         mu,      0.,       0.], [0.,              0.,              0.,              0.,  mu,      0.], [0.,              0.,              0.,              0.,       0.,         mu]])
@@ -59,7 +58,12 @@ class TestMecaConstitutiveLaw(ConstitutiveLawBase):
 
 
     def GetConstitutiveLawVariables(self):
-
+        """
+        Returns
+        -------
+        dict
+            complete dictionary defining the constitutive law variables
+        """
         return self.constitutiveLawVariables
 
 

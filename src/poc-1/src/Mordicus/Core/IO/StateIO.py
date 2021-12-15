@@ -26,7 +26,7 @@ def UpdateFileName(fileName):
 
 
 
-def SaveState(fileName, obj):
+def SaveState(fileName, obj, extension = "pkl"):
     """
     Saves the data structure on disk
 
@@ -36,8 +36,10 @@ def SaveState(fileName, obj):
         name of the file on disk
     obj : custom_data_format
         object to save on disk
+    extension : str, optional
+        file extension
     """
-    outputName = UpdateFileName(fileName) + ".pkl"
+    outputName = UpdateFileName(fileName) + "." + extension
 
     output = open(outputName, "wb")
     pickle.dump(obj, output)
@@ -45,7 +47,7 @@ def SaveState(fileName, obj):
 
 
 
-def LoadState(fileName):
+def LoadState(fileName, extension = "pkl"):
     """
     Read the data structure from disk
 
@@ -53,12 +55,14 @@ def LoadState(fileName):
     ----------
     fileName : str
         name of the file on disk
+    extension : str, optional
+        file extension
 
     Returns
     -------
     custom_data_format
     """
-    inputName = UpdateFileName(fileName) + ".pkl"
+    inputName = UpdateFileName(fileName) + "." + extension
 
     return pickle.load(open(inputName, "rb"))
 

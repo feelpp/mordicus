@@ -10,8 +10,6 @@ if MPI.COMM_WORLD.Get_size() > 1: # pragma: no cover
 import numpy as np
 
 from Mordicus.Core.Containers.Loadings.LoadingBase import LoadingBase
-import collections
-
 
 class PressureBC(LoadingBase):
     """
@@ -20,9 +18,9 @@ class PressureBC(LoadingBase):
 
     Attributes
     ----------
-    coefficients : collections.OrderedDict()
+    coefficients : dict
         dictionary with time indices (float) as keys and temporal coefficients (float) as values
-    fieldsMap    : collections.OrderedDict()
+    fieldsMap    : dict
         dictionary with time indices (float) as keys and pressure vectors tags (str) as values
     fields       : dict
         dictionary with pressure vectors tags (str) keys and pressure vectors (np.ndarray of size (numberOfElementsInSet,)) as values
@@ -37,11 +35,11 @@ class PressureBC(LoadingBase):
 
         super(PressureBC, self).__init__("U", set, "pressure")
 
-        #self.coefficients = collections.OrderedDict
+        #self.coefficients = {}
         self.coefficientsTimes = None
         self.coefficientsValues = None
 
-        #self.fieldsMap = collections.OrderedDict
+        #self.fieldsMap = {}
         self.fieldsMapTimes = None
         self.fieldsMapValues = None
 
@@ -55,10 +53,10 @@ class PressureBC(LoadingBase):
 
         Parameters
         ----------
-        coefficients : collections.OrderedDict
+        coefficients : dict
         """
         # assert type of coefficients
-        assert isinstance(coefficients, collections.OrderedDict)
+        assert isinstance(coefficients, dict)
         assert np.all(
             [isinstance(key, (float, np.float64)) for key in list(coefficients.keys())]
         )
@@ -81,10 +79,10 @@ class PressureBC(LoadingBase):
 
         Parameters
         ----------
-        fieldsMap : collections.OrderedDict
+        fieldsMap : dict
         """
         # assert type of fieldsMap
-        assert isinstance(fieldsMap, collections.OrderedDict)
+        assert isinstance(fieldsMap, dict)
         assert np.all(
             [isinstance(key, (float, np.float64)) for key in list(fieldsMap.keys())]
         )
@@ -168,8 +166,7 @@ class PressureBC(LoadingBase):
         keymap = list(self.GetFields().keys())
         numberOfFields = len(keymap)
 
-
-        fieldsAtIntegrationPoints = FT.CellDataToIntegrationPointsData(mesh, self.GetSet(), self.GetFields(), relativeDimension = -1)
+        fieldsAtIntegrationPoints = FT.CellDataToIntegrationPointsData(mesh, self.GetFields(), self.GetSet(), relativeDimension = -1)
         #this can be bypassed is the pressure values are already given at the integration points
 
         normalsAtIntegrationPoints = FT.ComputeNormalsAtIntegPoint(mesh, [self.GetSet()])
@@ -188,7 +185,7 @@ class PressureBC(LoadingBase):
 
     def HyperReduceLoading(self, mesh, problemData, reducedOrderBases, operatorCompressionData):
 
-        return# pragma: no cover
+        return
 
 
 
