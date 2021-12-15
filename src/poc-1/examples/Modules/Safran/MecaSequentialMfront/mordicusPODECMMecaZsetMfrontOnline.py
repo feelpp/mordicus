@@ -13,7 +13,7 @@ import numpy as np
 import os.path
 
 
-def test():
+def run():
 
 
     folderHandler = FH.FolderHandler(__file__)
@@ -56,13 +56,13 @@ def test():
     MfrontLaw.SetDensity(1.e-8)
     internalVariables = ['eel11', 'eel22', 'eel33', 'eel12', 'eel23', 'eel31', 'epcum']
     nRedIntegPoints = len(operatorCompressionData['reducedIntegrationPoints'])
-    
+
     if os.path.isfile(folder+'src/libBehaviour.so') == False:
         import subprocess
         os.chdir(folder)
-        subprocess.call("./compileMfrontLaw.sh")	
+        subprocess.call("./compileMfrontLaw.sh")
         folderHandler.SwitchToScriptFolder()
-    
+
     MfrontLaw.SetLawModelling('Tridimensional', 'IsotropicLinearHardeningMises', folder+'src/libBehaviour.so', internalVariables, nRedIntegPoints)
     onlineProblemData.AddConstitutiveLaw([MfrontLaw])
 
@@ -180,7 +180,7 @@ if __name__ == "__main__":
     p = P.Profiler()
     p.Start()
 
-    test()
+    run()
 
     p.Stop()
     print(p)

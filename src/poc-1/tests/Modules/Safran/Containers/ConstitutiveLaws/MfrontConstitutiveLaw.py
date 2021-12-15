@@ -38,17 +38,19 @@ def test():
         subprocess.call("./compileMfrontLaw.sh")
 
 
-    constitutiveLaw.SetLawModelling('Tridimensional', 'IsotropicLinearHardeningMises', folder+'src'+os.sep+'libBehaviour.so', internalVariables, ngauss)
 
+
+    #uncomment for testing (mfront must be compiled on corresponding architecture)
+    """constitutiveLaw.SetLawModelling('Tridimensional', 'IsotropicLinearHardeningMises', folder+'src'+os.sep+'libBehaviour.so', internalVariables, ngauss)
 
     temperature = 293.15 + np.zeros(ngauss)
     dtemp       = np.zeros(ngauss)
     statev = 0.
 
-
     ddsdde, stress, statev = constitutiveLaw.ComputeConstitutiveLaw(temperature, dtemp, stran, dstran, statev)
 
-    constitutiveLaw.UpdateInternalState()
+    constitutiveLaw.UpdateInternalState()"""
+
 
 
     constitutiveLaw.GetSet()
