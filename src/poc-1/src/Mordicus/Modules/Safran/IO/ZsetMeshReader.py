@@ -19,7 +19,7 @@ def ReadMesh(meshFileName):
     Returns
     -------
     BasicToolsUnstructuredMesh
-        mesh of the HF computation
+        mesh of the high-fidelity computation
     """
     reader = ZsetMeshReader(meshFileName=meshFileName)
     return reader.ReadMesh()
@@ -33,18 +33,14 @@ class ZsetMeshReader(MeshReaderBase):
     ----------
     meshFileName : str
         name of the Z-set mesh file (.geof or .geo)
+    reader : GeoReader or GeofReader
+        BasicTools reader of .geof or .geo files
     """
 
     def __init__(self, meshFileName):
-        """
-        Parameters
-        ----------
-        meshFileName : str, optional
-        """
-        super(ZsetMeshReader, self).__init__()
-
         assert isinstance(meshFileName, str)
 
+        super(ZsetMeshReader, self).__init__()
 
         folder = str(Path(meshFileName).parents[0])
         suffix = str(Path(meshFileName).suffix)
@@ -55,7 +51,7 @@ class ZsetMeshReader(MeshReaderBase):
             meshFileName = folder + os.sep + stem + "-pmeshes" + os.sep + stem + "-" + str(MPI.COMM_WORLD.Get_rank()+1).zfill(3) + suffix
         else:
             meshFileName = meshFileName
-            
+
 
         if suffix == ".geof":
             from BasicTools.IO import GeofReader as GR
@@ -66,15 +62,15 @@ class ZsetMeshReader(MeshReaderBase):
             self.reader = GR.GeoReader()
 
         else:  # pragma: no cover
-            raise NotImplementedError("meshFileName error!")         
+            raise NotImplementedError("meshFileName error!")
 
         self.reader.SetFileName(meshFileName)
-            
+
 
 
     def ReadMesh(self):
         """
-        Read the HF mesh
+        Read the high fidelity mesh
 
         Returns
         -------

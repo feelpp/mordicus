@@ -13,19 +13,32 @@ from Mordicus.Core.Containers.Loadings.LoadingBase import LoadingBase
 
 class PressureBC(LoadingBase):
     """
-    Class containing a Loading of type pressure boundary condition. A pressure vector over the elements of set at time t is given by : coefficients[ t ] * fields[ fieldsMap[ t ] ]
-
+    Class containing a Loading of type pressure boundary condition for
+    mechanical problems.
+    A pressure vector over the elements of set at time t is given by :
+    coefficients[ t ] * fields[ fieldsMap[ t ] ]
 
     Attributes
     ----------
-    coefficients : dict
-        dictionary with time indices (float) as keys and temporal coefficients (float) as values
-    fieldsMap    : dict
-        dictionary with time indices (float) as keys and pressure vectors tags (str) as values
-    fields       : dict
-        dictionary with pressure vectors tags (str) keys and pressure vectors (np.ndarray of size (numberOfElementsInSet,)) as values
+    coefficientsTimes : np.ndarray or list of floats
+        time values on which coefficient values are provided
+    coefficientsValues : np.ndarray or list of floats
+        coefficient values at the corresponding time values
+
+    fieldsMapTimes : np.ndarray or list of floats
+        time values on which filed maps values are provided
+    fieldsMapValues : np.ndarray or list of str
+        filed maps values at the corresponding time values
+    fields : dict
+        dictionary with pressure vectors tags (str) keys and pressure vectors
+        (np.ndarray of size (numberOfElementsInSet,)) as values
+
     assembledReducedFields : dict
-        dictionary with pressure vectors tags (str) keys and compressed pressure vectors (np.ndarray of size (numberOfModes,)) as values
+        dictionary with pressure vectors tags (str) keys and compressed
+        pressure vectors (np.ndarray of size (numberOfModes,)) as values.
+        The pressure reduced external forces contribution is in the form:
+        h*Text*red, where red is obtained by time interpolation over values of
+        assembledReducedFields
     """
 
     def __init__(self, solutionName, set):
@@ -35,91 +48,93 @@ class PressureBC(LoadingBase):
 
         super(PressureBC, self).__init__("U", set, "pressure")
 
-        #self.coefficients = {}
         self.coefficientsTimes = None
         self.coefficientsValues = None
 
-        #self.fieldsMap = {}
         self.fieldsMapTimes = None
         self.fieldsMapValues = None
-
         self.fields = {}
+
         self.assembledReducedFields = {}
 
 
     def SetCoefficients(self, coefficients):
         """
-        Sets the coeffients attribute of the class
+        Sets coefficientsTimes and coefficientsValues
 
         Parameters
         ----------
         coefficients : dict
+            dictionary with time steps (float) as keys and the values of the
+            coefficient (float)
         """
         # assert type of coefficients
         assert isinstance(coefficients, dict)
-        assert np.all(
-            [isinstance(key, (float, np.float64)) for key in list(coefficients.keys())]
-        )
-        assert np.all(
-            [
-                isinstance(key, (float, np.float64))
-                for key in list(coefficients.values())
-            ]
-        )
+        assert np.all([isinstance(key, (float, np.float64))
+                       for key in list(coefficients.keys())])
+        assert np.all([isinstance(key, (float, np.float64))
+                for key in list(coefficients.values())])
 
-        #self.coefficients = coefficients
         self.coefficientsTimes = np.array(list(coefficients.keys()), dtype = float)
         self.coefficientsValues = np.array(list(coefficients.values()), dtype = float)
 
 
-
     def SetFieldsMap(self, fieldsMap):
         """
-        Sets the fieldsMap attribute of the class
+        Sets fieldsMapTimes and fieldsMapValues
 
         Parameters
         ----------
         fieldsMap : dict
+            dictionary with time steps (float) as keys and the filed maps
+            values (str)
         """
         # assert type of fieldsMap
         assert isinstance(fieldsMap, dict)
-        assert np.all(
-            [isinstance(key, (float, np.float64)) for key in list(fieldsMap.keys())]
-        )
+        assert np.all([isinstance(key, (float, np.float64))
+                       for key in list(fieldsMap.keys())])
         assert np.all([isinstance(key, str) for key in list(fieldsMap.values())])
 
-        #self.fieldsMap = fieldsMap
         self.fieldsMapTimes = np.array(list(fieldsMap.keys()), dtype = float)
         self.fieldsMapValues = np.array(list(fieldsMap.values()), dtype = str)
 
 
-
     def SetFields(self, fields):
         """
-        Sets the fields attribute of the class
+        Sets fields
 
         Parameters
         ----------
         fields : dict
+            dictionary with pressure vectors tags (str) keys and pressure
+            vectors (np.ndarray of size (numberOfElementsInSet,)) as values
         """
         # assert type of fields
         assert isinstance(fields, dict)
         assert np.all([isinstance(key, str) for key in list(fields.keys())])
-        assert np.all(
-            [isinstance(value, np.ndarray) for value in list(fields.values())]
-        )
+        assert np.all([isinstance(value, np.ndarray)
+                       for value in list(fields.values())])
 
         self.fields = fields
 
 
-
     def GetFields(self):
+        """
+        Returns the complete field dictionary
+
+        Returns
+        -------
+        dict
+            dictionary with pressure vectors tags (str) keys and pressure vectors
+            (np.ndarray of size (numberOfElementsInSet,)) as values
+        """
         return self.fields
 
 
     def GetAssembledReducedFieldAtTime(self, time):
         """
-        Computes the pressure vector at time, using PieceWiseLinearInterpolation
+        Computes and returns the pressure vector at time, using
+        PieceWiseLinearInterpolation
 
         Parameters
         ----------
@@ -128,7 +143,7 @@ class PressureBC(LoadingBase):
         Returns
         -------
         np.ndarray
-            pressure vector at time
+            of size (numberOfElementsInSet,), pressure vector at time
         """
 
         # assert type of time
@@ -137,29 +152,39 @@ class PressureBC(LoadingBase):
         from Mordicus.Core.BasicAlgorithms import Interpolation as TI
 
         # compute coefficient at time
-        coefficient = TI.PieceWiseLinearInterpolation(
-            time, self.coefficientsTimes, self.coefficientsValues
-        )
+        coefficient = TI.PieceWiseLinearInterpolation(time,
+                              self.coefficientsTimes, self.coefficientsValues)
 
         # compute vector field at time
         vectorField = TI.PieceWiseLinearInterpolationWithMap(
             time,
             self.fieldsMapTimes,
             self.assembledReducedFields,
-            self.fieldsMapValues
-        )
+            self.fieldsMapValues)
 
         return coefficient * vectorField
 
 
 
     def ReduceLoading(self, mesh, problemData, reducedOrderBases, operatorCompressionData):
+        """
+        Computes and sets the reduced representation of the loading
 
-
-        #AssembleLoadingAgainstReducedBasis
-
+        Parameters
+        ----------
+        mesh : BasicTools.Containers.UnstructuredMesh
+            mesh of the high-fidelity model
+        problemData : ProblemData
+            problemData containing the loading
+        reducedOrderBases : dict(str: np.ndarray)
+            dictionary with solutionNames (str) as keys and reducedOrderBases
+            (np.ndarray of size (numberOfModes, numberOfDOFs)) as values
+        operatorCompressionData : dict(str: custom_data_structure)
+            not used in this loading
+            dictionary with solutionNames (str) as keys and data structure
+            generated by the operator compression step as values
+        """
         from Mordicus.Modules.Safran.FE import FETools as FT
-
 
         self.assembledReducedFields = {}
 
@@ -183,22 +208,27 @@ class PressureBC(LoadingBase):
             print("rel_dif =", np.linalg.norm(assembledField - assembledField0)/np.linalg.norm(assembledField0))"""
 
 
-    def HyperReduceLoading(self, mesh, problemData, reducedOrderBases, operatorCompressionData):
-
-        return
-
+    #def HyperReduceLoading(self, mesh, problemData, reducedOrderBases, operatorCompressionData):
+    #    return
 
 
     def ComputeContributionToReducedExternalForces(self, time):
         """
-        1.
-        """
+        Computes and returns the reduced external forces contribution of the loading
 
+        Parameters
+        ----------
+        time : float
+
+        Returns
+        -------
+        np.ndarray
+            of size (numberOfModes,)
+        """
         # assert type of time
         assert isinstance(time, (float, np.float64))
 
         return self.GetAssembledReducedFieldAtTime(time)
-
 
 
     def __getstate__(self):
@@ -219,12 +249,9 @@ class PressureBC(LoadingBase):
         return state
 
 
-
-
     def __str__(self):
         res = "Pressure Loading with set "+self.GetSet()
         return res
-
 
 
 if __name__ == "__main__":# pragma: no cover

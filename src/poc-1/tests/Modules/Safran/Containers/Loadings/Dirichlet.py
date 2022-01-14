@@ -35,7 +35,7 @@ def test():
     np.testing.assert_almost_equal(1e-3*loading.GetAssembledReducedFieldAtTime(0.2), 1e-3*np.array([710.5, 1739.5]))
     np.testing.assert_almost_equal(1e-5*loading.ComputeContributionToReducedExternalForces(0.2), 1e-5*np.array([710500., 1739500.]))
 
-    loading.HyperReduceLoading(mesh, dummy, reducedOrderBases, dummy)
+    #loading.HyperReduceLoading(mesh, dummy, reducedOrderBases, dummy)
 
     loading.__getstate__()
 

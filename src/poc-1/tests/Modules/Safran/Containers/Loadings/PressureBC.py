@@ -59,7 +59,7 @@ def test():
     np.testing.assert_almost_equal(1e-3*loading.GetAssembledReducedFieldAtTime(0.2),\
                                    1e-3*np.array([-3396.72666667, -19469.70666667]))
 
-    loading.HyperReduceLoading(mesh, dummy, reducedOrderBases, dummy)
+    #loading.HyperReduceLoading(mesh, dummy, reducedOrderBases, dummy)
     loading.__getstate__()
 
 

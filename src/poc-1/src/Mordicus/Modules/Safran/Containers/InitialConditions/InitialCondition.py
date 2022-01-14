@@ -15,13 +15,19 @@ from mpi4py import MPI
 
 class InitialCondition(InitialConditionBase):
     """
+    Class modeling an initial condition
 
     Attributes
     ----------
-    dataType : dict of string ("scalar" or "vector")
-    initialSnapshot : dict of float or np.ndarray of size (numberOfDofs,)
-    reducedInitialSnapshot : dict of np.ndarray of size (numberOfModes,)
-
+    dataType : dict
+        dictionary with solutionName (str) as keys and the type of initial
+        condition (str: "scalar" or "vector")
+    initialSnapshot : dict
+        dictionary with solutionName (str) as keys and the values of the initial
+        condition (float or np.ndarray of floats of size (numberOfDofs,))
+    reducedInitialSnapshot : dict
+        dictionary with solutionName (str) as keys and the values of the reduced
+        initial snapshot (np.ndarray of floats of size (numberOfModes,))
     """
 
     def __init__(self):
@@ -33,33 +39,89 @@ class InitialCondition(InitialConditionBase):
         self.reducedInitialSnapshot = {}
 
 
-    def SetDataType(self, solutionName, dataType):
+    def SetDataType(self, solutionName, dataTy):
+        """
+        Sets the type of initial condition
 
-        self.dataType[solutionName] = dataType
+        Parameters
+        ----------
+        solutionName : str
+            name of the corresponding solution
+        dataTy : str
+            type of initial condition (scalar" or "vector")
+        """
+        self.dataType[solutionName] = dataTy
 
 
     def GetDataType(self, solutionName):
+        """
+        Returns the type of initial condition for a given solutionName
 
+        Returns
+        -------
+        str
+            type of initial condition (scalar" or "vector")
+        """
         return self.dataType[solutionName]
 
 
     def SetInitialSnapshot(self, solutionName, initialSnapshot):
+        """
+        Sets the initial condition
 
+        Parameters
+        ----------
+        solutionName : str
+            name of the corresponding solution
+        initialSnapshot : float or np.ndarray of floats of size (numberOfDofs,)
+            values of the initial condition
+        """
         self.initialSnapshot[solutionName] = initialSnapshot
 
 
     def SetReducedInitialSnapshot(self, solutionName, reducedInitialSnapshot):
+        """
+        Sets the reduced initial snapshot
 
+        Parameters
+        ----------
+        solutionName : str
+            name of the corresponding solution
+        reducedInitialSnapshot : np.ndarray of floats of size (numberOfModes,)
+            values of the reduced initial snapshot
+        """
         self.reducedInitialSnapshot[solutionName] = reducedInitialSnapshot
 
 
     def GetReducedInitialSnapshot(self, solutionName):
+        """
+        Returns the reduced initial snapshot
 
+        Parameters
+        ----------
+        solutionName : str
+            name of the corresponding solution
+
+        Returns
+        -------
+        np.ndarray of floats of size (numberOfModes,)
+            values of the reduced initial snapshot
+        """
         return self.reducedInitialSnapshot[solutionName]
 
 
     def ReduceInitialSnapshot(self, reducedOrderBases, snapshotCorrelationOperator = None):
+        """
+        Computes and sets the reduced initial snapshot
 
+        Parameters
+        ----------
+        reducedOrderBases : dict(str: np.ndarray)
+            dictionary with solutionNames (str) as keys and reducedOrderBases
+            (np.ndarray of size (numberOfModes, numberOfDOFs)) as values
+        snapshotCorrelationOperator : scipy.sparse.csr, optional
+            correlation operator between the snapshots
+        """
         for solutionName in self.initialSnapshot.keys():
 
             reducedOrderBasis = reducedOrderBases[solutionName]
@@ -84,6 +146,7 @@ class InitialCondition(InitialConditionBase):
             localScalarProduct = np.dot(reducedOrderBasis, matVecProduct)
             globalScalarProduct = np.zeros(localScalarProduct.shape)
             MPI.COMM_WORLD.Allreduce([localScalarProduct, MPI.DOUBLE], [globalScalarProduct, MPI.DOUBLE])
+
             self.SetReducedInitialSnapshot(solutionName, globalScalarProduct)
 
 
@@ -96,10 +159,10 @@ class InitialCondition(InitialConditionBase):
         return state
 
 
-
     def __str__(self):
         res = "Initial Condition"
         return res
+
 
 if __name__ == "__main__":# pragma: no cover
 

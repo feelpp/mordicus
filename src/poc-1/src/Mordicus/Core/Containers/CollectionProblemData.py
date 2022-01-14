@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 import os
 from mpi4py import MPI
 if MPI.COMM_WORLD.Get_size() > 1: # pragma: no cover
@@ -791,6 +792,8 @@ class CollectionProblemData(object):
         ----------
         solutionName : str
             name of the solutions to compress
+        snapshotCorrelationOperator : scipy.sparse.csr, optional
+            correlation operator between the snapshots
         """
         assert isinstance(solutionName, str)
 
@@ -828,6 +831,8 @@ class CollectionProblemData(object):
             name of the solutions to compress
         newReducedOrderBasis : np.ndarray
             of size (newNumberOfModes, numberOfDOFs)
+        snapshotCorrelationOperator : scipy.sparse.csr, optional
+            correlation operator between the snapshots
 
         Returns
         -------

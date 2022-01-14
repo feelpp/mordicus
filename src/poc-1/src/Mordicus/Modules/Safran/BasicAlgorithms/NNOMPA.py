@@ -34,6 +34,9 @@ def NNOMPA(integrationWeights, integrands, integrals, normIntegrals, tolerance,\
         points. Usually, the integrands are already reduced, and
         numberOfIntegrands is the product of the number of reduced integrand
         modes and the number of modes of the ReducedOrderBasis
+    integrals : np.ndarray
+        of size (numberOfIntegrands,), dtype = float.
+        High-fidelity integral computed using the truth integration scheme
     normIntegrals : float
         np.linalg.norm(integrals), already computed in mordicus use
     tolerance : float
@@ -139,9 +142,9 @@ def CallOptimizer(integrands_s, integrals, max_iter = None):
 
     Parameters
     ----------
-    A : array_like, sparse matrix of LinearOperator, shape (m, n)
+    integrands_s : array_like, sparse matrix of LinearOperator, shape (m, n)
         Design matrix. Can be `scipy.sparse.linalg.LinearOperator`.
-    b : array_like, shape (m,)
+    integrals : array_like, shape (m,)
         Target vector.
     max_iter : None or int, optional
         Maximum number of iterations before termination. If None (default), it

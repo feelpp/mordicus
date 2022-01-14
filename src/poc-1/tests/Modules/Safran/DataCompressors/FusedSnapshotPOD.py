@@ -59,7 +59,6 @@ def test():
     #######
 
     # test 3
-    print("test 3")
     FusedSnapshotPOD.CompressData(collectionProblemData, "U", compressSolutions = True, nbModes = 1)
 
     refReducedOrderBasis = np.array(

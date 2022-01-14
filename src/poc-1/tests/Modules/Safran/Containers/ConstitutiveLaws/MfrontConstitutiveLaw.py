@@ -2,18 +2,22 @@
 
 from Mordicus.Modules.Safran.Containers.ConstitutiveLaws import MfrontConstitutiveLaw as MCL
 from Mordicus import GetTestDataPath
+from Mordicus.Core.Helpers import FolderHandler as FH
+
 
 import numpy as np
 import os
 
 def test():
 
+    folderHandler = FH.FolderHandler(__file__)
+    folderHandler.SwitchToScriptFolder()
 
     constitutiveLaw = MCL.MfrontConstitutiveLaw("ALLELEMENT")
 
     #uncomment for testing (mfront must be compiled on corresponding architecture)
-    """
-    ngauss = 1
+
+    """ngauss = 1
 
     temperature = 293.15 + np.zeros(ngauss)
     dtemp       = np.zeros(ngauss)
@@ -44,7 +48,7 @@ def test():
 
     ddsdde, stress, statev = constitutiveLaw.ComputeConstitutiveLaw(temperature, dtemp, stran, dstran, statev)
 
-    constitutiveLaw.UpdateInternalState()"""
+    constitutiveLaw.UpdateInternalState()
 
 
     assert constitutiveLaw.GetSet() == 'ALLELEMENT'
@@ -53,14 +57,17 @@ def test():
 
     constitutiveLawVariables = constitutiveLaw.GetConstitutiveLawVariables()
     assert constitutiveLawVariables['var'] == ['eto11', 'eto22', 'eto33', 'eto12', 'eto23', 'eto31',\
-            'sig11', 'sig22', 'sig33', 'sig12', 'sig23', 'sig31']
+            'sig11', 'sig22', 'sig33', 'sig12', 'sig23', 'sig31', 'eel11', 'eel22', 'eel33', 'eel12', 'eel23', 'eel31', 'epcum']
     constitutiveLaw.SetConstitutiveLawVariables(constitutiveLawVariables)
     constitutiveLaw.SetOneConstitutiveLawVariable('test', 'test')
     assert constitutiveLaw.GetOneConstitutiveLawVariable('test') == 'test'
     constitutiveLaw.SetDensity(1.)
-    assert constitutiveLaw.GetDensity() == 1.
+    assert constitutiveLaw.GetDensity() == 1."""
 
     print(constitutiveLaw)
+
+    folderHandler.SwitchToExecutionFolder()
+
     return "ok"
 
 

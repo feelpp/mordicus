@@ -12,18 +12,30 @@ import numpy as np
 from Mordicus.Core.Containers.Loadings.LoadingBase import LoadingBase
 
 
-
 class Temperature(LoadingBase):
     """
+    Class containing a Loading of type temperature for mechanical problems.
 
     Attributes
     ----------
-    fieldsMap : dict
-        dictionary with time indices (float) as keys and temperature fields tags (str) as values
+    fieldsMapTimes : np.ndarray or list of floats
+        time values on which filed maps values are provided
+    fieldsMapValues : np.ndarray or list of str
+        filed maps values at the corresponding time values
     fields : dict
-        dictionary with pressure vectors tags (str) keys and pressure vectors (np.ndarray of size (numberOfElementsInSet,)) as values
-    fieldsAtReducedIntegrationPoints : np.ndarray
-        np.ndarray of size (numberOfReducedIntegrationPoints) containing the temperature fields at reduced integration points
+        dictionary with temperature vectors tags (str) keys and temperature
+        vectors (np.ndarray of size (numberOfNodes,)) at integration
+        points as values
+    fieldsAtReducedIntegrationPoints : dict
+        dictionary with temperature vectors tags (str) keys and temperature
+        vectors (np.ndarray of size (numberOfReducedIntegPoints,)) at reduced
+        integration points as values
+
+    phiAtReducedIntegPoint : scipy.sparse matrix
+        of size (numberOfReducedIntegPoints,numberOfNodes) containing the
+        finite element basis functions evaluated at the reduced integration
+        points, so that the temperature fields at reduced integration points
+        are obtained by phiAtReducedIntegPoint.dot(field)
     """
 
     def __init__(self, solutionName, set):
@@ -32,56 +44,53 @@ class Temperature(LoadingBase):
 
         super(Temperature, self).__init__(solutionName, set, "temperature")
 
-
-        #self.fieldsMap = dict
         self.fieldsMapTimes = None
         self.fieldsMapValues = None
-
-        self.phiAtReducedIntegPoint = None
-
         self.fields = {}
         self.fieldsAtReducedIntegrationPoints = {}
+
+        self.phiAtReducedIntegPoint = None
 
 
     def SetFieldsMap(self, fieldsMapTimes, fieldsMapValues):
         """
-        Sets the fieldsMap attribute of the class
+        Sets fieldsMapTimes and fieldsMapValues
 
         Parameters
         ----------
-        fieldsMap : dict
+        fieldsMapTimes : np.ndarray or list of floats
+            time values on which filed maps values are provided
+            fieldsMapValues : np.ndarray or list of str
+            filed maps values at the corresponding time values
         """
-        # assert type of fieldsMap
-        #assert isinstance(fieldsMap, dict)
-        #assert np.all(
-        #    [isinstance(key, (float, np.float64)) for key in list(fieldsMap.keys())]
-        #)
-        #assert np.all([isinstance(key, str) for key in list(fieldsMap.values())])
-
-        #self.fieldsMap = fieldsMap
         self.fieldsMapTimes = fieldsMapTimes
         self.fieldsMapValues = fieldsMapValues
 
 
     def SetFields(self, fields):
         """
-        Sets the fields attribute of the class
+        Sets fields
 
         Parameters
         ----------
         fields : dict
+            dictionary with temperature vectors tags (str) keys and temperature
+            vectors (np.ndarray of size (numberOfNodes,)) at integration
+            points as values
         """
         # assert type of fields
         assert isinstance(fields, dict)
         assert np.all([isinstance(key, str) for key in list(fields.keys())])
-        assert np.all([isinstance(value, np.ndarray) for value in list(fields.values())])
+        assert np.all([isinstance(value, np.ndarray)
+                       for value in list(fields.values())])
 
         self.fields = fields
 
 
     def GetTemperatureAtReducedIntegrationPointsAtTime(self, time):
         """
-        Computes the temperature at reduced integration points and at time, using PieceWiseLinearInterpolation
+        Computes and returns the temperature at reduced integration points and
+        at time, using PieceWiseLinearInterpolation
 
         Parameters
         ----------
@@ -90,16 +99,15 @@ class Temperature(LoadingBase):
         Returns
         -------
         np.ndarray
-            temperature at reduced integration points and at time
+            of size (numberOfReducedIntegPoints,), temperature at reduced
+            integration points and at time
         """
-
         # assert type of time
         assert isinstance(time, (float, np.float64))
 
         from Mordicus.Core.BasicAlgorithms import Interpolation as TI
 
         # compute fieldsAtReducedIntegrationPoints at time
-
         temperatureAtReducedIntegrationPoints = TI.PieceWiseLinearInterpolationWithMap(
             time,
             self.fieldsMapTimes,
@@ -110,10 +118,22 @@ class Temperature(LoadingBase):
 
 
     def PreReduceLoading(self, mesh, operatorCompressionData):
+        """
+        Prepares ReduceLoading by setting phiAtReducedIntegPoint
+
+        Parameters
+        ----------
+        mesh : BasicTools.Containers.UnstructuredMesh
+            mesh of the high-fidelity model
+        operatorCompressionData : dict(str: custom_data_structure)
+            dictionary with solutionNames (str) as keys and data structure
+            generated by the operator compression step as values
+        """
 
         if self.phiAtReducedIntegPoint == None:
 
-            assert 'reducedIntegrationPoints' in operatorCompressionData, "operatorCompressionData must contain a key 'reducedIntegrationPoints'"
+            assert 'reducedIntegrationPoints' in operatorCompressionData,\
+                "operatorCompressionData must contain a key 'reducedIntegrationPoints'"
 
             from Mordicus.Modules.Safran.FE import FETools as FT
             _, phiAtIntegPoint = FT.ComputePhiAtIntegPoint(mesh)
@@ -121,7 +141,22 @@ class Temperature(LoadingBase):
 
 
     def ReduceLoading(self, mesh = None, problemData = None, reducedOrderBases = None, operatorCompressionData = None):
+        """
+        Computes and sets the reduced representation of the loading
 
+        Parameters
+        ----------
+        mesh : BasicTools.Containers.UnstructuredMesh
+            mesh of the high-fidelity model
+        problemData : ProblemData
+            problemData containing the loading
+        reducedOrderBases : dict(str: np.ndarray)
+            dictionary with solutionNames (str) as keys and reducedOrderBases
+            (np.ndarray of size (numberOfModes, numberOfDOFs)) as values
+        operatorCompressionData : dict(str: custom_data_structure)
+            dictionary with solutionNames (str) as keys and data structure
+            generated by the operator compression step as values
+        """
         self.PreReduceLoading(mesh, operatorCompressionData)
 
         self.fieldsAtReducedIntegrationPoints = {}
@@ -130,15 +165,22 @@ class Temperature(LoadingBase):
             self.fieldsAtReducedIntegrationPoints[key] = self.phiAtReducedIntegPoint.dot(field)
 
 
-    def HyperReduceLoading(self, mesh, problemData, reducedOrderBases, operatorCompressionData):
-
-        return
-
+    #def HyperReduceLoading(self, mesh, problemData, reducedOrderBases, operatorCompressionData):
+    #    return
 
 
     def ComputeContributionToReducedExternalForces(self, time):
         """
-        No contribution
+        Computes and returns the reduced external forces contribution of the
+        loading, which is zero for temperature loadings
+
+        Parameters
+        ----------
+        time : float
+
+        Returns
+        -------
+        0.
         """
         # assert type of time
         assert isinstance(time, (float, np.float64))
@@ -147,8 +189,14 @@ class Temperature(LoadingBase):
 
 
     def UpdateLoading(self, loading):
+        """
+        Update the high-dimensional data of the temperature loading, from
+        another temperature loading
 
-
+        Parameters
+        ----------
+        loading : Temperature
+        """
         self.SetFieldsMap(loading.fieldsMapTimes, loading.fieldsMapValues)
         self.SetFields(loading.fields)
 
@@ -168,6 +216,7 @@ class Temperature(LoadingBase):
             state["fields"][f] = None
 
         return state
+
 
     def __str__(self):
         res = "Temperature Loading with set "+self.GetSet()+"\n"

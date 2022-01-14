@@ -22,21 +22,17 @@ def LPEQP(integrationWeights, integrands, integrals, normIntegrals, tolerance):
     integrationWeights : np.ndarray
         of size (numberOfIntegrationPoints,), dtype = float.
         Weights of the truth quadrature
-
     integrands : np.ndarray
         of size (numberOfIntegrands,numberOfIntegrationPoints), dtype = float.
         Functions we look to integrated accurately with fewer integration
         points. Usually, the integrands are already reduced, and
         numberOfIntegrands is the product of the number of reduced integrand
         modes and the number of modes of the ReducedOrderBasis
-
     integrals : np.ndarray
         of size (numberOfIntegrands,), dtype = float.
         High-fidelity integral computed using the truth integration scheme
-
     normIntegrals : float
         np.linalg.norm(integrals), already computed in mordicus use
-
     tolerance : float
         upper bound for the accuracy of the reduced integration scheme on the
         provided integrands

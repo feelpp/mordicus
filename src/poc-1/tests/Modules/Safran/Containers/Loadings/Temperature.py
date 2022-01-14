@@ -50,8 +50,8 @@ def test():
 
     loading.UpdateLoading(loading)
 
-    dummy = 1.
-    loading.HyperReduceLoading(mesh, dummy, dummy, dummy)
+    #dummy = 1.
+    #loading.HyperReduceLoading(mesh, dummy, dummy, dummy)
 
     assert loading.ComputeContributionToReducedExternalForces(0.2) == 0.
 
