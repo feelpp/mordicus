@@ -37,7 +37,7 @@
 
     e). Unitary tests are in the tests folder, which follow the same
     organization as the src folder, aiming to test only the functions defined
-    in the corresponding file. All functions in the file must be tested, if
+    in the corresponding file. All functions in the file should be tested, if
     possible. Please limit the use of functions from other file to reach that
     goal, and use small and simple data.
 
@@ -46,9 +46,9 @@
 	their use is not recommanded and requires advanced knowledge of the
 	underlying objects.
 
-    g). Coverage must be kept to 100%.
+    g). Coverage should be kept to 100%.
 
-    h). Favor imports at the beginning of files
+    h). Favor imports at the beginning of files.
 
 
 Possible Contributor License Agreement below

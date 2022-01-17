@@ -25,7 +25,7 @@ def ReadMesh(meshFileName):
     Returns
     -------
     BasicToolsUnstructuredMesh
-        mesh of the high-fidelity computation
+        high-dimensional mesh
     """
     reader = ZsetMeshReader(meshFileName=meshFileName)
     return reader.ReadMesh()
@@ -76,14 +76,13 @@ class ZsetMeshReader(MeshReaderBase):
 
     def ReadMesh(self):
         """
-        Read the high fidelity mesh
+        Reads the high-dimensional mesh
 
         Returns
         -------
         BasicToolsUnstructuredMesh
-            mesh of the HF computation
+            high-dimensional mesh
         """
-
         data = self.reader.Read()
 
         from Mordicus.Modules.Safran.Containers.Meshes import BasicToolsUnstructuredMesh as BTUM

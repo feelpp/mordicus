@@ -5,7 +5,6 @@
 #
 #
 
-
 import os
 from mpi4py import MPI
 if MPI.COMM_WORLD.Get_size() > 1: # pragma: no cover
@@ -21,28 +20,6 @@ from Mordicus.Core.IO import StateIO as SIO
 import numpy as np
 
 
-def WriteReducedOrderBases(mesh, problemData, reducedOrderBases, outputName):
-    """
-    Functional API
-
-    Writes a solution on disk satisfying the corresponding format
-
-    Parameters
-    ----------
-    mesh : MeshBase
-        the geometric support of the solution from one of the formats defined in Containers.Meshes
-    compressedSnapshots : dict
-        dictionary with time indices as keys and a np.ndarray of size (numberOfModes,) containing the coefficients of the reduced solution
-    reducedOrderBasis : np.ndarray
-            of size (numberOfModes, numberOfDOFs)
-    outputName : str, optional
-        name of the file on disk where the solution is written
-    """
-
-
-    writer = XDMFWriter(outputName)
-    writer.WriteReducedOrderBases(mesh, problemData, reducedOrderBases)
-
 
 def WriteSolution(mesh, solution, outputName):
     """
@@ -52,13 +29,11 @@ def WriteSolution(mesh, solution, outputName):
 
     Parameters
     ----------
-    mesh : MeshBase
-        the geometric support of the solution from one of the formats defined in Containers.Meshes
+    mesh : BasicToolsUnstructuredMesh
+        high-dimensional mesh
     solution : Solution
         solution containing compressedSnapshots
-    reducedOrderBasis : np.ndarray
-            of size (numberOfModes, numberOfDOFs)
-    outputName : str, optional
+    outputName : str
         name of the file on disk where the solution is written
     """
     writer = XDMFWriter(outputName)
@@ -69,22 +44,44 @@ def WriteProblemDataSolutions(mesh, problemData, solutionNameRef, outputName):
     """
     Functional API
 
-    Writes a solution on disk satisfying the corresponding format
+    Writes on disk the solutions defined in a ProblemData, satisfying the
+    corresponding format
 
     Parameters
     ----------
-    mesh : MeshBase
-        the geometric support of the solution from one of the formats defined in Containers.Meshes
-    solution : Solution
-        solution containing compressedSnapshots
-    reducedOrderBasis : np.ndarray
-            of size (numberOfModes, numberOfDOFs)
-    outputName : str, optional
+    mesh : BasicToolsUnstructuredMesh
+        high-dimensional mesh
+    problemData : ProblemData
+        ProblemData containing the solutions to be written
+    solutionNameRef : str
+        name of the solution whose timeSequence is chosen for the output
+    outputName : str
         name of the file on disk where the solution is written
     """
     writer = XDMFWriter(outputName)
     writer.WriteProblemDataSolutions(mesh, problemData, solutionNameRef)
 
+
+def WriteReducedOrderBases(mesh, problemData, reducedOrderBases, outputName):
+    """
+    Functional API
+
+    Writes reducedOrderBases on disk satisfying the corresponding format
+
+    Parameters
+    ----------
+    mesh : BasicToolsUnstructuredMesh
+        high-dimensional mesh
+    compressedSnapshots : dict
+        dictionary with time indices as keys and a np.ndarray of size
+        (numberOfModes,) containing the coefficients of the reduced solution
+    reducedOrderBasis : np.ndarray
+            of size (numberOfModes, numberOfDOFs)
+    outputName : str
+        name of the file on disk where the solution is written
+    """
+    writer = XDMFWriter(outputName)
+    writer.WriteReducedOrderBases(mesh, problemData, reducedOrderBases)
 
 
 class XDMFWriter(object):
@@ -99,20 +96,15 @@ class XDMFWriter(object):
 
     def WriteSolution(self, mesh, solution):
         """
-        Writes a solution on disk in the PXDMF format.
-
-        Optimal input mesh format is BasicToolsUnstructuredMesh.
+        Writes a solution on disk satisfying the corresponding format
 
         Parameters
         ----------
-        mesh : MeshBase
-            the geometric support of the solution from one of the formats defined in Containers.Meshes
-        compressedSnapshots : dict
-            dictionary with time indices as keys and a np.ndarray of size (numberOfModes,) containing the coefficients of the reduced solution
-        reducedOrderBasis : np.ndarray
-            of size (numberOfModes, numberOfDOFs)
+        mesh : BasicToolsUnstructuredMesh
+            high-dimensional mesh
+        solution : Solution
+            solution containing compressedSnapshots
         """
-
         if MPI.COMM_WORLD.Get_size() > 1:  # pragma: no cover
             #ATTENTION: BasicTools Xdmf writer not supported in parallel
             SIO.SaveState(self.outputName, solution)
@@ -154,9 +146,18 @@ class XDMFWriter(object):
 
     def WriteProblemDataSolutions(self, mesh, problemData, solutionNameRef):
         """
-        Writes a solution on disk in the PXDMF format.
-        """
+        Writes on disk the solutions defined in a ProblemData, satisfying the
+        corresponding format
 
+        Parameters
+        ----------
+        mesh : BasicToolsUnstructuredMesh
+            high-dimensional mesh
+        problemData : ProblemData
+            ProblemData containing the solutions to be written
+        solutionNameRef : str
+            name of the solution whose timeSequence is chosen for the output
+        """
         if MPI.COMM_WORLD.Get_size() > 1:  # pragma: no cover
             #ATTENTION: BasicTools Xdmf writer not supported in parallel
             SIO.SaveState("problemData_"+self.outputName, problemData)
@@ -194,7 +195,17 @@ class XDMFWriter(object):
 
     def WriteReducedOrderBases(self, mesh, problemData, reducedOrderBases):
         """
-        Writes a solution on disk in the PXDMF format.
+        Writes reducedOrderBases on disk satisfying the corresponding format
+
+        Parameters
+        ----------
+        mesh : BasicToolsUnstructuredMesh
+            high-dimensional mesh
+        compressedSnapshots : dict
+            dictionary with time indices as keys and a np.ndarray of size
+            (numberOfModes) containing the coefficients of the reduced solution
+        reducedOrderBasis : np.ndarray
+                of size (numberOfModes, numberOfDOFs)
         """
 
         if MPI.COMM_WORLD.Get_size() > 1:  # pragma: no cover
@@ -229,7 +240,6 @@ class XDMFWriter(object):
             writer.Write(unstructuredMesh,PointFields=pointFields, PointFieldsNames=pointFieldsNames,
                          CellFields=cellFields, CellFieldsNames=cellFieldsNames)
             writer.Close()
-
 
 
 

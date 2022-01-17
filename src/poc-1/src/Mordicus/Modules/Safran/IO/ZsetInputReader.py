@@ -32,7 +32,9 @@ def ReadInputTimeSequence(inputFileName):
     """
     Functional API
 
-    Reads the time sequence from the Z-set input file "inputFileName" (.inp) (may be different from the ones defined in the solution file if the solver chose to solve at additional time steps)
+    Reads the time sequence from the Z-set input file "inputFileName" (.inp)
+    (may be different from the ones defined in the solution file if the solver
+    chose to solve at additional time steps)
 
     Parameters
     ----------
@@ -50,7 +52,20 @@ def ReadInputTimeSequence(inputFileName):
 
 def ConstructInitialCondition(inputFileName):
     """
-    1
+    Functional API
+
+    Constructs the initial condition defined in the Z-set input file
+    "inputFileName" (.inp)
+
+    Parameters
+    ----------
+    inputFileName : str
+        Z-set input file
+
+    Returns
+    -------
+    InitialCondition
+        object defining an initial condition
     """
     reader = ZsetInputReader(inputFileName=inputFileName)
     return reader.ConstructInitialCondition()
@@ -58,7 +73,8 @@ def ConstructInitialCondition(inputFileName):
 
 def ConstructLoadingsList(inputFileName, loadingTags = None):
     """
-    Constructs the loadings defined in the Z-set input file "inputFileName" (.inp)
+    Constructs the loadings defined in the Z-set input file "inputFileName"
+    (.inp)
 
     Parameters
     ----------
@@ -68,7 +84,8 @@ def ConstructLoadingsList(inputFileName, loadingTags = None):
     Returns
     -------
     list
-        list of loadings, each one having one of the formats defined in Containers.Loadings
+        list of loadings, each one having one of the formats defined in
+        Containers.Loadings
     """
     reader = ZsetInputReader(inputFileName=inputFileName)
     return reader.ConstructLoadingsList(loadingTags)
@@ -76,7 +93,19 @@ def ConstructLoadingsList(inputFileName, loadingTags = None):
 
 def ConstructConstitutiveLawsList(inputFileName):
     """
-    1
+    Constructs the constitutive laws defined in the Z-set input file
+    "inputFileName" (.inp)
+
+    Parameters
+    ----------
+    inputFileName : str
+        Z-set input file
+
+    Returns
+    -------
+    list
+        list of constitutive laws, each one having one of the formats defined
+        in Containers.ConstitutiveLaws
     """
     reader = ZsetInputReader(inputFileName=inputFileName)
     return reader.ConstructConstitutiveLawsList()
@@ -88,18 +117,19 @@ class ZsetInputReader(InputReaderBase):
 
     Attributes
     ----------
-    inputFileName : str
+    inputFileName : str, must be defined if string is None
         name of the Z-set input file (.inp)
+    string : str, must be defined if inputFileName is None
+        content of a Z-set input file
     inputFile : list
         list containing the input file as parsed by BasicTools.IO.ZebulonIO
+    rootpath : str, must be defined if string is not None
+        list containing the input file as parsed by BasicTools.IO.ZebulonIO
+    problemType : str
+        Z-set type of problem : "mechanical" or "thermal_transient"
     """
 
     def __init__(self, inputFileName = None, string = None, rootpath = None):
-        """
-        Parameters
-        ----------
-        inputFileName : str, optional
-        """
         super(ZsetInputReader, self).__init__()
 
         self.inputFileName = inputFileName
@@ -126,19 +156,28 @@ class ZsetInputReader(InputReaderBase):
         assert self.problemType in  knownProblemTypes, "problemType "+self.problemType+" must refer be among "+str(knownProblemTypes)
 
 
-
-
     def ReadInputTimeSequence(self):
         """
-        Reads the time sequence form the inputFile using the parser in BasicTools.IO.ZebulonIO
-        """
+        Reads the time sequence (may be different from the ones defined in the
+        solution file if the solver chose to solve at additional time steps)
 
+        Returns
+        -------
+        np.ndarray
+            of size (numberOfSnapshots,)
+        """
         return ZIO.GetInputTimeSequence(self.inputFile)
 
 
     def ConstructInitialCondition(self):
+        """
+        Constructs the initial condition
 
-
+        Returns
+        -------
+        InitialCondition
+            object defining an initial condition
+        """
         zSetInitialCondition = ZIO.GetInitDofValues(self.inputFile)
 
         solutionName = solutionNames[self.problemType]
@@ -156,16 +195,28 @@ class ZsetInputReader(InputReaderBase):
             dataType = "vector"
             data = ZIO.ReadBinaryFile(self.rootpath + os.sep + zSetInitialCondition[1])
 
-
         initialCondition.SetDataType(solutionName, dataType)
         initialCondition.SetInitialSnapshot(solutionName, data)
 
         return initialCondition
 
 
-
     def ConstructLoadingsList(self, loadingTags = None):
+        """
+        Constructs the loadings, possibily a subset of loading using the
+        parameter loadingTags
 
+        Parameters
+        ----------
+        loadingTags : list, optional
+            list of str, among knownLoadingTags
+
+        Returns
+        -------
+        list
+            list of loadings, each one having one of the formats defined in
+            Containers.Loadings
+        """
         if not loadingTags:
            loadingTags = knownLoadingTags
 
@@ -181,34 +232,37 @@ class ZsetInputReader(InputReaderBase):
                     for load in loadList:
                         loadings.append(self.ConstructOneLoading(key, load, tables, inputTimeSequence))
             else:
-                print(
-                    "Loading '"
-                    + key
-                    + "' in inputFile but not among : "
-                    + str([key for key in loadingTags])
-                    + ", not constructed"
-                )
+                print("Loading '"
+                        + key
+                        + "' in inputFile but not among : "
+                        + str([key for key in loadingTags])
+                        + ", not constructed")
 
         return loadings
 
 
     def ConstructOneLoading(self, key, load, tables, inputTimeSequence):
         """
-        Constructs one loading from the Zset input file
+        Constructs one loading
 
         Parameters
         ----------
         key : str
             Zset keyword for the loading
         load : list
-            list containing the boundary condition data as defined in BasicTools.IO.ZebulonIO
+            list containing the boundary condition data as defined in
+            BasicTools.IO.ZebulonIO
         tables : dict
-            list containing the tables data as defined in BasicTools.IO.ZebulonIO
+            list containing the tables data as defined in
+            BasicTools.IO.ZebulonIO
+        inputTimeSequence : list or 1D np.ndarray
+            time sequence defined in the Z-set input file
 
         Returns
         -------
         LoadingBase
-            the constructed loading in one of the formats defined in Containers.Loadings
+            the constructed loading in one of the formats defined in
+            Containers.Loadings
         """
 
         set = load[0]
@@ -350,8 +404,6 @@ class ZsetInputReader(InputReaderBase):
 
         if key == "temperature":
 
-
-
             from Mordicus.Modules.Safran.Containers.Loadings import Temperature
 
             loading = Temperature.Temperature("U", set)
@@ -422,10 +474,16 @@ class ZsetInputReader(InputReaderBase):
             return loading
 
 
-
-
     def ConstructConstitutiveLawsList(self):
+        """
+        Constructs the constitutive laws
 
+        Returns
+        -------
+        list
+            list of constitutive laws, each one having one of the formats
+            defined in Containers.ConstitutiveLaws
+        """
         materialFiles = ZIO.GetMaterialFiles(self.inputFile)
 
         constitutiveLawsList = []
@@ -436,17 +494,28 @@ class ZsetInputReader(InputReaderBase):
         return constitutiveLawsList
 
 
-
     def ConstructOneConstitutiveLaw(self, materialFileName, set):
         """
-        1
+        Constructs one constitutive law
+
+        Parameters
+        ----------
+        materialFileName : str, max 8 characters
+            name of the file containing the definition on the constitutive
+            law in Z-set
+        set : str
+            element set on which the constitutive law is defined
+
+        Returns
+        -------
+        ConstitutiveLawBase
+            the constructed loading in one of the formats defined in
+            Containers.ConstitutiveLaws
         """
 
         folder = self.rootpath + os.sep
 
-
         behavior = ZIO.GetBehavior(folder + materialFileName)
-
 
         if self.problemType == "thermal_transient":
 
@@ -489,8 +558,28 @@ class ZsetInputReader(InputReaderBase):
 
 
 def ConstructOneMechanicalConstitutiveLaw(folder, materialFileName, behavior, density = None, set = "ALLELEMENT"):
+    """
+    Constructs one Z-mat constitutive law
 
+    Parameters
+    ----------
+    folder : str
+        folder containing the Z-mat file
+    materialFileName : str, max 8 characters
+        name of the file containing the definition on the constitutive
+        law in Z-set
+    behavior : str
+        name of the Z-mat behavior, "gen_evp" or "linear_elastic"
+    density : float, optional
+        density of the material (must be specified if the problem features
+                                 centrifugal effect, for instance)
+    set : str, optional
+        element set on which the constitutive law is defined
 
+    Returns
+    -------
+    ZmatConstitutiveLaw or MecaUniformLinearElasticity
+    """
 
     if behavior == "gen_evp":
 
@@ -728,14 +817,25 @@ dfgrd1=dfgrd1,noel=noel,npt=npt,kslay=kslay,kspt=kspt,kstep=kstep,kinc=kinc)"""
 
 
 def UpdateFileName(fileName):
+    """
+    Modifies the filename in parallel with distributed memory settings
 
+    Parameters
+    ----------
+    fileName : str
+        filename to be updated
+
+    Returns
+    -------
+    str
+        updated filename
+    """
     if MPI.COMM_WORLD.Get_size() > 1: # pragma: no cover
         stem = str(Path(fileName).stem)
         suffix = str(Path(fileName).suffix)
         fileName = stem + "-" + str(MPI.COMM_WORLD.Get_rank()+1).zfill(3) + suffix
 
     return fileName
-
 
 
 if __name__ == "__main__":# pragma: no cover

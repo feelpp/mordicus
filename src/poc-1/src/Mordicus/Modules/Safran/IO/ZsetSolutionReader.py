@@ -5,7 +5,6 @@
 #
 #
 
-
 import os
 from mpi4py import MPI
 if MPI.COMM_WORLD.Get_size() > 1: # pragma: no cover
@@ -30,11 +29,14 @@ convertZsetConvention = {"11":(1.,"11"), "22":(1.,"22"), "33":(1.,"33"), "12":(1
 #dualSolutionComponents = {1:[""], 3:["11", "22", "12"], 6:["11", "22", "33", "12", "31", "23"]}
 #convertZsetConvention = {"11":(1.,"11"), "22":(1.,"22"), "33":(1.,"33"), "12":(1.,"12"), "23":(1.,"23"), "31":(1.,"31")}
 
-def ReadSnapshotComponent(solutionFileName, fieldName, time, primality=True):
+def ReadSnapshotComponent(solutionFileName, fieldName, time, primality = True):
     """
     Functional API
 
-    Reads a snapshots from the Z-set solution file "solutionFileName" (.ut), at time "time" and of primality "primality", from the HF computation
+    Reads a snapshot component (e.g. fieldName="U2" returns the second
+    component of the solution "U") from the Z-set solution file
+    "solutionFileName" (.ut), at time "time" and of primality "primality", from
+    the high-fidelity computation
 
     Parameters
     ----------
@@ -44,13 +46,13 @@ def ReadSnapshotComponent(solutionFileName, fieldName, time, primality=True):
         name of the solution from which the snapshot is read
     time : float
         time at which the snapshot is read
-    primality : bool
+    primality : bool, optional
         primality of the solution from which the snapshot is read
 
     Returns
     -------
     np.ndarray
-        of size (numberOfDofs,)
+        of size (numberOfNodes,)
     """
     reader = ZsetSolutionReader(solutionFileName=solutionFileName)
     return reader.ReadSnapshotComponent(fieldName, time, primality)
@@ -58,7 +60,9 @@ def ReadSnapshotComponent(solutionFileName, fieldName, time, primality=True):
 
 def ReadTimeSequenceFromSolutionFile(solutionFileName):
     """
-    Reads the time sequence from the Z-set solution file "solutionFileName" (.ut) (may be different from the ones defined in the input data file if the solver chose to solve at additional time steps)
+    Reads the time sequence from the Z-set solution file "solutionFileName"
+    (.ut) (may be different from the ones defined in the input data file if the
+    solver chose to solve at additional time steps)
 
     Parameters
     ----------
@@ -82,14 +86,11 @@ class ZsetSolutionReader(SolutionReaderBase):
     ----------
     solutionFileName : str
         name of the Z-set solution file (.ut)
+    reader : UtReader
+        BasicTools reader of .ut files
     """
 
     def __init__(self, solutionFileName):
-        """
-        Parameters
-        ----------
-        solutionFileName : str, optional
-        """
         super(ZsetSolutionReader, self).__init__()
 
         assert isinstance(solutionFileName, str)
@@ -110,7 +111,25 @@ class ZsetSolutionReader(SolutionReaderBase):
 
 
     def ReadSnapshotComponent(self, fieldName, time, primality=True):
+        """
+        Reads a snapshot component (e.g. fieldName="U2" returns the second
+        component of the solution "U") from the Z-set solution file, at time
+        "time" and of primality "primality", from the high-fidelity computation
 
+        Parameters
+        ----------
+        fieldName : str
+            name of the solution from which the snapshot is read
+        time : float
+            time at which the snapshot is read
+        primality : bool, optional
+            primality of the solution from which the snapshot is read
+
+        Returns
+        -------
+        np.ndarray
+            of size (numberOfNodes,)
+        """
         self.reader.atIntegrationPoints = not primality
         self.reader.SetFieldNameToRead(fieldName)
         self.reader.SetTimeToRead(time=time)
@@ -119,7 +138,27 @@ class ZsetSolutionReader(SolutionReaderBase):
 
 
     def ReadSnapshot(self, fieldName, time, numberOfComponents, primality=True):
+        """
+        Reads a snapshot (e.g. fieldName="U" returns snapshots from solution
+        "U") from the Z-set solution file, at time "time" and of primality
+        "primality", from the high-fidelity computation
 
+        Parameters
+        ----------
+        fieldName : str
+            name of the solution from which the snapshot is read
+        time : float
+            time at which the snapshot is read
+        numberOfComponents : int (1, 2, or 3)
+            number of components of the solution to read
+        primality : bool, optional
+            primality of the solution from which the snapshot is read
+
+        Returns
+        -------
+        np.ndarray
+            of size (numberOfDofs,)
+        """
         solutionComponentNames = []
         if primality == True:
             for suffix in primalSolutionComponents[numberOfComponents]:
@@ -135,8 +174,27 @@ class ZsetSolutionReader(SolutionReaderBase):
         return np.concatenate(res)
 
 
-    def ReadSnapshotComponentTimeSequence(self, fieldName, timeSequence, primality=True):
+    def ReadSnapshotComponentTimeSequence(self, fieldName, timeSequence, primality = True):
+        """
+        Reads a snapshot component (e.g. fieldName="U2" returns the second
+        component of the solution "U") from the Z-set solution file, at time
+        sequence "timeSequence" and of primality "primality", from the
+        high-fidelity computation
 
+        Parameters
+        ----------
+        fieldName : str
+            name of the solution from which the snapshot is read
+        timeSequence : list or 1D np.ndarray
+            time steps at which the snapshot is read
+        primality : bool, optional
+            primality of the solution from which the snapshot is read
+
+        Returns
+        -------
+        np.ndarray
+            of size (numberOfSnapshots,numberOfNodes)
+        """
         res = []
         for time in timeSequence:
             res.append(self.ReadSnapshotComponent(fieldName, time, primality))
@@ -144,17 +202,17 @@ class ZsetSolutionReader(SolutionReaderBase):
         return np.array(res)
 
 
-    """def ReadSnapshotTimeSequenceAndAddToSolution(self, solution, timeSequence, fieldName):
-
-        primality = solution.GetPrimality()
-        numberOfComponents = solution.GetNbeOfComponents()
-
-        for t in timeSequence:
-            solution.AddSnapshot(self.ReadSnapshot(fieldName, t, numberOfComponents, primality), t)"""
-
-
     def ReadTimeSequenceFromSolutionFile(self):
+        """
+        Reads the time sequence from the Z-set solution file (may be different
+        from the ones defined in the input data file if the solver chose to
+        solve at additional time steps)
 
+        Returns
+        -------
+        np.ndarray
+            of size (numberOfSnapshots,)
+        """
         return self.reader.time[:, 4]
 
 

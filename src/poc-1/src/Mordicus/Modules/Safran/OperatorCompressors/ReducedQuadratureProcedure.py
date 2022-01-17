@@ -26,6 +26,8 @@ def ComputeReducedIntegrationScheme(integrationWeights, integrands, tolerance,\
         imposedIndices = None, reducedIntegrationPointsInitSet = None,\
         initByLPEQP = False, nRandom = 1):#, geoMorphingMultiplier = None):
     """
+    Computes the reduced integration scheme used in OperatorCompression stages
+
     Parameters
     ----------
     integrationWeights : np.ndarray
@@ -81,9 +83,7 @@ def ComputeReducedIntegrationScheme(integrationWeights, integrands, tolerance,\
     # compute the integrations using the exact quadrature
     integrals = np.dot(integrands, integrationWeights)
 
-
     normIntegrals = np.linalg.norm(integrals)
-
 
     if initByLPEQP == True:
 
@@ -120,7 +120,25 @@ def ComputeReducedIntegrationScheme(integrationWeights, integrands, tolerance,\
 
 
 def PrintReducedSchemeStatistics(s, x, integrands, integrals, normIntegrals):
+    """
+    Prints statitics on the computation of the reduced integration scheme
 
+    Parameters
+    ----------
+    s : np.ndarray
+        of size (numberOfReducedIntegrationPoints,), dtype = int
+        indices of the kepts integration points (reducedIntegrationPoints)
+
+    x : np.ndarray
+        of size (numberOfReducedIntegrationPoints,), dtype = float
+        weights associated to the kepts integration points
+        (reducedIntegrationWeights)
+    integrals : np.ndarray
+        of size (numberOfIntegrands,), dtype = float.
+        integration of the integrands used the exact quadrature scheme
+    normIntegrals : float
+        Euclidean norm of integrals (already available at this points)
+    """
     print(TFormat.InRed("Reduced Integration Scheme Constructed:"))
 
     if len(s) > 0:

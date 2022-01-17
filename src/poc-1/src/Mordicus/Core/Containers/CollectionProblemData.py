@@ -799,7 +799,7 @@ class CollectionProblemData(object):
         ----------
         solutionName : str
             name of the solutions to compress
-        snapshotCorrelationOperator : scipy.sparse.csr, optional
+        snapshotCorrelationOperator : scipy.sparse.csr_matrix, optional
             correlation operator between the snapshots
         """
         assert isinstance(solutionName, str)

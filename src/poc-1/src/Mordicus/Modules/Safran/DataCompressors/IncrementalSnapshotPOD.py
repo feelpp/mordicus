@@ -24,10 +24,15 @@ from Mordicus.Core.BasicAlgorithms import SVD as SVD
 
 
 def CompressData(
-    collectionProblemData, solutionName, tolerance, snapshotCorrelationOperator = None, snapshots = None, compressSolutions = False
+    collectionProblemData, solutionName, tolerance = None, snapshotCorrelationOperator = None, snapshots = None, compressSolutions = False, nbModes = None
 ):
     """
-    Computes a reducedOrderBasis using the SnapshotPOD algorithm, from the snapshots contained in the solutions of name "solutionName" from all problemDatas in collectionProblemData, with tolerance as target accuracy of the data compression
+    Computes a reducedOrderBasis using the SnapshotPOD algorithm, from the
+    snapshots contained in the iterator  snapshotsIterator, which a correlation
+    operator between the snapshots defined by the matrix
+    snapshotCorrelationOperator, with tolerance as target accuracy of the data
+    compression. If a reducedOrderBasis prexists, it is updated using the
+    snapshots from the solutions.
 
     Parameters
     ----------
@@ -35,20 +40,32 @@ def CompressData(
         input collectionProblemData containing the data
     solutionName : str
         name of the solutions from which snapshots are taken
-    tolerance : float
+    tolerance : float, cannot be provided with nbModes
         target accuracy of the data compression
-    compressSolutions : bool
-        decides if solutions may be compressed using the constructed reducedOrderBasis
-
-    Returns
-    -------
-    np.ndarray
-        of size (numberOfModes, numberOfDOFs)
+    snapshotCorrelationOperator : scipy.sparse.csr, optional
+        correlation operator between the snapshots
+    snapshots : np.ndarray, optional
+        of size (nbSnapshots, numberOfDofs): snapshots of the solutions to
+        compress
+    compressSolutions : bool, optional
+        True to compresse solutions using the constructed reducedOrderBasis
+    nbModes : int, cannot be provided with tolerance
+        the number of keps snapshot POD modes
     """
     assert isinstance(solutionName, str)
 
+
+    if tolerance == None and nbModes == None:# pragma: no cover
+        raise("must specify epsilon or nbModes")
+
+
+    if tolerance != None and nbModes != None:# pragma: no cover
+        raise("cannot specify both epsilon and nbModes")
+
+
     if snapshots is None:
         snapshots = collectionProblemData.GetSnapshots(solutionName)
+
 
     if snapshotCorrelationOperator is None:
         snapshotCorrelationOperator = sparse.eye(snapshots.shape[1])
@@ -90,8 +107,6 @@ def CompressData(
         MPI.COMM_WORLD.Allreduce([localGamma, MPI.DOUBLE], [globalGamma, MPI.DOUBLE])
 
         collectionProblemData.SetDataCompressionData(solutionName, globalGamma)
-
-
 
     else:
 

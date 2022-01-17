@@ -23,7 +23,10 @@ def ComputeReducedOrderBasisFromCollectionProblemData(
     collectionProblemData, solutionName, tolerance, snapshotCorrelationOperator = None
 ):
     """
-    Computes a reducedOrderBasis using the SnapshotPOD algorithm, from the snapshots contained in the solutions of name "solutionName" from all problemDatas in collectionProblemData, with tolerance as target accuracy of the data compression
+    Computes a reducedOrderBasis using the SnapshotPOD algorithm, from the
+    snapshots contained in the solutions of name "solutionName" from all
+    problemDatas in collectionProblemData, with tolerance as target accuracy of
+    the data compression
 
     Parameters
     ----------
@@ -53,7 +56,11 @@ def ComputeReducedOrderBasisFromCollectionProblemData(
 
 def ComputeReducedOrderBasis(snapshotsIterator, snapshotCorrelationOperator, tolerance):
     """
-    Computes a reducedOrderBasis using the SnapshotPOD algorithm, from the snapshots contained in the iterator  snapshotsIterator, which a correlation operator between the snapshots defined by the matrix snapshotCorrelationOperator, with tolerance as target accuracy of the data compression
+    Computes a reducedOrderBasis using the SnapshotPOD algorithm, from the
+    snapshots contained in the iterator snapshotsIterator, which a correlation
+    operator between the snapshots defined by the matrix
+    snapshotCorrelationOperator, with tolerance as target accuracy of the data
+    compression
 
     Parameters
     ----------

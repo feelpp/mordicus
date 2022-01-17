@@ -27,17 +27,39 @@ from pathlib import Path
 primalSolutionComponents = {1:[""], 2:["1", "2"], 3:["1", "2", "3"]}
 
 
-
-
 def WriteZsetSolution(mesh, meshFileName, solutionFileName,\
                       collectionProblemData, problemData, solutionNameRef = None,\
-                      timeSequence = [], outputReducedOrderBasis = False):
-
+                      timeSequence = None, outputReducedOrderBasis = False):
     """
-    to write solution, set outputReducedOrderBasis = False
-    to write reducedOrderBasis, set outputReducedOrderBasis = True
+    Writes a solution from compressedSnapshots or a reducedOrderBases on disk
+    satisfying the Z-set format
 
-    in the current implementations, all reduced order basis are written in a Zset-lke format with the rank of the modes as the "time": the fields having less than the max number of modes have their last modes repeated
+    Parameters
+    ----------
+    mesh : BasicToolsUnstructuredMesh
+        high-dimensional mesh
+    meshFileName : str
+        name of the meshfile already available on disk
+    solutionFileName : str
+        name of the file on disk where the solution is written
+    collectionProblemData : CollectionProblemData
+        collectionProblemData containing the reducedOrderBases to write
+    problemData : ProblemData
+        problemData containing the compressedSnapshots to write
+    solutionNameRef : str, option
+        name of the solution used to define the timeSequence
+    timeSequence : list or 1D np.ndarray, optional
+        not used for writing reducedOrderBases, if None for writing a solution,
+        the time sequences defined in compressedSnapshots is used (in that
+        case, solutionNameRef must me defined)
+    outputReducedOrderBasis : bool, optional
+        True to write reducedOrderBases, False to write solutions
+
+    Notes
+    -----
+        In the current implementations, all reduced order basis are written in
+        a Zset-like format with the rank of the modes as the "time": the fields
+        having less than the max number of modes have their last modes repeated
     """
 
     if outputReducedOrderBasis:
@@ -108,7 +130,6 @@ def WriteZsetSolution(mesh, meshFileName, solutionFileName,\
     spaces, numberings, offset, nbIntegPoints = FT.PrepareFEComputation(mesh.GetInternalStorage())
 
 
-
     numberElements = []
     nbPtIntPerElement = []
 
@@ -125,7 +146,7 @@ def WriteZsetSolution(mesh, meshFileName, solutionFileName,\
 
     if outputReducedOrderBasis:
         timeSequence = np.arange(maxNumberOfModes)
-    elif len(timeSequence) == 0:
+    elif timeSequence == None:
         assert solutionNameRef != None, "solutionNameRef must be specified"
         timeSequence = problemData.GetSolution(solutionNameRef).GetTimeSequenceFromCompressedSnapshots()
 
@@ -178,6 +199,7 @@ def WriteZsetSolution(mesh, meshFileName, solutionFileName,\
 
         count += 1
 
+
     resFile.close()
     resFileNode.close()
     resFileInteg.close()
@@ -190,8 +212,6 @@ def WriteZsetSolution(mesh, meshFileName, solutionFileName,\
         with open(globalSolutionFileName+".cut", "w") as f:
             f.write(__string)
         f.close()
-
-
 
 
 if __name__ == "__main__":# pragma: no cover
