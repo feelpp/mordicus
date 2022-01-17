@@ -1,4 +1,9 @@
 # -*- coding: utf-8 -*-
+#
+# This file is subject to the terms and conditions defined in
+# file 'LICENSE.txt', which is part of this source code package.
+#
+#
 
 
 from Mordicus.Modules.Safran.IO import ZsetInputReader as ZIR
@@ -63,10 +68,10 @@ def test():
     np.testing.assert_almost_equal(loadingList[1].direction, [0.,0.,1.])
     assert loadingList[1].coefficient == 15000.
     assert loadingList[1].reducedUnitCentrifugalVector == None
-    assert loadingList[1].reducedIntegrationWeights == None
-    assert loadingList[1].reducedIntegrationPoints == None
-    assert loadingList[1].reducedUnAssembledReducedUnitCentrifugalVector == None
-    assert loadingList[1].JdetAtReducedIntegPoint == None
+    #assert loadingList[1].reducedIntegrationWeights == None
+    #assert loadingList[1].reducedIntegrationPoints == None
+    #assert loadingList[1].reducedUnAssembledReducedUnitCentrifugalVector == None
+    #assert loadingList[1].JdetAtReducedIntegPoint == None
 
     #loading2
     assert loadingList[2].solutionName == "U"
@@ -129,10 +134,10 @@ def test():
     np.testing.assert_almost_equal(loadingList[1].direction, [0.,0.,1.])
     assert loadingList[1].coefficient == 100.
     assert loadingList[1].reducedUnitCentrifugalVector == None
-    assert loadingList[1].reducedIntegrationWeights == None
-    assert loadingList[1].reducedIntegrationPoints == None
-    assert loadingList[1].reducedUnAssembledReducedUnitCentrifugalVector == None
-    assert loadingList[1].JdetAtReducedIntegPoint == None
+    #assert loadingList[1].reducedIntegrationWeights == None
+    #assert loadingList[1].reducedIntegrationPoints == None
+    #assert loadingList[1].reducedUnAssembledReducedUnitCentrifugalVector == None
+    #assert loadingList[1].JdetAtReducedIntegPoint == None
 
     #loading2
     assert loadingList[2].solutionName == "U"
