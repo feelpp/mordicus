@@ -92,7 +92,7 @@ class CollectionProblemData(object):
         self.specificDatasets = {}
 
         self.dataCompressionData = {}
-        self.operatorCompressionData = None
+        self.operatorCompressionData = {}
 
 
     def AddReducedOrderBasis(self, solutionName, reducedOrderBasis):
