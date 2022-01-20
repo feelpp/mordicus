@@ -129,8 +129,8 @@ class SolutionReaderBase(object):
         """
         Write an identity application on the input, gets the permutation application on the output.
         This method is used to convert operators from a FEM code to the numbering system associated
-            with the format of the results (for instance be able to get a consistent numbering between
-            a mass matrix computed with Code_Aster and the results written to MED format)
+        with the format of the results (for instance be able to get a consistent numbering between
+        a mass matrix computed with Code_Aster and the results written to MED format)
 
         Arguments
         ---------
