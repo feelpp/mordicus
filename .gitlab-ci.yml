@@ -46,7 +46,7 @@ docWebsite:
     - apt-get install -y python3-venv gcc python3-dev libopenmpi-dev make
     - pip install --upgrade pip
     - pip install -r ./src/poc-1/requirements.txt
-    - pip install -U sphinx
+    - pip install -U sphinx sphinx_rtd_theme 
     - export PYTHONPATH=$PWD/src/poc-1/src:$PYTHONPATH
     - export PYTHONPATH=$PWD/../basic-tools/src:$PYTHONPATH
   script:
