@@ -44,9 +44,6 @@ def test():
     nbeOfComponentsPrimal = 3
     nbeOfComponentsDual = 6
 
-    print("PreCompressOperator...")
-    operatorPreCompressionData = Mechanical.PreCompressOperator(mesh)
-    print("...done")
 
     outputTimeSequence = solutionReader.ReadTimeSequenceFromSolutionFile()
 
@@ -115,7 +112,12 @@ def test():
 
     print("compressionErrors =", compressionErrors)
 
-    Mechanical.CompressOperator(collectionProblemData, operatorPreCompressionData, \
+
+    print("PreCompressOperator...")
+    Mechanical.PreCompressOperator(collectionProblemData, mesh)
+    print("...done")
+
+    Mechanical.CompressOperator(collectionProblemData, \
                                 mesh, 1.e-5, listNameDualVarOutput = dualNames, \
                                 listNameDualVarGappyIndicesforECM = ["evrcum"])
 
