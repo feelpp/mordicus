@@ -36,7 +36,7 @@ def ComputeReducedOrderBasisFromCollectionProblemData(
         name of the solutions from which snapshots are taken
     tolerance : float
         target accuracy of the data compression
-    snapshotCorrelationOperator : scipy.sparse.csr, optional
+    snapshotCorrelationOperator : scipy.sparse.csr_matrix, optional
         correlation operator between the snapshots
 
     Returns

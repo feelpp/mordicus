@@ -40,7 +40,7 @@ def CompressData(
         name of the solutions from which snapshots are taken
     tolerance : float, cannot be provided with nbModes
         target accuracy of the data compression
-    snapshotCorrelationOperator : scipy.sparse.csr, optional
+    snapshotCorrelationOperator : scipy.sparse.csr_matrix, optional
         correlation operator between the snapshots
     snapshots : np.ndarray, optional
         of size (nbSnapshots, numberOfDofs): snapshots of the solutions to
