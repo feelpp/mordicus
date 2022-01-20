@@ -9,7 +9,7 @@
 
 class InitialConditionBase(object):
     """
-    Class containing a InitialConditionBase
+    Class containing an InitialConditionBase
     """
 
     def __init__(self):

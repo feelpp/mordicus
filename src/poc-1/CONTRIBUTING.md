@@ -31,7 +31,8 @@
     c). Solution, ProblemData and CollectionProblemData are the only containers
     that cannot be personalized in the library: other containers inherits from
     "Base" containers, and one can implement another container inheriting from
-    this base and respecting the API.
+    this base and respecting the API. Containers can be added in Container
+    subfolders for helping managing advanced functions.
 
     d). Each file should contain at most one class.
 

@@ -88,7 +88,7 @@ def ComputeJdetAtIntegPoint(mesh, elementSets = None, relativeDimension = 0):
 def ComputePhiAtIntegPoint(mesh, elementSets = None, relativeDimension = 0):
     """
     Computes the value of the finite element shape functions at the integration
-    points. (Lagrange isoparametric finite elements)
+    points and the integration weights (Lagrange isoparametric finite elements)
 
     Parameters
     ----------
@@ -105,7 +105,7 @@ def ComputePhiAtIntegPoint(mesh, elementSets = None, relativeDimension = 0):
     np.ndarray
         of size (numberOfIntegrationPoints,)
     scipy.sparse.coo_matrix
-        of size (numberOfIntegrationPoints, nbNodes)
+        of size (numberOfIntegrationPoints, numberOfModes)
     """
     unstructuredMesh = ConvertMeshToUnstructuredMesh(mesh)
 
@@ -114,8 +114,9 @@ def ComputePhiAtIntegPoint(mesh, elementSets = None, relativeDimension = 0):
 
 def ComputeGradPhiAtIntegPoint(mesh, elementSets = None, relativeDimension = 0):
     """
-    Computes the value of the finite element shape functions at the integration
-    points. (Lagrange isoparametric finite elements)
+    Computes the components of the gradient of the shape functions at the
+    integration points and the integration weights (Lagrange isoparametric
+    finite elements)
 
     Parameters
     ----------
@@ -132,7 +133,7 @@ def ComputeGradPhiAtIntegPoint(mesh, elementSets = None, relativeDimension = 0):
     np.ndarray
         of size (numberOfIntegrationPoints,)
     scipy.sparse.coo_matrix
-        of size (numberOfIntegrationPoints, nbNodes)
+        of size (numberOfIntegrationPoints, numberOfModes)
     """
     unstructuredMesh = ConvertMeshToUnstructuredMesh(mesh)
 

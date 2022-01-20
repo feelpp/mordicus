@@ -11,7 +11,7 @@ CeCILL-C
 --
 BSD 3-Clause License
 
-Copyright (c) 2018-2021, MOR_DICUS consortium
+Copyright (c) 2018-2022, MOR_DICUS consortium
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without

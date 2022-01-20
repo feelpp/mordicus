@@ -147,9 +147,9 @@ class ZmatConstitutiveLaw(ConstitutiveLawBase):
 
         Parameters
         ----------
-        temperature : np.ndarray or list
+        temperature : 1D np.ndarray or list
             temperature at the previous state, at integration points (np.ndarray of size (nbIntPoints) or list of length nbIntPoints)
-        dtemp : np.ndarray or list
+        dtemp : 1D np.ndarray or list
             variations of temperature between the previous state and the new state to compute,
             at integration points (np.ndarray of size (nbIntPoints) or list of length nbIntPoints)
         stran : np.ndarray

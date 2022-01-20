@@ -37,10 +37,10 @@ def test():
     constitutiveLaw = MULE.TestMecaConstitutiveLaw("ALLELEMENT", young = 300000., poisson = 0.3, density = 8.6E-09)
     problemData.AddConstitutiveLaw(constitutiveLaw)
 
-    loading.ReduceLoading(mesh, problemData, reducedOrderBases, operatorCompressionData = None)
+    loading.ReduceLoading(mesh, problemData, reducedOrderBases)
 
     """unAssembledReducedUnitCentrifugalVector, integrationWeights =\
-        loading.ReduceLoading(mesh, problemData, reducedOrderBases, operatorCompressionData = None)
+        loading.ReduceLoading(mesh, problemData, reducedOrderBases)
 
     np.testing.assert_almost_equal(1e5*np.array([[4.592400e-06, 3.698000e-06, 3.158350e-06, 3.444300e-06,
         4.343000e-06, 4.951450e-06, 3.624900e-06, 2.726200e-06,
