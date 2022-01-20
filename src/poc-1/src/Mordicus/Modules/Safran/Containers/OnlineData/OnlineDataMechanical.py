@@ -61,9 +61,6 @@ class OnlineDataMechanical(OnlineDataBase):
 
     def UpdateTemperatureAtReducedIntegrationPoints(self, temperatureAtReducedIntegrationPoints0, temperatureAtReducedIntegrationPoints1):
 
-        assert temperatureAtReducedIntegrationPoints0.shape[0] == self.nReducedIntegrationPoints
-        assert temperatureAtReducedIntegrationPoints1.shape[0] == self.nReducedIntegrationPoints
-
         for tag, intPoints in self.indicesOfReducedIntegPointsPerMaterial.items():
 
             self.temperature0 = temperatureAtReducedIntegrationPoints0
@@ -80,27 +77,22 @@ class OnlineDataMechanical(OnlineDataBase):
 
 
     def GetStateVarAtReducedIntegrationPoints0(self, tag):
-        assert tag in self.stateVar0, "material with tag "+tag+" not initialized"
         return self.stateVar0[tag]
 
 
     def GetStateVarAtReducedIntegrationPoints1(self, tag):
-        assert tag in self.stateVar1, "material with tag "+tag+" not initialized"
         return self.stateVar1[tag]
 
 
     def SetStateVarAtReducedIntegrationPoints1(self, tag, localStateVar1):
-        assert localStateVar1.shape == self.stateVar1[tag].shape
         self.stateVar1[tag] = localStateVar1
 
 
     def GetDualVarOutputNames(self, tag):
-        assert tag in self.dualVarOutputNames, "material with tag "+tag+" not initialized"
         return self.dualVarOutputNames[tag]
 
 
     def GetDualVarOutput(self, tag):
-        assert tag in self.dualVarOutput, "material with tag "+tag+" not initialized"
         return self.dualVarOutput[tag]
 
 
@@ -145,29 +137,22 @@ class OnlineDataMechanical(OnlineDataBase):
 
 
     def SetStrainAtReducedIntegrationPoints0(self, strain0):
-        assert strain0.shape == (self.nReducedIntegrationPoints,self.numberOfSigmaComponents)
         self.strain0 = strain0
 
 
     def SetStrainAtReducedIntegrationPoints1(self, strain1):
-        assert strain1.shape == (self.nReducedIntegrationPoints,self.numberOfSigmaComponents)
         self.strain1 = strain1
 
 
     def SetStressAtReducedIntegrationPoints1(self, stress1):
-        assert stress1.shape == (self.nReducedIntegrationPoints,self.numberOfSigmaComponents)
         self.stress1 = stress1
 
 
     def SetStrainAtLocalReducedIntegrationPoints1(self, localStrain1, intPoints):
-        assert len(intPoints) <= self.nReducedIntegrationPoints
-        assert localStrain1.shape[1] == self.numberOfSigmaComponents
         self.strain1[intPoints] = localStrain1
 
 
     def SetStressAtLocalReducedIntegrationPoints1(self, localStress1, intPoints):
-        assert len(intPoints) <= self.nReducedIntegrationPoints
-        assert localStress1.shape[1] == self.numberOfSigmaComponents
         self.stress1[intPoints] = localStress1
 
 
