@@ -22,6 +22,7 @@ class LoadingBase(object):
     """
 
     def __init__(self, solutionName, set, type):
+        assert isinstance(solutionName, str)
         assert isinstance(set, str)
         assert isinstance(type, str)
 

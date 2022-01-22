@@ -40,7 +40,8 @@ def test():
 
     mesh = BTUM.BasicToolsUnstructuredMesh(CreateCube(dimensions=[2, 3, 2], spacing=[2.0, 2.0, 2.0], ofTetras=True))
 
-    operatorCompressionData = OCDM.OperatorCompressionDataMechanical()
+    dummy = 1
+    operatorCompressionData = OCDM.OperatorCompressionDataMechanical("U", dummy, dummy, dummy)
     operatorCompressionData.SetReducedIntegrationPoints(np.array([1, 6, 9]))
 
     loading.ReduceLoading(mesh, operatorCompressionData = operatorCompressionData)

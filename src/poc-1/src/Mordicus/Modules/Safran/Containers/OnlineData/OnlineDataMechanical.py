@@ -13,8 +13,8 @@ class OnlineDataMechanical(OnlineDataBase):
     Class containing an OnlineDataMechanical
     """
 
-    def __init__(self, nReducedIntegrationPoints, numberOfSigmaComponents):
-        super(OnlineDataMechanical, self).__init__()
+    def __init__(self, solutionName, nReducedIntegrationPoints, numberOfSigmaComponents):
+        super(OnlineDataMechanical, self).__init__(solutionName)
 
         self.nReducedIntegrationPoints = nReducedIntegrationPoints
         self.numberOfSigmaComponents = numberOfSigmaComponents

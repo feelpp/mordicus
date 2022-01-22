@@ -145,6 +145,7 @@ class PressureBC(LoadingBase):
         Parameters
         ----------
         time : float
+            time at which the contribution to the reduced external forces vector are computed
 
         Returns
         -------
@@ -225,6 +226,7 @@ class PressureBC(LoadingBase):
         Parameters
         ----------
         time : float
+            time at which the contribution to the reduced external forces vector are computed
 
         Returns
         -------

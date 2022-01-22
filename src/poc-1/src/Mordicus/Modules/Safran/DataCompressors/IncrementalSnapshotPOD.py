@@ -106,7 +106,7 @@ def CompressData(
         globalGamma = np.zeros(localGamma.shape)
         MPI.COMM_WORLD.Allreduce([localGamma, MPI.DOUBLE], [globalGamma, MPI.DOUBLE])
 
-        collectionProblemData.SetDataCompressionData(solutionName, globalGamma)
+        collectionProblemData.AddDataCompressionData(solutionName, globalGamma)
 
     else:
 
@@ -155,7 +155,7 @@ def CompressData(
             gammaNPrevInd = np.dot(eigenVectorsRed.T, gammaInterLocal)
 
         collectionProblemData.AddReducedOrderBasis(solutionName, previousReducedOrderBasis)
-        collectionProblemData.SetDataCompressionData(solutionName, gammaNPrevInd)
+        collectionProblemData.AddDataCompressionData(solutionName, gammaNPrevInd)
 
     if compressSolutions == True:
         collectionProblemData.CompressSolutions(solutionName, snapshotCorrelationOperator)

@@ -107,13 +107,12 @@ def test():
     #################################################################
 
     #collectionProblemData = SIO.LoadState("collectionProblemData")
-    operatorCompressionData = collectionProblemData.GetOperatorCompressionData()
+    operatorCompressionData = collectionProblemData.GetOperatorCompressionData("U")
 
     #snapshotCorrelationOperator = SIO.LoadState("snapshotCorrelationOperator")
     #operatorPreCompressionData = SIO.LoadState("operatorPreCompressionData")
 
     reducedOrderBases = collectionProblemData.GetReducedOrderBases()
-
 
     folder = GetTestDataPath() + "Zset/MecaSequential/"
 
@@ -141,7 +140,8 @@ def test():
 
     initialCondition.ReduceInitialSnapshot(reducedOrderBases, snapshotCorrelationOperator)
 
-    onlineCompressedSolution, onlineData = Meca.ComputeOnline(onlineProblemData, timeSequence, operatorCompressionData, 1.e-6)
+
+    onlineCompressedSolution, onlineData = Meca.ComputeOnline(onlineProblemData, timeSequence, 1.e-6, operatorCompressionData = operatorCompressionData)
 
 
     onlineEvrcumCompressedSolution, gappyError = Meca.ReconstructDualQuantity('evrcum', operatorCompressionData, onlineData, timeSequence = list(onlineCompressedSolution.keys())[1:])
@@ -211,7 +211,7 @@ def test():
 
     elasConsitutiveLaw = MULE.TestMecaConstitutiveLaw('ALLELEMENT', 300000., 0.3, 8.6E-09)
     onlineProblemData.AddConstitutiveLaw(elasConsitutiveLaw)
-    onlineCompressedSolution = Meca.ComputeOnline(onlineProblemData, timeSequence, operatorCompressionData, 1.e-6)
+    onlineCompressedSolution = Meca.ComputeOnline(onlineProblemData, timeSequence, 1.e-6, operatorCompressionData = operatorCompressionData)
 
 
     class callback():
@@ -225,7 +225,8 @@ def test():
 
     elasConsitutiveLaw = inputReader.ConstructOneConstitutiveLaw("elas", 'ALLELEMENT')
     onlineProblemData.AddConstitutiveLaw(elasConsitutiveLaw)
-    onlineCompressedSolution = Meca.ComputeOnline(onlineProblemData, timeSequence, operatorCompressionData, 1.e-6, callback = callback)
+    onlineData = onlineProblemData.GetOnlineData("U")
+    onlineCompressedSolution = Meca.ComputeOnline(onlineProblemData, timeSequence, 1.e-6, onlineData = onlineData, callback = callback)
 
     os.system("rm -rf collectionProblemData.pkl")
     os.system("rm -rf snapshotCorrelationOperator.pkl")

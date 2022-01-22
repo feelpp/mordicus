@@ -38,9 +38,7 @@ def test():
     collectionProblemData.DefineQuantity("U")
     collectionProblemData.AddProblemData(problemData, config="case-1")
 
-    reducedOrdrBasis = SP.ComputeReducedOrderBasisFromCollectionProblemData(
-        collectionProblemData, "U", 1.0e-8
-    )
+    reducedOrdrBasis = SP.ComputeReducedOrderBasisFromCollectionProblemData(collectionProblemData, "U", 1.0e-8)
     collectionProblemData.AddReducedOrderBasis("U", reducedOrdrBasis)
     collectionProblemData.CompressSolutions("U")
 
@@ -54,21 +52,16 @@ def test():
     paramGrids = {}
     paramGrids["U"] = {'kernel__k1__k1__constant_value':[0.1, 1.], 'kernel__k1__k2__length_scale': [1., 10.], 'kernel__k2__noise_level': [1., 2.]}
 
-    operatorCompressionInputData = (regressors, paramGrids)
-
-    Regression.CompressOperator(
-        collectionProblemData, ["U"], operatorCompressionInputData
-    )
+    Regression.CompressOperator(collectionProblemData, regressors, paramGrids)
 
     onlineProblemData = ProblemData.ProblemData("Online")
     onlineProblemData.AddParameter(np.array([0.0, 2.0, 0.5, 0.25]), 0.0)
     onlineProblemData.AddParameter(np.array([2.0, 1.0, 2.0, 0.5]), 3.0)
 
-    operatorCompressionData = collectionProblemData.GetOperatorCompressionData()
+    operatorCompressionData = collectionProblemData.GetOperatorCompressionData("U")
+    onlineProblemData.AddOnlineData(operatorCompressionData)
 
-    Regression.ComputeOnline(
-        onlineProblemData, "U", operatorCompressionData
-    )
+    Regression.ComputeOnline(onlineProblemData, "U")
 
     return "ok"
 

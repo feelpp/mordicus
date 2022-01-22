@@ -98,11 +98,7 @@ def test():
     paramGrids = {}
     paramGrids["TP"] = {'kernel__k1__k1__constant_value':[0.1, 1.], 'kernel__k1__k2__length_scale': [1., 3., 10.], 'kernel__k2__noise_level': [1., 2.]}
 
-    operatorCompressionInputData = (regressors, paramGrids)
-
-    Regression.CompressOperator(
-        collectionProblemData, [solutionName], operatorCompressionInputData
-    )
+    Regression.CompressOperator(collectionProblemData, regressors, paramGrids)
 
     SIO.SaveState("collectionProblemData", collectionProblemData)
 

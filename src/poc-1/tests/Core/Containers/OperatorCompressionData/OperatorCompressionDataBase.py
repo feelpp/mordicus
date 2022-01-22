@@ -11,7 +11,9 @@ from Mordicus.Core.Containers.OperatorCompressionData import OperatorCompression
 
 def test():
 
-    operatorCompressionDataBase = OCDB.OperatorCompressionDataBase()
+    operatorCompressionDataBase = OCDB.OperatorCompressionDataBase("U")
+
+    assert operatorCompressionDataBase.GetSolutionName() == "U"
 
     print(operatorCompressionDataBase)
     return "ok"

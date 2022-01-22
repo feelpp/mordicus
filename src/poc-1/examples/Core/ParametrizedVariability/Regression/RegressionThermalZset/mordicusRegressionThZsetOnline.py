@@ -26,9 +26,8 @@ def test():
     ##################################################
 
     collectionProblemData = SIO.LoadState("collectionProblemData")
-    operatorCompressionData = collectionProblemData.GetOperatorCompressionData()
     reducedOrderBasis = collectionProblemData.GetReducedOrderBasis("TP")
-
+    onlineCompressionData = collectionProblemData.GetOperatorCompressionData("TP")
 
     ##################################################
     # ONLINE
@@ -41,10 +40,9 @@ def test():
     for t in OnlineTimeSequence:
         onlineProblemData.AddParameter(np.array([95.0, 950.0] + [t]), t)
 
+    onlineProblemData.AddOnlineData(onlineCompressionData)
 
-    compressedSnapshots = Regression.ComputeOnline(
-        onlineProblemData, "TP", operatorCompressionData
-    )
+    compressedSnapshots = Regression.ComputeOnline(onlineProblemData, "TP")
 
 
     mesh = ZMR.ReadMesh("cube.geof")

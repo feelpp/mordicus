@@ -15,11 +15,10 @@ if MPI.COMM_WORLD.Get_size() > 1: # pragma: no cover
     os.environ["NUMEXPR_NUM_THREADS"] = "1"
 import numpy as np
 from Mordicus.Core.BasicAlgorithms import  ScikitLearnRegressor as SLR
+from Mordicus.Core.Containers.OperatorCompressionData import OperatorCompressionDataRegression as OCDR
 
 
-def ComputeOnline(
-    onlineProblemData, solutionName, operatorCompressionOutputData
-):
+def ComputeOnline(onlineProblemData, solutionName):
     """
     Compute the online stage using the method of POD on the snapshots and a regression on the coefficients
 
@@ -31,17 +30,18 @@ def ComputeOnline(
         definition of the testing configuration data in a CollectionProblemData object
     solutionName : str
         names of the solution to be treated
-    operatorCompressionOutputData : (regressor, scaler, scaler)
-        (fitted regressor, fitted scaler on the coefficients, fitted scaler on the parameters)
 
     Returns
     -------
     collections.OrderedDict
         onlineCompressedSnapshots; dictionary with time indices as keys and a np.ndarray of size (numberOfModes,) containing the coefficients of the reduced solution
     """
-    regressor = operatorCompressionOutputData[solutionName][0]
-    scalerParameter = operatorCompressionOutputData[solutionName][1]
-    scalerCoefficients = operatorCompressionOutputData[solutionName][2]
+
+    onlineData = onlineProblemData.GetOnlineData(solutionName)
+
+    regressor = onlineData.GetModel()
+    scalerParameter = onlineData.GetScalerParameters()
+    scalerCoefficients = onlineData.GetScalerCoefficients()
 
     onlineParameters = onlineProblemData.GetParametersList()
 
@@ -60,9 +60,7 @@ def ComputeOnline(
     return onlineCompressedSnapshots
 
 
-def CompressOperator(
-    collectionProblemData, solutionNames, operatorCompressionInputData
-):
+def CompressOperator(collectionProblemData, regressors, paramGrids):
     """
     Computes the offline operator compression stage using the method of POD on the snapshots and a regression on the coefficients
 
@@ -70,19 +68,17 @@ def CompressOperator(
     ----------
     collectionProblemData : CollectionProblemData
         definition of the training data in a CollectionProblemData object
-    solutionNames : list of str
-        names of the solution to be treated
-    operatorCompressionInputData : dict of objects satisfying the scikit-learn regressors API
+    regressors : dict of objects satisfying the scikit-learn regressors API
         input regressor to be fitted
+    paramGrids : dict
+        of dict with key: hyperparameter names and values: hyperparameter values to test
     """
 
-    operatorCompressionData = {}
+    assert list(regressors.keys()) == list(paramGrids.keys())
 
-    regressors = operatorCompressionInputData[0]
-    paramGrids = operatorCompressionInputData[1]
+    for solutionName in regressors.keys():
 
-    for solutionName in solutionNames:
-
+        operatorCompressionDataRegression = OCDR.OperatorCompressionDataRegression(solutionName)
 
         regressor = regressors[solutionName]
         paramGrid = paramGrids[solutionName]
@@ -112,12 +108,13 @@ def CompressOperator(
 
             count += localNumberOfSnapshots
 
+        model, scalerParameters, scalerCoefficients = SLR.GridSearchCVRegression(regressor, paramGrid, parameters, coefficients)
 
-        model, scalerParameter, scalerCoefficients = SLR.GridSearchCVRegression(regressor, paramGrid, parameters, coefficients)
+        operatorCompressionDataRegression.SetModel(model)
+        operatorCompressionDataRegression.SetScalerParameters(scalerParameters)
+        operatorCompressionDataRegression.SetScalerCoefficients(scalerCoefficients)
 
-        operatorCompressionData[solutionName] = (model, scalerParameter, scalerCoefficients)
-
-    collectionProblemData.SetOperatorCompressionData(operatorCompressionData)
+        collectionProblemData.AddOperatorCompressionData(operatorCompressionDataRegression)
 
 
 

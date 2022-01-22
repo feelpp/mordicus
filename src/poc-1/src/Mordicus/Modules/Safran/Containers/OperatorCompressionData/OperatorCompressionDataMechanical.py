@@ -12,11 +12,65 @@ from Mordicus.Core.Containers.OperatorCompressionData.OperatorCompressionDataBas
 
 class OperatorCompressionDataMechanical(OperatorCompressionDataBase):
     """
-    Class containing an OperatorCompressionDataMechanical
+    Class containing an OperatorCompressionDataMechanical, used in the
+    operator compression step of the POD-ECM method. The implementation
+    uses Lagrange isoparametric finite elements as high-dimension integration
+    model.
+
+    Attributes
+    ----------
+    gradPhiAtIntegPoint : scipy.sparse.coo_matrix
+        of size (numberOfIntegrationPoints, numberOfModes), components of the
+        gradient of the shape functions at the integration points
+    integrationWeights : 1D np.ndarray
+        of size (numberOfIntegrationPoints,), vector containing the integration
+        weights associated to the computation of the internal forces vector
+        with the high-fidelity integration scheme
+    listOfTags : list of lists (of str)
+        (of length numberOfIntegrationPoints) at each integration point,
+        containing all the tags of the element containing the integration points
+    reducedIntegrationPoints : 1D np.ndarray
+        of size (numberOfReducedIntegrationPoints,), vector containing the
+        of the integration points associated to the computation of the internal
+        forces vector with the reduced integration scheme
+    reducedIntegrationWeights : 1D np.ndarray
+        of size (numberOfReducedIntegrationPoints,), vector containing the
+        integration weights associated to the computation of the internal
+        forces vector with the reduced integration scheme
+    reducedListOTags : list of lists (of str)
+        (of length numberOfReducedIntegrationPoints) at each reduced
+        integration point containing all the tags of the element containing the
+        reduced integration points. It is an extraction of listOfTags at the
+        reduced integration points.
+    reducedEpsilonAtReducedIntegPoints : np.ndarray
+        of size (numberOfSigmaComponents,numberOfReducedIntegrationPoints,numberOfModes),
+        dtype = float, containing :math:`\epsilon(\Psi)(x_k)` where :math:`\Psi`
+        is a vector from the reducedOrderBasis associated to tje solution
+        "U" and where :math:`x_k` are the reduced integration points
+    dualReconstructionData: dict
+        dictionary containing data used for reconstructing dual quantities
+        in the online stage, with following key:values
+
+        - "methodDualReconstruction" : str ("GappyPOD" or "MetaModel")
+
+        - name of dual quantities (e.g. "evrcum"):
+
+            - if "MetaModel" : tuple
+
+                model: sklearn.model_selection._search.GridSearchCV
+
+                scalerX: sklearn.preprocessing._data.StandardScaler
+
+                scalery: sklearn.preprocessing._data.StandardScaler
+
+            - if "GappyPOD" : tuple
+
+                reducedOrderBasisAtReducedIntegrationPoints: np.ndarray of size (numberOfModes, nReducedIntegrationPoints)
+
     """
 
-    def __init__(self, gradPhiAtIntegPoint, integrationWeights, listOfTags):
-        super(OperatorCompressionDataMechanical, self).__init__()
+    def __init__(self, solutionName, gradPhiAtIntegPoint, integrationWeights, listOfTags):
+        super(OperatorCompressionDataMechanical, self).__init__(solutionName)
 
         self.gradPhiAtIntegPoint = gradPhiAtIntegPoint
         self.integrationWeights = integrationWeights
@@ -75,6 +129,15 @@ class OperatorCompressionDataMechanical(OperatorCompressionDataBase):
 
 
     def GetReducedEpsilonAtReducedIntegPoints(self):
+        r"""
+        Parameters
+        ----------
+        reducedEpsilonAtReducedIntegPoints: np.ndarray of size
+            (numberOfSigmaComponents,numberOfReducedIntegrationPoints,numberOfModes),
+            dtype = float
+            contains :math:`\epsilon(\Psi)(x_k)` where :math:`\Psi` is a POD
+            mode and :math:`x_k` are the reduced integration points
+        """
         return self.reducedEpsilonAtReducedIntegPoints
 
 

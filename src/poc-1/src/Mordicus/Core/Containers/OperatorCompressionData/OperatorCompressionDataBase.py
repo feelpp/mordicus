@@ -10,10 +10,27 @@
 class OperatorCompressionDataBase(object):
     """
     Class containing an OperatorCompressionDataBase
+
+    Attributes
+    ----------
+    solutionName : str
+        the solutionName whose computation is reduced
     """
 
-    def __init__(self):
-        return
+    def __init__(self, solutionName):
+        assert isinstance(solutionName, str)
+
+        self.solutionName = solutionName
+
+
+    def GetSolutionName(self):
+        """
+        Returns
+        -------
+        str
+            the solutionName whose computation is reduced
+        """
+        return self.solutionName
 
 
     def __str__(self):

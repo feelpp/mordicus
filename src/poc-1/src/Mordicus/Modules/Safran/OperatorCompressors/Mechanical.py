@@ -97,7 +97,7 @@ def PrepareOnline(onlineProblemData, operatorCompressionData):
     nReducedIntegrationPoints = operatorCompressionData.GetNumberOfReducedIntegrationPoints()
     numberOfSigmaComponents = operatorCompressionData.GetNumberOfSigmaComponents()
 
-    onlineData = ODM.OnlineDataMechanical(nReducedIntegrationPoints, numberOfSigmaComponents)
+    onlineData = ODM.OnlineDataMechanical("U", nReducedIntegrationPoints, numberOfSigmaComponents)
 
 
     #keysConstitutiveLaws = set(onlineProblemData.GetConstitutiveLaws().keys())
@@ -105,7 +105,6 @@ def PrepareOnline(onlineProblemData, operatorCompressionData):
 
     reducedListOTags = operatorCompressionData.GetReducedListOTags()
     indicesOfReducedIntegPointsPerMaterial = FT.ComputeIndicesOfIntegPointsPerMaterial(reducedListOTags, constitutiveLawSets)
-
 
     for tag, reducedIntegPoints in indicesOfReducedIntegPointsPerMaterial.items():
 
@@ -125,24 +124,30 @@ def PrepareOnline(onlineProblemData, operatorCompressionData):
 
     onlineData.SetReducedData(operatorCompressionData)
 
-    return onlineData
+    onlineProblemData.AddOnlineData(onlineData)
 
 
 
-def ComputeOnline(onlineProblemData, timeSequence, operatorCompressionData, tolerance, onlineData = None, callback = None):
+
+def ComputeOnline(onlineProblemData, timeSequence, tolerance, operatorCompressionData = None, onlineData = None, callback = None):
     """
     Compute the online stage using the method POD and ECM for a mechanical problem
 
     The parameters must have been initialized in onlineProblemData
     """
 
+    if (onlineData is None and operatorCompressionData is None) or (onlineData is not None and operatorCompressionData is not None):# pragma: no cover
+        raise("Either onlineData or operatorCompressionData parameter must be defined (not None)")
+
+
     currentFolder = os.getcwd()
 
     folder = currentFolder + os.sep + onlineProblemData.GetDataFolder()
     os.chdir(folder)
 
-    if onlineData is None:
-        onlineData = PrepareOnline(onlineProblemData, operatorCompressionData)
+    if onlineData is None and operatorCompressionData is not None:
+        PrepareOnline(onlineProblemData, operatorCompressionData)
+        onlineData = onlineProblemData.GetOnlineData("U")
 
 
     initialCondition = onlineProblemData.GetInitialCondition()
@@ -321,7 +326,7 @@ def ComputeReducedInternalForcesAndTangentMatrix(onlineProblemData, onlineData, 
         localStrain = np.copy(stran)
         if numberOfSigmaComponents == 6:
             localStrain[:,3:6] *= 0.5
-        elif numberOfSigmaComponents == 6:
+        elif numberOfSigmaComponents == 3: # pragma: no cover
             localStrain[:,3] *= 0.5
         onlineData.SetStrainAtLocalReducedIntegrationPoints1(localStrain, intPoints)
 
@@ -354,9 +359,9 @@ def PreCompressOperator(collectionProblemData, mesh):
 
     integrationWeights, gradPhiAtIntegPoint = FT.ComputeGradPhiAtIntegPoint(mesh)
 
-    operatorCompressionData = OCDM.OperatorCompressionDataMechanical(gradPhiAtIntegPoint, integrationWeights, listOfTags)
+    operatorCompressionData = OCDM.OperatorCompressionDataMechanical("U", gradPhiAtIntegPoint, integrationWeights, listOfTags)
 
-    collectionProblemData.SetOperatorCompressionData(operatorCompressionData)
+    collectionProblemData.AddOperatorCompressionData(operatorCompressionData)
 
 
 def CompressOperator(
@@ -401,7 +406,7 @@ def CompressOperator(
         collectionProblemData.DefineQuantity("SigmaECM")
 
 
-    operatorCompressionData = collectionProblemData.GetOperatorCompressionData()
+    operatorCompressionData = collectionProblemData.GetOperatorCompressionData("U")
 
     listOfTags = operatorCompressionData.GetListOfTags()
 
@@ -473,6 +478,7 @@ def CompressOperator(
 
 
 
+
 def ComputeSigmaEpsilon(collectionProblemData, reducedEpsilonAtIntegPoints, tolerance, toleranceCompressSnapshotsForRedQuad):
 
     """
@@ -482,7 +488,7 @@ def ComputeSigmaEpsilon(collectionProblemData, reducedEpsilonAtIntegPoints, tole
     numberOfSigmaComponents = collectionProblemData.GetSolutionsNumberOfComponents("sigma")
     numberOfModes = collectionProblemData.GetReducedOrderBasisNumberOfModes("U")
 
-    numberOfIntegrationPoints = collectionProblemData.GetOperatorCompressionData().GetNumberOfIntegrationPoints()
+    numberOfIntegrationPoints = collectionProblemData.GetOperatorCompressionData("U").GetNumberOfIntegrationPoints()
 
 
     snapshotsSigma = collectionProblemData.GetSnapshots("sigma", skipFirst = True)
@@ -547,7 +553,7 @@ def ReduceIntegrator(collectionProblemData, mesh):
     """
 
 
-    operatorCompressionData = collectionProblemData.GetOperatorCompressionData()
+    operatorCompressionData = collectionProblemData.GetOperatorCompressionData("U")
 
     numberOfIntegrationPoints = operatorCompressionData.GetNumberOfIntegrationPoints()
     gradPhiAtIntegPoint = operatorCompressionData.GetGradPhiAtIntegPoint()
@@ -719,7 +725,7 @@ def LearnDualReconstruction(collectionProblemData, listNameDualVarOutput, reduce
 
 
 def ReconstructDualQuantity(nameDualQuantity, operatorCompressionData, onlineData, timeSequence):
-    """
+    r"""
     Reconstruct a dual quantitie using a trained algorithm
 
     Parameters
@@ -741,32 +747,12 @@ def ReconstructDualQuantity(nameDualQuantity, operatorCompressionData, onlineDat
         element containing the integration points
 
         "reducedEpsilonAtReducedIntegPoints": np.ndarray of size
-            (numberOfSigmaComponents,numberOfIntegrationPoints,numberOfModes),
+            (numberOfSigmaComponents,numberOfReducedIntegrationPoints,numberOfModes),
             dtype = float
-            contains epsilon(Psi)(x_k), where Psi is a POD mode and x_k are the
-            reduced integration points
+            contains :math:`\epsilon(\Psi)(x_k)` where :math:`\Psi` is a POD
+            mode and :math:`x_k` are the reduced integration points
 
-        "dualReconstructionData": dict
-            dictionary containing data used for reconstructing dual quantities
-            in the online stage, with key:values:
 
-            "methodDualReconstruction : str
-                "GappyPOD" or "MetaModel"
-
-            name of dual quantities (e.g. "evrcum"):
-
-                - if "MetaModel" : tuple
-
-                model: sklearn.model_selection._search.GridSearchCV
-
-                scalerX: sklearn.preprocessing._data.StandardScaler
-
-                scalery: sklearn.preprocessing._data.StandardScaler
-
-                - if "GappyPOD" : tuple
-
-                reducedOrderBasisAtReducedIntegrationPoints: np.ndarray
-                of size (numberOfModes, nReducedIntegrationPoints)
 
     onlineCompressionData : np.ndarray
         of size (nReducedIntegrationPoints,), dtype = int
