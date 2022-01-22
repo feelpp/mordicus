@@ -1,10 +1,16 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-__author__='MORDICUS FUI Project'
-__version__='0.1.0'
 
-name = 'Mordicus'
+
+from Mordicus import __name__ as Mordicus__name__
+from Mordicus import __copyright__ as Mordicus__copyright__
+from Mordicus import __copyright_holder__ as Mordicus__copyright_holder__
+from Mordicus import __license__ as Mordicus__license__
+from Mordicus import __version__ as Mordicus__version__
+
+
+name = Mordicus__name__
 contact=""
 
 
@@ -13,7 +19,7 @@ try:
     from setuptools import setup, find_packages
 except ImportError:
     from distutils.core import setup
-    import re, os
+    import re
     def find_packages(path='.'):
         ret = []
         for root, dirs, files in os.walk(path):
@@ -35,9 +41,9 @@ if HAVE_SPHINX:
     cmdclass = {'build_sphinx': BuildDoc}
     command_options={
         'build_sphinx': {
-            'project': ('setup.py', "mordicus"),
-            'version': ('setup.py', "0.1"),
-            'release': ('setup.py', "0.1.0"),
+            'project': ('setup.py', Mordicus__name__),
+            'version': ('setup.py', Mordicus__version__),
+            'release': ('setup.py', Mordicus__version__),
             'source_dir': ('setup.py', 'doc')}}
 else:
     cmdclass = {}
@@ -62,8 +68,8 @@ with open( os.path.join(here, "requirements.txt")) as fid:
 extras_require = {'test':['pytest',]}
 
 setup(
-    name=name,
-    version=__version__,
+    name=Mordicus__name__,
+    version=Mordicus__version__,
     author_email=contact,
     description="",
     long_description="",
