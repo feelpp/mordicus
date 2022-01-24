@@ -1,5 +1,8 @@
 .. master file
 
+.. _elementary_use_case:
+
+
 Elementary use cases and actors
 ===============================
 

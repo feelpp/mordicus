@@ -1,17 +1,26 @@
+.. _install:
 
+====================
+Installation Details
+====================
 
-Installation
-============
+.. _step_1:
 
-for install...
+Step 1
+======
+
 
 .. code-block:: bash
 
     $ make html
 
-.. code-block:: none
 
-    test
+``toto``
+
+.. _step_2:
+
+Step 2
+======
 
 
 .. code-block:: python
@@ -19,7 +28,3 @@ for install...
     test
 
 
-
-.. _python_script_syntax:
-
-    test
