@@ -32,7 +32,7 @@ def test():
 
     collectionProblemDatas = [SIO.LoadState("mordicusState_Basis_0"), SIO.LoadState("mordicusState_Basis_1")]
 
-    operatorCompressionDatas = [collectionProblemDatas[i].GetOperatorCompressionData() for i in range(2)]
+    operatorCompressionDatas = [collectionProblemDatas[i].GetOperatorCompressionData("U") for i in range(2)]
     reducedOrderBases = [collectionProblemDatas[i].GetReducedOrderBases() for i in range(2)]
 
     snapshotCorrelationOperator = SIO.LoadState("snapshotCorrelationOperator")
@@ -84,7 +84,7 @@ def test():
         for loading in onlineProblemData.GetLoadingsForSolution("U"):
             loading.ReduceLoading(mesh, onlineProblemData, reducedOrderBases[i], operatorCompressionDatas[i])
 
-        onlineCompressedSolution, onlineCompressionData = Mechanical.ComputeOnline(onlineProblemData, timeSequences[i], operatorCompressionDatas[i], 1.e-4)
+        onlineCompressedSolution = Mechanical.ComputeOnline(onlineProblemData, timeSequences[i], operatorCompressionDatas[i], 1.e-4)
 
         onlineCompressedSnapshots.append(onlineCompressedSolution)
 
@@ -94,7 +94,7 @@ def test():
         if i==0:
             previousTime = timeSequences[i][-1]
 
-            projectedReducedOrderBasis = collectionProblemDatas[0].GetDataCompressionData("projectedReducedOrderBasis_1")
+            projectedReducedOrderBasis = collectionProblemDatas[0].GetDataCompressionData("U")["projectedReducedOrderBasis_1"]
             onlinesolution.ConvertCompressedSnapshotReducedOrderBasisAtTime(projectedReducedOrderBasis, previousTime)
             onlineProblemData.GetInitialCondition().SetReducedInitialSnapshot("U", onlinesolution.GetCompressedSnapshotsAtTime(previousTime))
 

@@ -38,12 +38,14 @@ def test():
     print("Mesh defined in " + meshFileName + " has been read")
 
 
-
     numberOfNodes = mesh.GetNumberOfNodes()
     numberOfIntegrationPoints = FT.ComputeNumberOfIntegrationPoints(mesh)
     nbeOfComponentsPrimal = 3
     nbeOfComponentsDual = 6
 
+    print("PreCompressOperator...")
+    operatorPreCompressionData = Mechanical.PreCompressOperator(mesh)
+    print("...done")
 
     outputTimeSequence = solutionReader.ReadTimeSequenceFromSolutionFile()
 
@@ -113,13 +115,7 @@ def test():
     print("compressionErrors =", compressionErrors)
 
 
-    print("PreCompressOperator...")
-    Mechanical.PreCompressOperator(collectionProblemData, mesh)
-    print("...done")
-
-    Mechanical.CompressOperator(collectionProblemData, \
-                                mesh, 1.e-5, listNameDualVarOutput = dualNames, \
-                                listNameDualVarGappyIndicesforECM = ["evrcum"])
+    Mechanical.CompressOperator(collectionProblemData, operatorPreCompressionData, mesh, 1.e-5, listNameDualVarOutput = dualNames, listNameDualVarGappyIndicesforECM = ["evrcum"])
 
 
     print("CompressOperator done")

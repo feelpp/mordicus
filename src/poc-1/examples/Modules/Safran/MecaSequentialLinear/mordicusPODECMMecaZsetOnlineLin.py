@@ -30,12 +30,10 @@ def test():
     ##################################################
 
     collectionProblemData = SIO.LoadState("collectionProblemData")
-    operatorCompressionData = collectionProblemData.GetOperatorCompressionData()
     snapshotCorrelationOperator = SIO.LoadState("snapshotCorrelationOperator")
 
-    operatorCompressionData = collectionProblemData.GetOperatorCompressionData()
+    operatorCompressionData = collectionProblemData.GetOperatorCompressionData("U")
     reducedOrderBases = collectionProblemData.GetReducedOrderBases()
-
 
     ##################################################
     # ONLINE
@@ -71,7 +69,7 @@ def test():
 
     import time
     start = time.time()
-    onlineCompressedSolution, onlineCompressionData = Meca.ComputeOnline(onlineProblemData, timeSequence, operatorCompressionData, 1.e-6)
+    onlineCompressedSolution = Meca.ComputeOnline(onlineProblemData, timeSequence, operatorCompressionData, 1.e-6)
     print(">>>> DURATION ONLINE =", time.time() - start)
 
 

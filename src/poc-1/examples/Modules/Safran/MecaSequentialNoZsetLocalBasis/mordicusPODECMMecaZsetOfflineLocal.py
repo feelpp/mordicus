@@ -118,10 +118,13 @@ def test():
 
 
     for i in range(2):
+
+        dataCompressionData = {}
         for j in [j for j in range(2) if j != i]:
             reducedOrderBasisJ = collectionProblemDatas[j].GetReducedOrderBasis("U")
-            projectedReducedOrderBasis = collectionProblemDatas[i].ComputeReducedOrderBasisProjection("U", reducedOrderBasisJ, snapshotCorrelationOperator["U"])
-            collectionProblemDatas[i].SetDataCompressionData("projectedReducedOrderBasis_"+str(j), projectedReducedOrderBasis)
+            dataCompressionData["projectedReducedOrderBasis_"+str(j)] = collectionProblemDatas[i].ComputeReducedOrderBasisProjection("U", reducedOrderBasisJ, snapshotCorrelationOperator["U"])
+
+        collectionProblemDatas[i].AddDataCompressionData("U", dataCompressionData)
 
         SIO.SaveState("mordicusState_Basis_"+str(i), collectionProblemDatas[i])
 

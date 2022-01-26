@@ -132,8 +132,9 @@ def ComputeGradPhiAtIntegPoint(mesh, elementSets = None, relativeDimension = 0):
     -------
     np.ndarray
         of size (numberOfIntegrationPoints,)
-    scipy.sparse.coo_matrix
-        of size (numberOfIntegrationPoints, numberOfModes)
+    list
+        of length dimensionality of the mesh, of scipy.sparse.coo_matrix of
+        size (numberOfIntegrationPoints, numberOfModes)
     """
     unstructuredMesh = ConvertMeshToUnstructuredMesh(mesh)
 

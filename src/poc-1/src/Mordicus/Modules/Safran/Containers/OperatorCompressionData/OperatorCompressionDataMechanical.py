@@ -19,8 +19,9 @@ class OperatorCompressionDataMechanical(OperatorCompressionDataBase):
 
     Attributes
     ----------
-    gradPhiAtIntegPoint : scipy.sparse.coo_matrix
-        of size (numberOfIntegrationPoints, numberOfModes), components of the
+    gradPhiAtIntegPoint : list
+        of length dimensionality of the mesh, of scipy.sparse.coo_matrix of
+        size (numberOfIntegrationPoints, numberOfModes), components of the
         gradient of the shape functions at the integration points
     integrationWeights : 1D np.ndarray
         of size (numberOfIntegrationPoints,), vector containing the integration
@@ -44,9 +45,9 @@ class OperatorCompressionDataMechanical(OperatorCompressionDataBase):
         reduced integration points.
     reducedEpsilonAtReducedIntegPoints : np.ndarray
         of size (numberOfSigmaComponents,numberOfReducedIntegrationPoints,numberOfModes),
-        dtype = float, containing :math:`\epsilon(\Psi)(x_k)` where :math:`\Psi`
+        dtype = float, containing :math:`\epsilon(\Psi)(x_k'')` where :math:`\Psi`
         is a vector from the reducedOrderBasis associated to tje solution
-        "U" and where :math:`x_k` are the reduced integration points
+        "U" and where :math:`x_k'` are the reduced integration points
     dualReconstructionData: dict
         dictionary containing data used for reconstructing dual quantities
         in the online stage, with following key:values
@@ -66,15 +67,14 @@ class OperatorCompressionDataMechanical(OperatorCompressionDataBase):
             - if "GappyPOD" : tuple
 
                 reducedOrderBasisAtReducedIntegrationPoints: np.ndarray of size (numberOfModes, nReducedIntegrationPoints)
-
     """
 
-    def __init__(self, solutionName, gradPhiAtIntegPoint, integrationWeights, listOfTags):
+    def __init__(self, solutionName):
         super(OperatorCompressionDataMechanical, self).__init__(solutionName)
 
-        self.gradPhiAtIntegPoint = gradPhiAtIntegPoint
-        self.integrationWeights = integrationWeights
-        self.listOfTags = listOfTags
+        self.gradPhiAtIntegPoint = None
+        self.integrationWeights = None
+        self.listOfTags = None
 
         self.reducedIntegrationPoints = None
         self.reducedIntegrationWeights = None
@@ -83,48 +83,154 @@ class OperatorCompressionDataMechanical(OperatorCompressionDataBase):
         self.dualReconstructionData = None
 
 
+    def SetOperatorPreCompressionData(self, operatorPreCompressionDataMechanical):
+        """
+        Sets the gradPhiAtIntegPoint, integrationWeights and listOfTags
+        attributes from an OperatorPreCompressionDataMechanical
+
+        Parameters
+        ----------
+        operatorPreCompressionDataMechanical : OperatorPreCompressionDataMechanical
+            data structure used in a precomputation of the operator compression step of the POD-ECM method
+        """
+        assert self.GetSolutionName() == operatorPreCompressionDataMechanical.GetSolutionName(), \
+        "solutionName of operatorCompressionDataMechanical and operatorPreCompressionDataMechanical must be the same"
+        self.gradPhiAtIntegPoint = operatorPreCompressionDataMechanical.GetGradPhiAtIntegPoint()
+        self.integrationWeights = operatorPreCompressionDataMechanical.GetIntegrationWeights()
+        self.listOfTags = operatorPreCompressionDataMechanical.GetListOfTags()
+
+
     def GetListOfTags(self):
+        """
+        Get the listOfTags attribute
+
+        Returns
+        -------
+        list of lists (of str)
+            (of length numberOfIntegrationPoints)
+        """
         return self.listOfTags
 
 
-    def GetNumberOfIntegrationPoints(self):
-        return len(self.integrationWeights)
-
-
     def GetIntegrationWeights(self):
+        """
+        Get the integrationWeights attribute
+
+        Returns
+        -------
+        1D np.ndarray
+            of size (numberOfIntegrationPoints,)
+        """
         return self.integrationWeights
 
 
+    def GetNumberOfIntegrationPoints(self):
+        """
+        Get the number of integration points
+
+        Returns
+        -------
+        int
+            number of integration points
+        """
+        return len(self.integrationWeights)
+
+
     def GetGradPhiAtIntegPoint(self):
+        """
+        Get the gradPhiAtIntegPoint attribute
+
+        Returns
+        -------
+        list
+            of length dimensionality of the mesh, of scipy.sparse.coo_matrix of
+            size (numberOfIntegrationPoints, numberOfModes)
+        """
         return self.gradPhiAtIntegPoint
 
 
 
     def SetReducedIntegrationPoints(self, reducedIntegrationPoints):
+        """
+        Sets the reducedIntegrationPoints attribute
+
+        Parameters
+        ----------
+        reducedIntegrationPoints : 1D np.ndarray
+            of size (numberOfReducedIntegrationPoints,)
+        """
         self.reducedIntegrationPoints = reducedIntegrationPoints
 
 
     def GetReducedIntegrationPoints(self):
+        """
+        Get the reducedIntegrationPoints attribute
+
+        Returns
+        -------
+        1D np.ndarray
+            of size (numberOfReducedIntegrationPoints,)
+        """
         return self.reducedIntegrationPoints
 
 
     def SetReducedIntegrationWeights(self, reducedIntegrationWeights):
+        """
+        Sets the reducedIntegrationWeights attribute
+
+        Parameters
+        ----------
+        reducedIntegrationWeights : 1D np.ndarray
+            of size (numberOfReducedIntegrationPoints,)
+        """
         self.reducedIntegrationWeights = reducedIntegrationWeights
 
 
     def GetReducedIntegrationWeights(self):
+        """
+        Get the reducedIntegrationWeights attribute
+
+        Returns
+        -------
+        1D np.ndarray
+            of size (numberOfReducedIntegrationPoints,)
+        """
         return self.reducedIntegrationWeights
 
 
     def SetReducedListOTags(self, reducedListOTags):
+        """
+        Sets the reducedListOTags attribute
+
+        Parameters
+        ----------
+        reducedListOTags : list of lists (of str)
+            (of length numberOfReducedIntegrationPoints) at each reduced
+        """
         self.reducedListOTags = reducedListOTags
 
 
     def GetReducedListOTags(self):
+        """
+        Get the reducedListOTags attribute
+
+        Returns
+        -------
+        list of lists (of str)
+            (of length numberOfReducedIntegrationPoints)
+        """
         return self.reducedListOTags
 
 
     def SetReducedEpsilonAtReducedIntegPoints(self, reducedEpsilonAtReducedIntegPoints):
+        """
+        Sets the reducedEpsilonAtReducedIntegPoints attribute
+
+        Parameters
+        ----------
+        reducedEpsilonAtReducedIntegPoints : np.ndarray
+            of size (numberOfSigmaComponents,numberOfReducedIntegrationPoints,numberOfModes)
+        """
         self.reducedEpsilonAtReducedIntegPoints = reducedEpsilonAtReducedIntegPoints
 
 
@@ -142,24 +248,65 @@ class OperatorCompressionDataMechanical(OperatorCompressionDataBase):
 
 
     def GetNumberOfSigmaComponents(self):
+        """
+        Get the number of second order tensor components
+
+        Returns
+        -------
+        int
+            number number of second order tensor components
+        """
         return self.reducedEpsilonAtReducedIntegPoints.shape[0]
 
 
     def GetNumberOfReducedIntegrationPoints(self):
+        """
+        Get the number of reduced iontegration points
+
+        Returns
+        -------
+        int
+            number of reduced iontegration points
+        """
         return len(self.GetReducedIntegrationWeights())
 
 
     def GetNumberOfModes(self):
+        """
+        Get the number of reducedOrderBasis modes
+
+        Returns
+        -------
+        int
+            number of reducedOrderBasis modes
+        """
         return self.reducedEpsilonAtReducedIntegPoints.shape[2]
 
 
     def SetDualReconstructionData(self, dualReconstructionData):
+        """
+        Sets the dualReconstructionData attribute
+
+        Parameters
+        ----------
+        dualReconstructionData: dict
+            dictionary containing data used for reconstructing dual quantities
+            in the online stage
+        """
         self.dualReconstructionData = dualReconstructionData
 
 
     def GetDualReconstructionData(self):
-        return self.dualReconstructionData
+        """
+        Get the dualReconstructionData attribute
 
+        Returns
+        -------
+        dict
+            dictionary containing data used for reconstructing dual quantities
+            in the online stage
+        """
+        return self.dualReconstructionData
 
 
     def __getstate__(self):

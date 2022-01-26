@@ -31,10 +31,9 @@ def test():
     ##################################################
 
     collectionProblemData = SIO.LoadState("collectionProblemData")
-    operatorCompressionData = collectionProblemData.GetOperatorCompressionData()
     snapshotCorrelationOperator = SIO.LoadState("snapshotCorrelationOperator")
 
-    operatorCompressionData = collectionProblemData.GetOperatorCompressionData()
+    operatorCompressionData = collectionProblemData.GetOperatorCompressionData("U")
     reducedOrderBases = collectionProblemData.GetReducedOrderBases()
 
 
@@ -71,8 +70,9 @@ def test():
 
     import time
     start = time.time()
-    onlineCompressedSolution, onlineCompressionData = Meca.ComputeOnline(onlineProblemData, timeSequence, operatorCompressionData, 1.e-8)
+    onlineCompressedSolution = Meca.ComputeOnline(onlineProblemData, timeSequence, operatorCompressionData, 1.e-8)
     print(">>>> DURATION ONLINE =", time.time() - start)
+    onlineData = onlineProblemData.GetOnlineData("U")
 
 
     numberOfIntegrationPoints = FT.ComputeNumberOfIntegrationPoints(mesh)
@@ -83,7 +83,7 @@ def test():
     for name in dualNames:
         solutionsDual = S.Solution(name, 1, numberOfIntegrationPoints, primality = False)
 
-        onlineDualCompressedSolution, errorGappy = Meca.ReconstructDualQuantity(name, operatorCompressionData, onlineCompressionData, timeSequence = list(onlineCompressedSolution.keys()))
+        onlineDualCompressedSolution, errorGappy = Meca.ReconstructDualQuantity(name, operatorCompressionData, onlineData, timeSequence = list(onlineCompressedSolution.keys()))
 
         solutionsDual.SetCompressedSnapshots(onlineDualCompressedSolution)
 

@@ -7,7 +7,10 @@
 
 
 from Mordicus.Modules.Safran.Containers.OperatorCompressionData import OperatorCompressionDataMechanical as OCDM
+from Mordicus.Modules.Safran.Containers.OperatorCompressionData import OperatorPreCompressionDataMechanical as OPCDM
 import numpy as np
+
+
 
 def test():
 
@@ -15,7 +18,10 @@ def test():
     gradPhiAtIntegPoint = np.arange(12).reshape(3,4)
     integrationWeights = np.ones(3)
 
-    operatorCompressionDataMechanical = OCDM.OperatorCompressionDataMechanical("U", gradPhiAtIntegPoint, integrationWeights, [["A"],["A", "B"],["B"]])
+    operatorPreCompressionDataMechanical = OPCDM.OperatorPreCompressionDataMechanical("U", gradPhiAtIntegPoint, integrationWeights, [["A"],["A", "B"],["B"]])
+
+    operatorCompressionDataMechanical = OCDM.OperatorCompressionDataMechanical("U")
+    operatorCompressionDataMechanical.SetOperatorPreCompressionData(operatorPreCompressionDataMechanical)
 
     assert operatorCompressionDataMechanical.GetListOfTags() == [["A"],["A", "B"],["B"]]
     assert operatorCompressionDataMechanical.GetNumberOfIntegrationPoints() == 3

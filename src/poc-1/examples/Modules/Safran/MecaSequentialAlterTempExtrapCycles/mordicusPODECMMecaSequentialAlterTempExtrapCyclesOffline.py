@@ -121,7 +121,7 @@ def test():
 
 
     #construct loading, constitutive law and initial condition
-    operatorCompressionData = collectionProblemData.GetOperatorCompressionData()
+    operatorCompressionData = collectionProblemData.GetOperatorCompressionData("U")
     inputReader = ZIR.ZsetInputReader(inputFileName)
     constitutiveLawsList = inputReader.ConstructConstitutiveLawsList()
     problemData.AddConstitutiveLaw(constitutiveLawsList)

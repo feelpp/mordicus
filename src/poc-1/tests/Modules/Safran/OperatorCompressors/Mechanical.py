@@ -50,6 +50,11 @@ def test():
     nbeOfComponentsDual = 6
 
 
+    print("PreCompressOperator...")
+    operatorPreCompressionData = Meca.PreCompressOperator(mesh)
+    print("...done")
+
+
     outputTimeSequence = solutionReader.ReadTimeSequenceFromSolutionFile()
 
 
@@ -87,13 +92,8 @@ def test():
 
     SP.CompressData(collectionProblemData, "evrcum", 1.e-6, compressSolutions = True)
 
-    print("PreCompressOperator...")
-    Meca.PreCompressOperator(collectionProblemData, mesh)
-    print("...done")
-
-    Meca.CompressOperator(collectionProblemData, mesh, 1.e-5, listNameDualVarOutput = ["evrcum"], listNameDualVarGappyIndicesforECM = ["evrcum"], toleranceCompressSnapshotsForRedQuad = 1.e-5)
-    Meca.CompressOperator(collectionProblemData, mesh, 1.e-5, listNameDualVarOutput = ["evrcum"], listNameDualVarGappyIndicesforECM = ["evrcum"])
-
+    Meca.CompressOperator(collectionProblemData, operatorPreCompressionData, mesh, 1.e-5, listNameDualVarOutput = ["evrcum"], listNameDualVarGappyIndicesforECM = ["evrcum"], toleranceCompressSnapshotsForRedQuad = 1.e-5)
+    Meca.CompressOperator(collectionProblemData, operatorPreCompressionData, mesh, 1.e-5, listNameDualVarOutput = ["evrcum"], listNameDualVarGappyIndicesforECM = ["evrcum"])
 
 
     print("CompressOperator done")
@@ -141,8 +141,8 @@ def test():
     initialCondition.ReduceInitialSnapshot(reducedOrderBases, snapshotCorrelationOperator)
 
 
-    onlineCompressedSolution, onlineData = Meca.ComputeOnline(onlineProblemData, timeSequence, 1.e-6, operatorCompressionData = operatorCompressionData)
-
+    onlineCompressedSolution = Meca.ComputeOnline(onlineProblemData, timeSequence, operatorCompressionData, 1.e-6)
+    onlineData = onlineProblemData.GetOnlineData("U")
 
     onlineEvrcumCompressedSolution, gappyError = Meca.ReconstructDualQuantity('evrcum', operatorCompressionData, onlineData, timeSequence = list(onlineCompressedSolution.keys())[1:])
 
@@ -185,8 +185,8 @@ def test():
         ROMErrorsU.append(relError)
 
 
-    assert np.max(ROMErrorsU) < 1.e-5, "!!! Regression detected !!! ROMErrors have become too large"
-    assert np.max(ROMErrorsEvrcum) < 1.e-5, "!!! Regression detected !!! ROMErrors have become too large"
+    assert np.max(ROMErrorsU) < 1.e-4, "!!! Regression detected !!! ROMErrors have become too large : np.max(ROMErrorsU) = " + str(np.max(ROMErrorsU))
+    assert np.max(ROMErrorsEvrcum) < 1.e-4, "!!! Regression detected !!! ROMErrors have become too large : np.max(ROMErrorsEvrcum) = " + str(np.max(ROMErrorsEvrcum))
 
 
     ##############
@@ -211,7 +211,7 @@ def test():
 
     elasConsitutiveLaw = MULE.TestMecaConstitutiveLaw('ALLELEMENT', 300000., 0.3, 8.6E-09)
     onlineProblemData.AddConstitutiveLaw(elasConsitutiveLaw)
-    onlineCompressedSolution = Meca.ComputeOnline(onlineProblemData, timeSequence, 1.e-6, operatorCompressionData = operatorCompressionData)
+    onlineCompressedSolution = Meca.ComputeOnline(onlineProblemData, timeSequence, operatorCompressionData, 1.e-6)
 
 
     class callback():
@@ -226,7 +226,7 @@ def test():
     elasConsitutiveLaw = inputReader.ConstructOneConstitutiveLaw("elas", 'ALLELEMENT')
     onlineProblemData.AddConstitutiveLaw(elasConsitutiveLaw)
     onlineData = onlineProblemData.GetOnlineData("U")
-    onlineCompressedSolution = Meca.ComputeOnline(onlineProblemData, timeSequence, 1.e-6, onlineData = onlineData, callback = callback)
+    onlineCompressedSolution = Meca.ComputeOnline(onlineProblemData, timeSequence, operatorCompressionData, 1.e-6, onlineData = onlineData, callback = callback)
 
     os.system("rm -rf collectionProblemData.pkl")
     os.system("rm -rf snapshotCorrelationOperator.pkl")

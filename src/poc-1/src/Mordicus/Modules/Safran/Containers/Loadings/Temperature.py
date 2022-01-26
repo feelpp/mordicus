@@ -143,7 +143,7 @@ class Temperature(LoadingBase):
             self.phiAtReducedIntegPoint = phiAtIntegPoint.tocsr()[operatorCompressionData.GetReducedIntegrationPoints(),:]
 
 
-    def ReduceLoading(self, mesh, problemData = None, reducedOrderBases = None, operatorCompressionData = None):
+    def ReduceLoading(self, mesh = None, problemData = None, reducedOrderBases = None, operatorCompressionData = None):
         """
         Computes and sets the reduced representation of the loading
 

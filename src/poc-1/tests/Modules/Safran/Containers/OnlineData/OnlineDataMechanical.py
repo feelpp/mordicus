@@ -7,7 +7,6 @@
 
 
 from Mordicus.Modules.Safran.Containers.OnlineData import OnlineDataMechanical as ODM
-from Mordicus.Modules.Safran.Containers.OperatorCompressionData import OperatorCompressionDataMechanical as OCDM
 import numpy as np
 
 def test():
@@ -21,14 +20,6 @@ def test():
     onlineDataMechanical.UpdateInternalStateAtReducedIntegrationPoints(0.)
 
     onlineDataMechanical.UpdateTemperatureAtReducedIntegrationPoints(np.array([20., 20., 20., 20.]), np.array([21., 22., 21., 23.]))
-
-    operatorCompressionDataMechanical = OCDM.OperatorCompressionDataMechanical("U", 1, 1, [["A"],["A", "B"]])
-
-    operatorCompressionDataMechanical.SetReducedIntegrationPoints(1.+np.ones(4))
-    operatorCompressionDataMechanical.SetReducedIntegrationWeights(2.+np.ones(4))
-    operatorCompressionDataMechanical.SetReducedEpsilonAtReducedIntegPoints(np.ones((2,4,2)))
-
-    onlineDataMechanical.SetReducedData(operatorCompressionDataMechanical)
 
     test = np.ones(4)
     onlineDataMechanical.SetStrainAtReducedIntegrationPoints0(test)
@@ -65,11 +56,6 @@ def test():
 
     assert onlineDataMechanical.GetNumberOfSigmaComponents() == 2
     assert onlineDataMechanical.GetNReducedIntegrationPoints() == 4
-
-
-    np.testing.assert_almost_equal(onlineDataMechanical.GetReducedIntegrationPoints(), 1.+np.ones(4))
-    np.testing.assert_almost_equal(onlineDataMechanical.GetReducedIntegrationWeights(), 2.+np.ones(4))
-    np.testing.assert_almost_equal(onlineDataMechanical.GetReducedEpsilonAtReducedIntegPoints(), np.ones((2,4,2)))
 
     assert onlineDataMechanical.GetDualVarOutputNames('ALLELEMENT') == ['eto11', 'eto22', 'evrcum']
     test = onlineDataMechanical.GetDualVarOutput('ALLELEMENT')

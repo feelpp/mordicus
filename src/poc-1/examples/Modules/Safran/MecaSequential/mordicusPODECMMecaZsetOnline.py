@@ -33,10 +33,9 @@ def test():
 
     collectionProblemData = SIO.LoadState("collectionProblemData")
 
-    operatorCompressionData = collectionProblemData.GetOperatorCompressionData()
+    operatorCompressionDataMechanical = collectionProblemData.GetOperatorCompressionData("U")
     snapshotCorrelationOperator = SIO.LoadState("snapshotCorrelationOperator")
 
-    operatorCompressionData = collectionProblemData.GetOperatorCompressionData()
     reducedOrderBases = collectionProblemData.GetReducedOrderBases()
 
     ##################################################
@@ -62,9 +61,9 @@ def test():
     loadingList = inputReader.ConstructLoadingsList()
     onlineProblemData.AddLoading(loadingList)
     for loading in onlineProblemData.GetLoadingsForSolution("U"):
-        loading.ReduceLoading(mesh, onlineProblemData, reducedOrderBases, operatorCompressionData)
+        loading.ReduceLoading(mesh, onlineProblemData, reducedOrderBases, operatorCompressionDataMechanical)
         #if loading.GetType() == 'centrifugal':
-        #    loading.HyperReduceLoading(mesh, onlineProblemData, reducedOrderBases, operatorCompressionData)
+        #    loading.HyperReduceLoading(mesh, onlineProblemData, reducedOrderBases, operatorCompressionDataMechanical)
 
 
     initialCondition = inputReader.ConstructInitialCondition()
@@ -75,7 +74,9 @@ def test():
 
     import time
     start = time.time()
-    onlineCompressedSolution, onlineCompressionData = Meca.ComputeOnline(onlineProblemData, timeSequence, operatorCompressionData, 1.e-8)
+    onlineCompressedSolution = Meca.ComputeOnline(onlineProblemData, timeSequence, operatorCompressionDataMechanical, 1.e-8)
+    onlineData = onlineProblemData.GetOnlineData("U")
+
     print(">>>> DURATION ONLINE =", time.time() - start)
 
 
@@ -88,7 +89,7 @@ def test():
     for name in dualNames:
         solutionsDual = S.Solution(name, 1, numberOfIntegrationPoints, primality = False)
 
-        onlineDualCompressedSolution, errorGappy = Meca.ReconstructDualQuantity(name, operatorCompressionData, onlineCompressionData, timeSequence = list(onlineCompressedSolution.keys()))
+        onlineDualCompressedSolution, errorGappy = Meca.ReconstructDualQuantity(name, operatorCompressionDataMechanical, onlineData, timeSequence = list(onlineCompressedSolution.keys()))
 
         solutionsDual.SetCompressedSnapshots(onlineDualCompressedSolution)
 
