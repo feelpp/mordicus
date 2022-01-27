@@ -571,8 +571,7 @@ def ConstructOneMechanicalConstitutiveLaw(folder, materialFileName, behavior, de
     behavior : str
         name of the Z-mat behavior, "gen_evp" or "linear_elastic"
     density : float, optional
-        density of the material (must be specified if the problem features
-                                 centrifugal effect, for instance)
+        density of the material (must be specified if the problem features centrifugal effect, for instance)
     set : str, optional
         element set on which the constitutive law is defined
 
