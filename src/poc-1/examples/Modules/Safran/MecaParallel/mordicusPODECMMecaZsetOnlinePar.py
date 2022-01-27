@@ -32,7 +32,6 @@ def test():
     ##################################################
 
     collectionProblemData = SIO.LoadState("collectionProblemData")
-    operatorCompressionData = collectionProblemData.GetOperatorCompressionData()
     snapshotCorrelationOperator = SIO.LoadState("snapshotCorrelationOperator")
 
     operatorCompressionData = collectionProblemData.GetOperatorCompressionData("U")
@@ -107,8 +106,6 @@ def test():
         ROMErrors.append(relError)
 
     print("ROMErrors =", ROMErrors)
-
-    print("onlineCompressionData.keys() =", list(onlineData.keys()))
 
     PW.WriteCompressedSolution(mesh, onlineCompressedSolution, reducedOrderBases["U"], "U")
 

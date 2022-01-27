@@ -63,7 +63,6 @@ def test():
         solutionSigma.AddSnapshot(sigma, time)
 
 
-
     problemData = PD.ProblemData(folder)
     problemData.AddSolution(solutionU)
     problemData.AddSolution(solutionSigma)

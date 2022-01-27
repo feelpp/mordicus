@@ -102,6 +102,7 @@ def test():
 
 
     onlineEvrcumCompressedSolution = onlineProblemData.GetSolution("evrcum").GetCompressedSnapshots()
+    onlineEto23CompressedSolution = onlineProblemData.GetSolution("eto23").GetCompressedSnapshots()
 
 
     ## Compute Error
@@ -113,10 +114,13 @@ def test():
     outputTimeSequence = solutionReader.ReadTimeSequenceFromSolutionFile()
 
     solutionEvrcumExact  = S.Solution("evrcum", 1, numberOfIntegrationPoints, primality = False)
+    solutionEto23Exact  = S.Solution("eto23", 1, numberOfIntegrationPoints, primality = False)
     solutionUExact = S.Solution("U", nbeOfComponentsPrimal, numberOfNodes, primality = True)
     for t in outputTimeSequence:
         evrcum = solutionReader.ReadSnapshotComponent("evrcum", t, primality=False)
         solutionEvrcumExact.AddSnapshot(evrcum, t)
+        eto23 = solutionReader.ReadSnapshotComponent("eto23", t, primality=False)
+        solutionEto23Exact.AddSnapshot(eto23, t)
         U = solutionReader.ReadSnapshot("U", t, nbeOfComponentsPrimal, primality=True)
         solutionUExact.AddSnapshot(U, t)
 
@@ -124,12 +128,19 @@ def test():
     solutionEvrcumApprox.SetCompressedSnapshots(onlineEvrcumCompressedSolution)
     solutionEvrcumApprox.UncompressSnapshots(reducedOrderBases["evrcum"])
 
+
+    solutionEto23Approx = S.Solution("eto23", 1, numberOfIntegrationPoints, primality = False)
+    solutionEto23Approx.SetCompressedSnapshots(onlineEto23CompressedSolution)
+    solutionEto23Approx.UncompressSnapshots(reducedOrderBases["eto23"])
+
+
     solutionUApprox = S.Solution("U", nbeOfComponentsPrimal, numberOfNodes, primality = True)
     solutionUApprox.SetCompressedSnapshots(onlineCompressedSolution)
     solutionUApprox.UncompressSnapshots(reducedOrderBases["U"])
 
     ROMErrorsU = []
     ROMErrorsEvrcum = []
+    ROMErrorsEto23 = []
     for t in outputTimeSequence:
         exactSolution = solutionEvrcumExact.GetSnapshotAtTime(t)
         approxSolution = solutionEvrcumApprox.GetSnapshotAtTime(t)
@@ -139,6 +150,15 @@ def test():
         else:
             relError = np.linalg.norm(approxSolution-exactSolution)
         ROMErrorsEvrcum.append(relError)
+
+        exactSolution = solutionEto23Exact.GetSnapshotAtTime(t)
+        approxSolution = solutionEto23Approx.GetSnapshotAtTime(t)
+        norml2ExactSolution = np.linalg.norm(exactSolution)
+        if norml2ExactSolution > 1.e-3:
+            relError = np.linalg.norm(approxSolution-exactSolution)/norml2ExactSolution
+        else:
+            relError = np.linalg.norm(approxSolution-exactSolution)
+        ROMErrorsEto23.append(relError)
 
         exactSolution = solutionUExact.GetSnapshotAtTime(t)
         approxSolution = solutionUApprox.GetSnapshotAtTime(t)
@@ -151,6 +171,7 @@ def test():
 
     print("ROMErrors U =", ROMErrorsU)
     print("ROMErrors Evrcum =", ROMErrorsEvrcum)
+    print("ROMErrors Eto23 =", ROMErrorsEto23)
 
     PW.WriteCompressedSolution(mesh, onlineCompressedSolution, reducedOrderBases["U"], "U")
     PW.WriteReducedOrderBasis(mesh, reducedOrderBases["U"], "ROB_U")
@@ -171,6 +192,7 @@ def test():
 
     assert np.max(ROMErrorsU) < 1.e-4, "!!! Regression detected !!! ROMErrors have become too large"
     assert np.max(ROMErrorsEvrcum) < 1.e-4, "!!! Regression detected !!! ROMErrors have become too large"
+    assert np.max(ROMErrorsEto23) < 1.e-4, "!!! Regression detected !!! ROMErrors have become too large"
 
 
 

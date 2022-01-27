@@ -106,8 +106,6 @@ def test():
 
     print("ROMErrors =", ROMErrors)
 
-    print("onlineData.keys() =", list(onlineData.keys()))
-
     PW.WriteCompressedSolution(mesh, onlineCompressedSolution, reducedOrderBases["U"], "U")
 
     print("The compressed solution has been written in PXDMF Format")

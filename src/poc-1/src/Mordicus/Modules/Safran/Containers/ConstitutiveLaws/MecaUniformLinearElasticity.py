@@ -156,7 +156,7 @@ class TestMecaConstitutiveLaw(ConstitutiveLawBase):
         nbIntPoints = stran.shape[0]
 
         ddsdde = np.tile(self.constitutiveLawVariables['ddsdde'],(nbIntPoints, 1, 1))
-        stress = np.einsum('klm,kl->km', ddsdde, stran, optimize = True)
+        stress = np.einsum('klm,kl->km', ddsdde, stran + dstran, optimize = True)
 
         return ddsdde, stress, statev
 

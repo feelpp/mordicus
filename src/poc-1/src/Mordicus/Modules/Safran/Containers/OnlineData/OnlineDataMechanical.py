@@ -107,7 +107,7 @@ class OnlineDataMechanical(OnlineDataBase):
         """
         self.stateVar1[tag]          = np.zeros((localNbReducedIntegPoints,nstatv))
         self.dualVarOutputNames[tag] = var
-        self.dualVarOutput[tag]      = {}
+        self.dualVarOutput[tag]      = {0. : np.zeros((localNbReducedIntegPoints, 2*self.numberOfSigmaComponents+nstatv))}
 
 
     def UpdateInternalStateAtReducedIntegrationPoints(self, time):
@@ -121,11 +121,38 @@ class OnlineDataMechanical(OnlineDataBase):
             time step value at which the internal state is updated
         """
         for tag, intPoints in self.indicesOfReducedIntegPointsPerMaterial.items():
-
             self.stateVar0[tag] = np.copy(self.stateVar1[tag])
-            self.dualVarOutput[tag][time] = np.hstack((self.strain1[intPoints],
-                                                           self.stress1[intPoints],
-                                                           self.stateVar1[tag]))
+
+
+    def SetDualStateAndVarOutput(self, tag, time, strain, stress, statev):
+        """
+        Sets stateVar1 and dualVarOutput (at time "time") for material "tag".
+        Is called at the end of each Newton iteration. Last value is kept at convergence.
+
+        Parameters
+        ----------
+        tag : str
+            tag of the material whose data is updated
+        time : float
+            time step when dualVarOutput is set
+        strain : np.ndarray
+            of size (localNbReducedIntegPoints,numberOfSigmaComponents)
+            strain tensor at local reduced integration points of material "tag"
+        stress : np.ndarray
+            of size (localNbReducedIntegPoints,numberOfSigmaComponents)
+            stress tensor at local reduced integration points of material "tag"
+        statev : np.ndarray
+            of size (localNbReducedIntegPoints,numberOfSigmaComponents)
+            state variable at local reduced integration points of material "tag"
+        """
+        #Voigt convention to invert for output of epsilon
+        if self.numberOfSigmaComponents == 6:
+            strain[:,3:6] *= 0.5
+        elif self.numberOfSigmaComponents == 3: # pragma: no cover
+            strain[:,3] *= 0.5
+
+        self.dualVarOutput[tag][time] = np.hstack((strain, stress, statev))
+        self.SetStateVarAtReducedIntegrationPoints1(tag, statev)
 
 
     def UpdateTemperatureAtReducedIntegrationPoints(self, temperatureAtReducedIntegrationPoints0, temperatureAtReducedIntegrationPoints1):

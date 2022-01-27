@@ -207,6 +207,8 @@ def test():
     onlineEvrcumCompressedSolution, gappyError = Meca.ReconstructDualQuantity('evrcum', operatorCompressionData, onlineData, timeSequence = list(onlineCompressedSolution.keys())[1:])
 
 
+    print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Elastic case")
+
     from Mordicus.Modules.Safran.Containers.ConstitutiveLaws import MecaUniformLinearElasticity as MULE
 
     elasConsitutiveLaw = MULE.TestMecaConstitutiveLaw('ALLELEMENT', 300000., 0.3, 8.6E-09)

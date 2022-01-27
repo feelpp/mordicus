@@ -138,7 +138,7 @@ def ComputeOnline(onlineProblemData, timeSequence, operatorCompressionData, tole
 
         onlineCompressedSolution[time] = np.copy(before)
 
-        reducedInternalForcesTemp, reducedTangentMatrixTemp = ComputeReducedInternalForcesAndTangentMatrix(onlineProblemData, operatorCompressionData, before, after)
+        reducedInternalForcesTemp, reducedTangentMatrixTemp = ComputeReducedInternalForcesAndTangentMatrix(onlineProblemData, operatorCompressionData, before, after, time)
         reducedInternalForces = np.zeros(reducedInternalForcesTemp.shape)
         MPI.COMM_WORLD.Allreduce([reducedInternalForcesTemp,  MPI.DOUBLE], [reducedInternalForces,  MPI.DOUBLE])
 
@@ -161,7 +161,7 @@ def ComputeOnline(onlineProblemData, timeSequence, operatorCompressionData, tole
 
             after = onlineCompressedSolution[time]# np.copy in niROM
 
-            reducedInternalForcesTemp, reducedTangentMatrixTemp = ComputeReducedInternalForcesAndTangentMatrix(onlineProblemData, operatorCompressionData, before, after)
+            reducedInternalForcesTemp, reducedTangentMatrixTemp = ComputeReducedInternalForcesAndTangentMatrix(onlineProblemData, operatorCompressionData, before, after, time)
 
             reducedInternalForces = np.zeros(reducedInternalForcesTemp.shape)
             MPI.COMM_WORLD.Allreduce([reducedInternalForcesTemp,  MPI.DOUBLE], [reducedInternalForces,  MPI.DOUBLE])
@@ -244,7 +244,7 @@ def PrepareNewtonIterations(onlineProblemData, time, dtime):
 
 
 
-def ComputeReducedInternalForcesAndTangentMatrix(onlineProblemData, operatorCompressionData, before, after):
+def ComputeReducedInternalForcesAndTangentMatrix(onlineProblemData, operatorCompressionData, before, after, time):
     """
     Computes the reduced internal forces vector and tange
 
@@ -303,7 +303,7 @@ def ComputeReducedInternalForcesAndTangentMatrix(onlineProblemData, operatorComp
             temperature = 20.+np.zeros(intPoints.shape[0])   #pragma: no cover
             dtemp = np.zeros(intPoints.shape[0])             #pragma: no cover
 
-        stran = onlineData.GetStrainAtReducedIntegrationPoints1()[intPoints] # pas Strain0 ???
+        stran = onlineData.GetStrainAtReducedIntegrationPoints0()[intPoints]
 
         dstran =  onlineData.GetStrainAtReducedIntegrationPoints1()[intPoints] - onlineData.GetStrainAtReducedIntegrationPoints0()[intPoints]
 
@@ -317,18 +317,10 @@ def ComputeReducedInternalForcesAndTangentMatrix(onlineProblemData, operatorComp
         sigma[intPoints,:] = stress
         localTgtMat[intPoints,:,:] = ddsdde
 
+        #Set dual state output values (overwritten at each Newton iteration, kept at convergence)
+        stran1 = onlineData.GetStrainAtReducedIntegrationPoints1()[intPoints]
+        onlineData.SetDualStateAndVarOutput(tag, time, stran1, stress, statev)
 
-        #for dualVar output
-        onlineData.SetStateVarAtReducedIntegrationPoints1(tag, statev)
-        onlineData.SetStressAtLocalReducedIntegrationPoints1(stress, intPoints)
-
-        #Voigt convention to invert for output of epsilon
-        localStrain = np.copy(stran)
-        if numberOfSigmaComponents == 6:
-            localStrain[:,3:6] *= 0.5
-        elif numberOfSigmaComponents == 3: # pragma: no cover
-            localStrain[:,3] *= 0.5
-        onlineData.SetStrainAtLocalReducedIntegrationPoints1(localStrain, intPoints)
 
 
     reducedInternalForces = np.einsum('l,mlk,lm->k', reducedIntegrationWeights, reducedEpsilonAtReducedIntegPoints, sigma, optimize = True)

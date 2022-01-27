@@ -61,7 +61,8 @@ def run():
     MfrontLaw = MCL.MfrontConstitutiveLaw("ALLELEMENT")
     MfrontLaw.SetDensity(1.e-8)
     internalVariables = ['eel11', 'eel22', 'eel33', 'eel12', 'eel23', 'eel31', 'epcum']
-    nRedIntegPoints = len(operatorCompressionData['reducedIntegrationPoints'])
+    nRedIntegPoints = operatorCompressionData.GetNumberOfReducedIntegrationPoints()
+
 
     if os.path.isfile(folder+'src/libBehaviour.so') == False:
         import subprocess
@@ -92,7 +93,6 @@ def run():
     onlineCompressedSolution = Meca.ComputeOnline(onlineProblemData, timeSequence, operatorCompressionData, 1.e-8)
     print(">>>> DURATION ONLINE =", time.time() - start)
     onlineData = onlineProblemData.GetOnlineData("U")
-
 
 
     numberOfIntegrationPoints = FT.ComputeNumberOfIntegrationPoints(mesh)
@@ -164,7 +164,7 @@ def run():
     print("ROMErrors U =", ROMErrorsU)
     print("ROMErrors epcum =", ROMErrorsepcum)
 
-    PW.WritePXDMF(mesh, onlineCompressedSolution, reducedOrderBases["U"], "U")
+    PW.WriteCompressedSolution(mesh, onlineCompressedSolution, reducedOrderBases["U"], "U")
     print("The compressed solution has been written in PXDMF Format")
 
     onlineProblemData.AddSolution(solutionUApprox)
