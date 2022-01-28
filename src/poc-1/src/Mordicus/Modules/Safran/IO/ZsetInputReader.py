@@ -439,19 +439,23 @@ class ZsetInputReader(InputReaderBase):
 
             if 'base_temperature' in load[1] and 'max_temperature' in load[1]:
 
-                temperatures = [load[1]['base_temperature'], load[1]['max_temperature']]
-                nNodes = int(load[1]['rec_size'][0])
+                temperatures0 = [load[1]['base_temperature'], load[1]['max_temperature']]
+                temperatures = [0. for i in range(len(temperatures0))]
 
-                for i, temperature in enumerate(temperatures):
-                    if temperature[0] == 'constant':
-                        temperatures[i] = float(temperature[1])*np.ones(nNodes)
-                    elif temperature[0] == 'file':
+                for i, temperature in enumerate(temperatures0):
+                    if temperature[0] == 'file':
                         fileName = UpdateFileName(temperature[1])
                         temperatures[i] = ZIO.ReadBinaryFile(folder+fileName)
-                    else:# pragma: no cover
+                        localnNodes = len(temperatures[i])
+                    elif temperature[0] != 'constant':# pragma: no cover
                         raise("temperature bc not valid")
 
+                for i, temperature in enumerate(temperatures0):
+                    if temperature[0] == 'constant':
+                        temperatures[i] = float(temperature[1])*np.ones(localnNodes)
+
                 #here, keys of fields are the coefficient, not the fileName
+
                 for coef in fileTable:
                     if coef not in fields:
                         coefFloat = float(coef)
