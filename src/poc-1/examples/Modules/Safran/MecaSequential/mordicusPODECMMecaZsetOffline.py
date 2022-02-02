@@ -64,8 +64,7 @@ def test():
             solutionsDual[i].AddSnapshot(solutionReader.ReadSnapshotComponent(name, time, primality=False), time)
 
 
-
-    problemData = PD.ProblemData(folder)
+    problemData = PD.ProblemData("MecaSequential")
     problemData.AddSolution(solutionU)
     problemData.AddSolution(solutionSigma)
 

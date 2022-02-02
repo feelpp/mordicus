@@ -33,9 +33,9 @@ def test():
     collectionProblemData = CPD.CollectionProblemData()
 
     collectionProblemData = CPD.CollectionProblemData()
-    collectionProblemData.AddVariabilityAxis('config',
-                                                str,
-                                                description="dummy variability")
+
+    collectionProblemData.AddVariabilityAxis('Text', float, quantities=('temperature', 'K'), description="this is Text")
+    collectionProblemData.AddVariabilityAxis('Tint', float, quantities=('temperature', 'K'), description="this is Tint")
 
 
     collectionProblemData.DefineQuantity(solutionName, "Temperature", "Celsius")
@@ -68,7 +68,9 @@ def test():
             problemData.AddParameter(np.array(parameters[i] + [t]), t)
 
         #collectionProblemData.AddProblemData(problemData, Text=parameters[i][0], Tint=parameters[i][1])
-        collectionProblemData.AddProblemData(problemData, config=folder)
+        #collectionProblemData.AddProblemData(problemData, config=folder)
+
+        collectionProblemData.AddProblemData(problemData, Text=parameters[i][0], Tint=parameters[i][1])
 
 
     print("Solutions have been read")
