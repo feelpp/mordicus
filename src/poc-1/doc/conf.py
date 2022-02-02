@@ -48,11 +48,11 @@ extensions = [
 ]
 
 # Add any paths that contain templates here, relative to this directory.
-#templates_path = ['_templates']
-templates_path = []
+templates_path = ['_templates']
+#templates_path = []
 
 # generate autosummary even if no references
-autosummary_generate = True
+autosummary_generate = False
 
 # The suffix(es) of source filenames.
 source_suffix = '.rst'
@@ -192,16 +192,23 @@ texinfo_documents = [
 
 # If true, the current module name will be prepended to all description
 # unit titles (such as .. function::).
-#add_module_names = False
+add_module_names = False
+
 html_show_sourcelink = False
 
+#html_domain_indices = False
+#html_use_index = False
 
-html_context = {
-    'current_version': version,
-    'versions': (
-        (version, 'https://gitlab.pam-retd.fr/mordicus/mordicus'),
-    )
-}
+##html_split_index = False
+
+
+
+#html_context = {
+#    'current_version': version,
+#    'versions': (
+#        (version, 'https://gitlab.pam-retd.fr/mordicus/mordicus'),
+#    )
+#}
 
 
 def run_apidoc(_):
@@ -210,10 +217,19 @@ def run_apidoc(_):
     cur_dir = os.path.abspath(os.path.dirname(__file__))
     target_dir = os.path.join(cur_dir, '_source')
     module = os.path.join(cur_dir, '../src/Mordicus')
+    template_dir = os.path.join(cur_dir, templates_path[0])
 
-    sphinx.ext.apidoc.main(['-T', '-M', '-e', '-f', '-o', target_dir, module])
+    sphinx.ext.apidoc.main(['-T', '-M', '-e', '-f', '-t', template_dir, '-o', target_dir, module])
     #main(['-o', target_dir, module])
 
+
+"""def setup(app):
+     from sphinx.util.texescape import tex_replacements
+     tex_replacements += [(u'?', u'$\\natural$'),
+                          (u'e', u'\=e'),
+                          (u'?', u'\quarternote'),
+                          (u'?', u'$\\uparrow$'),
+                          ]"""
 
 def setup(app):
     app.connect('builder-inited', run_apidoc)

@@ -8,9 +8,12 @@ from Mordicus import __copyright__ as Mordicus__copyright__
 from Mordicus import __copyright_holder__ as Mordicus__copyright_holder__
 from Mordicus import __license__ as Mordicus__license__
 from Mordicus import __version__ as Mordicus__version__
+from Mordicus import __description__ as Mordicus__description__
+from Mordicus import __long_description__ as Mordicus__long_description__
+from Mordicus import __url__ as Mordicus__url__
+from Mordicus import __contact__ as Mordicus__contact__
 
 
-name = Mordicus__name__
 contact=""
 
 
@@ -70,14 +73,12 @@ extras_require = {'test':['pytest',]}
 setup(
     name=Mordicus__name__,
     version=Mordicus__version__,
-    author_email=contact,
-    description="",
-    long_description="",
-    license="",
-    url="",
-    classifiers=[
-        'Development Status :: 1 - Beta',
-    ],
+    author_email=Mordicus__contact__,
+    description=Mordicus__description__,
+    long_description=Mordicus__long_description__,
+    license=Mordicus__license__,
+    url=Mordicus__url__,
+    classifiers=[],
     install_requires=requirements,
     extras_require=extras_require,
     packages=find_packages("src"),

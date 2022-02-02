@@ -5,3 +5,13 @@
 #
 #
 
+"""
+Basic algorithms provide helpfull functionalities on the datamodel:
+
+    - Interpolation: time interpolation for snapshots, reducedSnapshots, and loadings data
+
+    - ScikitLearnRegressor: automatization of gridsearchCV for optimizing hyperparameters
+
+    - SVD: classical truncated singluar value decomposition for lower symmetrical matrices
+
+"""

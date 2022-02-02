@@ -1,0 +1,33 @@
+name: mordicus
+
+channels:
+  - conda-forge
+
+dependencies:
+# Basic python
+  - python=3.8
+  - mpi4py
+  - setuptools
+  - pip=20.2
+# Text formating
+  - pylint
+  - black
+# Test and doc
+  - pytest
+  - pytest-cov
+  - sphinx
+# Numerical simulations
+  - numpy>=1.22.1
+  - scikit-learn
+  - scipy
+  - scikit-sparse
+# BasicTools
+  - basictools
+# Option for modules (uncomment to install)
+# Phimeca
+#  - openturns
+# To generate documentation
+  - pip:
+    - sphinx-rtd-theme
+    - sphinxcontrib-bibtex
+    - sphinxcontrib-plantumls

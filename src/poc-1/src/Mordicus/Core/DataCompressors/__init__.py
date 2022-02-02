@@ -5,3 +5,7 @@
 #
 #
 
+"""
+DataCompressors are functions acting on CollectionProblemData, iterating over
+Solutions of ProblemDatas, and computing a reducedOrderBasis
+"""

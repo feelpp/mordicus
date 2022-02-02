@@ -5,3 +5,7 @@
 #
 #
 
+"""
+The modules Core contains the proposed data model, as well as some
+basic functionalities shared by all the consortium.
+"""
