@@ -378,7 +378,7 @@ Finally, reduced predictions for ``U`` and ``evrcum`` are exported in the Z-set 
 Results
 -------
 
-A comparison between the reduced and reference high-fidelity solutions is issultrated in :numref:`label-res`.
+A comparison between the reduced and reference high-fidelity solutions is illustrated in :numref:`label-res`.
 
 .. figure:: ../examples/Modules/Safran/MecaSequential/res.jpg
     :name: label-res
