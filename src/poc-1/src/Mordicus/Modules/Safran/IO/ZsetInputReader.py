@@ -24,6 +24,7 @@ from BasicTools.IO import ZebulonIO as ZIO
 
 
 knownLoadingTags = ["pressure", "centrifugal", "temperature", "radiation", "convection_heat_flux"]
+knownZmatLaws = ["gen_evp", "visco_aniso_damage"]
 knownProblemTypes = ["mechanical", "thermal_transient"]
 solutionNames = {"mechanical":"U", "thermal_transient":"T"}
 
@@ -584,7 +585,7 @@ def ConstructOneMechanicalConstitutiveLaw(folder, materialFileName, behavior, de
     ZmatConstitutiveLaw or MecaUniformLinearElasticity
     """
 
-    if behavior == "gen_evp":
+    if behavior in knownZmatLaws:
 
         from Mordicus.Modules.Safran.Containers.ConstitutiveLaws import ZmatConstitutiveLaw as ZCL
 
