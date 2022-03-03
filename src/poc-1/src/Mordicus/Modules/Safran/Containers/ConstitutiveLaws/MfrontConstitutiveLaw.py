@@ -150,11 +150,23 @@ class MfrontConstitutiveLaw(ConstitutiveLawBase):
         assert hypothesis in availableHypothesis, "hypothesis '"+hypothesis+"' not available"
 
         h = availableHypothesis[hypothesis]
-        self.b = mgis_bv.load(behaviorFile, behavior, h)
+
+        is_finite_strain = mgis_bv.isStandardFiniteStrainBehaviour(behaviorFile, behavior)
+
+        if is_finite_strain:
+            bopts = mgis_bv.FiniteStrainBehaviourOptions()
+            bopts.stress_measure = mgis_bv.FiniteStrainBehaviourOptionsStressMeasure.PK1
+            bopts.tangent_operator = mgis_bv.FiniteStrainBehaviourOptionsTangentOperator.DPK1_DF
+            self.b = mgis_bv.load(bopts, behaviorFile, behavior, h)
+        else:
+            self.b = mgis_bv.load(behaviorFile, behavior, h)
+
+
         self.m = mgis_bv.MaterialDataManager(self.b, nbIntPoints)
 
         self.constitutiveLawVariables['var'] += internalVariables
         self.constitutiveLawVariables['nstatv'] = len(internalVariables)
+
 
 
     def ComputeConstitutiveLaw(self, temperature, dtemp, stran, dstran, statev):
