@@ -153,6 +153,9 @@ class ZsetInputReader(InputReaderBase):
             self.inputFile = ZIO.ReadInp2(string = string, rootpath = rootpath)
             self.rootpath = rootpath
 
+        if self.rootpath == "":
+            self.rootpath = "."
+
         self.problemType = ZIO.GetProblemType(self.inputFile)
         assert self.problemType in  knownProblemTypes, "problemType "+self.problemType+" must refer be among "+str(knownProblemTypes)
 
@@ -424,7 +427,6 @@ class ZsetInputReader(InputReaderBase):
                     if isinstance(info, dict):
                         timeTable = info['timeTable']
                         fileTable = info['fileTable']
-
 
             lastTimeCycleLoading = float(timeTable[-1])
             nbeLoadingCycles = max(int(inputTimeSequence[-1]/lastTimeCycleLoading),1)

@@ -32,8 +32,6 @@ def test():
 
     collectionProblemData = CPD.CollectionProblemData()
 
-    collectionProblemData = CPD.CollectionProblemData()
-
     collectionProblemData.AddVariabilityAxis('Text', float, quantities=('temperature', 'K'), description="this is Text")
     collectionProblemData.AddVariabilityAxis('Tint', float, quantities=('temperature', 'K'), description="this is Tint")
 

@@ -398,12 +398,13 @@ def CompressOperator(
     if toleranceCompressSnapshotsForRedQuad > 0:
         collectionProblemData.DefineQuantity("SigmaECM")
 
+    operatorCompressionData = collectionProblemData.GetOperatorCompressionData("U")
 
+    if operatorCompressionData == None:
 
-    operatorCompressionData = OCDM.OperatorCompressionDataMechanical("U")
-    operatorCompressionData.SetOperatorPreCompressionData(operatorPreCompressionData)
-
-    collectionProblemData.AddOperatorCompressionData(operatorCompressionData)
+        operatorCompressionData = OCDM.OperatorCompressionDataMechanical("U")
+        operatorCompressionData.SetOperatorPreCompressionData(operatorPreCompressionData)
+        collectionProblemData.AddOperatorCompressionData(operatorCompressionData)
 
 
     listOfTags = operatorCompressionData.GetListOfTags()

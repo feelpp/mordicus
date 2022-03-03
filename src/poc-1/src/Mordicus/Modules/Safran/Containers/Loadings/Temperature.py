@@ -123,6 +123,34 @@ class Temperature(LoadingBase):
         return temperatureAtReducedIntegrationPoints
 
 
+    def GetTemperatureAtTime(self, time):
+        """
+        Computes and returns the temperature at time, using PieceWiseLinearInterpolation
+
+        Parameters
+        ----------
+        time : float
+
+        Returns
+        -------
+        np.ndarray
+            of size (numberOfNodes,), temperature at nodes and at time
+        """
+        # assert type of time
+        assert isinstance(time, (float, np.float64))
+
+        from Mordicus.Core.BasicAlgorithms import Interpolation as TI
+
+        # compute fields at time
+        temperature = TI.PieceWiseLinearInterpolationWithMap(
+            time,
+            self.fieldsMapTimes,
+            self.fields,
+            self.fieldsMapValues
+        )
+        return temperature
+
+
     def PreReduceLoading(self, mesh, operatorCompressionData):
         """
         Prepares ReduceLoading by setting phiAtReducedIntegPoint
