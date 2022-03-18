@@ -167,6 +167,16 @@ class MfrontConstitutiveLaw(ConstitutiveLawBase):
         self.constitutiveLawVariables['var'] += internalVariables
         self.constitutiveLawVariables['nstatv'] = len(internalVariables)
 
+    def get_external_state_variable_names(self):
+        return [svar.name for svar in self.b.external_state_variables]
+    def get_internal_state_variable_names(self):
+        return [svar.name for svar in self.b.internal_state_variables]
+    def get_gradient_names(self):
+        return [svar.name for svar in self.b.gradients]
+    def get_flux_names(self):
+        return [svar.name for svar in self.b.thermodynamic_forces]
+
+
 
 
     def ComputeConstitutiveLaw(self, temperature, dtemp, stran, dstran, statev):
@@ -201,8 +211,16 @@ class MfrontConstitutiveLaw(ConstitutiveLawBase):
 
         import mgis.behaviour as mgis_bv
 
+
         mgis_bv.setExternalStateVariable(self.m.s0, "Temperature", temperature, mgis_bv.MaterialStateManagerStorageMode.LocalStorage)
         mgis_bv.setExternalStateVariable(self.m.s1, "Temperature", temperature + dtemp, mgis_bv.MaterialStateManagerStorageMode.LocalStorage)
+
+        for prop in self.b.material_properties:
+
+            mgis_bv.setMaterialProperty(self.m.s0, prop.name, temperature, mgis_bv.MaterialStateManagerStorageMode.LocalStorage)
+            mgis_bv.setMaterialProperty(self.m.s1, prop.name, temperature + dtemp, mgis_bv.MaterialStateManagerStorageMode.LocalStorage)
+
+
 
         self.m.s0.gradients[:,:] = stran
         self.m.s1.gradients[:,:] = stran + dstran
