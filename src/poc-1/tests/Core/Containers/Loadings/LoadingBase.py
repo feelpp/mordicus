@@ -6,10 +6,13 @@ from Mordicus.Core.Containers.Loadings import LoadingBase as LB
 def test():
 
     loading = LB.LoadingBase("solutionName", "set1", "type1")
-    loading.GetSet()
-    loading.GetType()
-    loading.GetIdentifier()
-    loading.GetSolutionName()
+
+    assert loading.GetSet() == "set1"
+    assert loading.GetType() == "type1"
+    assert loading.GetSolutionName() == "solutionName"
+    assert loading.GetIdentifier() == ("solutionName","type1","set1")
+
+
     print(loading)
     return "ok"
 

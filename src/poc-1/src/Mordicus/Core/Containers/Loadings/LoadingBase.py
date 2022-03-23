@@ -32,7 +32,7 @@ class LoadingBase(object):
             the solutionName for which the loading is applied
         """
         return self.solutionName
-    
+
 
     def GetSet(self):
         """
@@ -58,7 +58,7 @@ class LoadingBase(object):
         """
         Returns
         -------
-        couple of strings (set, type)
+        tuple of strings (solutionName, type, set)
             the identifier of loading
         """
         return (self.solutionName,self.type,self.set)
@@ -76,13 +76,13 @@ class LoadingBase(object):
         Carries out the operations needed to reduced the loading, depending on the type of loading (e.g. precomputations)
         """
         raise NotImplementedError("Not implemented in LoadingBase")  # pragma: no cover
-        
-        
+
+
     def UpdateLoading(self, loading):
         """
         Update Loading using data from loading
         """
-        raise NotImplementedError("Not implemented in LoadingBase")  # pragma: no cover        
+        raise NotImplementedError("Not implemented in LoadingBase")  # pragma: no cover
 
 
 

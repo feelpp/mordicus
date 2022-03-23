@@ -9,6 +9,7 @@ class InputReaderBase(object):
     def __init__(self):
         pass
 
+
     def ReadInputTimeSequence(self):
         """
         Reads the time sequence from the input data file of the HF computation (may be different from the ones defined in the solution file if the solver chose to solve at additional time steps)
@@ -19,6 +20,7 @@ class InputReaderBase(object):
             of size (numberOfSnapshots,)
         """
         raise NotImplementedError("Not implemented in ReaderBase")  # pragma: no cover
+
 
     def ConstructLoadingsList(self):
         """
@@ -31,11 +33,13 @@ class InputReaderBase(object):
         """
         raise NotImplementedError("Not implemented in ReaderBase")  # pragma: no cover
 
+
     def ConstructConstitutiveLawsVariablesList(self):
         """
-        1g one of the formats defined in Containers.Loadings
+        1n one of the formats defined in Containers.Loadings
         """
         raise NotImplementedError("Not implemented in ReaderBase")  # pragma: no cover
+
 
     def __str__(self):
         res = "I am an InputReaderBase, try instanciating a particular reader instead"

@@ -18,13 +18,24 @@ from scipy import integrate, interpolate
 class ThermalConstitutiveLaw(ConstitutiveLawBase):
     """
     Class containing a ThermalConstitutiveLaw
+    thermal capacity (in J.K-1.kg-1) and thermal conductivity (in W.K-1.m-1)
+    are modeled as piecewise linear functions of the temperature
 
     Attributes
     ----------
-    thermalCapacity : scipy.interpolate.interp1d instance
-        thermalCapacity function
-    thermalConductivity : scipy.interpolate.interp1d instance
-        thermalConductivity function
+    capacityTemp : np.ndarray or list of floats
+        temperature values on which thermal capacities are provided
+    capacityFunction : scipy.interpolate.interp1d
+        thermal capacity as a piecewise linear functions of the temperature
+    internalEnergyFunctions : list of scipy.interpolate.interp1d
+        internal energy modeled as a set of piecewise linear functions of the
+        temperature up to a constant
+    internalEnergyConstants : np.ndarray or list of floats
+        additive constants associated to internalEnergyFunctions
+    conductivityFunction : scipy.interpolate.interp1d
+        thermal conductivity as a piecewise linear functions of the temperature
+    behavior : str
+        name of the model behavior
     """
 
     def __init__(self, set):
@@ -40,10 +51,28 @@ class ThermalConstitutiveLaw(ConstitutiveLawBase):
 
 
     def SetBehavior(self, behavior):
+        """
+        Sets the name of the model behavior
+
+        Parameters
+        ----------
+        behavior : str
+            name of the model behavior
+        """
         self.behavior = behavior
 
 
     def SetThermalCapacity(self, capacityTemp, capacityVal):
+        """
+        Sets the model of thermal capacity
+
+        Parameters
+        ----------
+        capacityTemp : np.ndarray or list of floats
+            temperature values on which thermal capacity are provided
+        capacityVal : np.ndarray or list of floats
+            thermal capacity values on corresponding temperature values
+        """
 
         self.capacityTemp = capacityTemp
 
@@ -61,28 +90,74 @@ class ThermalConstitutiveLaw(ConstitutiveLawBase):
 
             constant += y_int[-1]
 
-
         self.capacityFunction = interpolate.interp1d(capacityTemp, capacityVal, kind='linear',  copy=True, bounds_error=False, assume_sorted=True)
 
 
-
     def SetThermalConductivity(self, conductivityTemp, conductivityVal):
+        """
+        Sets the model of thermal conductivity
+
+        Parameters
+        ----------
+        conductivityTemp : np.ndarray or list of floats
+            temperature values on which thermal conductivity values are provided
+        conductivityVal : np.ndarray or list of floats
+            thermal conductivity values on corresponding temperature values
+        """
 
         self.conductivityFunction = interpolate.interp1d(conductivityTemp, conductivityVal, kind='linear',  copy=True, bounds_error=False, assume_sorted=True)
 
 
-
     def ComputeCapacity(self, temperature):
+        """
+        Computes the thermal capacity for a given temperature value
+
+        Parameters
+        ----------
+        temperature : float
+            temperature at which the capacity is computed
+
+        Returns
+        -------
+        float
+            thermal capacity
+        """
 
         return self.capacityFunction(temperature)
 
 
     def ComputeConductivity(self, temperature):
+        """
+        Computes the thermal conductivity for a given temperature value
+
+        Parameters
+        ----------
+        temperature : float
+            temperature at which the conductivity is computed
+
+        Returns
+        -------
+        float
+            thermal conductivity
+        """
 
         return self.conductivityFunction(temperature)
 
 
     def ComputeInternalEnergy(self, temperature):
+        """
+        Computes the internal energy for a given temperature value
+
+        Parameters
+        ----------
+        temperature : float
+            temperature at which the conductivity is computed
+
+        Returns
+        -------
+        float
+            internal energy
+        """
 
         previousTempStep = TI.BinarySearch(self.capacityTemp, temperature)
 
@@ -90,9 +165,23 @@ class ThermalConstitutiveLaw(ConstitutiveLawBase):
 
 
     def ComputeInternalEnergyVectorized(self, temperature):
-
         """
-        Out of bounds: we take for internal energy the constant value of the bound, not extrapolate the primitive
+        Computes the internal energy for a set of given temperature values
+
+        Notes
+        -----
+        Out of bounds: we take for internal energy the constant value of the
+        bound, not extrapolate the primitive
+
+        Parameters
+        ----------
+        temperature : np.ndarray or list of floats
+            temperature values at which the internal energy is computed
+
+        Returns
+        -------
+        np.ndarray of floats
+            set of internal energy values
         """
 
         temperature = np.array(temperature)
@@ -119,7 +208,12 @@ class ThermalConstitutiveLaw(ConstitutiveLawBase):
         return res
 
 
-
     def __str__(self):
         res = "ThermalConstitutiveLaw on set "+self.set
         return res
+
+
+if __name__ == "__main__":# pragma: no cover
+
+    from Mordicus import RunTestFile
+    RunTestFile(__file__)

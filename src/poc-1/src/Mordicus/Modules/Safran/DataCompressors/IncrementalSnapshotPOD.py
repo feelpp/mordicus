@@ -116,7 +116,6 @@ def CompressData(
 
             Vinter = np.append(previousReducedOrderBasis, snap, axis=0)
 
-
             numberOfAddedSnapshots = snap.shape[0]
 
             gammaInterPrevInd1 = np.append(gammaNPrevInd, np.zeros((numberOfAddedSnapshots,gammaNPrevInd.shape[1])), axis = 0)
@@ -133,7 +132,6 @@ def CompressData(
 
             previousReducedOrderBasis = np.dot(Vinter.T, eigenVectorsRed).T
             gammaNPrevInd = np.dot(eigenVectorsRed.T, gammaInterLocal)
-
 
         collectionProblemData.AddReducedOrderBasis(solutionName, previousReducedOrderBasis)
         collectionProblemData.SetDataCompressionData(solutionName, gammaNPrevInd)

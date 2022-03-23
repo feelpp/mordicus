@@ -6,9 +6,11 @@ from Mordicus.Core.Containers.ConstitutiveLaws import ConstitutiveLawBase as CLB
 def test():
 
     constitutiveLaw = CLB.ConstitutiveLawBase("set1", "type1")
-    constitutiveLaw.GetSet()
-    constitutiveLaw.GetType()
-    constitutiveLaw.GetIdentifier()
+
+    assert constitutiveLaw.GetSet() == "set1"
+    assert constitutiveLaw.GetType() == "type1"
+    assert constitutiveLaw.GetIdentifier() == ("type1","set1")
+
     print(constitutiveLaw)
     return "ok"
 

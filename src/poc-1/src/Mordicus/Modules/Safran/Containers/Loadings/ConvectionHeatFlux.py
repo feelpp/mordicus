@@ -11,40 +11,43 @@ import numpy as np
 
 from Mordicus.Core.Containers.Loadings.LoadingBase import LoadingBase
 from Mordicus.Core.BasicAlgorithms import Interpolation as TI
-import collections
 
 
 class ConvectionHeatFlux(LoadingBase):
     """
-    Class containing a Loading of type pressure boundary condition. A pressure vector over the elements of set at time t is given by : coefficients[ t ] * fields[ fieldsMap[ t ] ]
-
+    Class containing a Loading of type convection heat flux boundary condition
+    for thermal problems.
 
     Attributes
     ----------
-    h : collections.OrderedDict()
-        dictionary with time indices (float) as keys and h (float) as values
-    Text    : collections.OrderedDict()
-        dictionary with time indices (float) as keys and Text (str) as values
+    hTimes : np.ndarray or list of floats
+        time values on which heat transfert coefficient values are provided
+    hValues : np.ndarray or list of floats
+        heat transfert coefficient values at the corresponding time values
+    TextTimes : np.ndarray or list of floats
+        time values on which external temperature values are provided
+    TextValues : np.ndarray or list of floats
+        external temperature values at the corresponding time values
+
     reducedPhiT : numpy.ndarray
-        size (numberOfModes)
+        of size (numberOfModes,) containing the precomputed vector
+        "red" for deriving the convection heat flux reduced external forces
+        contribution is the form: h*Text*red
     reducedPhiTPhiT : numpy.ndarray
-        size (numberOfModes, numberOfModes)
+        of size (numberOfModes, numberOfModes) containing the precomputed matrix
+        "mat" for deriving the reduced global tangent matrix contribution
+        is the form: h*mat
     """
 
     def __init__(self, solutionName, set):
         assert isinstance(set, str)
         assert isinstance(solutionName, str)
-        assert solutionName == "T", "ConvectionHeatFlux loading can only be applied on T solution types"        
+        assert solutionName == "T", "ConvectionHeatFlux loading can only be applied on T solution types"
 
         super(ConvectionHeatFlux, self).__init__("T", set, "convection_heat_flux")
 
-
-        #self.h = collections.OrderedDict
-        #self.Text = collections.OrderedDict
-
         self.hTimes = None
         self.hValues = None
-
         self.TextTimes = None
         self.TextValues = None
 
@@ -54,52 +57,41 @@ class ConvectionHeatFlux(LoadingBase):
 
     def SetH(self, h):
         """
-        Sets the coeffients attribute of the class
+        Sets hTimes and hValues
 
         Parameters
         ----------
-        h : collections.OrderedDict
+        h : dict
+            dictionary with time steps (float) as keys and the values of the
+            heat transfert coefficient (float)
         """
         # assert type of h
-        assert isinstance(h, collections.OrderedDict)
+        assert isinstance(h, dict)
         assert np.all(
-            [isinstance(key, (float, np.float64)) for key in list(h.keys())]
-        )
-        assert np.all(
-            [
-                isinstance(key, (float, np.float64))
-                for key in list(h.values())
-            ]
-        )
-
-        #self.h = h
+            [isinstance(key, (float, np.float64)) for key in list(h.keys())])
+        assert np.all([isinstance(key, (float, np.float64))
+                for key in list(h.values())])
 
         self.hTimes = np.array(list(h.keys()), dtype = float)
         self.hValues = np.array(list(h.values()), dtype = float)
 
 
-
     def SetText(self, Text):
         """
-        Sets the Text attribute of the class
+        Sets TextTimes and TextValues
 
         Parameters
         ----------
-        Text : collections.OrderedDict
+        Text : dict
+            dictionary with time steps (float) as keys and the values of the
+            external temperature values (float)
         """
         # assert type of Text
-        assert isinstance(Text, collections.OrderedDict)
+        assert isinstance(Text, dict)
         assert np.all(
-            [isinstance(key, (float, np.float64)) for key in list(Text.keys())]
-        )
-        assert np.all(
-            [
-                isinstance(key, (float, np.float64))
-                for key in list(Text.values())
-            ]
-        )
-
-        #self.Text = Text
+            [isinstance(key, (float, np.float64)) for key in list(Text.keys())])
+        assert np.all([isinstance(key, (float, np.float64))
+                for key in list(Text.values())])
 
         self.TextTimes = np.array(list(Text.keys()), dtype = float)
         self.TextValues = np.array(list(Text.values()), dtype = float)
@@ -107,7 +99,8 @@ class ConvectionHeatFlux(LoadingBase):
 
     def GetCoefficientsAtTime(self, time: float)-> (float, float):
         """
-        Computes h and Text at time, using PieceWiseLinearInterpolation
+        Computes and return h and Text at time, using
+        PieceWiseLinearInterpolation
 
         Parameters
         ----------
@@ -116,39 +109,57 @@ class ConvectionHeatFlux(LoadingBase):
         Returns
         -------
         float
-            (h, Text) at time
+            h at time
+        float
+            Text at time
         """
-
-        h = TI.PieceWiseLinearInterpolation(
-            time, self.hTimes, self.hValues
-        )
-        Text = TI.PieceWiseLinearInterpolation(
-            time, self.TextTimes, self.TextValues
-        )
+        h = TI.PieceWiseLinearInterpolation(time, self.hTimes, self.hValues)
+        Text = TI.PieceWiseLinearInterpolation(time, self.TextTimes, self.TextValues)
         return h, Text
 
 
-
-
     def ReduceLoading(self, mesh, problemData, reducedOrderBases, operatorCompressionData):
+        """
+        Computes and sets the reduced representation of the loading
 
+        Parameters
+        ----------
+        mesh : BasicTools.Containers.UnstructuredMesh
+            mesh of the high-fidelity model
+        problemData : ProblemData
+            problemData containing the loading
+        reducedOrderBases : dict(str: np.ndarray)
+            dictionary with solutionNames (str) as keys and reducedOrderBases
+            (np.ndarray of size (numberOfModes, numberOfDOFs)) as values
+        operatorCompressionData : dict(str: custom_data_structure)
+            not used in this loading
+            dictionary with solutionNames (str) as keys and data structure
+            generated by the operator compression step as values
+        """
         from Mordicus.Modules.Safran.FE import FETools as FT
-        
+
         integrationWeights, phiAtIntegPoint = FT.ComputePhiAtIntegPoint(mesh, [self.GetSet()], relativeDimension = -1)
 
         reducedPhiTAtIntegPoints = phiAtIntegPoint.dot(reducedOrderBases[self.solutionName].T)
-        
+
         self.reducedPhiTPhiT = np.einsum('tk,tl,t->kl', reducedPhiTAtIntegPoints, reducedPhiTAtIntegPoints, integrationWeights, optimize = True)
 
         self.reducedPhiT = np.einsum('tk,t->k', reducedPhiTAtIntegPoints, integrationWeights, optimize = True)
-        
-
-
 
 
     def ComputeContributionToReducedExternalForces(self, time):
         """
-        1.
+        Computes and returns the reduced external forces contribution of the
+        loading
+
+        Parameters
+        ----------
+        time : float
+
+        Returns
+        -------
+        np.ndarray
+            of size (numberOfModes,)
         """
         # assert type of time
         assert isinstance(time, (float, np.float64))
@@ -156,8 +167,6 @@ class ConvectionHeatFlux(LoadingBase):
         h, Text = self.GetCoefficientsAtTime(time)
 
         return h*Text*self.reducedPhiT
-
-
 
 
     def __str__(self):

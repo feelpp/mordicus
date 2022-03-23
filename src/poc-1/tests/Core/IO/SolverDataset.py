@@ -1,6 +1,8 @@
 # coding: utf-8
 import os.path as osp
+import os
 import numpy as np
+from Mordicus import GetTestDataPath
 from Mordicus.Core.Containers.ResolutionData.ResolutionDataBase import ResolutionDataBase
 from Mordicus.Core.Containers.FixedData.FixedDataBase import FixedDataBase
 
@@ -12,29 +14,32 @@ from Mordicus.Core.IO.SolutionReaderBase import SolutionReaderBase
 
 from Mordicus.Core.Containers.SolutionStructures.SolutionStructureBase import SolutionStructureBase
 
+
 def test():
     # Doing a template dataset calling a file
     # Adding a dummy solver that does nothing
-    call_script = """
-{solver_install} "{input_root_folder}/{input_main_file}"
+    callScript = """
+{solverInstall} "{inputRootFolder}/{inputMainFile}"
     """
     # Adding a dataset
-    data_dir = osp.abspath(osp.join(osp.dirname(osp.abspath(__file__)), osp.pardir, osp.pardir, "TestsData", "Core", "IO"))
-    solver_cfg = {"solver_install" : "/bin/bash"}
-    solver = ExternalSolvingProcedure(solver_call_procedure_type="shell",
-                                      solver_cfg=solver_cfg,
-                                      call_script=call_script)
-    input_data = {"input_root_folder"        : data_dir,
-                  "input_main_file"          : "input_main_file.sh",
-                  "input_instruction_file"   : "input_instruction_file",
-                  "input_mordicus_data"      : {"mordicus_npy_data": "input_instruction_file"},
-                  "input_result_path"        : "snapshot.npy",
-                  "input_result_type"        : "numpy_file"}
-    dataset_template = SolverDataset(ProblemData, solver, input_data)
+    dataDir = osp.join(GetTestDataPath(), "Core", "IO")
+    solverCfg = {"solverInstall" : "/bin/bash"}
+    def PythonPreprocessing(dataset):
+        return
+    solver = ExternalSolvingProcedure(solverCallProcedureType="shell",
+                                      solverCfg=solverCfg,
+                                      callScript=callScript,
+                                      PythonPreprocessing=PythonPreprocessing)
+    inputData = {"inputRootFolder"        : dataDir,
+                  "inputMainFile"          : "inputMainFile.sh",
+                  "inputInstructionFile"   : "inputInstructionFile",
+                  "inputMordicusData"      : {"mordicusNpyData": "inputInstructionFile"},
+                  "inputResultPath"        : "snapshot.npy",
+                  "inputResultType"        : "numpyFile"}
+    datasetTemplate = SolverDataset(ProblemData, solver, inputData)
+    datasetInstance = datasetTemplate.Instantiate(mu1="0.0", mu2=0.0)
 
-    dataset_instance = dataset_template.instantiate(mu1=0.0, mu2=0.0)
-
-    class NumPySolutionReader(SolutionReaderBase):
+    class NumpySolutionReader(SolutionReaderBase):
         def __init__(self, fileName, timeIt):
             self.fileName = fileName # To make generic later on
 
@@ -44,32 +49,38 @@ def test():
         def ReadSnapshotComponent(self, fieldName, time, primality, structure):
             return np.load(self.fileName)
 
-    # extract_result is called by run
-    dataset_instance.run(extract=("U", ),
+    # extractResult is called by Run
+    datasetInstance.Run(extract=("U", ),
                          primalities={"U": True},
                          solutionStructures={"U": SolutionStructureBase(fixed=(20, 1))},
-                         solutionReaderType=NumPySolutionReader)
+                         solutionReaderType=NumpySolutionReader)
 
-    # Now, call extract_result for other types of results for coverage, that is FixedDataBase and ResolutionDataBase
-    input_data = {"input_root_folder"        : data_dir,
-                  "input_main_file"          : "input_main_file_resolution.sh",
-                  "input_instruction_file"   : "input_instruction_file_resolution.py",
-                  "input_mordicus_data"      : {"mordicus_npy_data": "input_instruction_file_resolution.py"},
-                  "input_result_path"        : "snapshot.npy",
-                  "input_result_type"        : "matrix"}
-    dataset = SolverDataset(ResolutionDataBase, solver, input_data)
-    resolution_data = dataset.run()
-    nparray = resolution_data.GetInternalStorage()
+    # Now, call extractResult for other types of results for coverage, that is FixedDataBase and ResolutionDataBase
+    inputData = {"inputRootFolder"        : dataDir,
+                  "inputMainFile"          : "inputMainFileResolution.sh",
+                  "inputInstructionFile"   : "inputInstructionFileResolution.py",
+                  "inputMordicusData"      : {"mordicusNpyData": "inputInstructionFileResolution.py"},
+                  "inputResultPath"        : "snapshot.npy",
+                  "inputResultType"        : "matrix"}
+    dataset = SolverDataset(ResolutionDataBase, solver, inputData)
+    resolutionData = dataset.Run()
+    nparray = resolutionData.GetInternalStorage()
+    np.testing.assert_almost_equal(nparray, np.arange(20))
 
-    input_data = {"input_root_folder"        : data_dir,
-                  "input_main_file"          : "input_main_file_resolution.sh",
-                  "input_instruction_file"   : "input_instruction_file_resolution.py",
-                  "input_mordicus_data"      : {"mordicus_npy_data": "input_instruction_file_resolution.py"},
-                  "input_result_path"        : "snapshot.npy",
-                  "input_result_type"        : "file"}
-    dataset = SolverDataset(FixedDataBase, solver, input_data)
-    fixed_data = dataset.run()
-    filepath = fixed_data.GetInternalStorage()
+    inputData = {"inputRootFolder"        : dataDir,
+                  "inputMainFile"          : "inputMainFileResolution.sh",
+                  "inputInstructionFile"   : "inputInstructionFileResolution.py",
+                  "inputMordicusData"      : {"mordicusNpyData": "inputInstructionFileResolution.py"},
+                  "inputResultPath"        : "snapshot.npy",
+                  "inputResultType"        : "file"}
+    dataset = SolverDataset(FixedDataBase, solver, inputData)
+    fixedData = dataset.Run()
+    fixedData.GetInternalStorage()
+
+    print(dataset)
+
+    os.system("rm -r "+osp.join(GetTestDataPath(), "Core", "runFull_mu1_0.0_mu2_0.000e+00"))
+    os.system("rm -r "+osp.join(GetTestDataPath(), "Core", "IO", "snapshot.npy"))
 
     print("ok")
 

@@ -1,0 +1,15 @@
+***material
+   *integration theta_method_a 1. 1.e-9 200
+***behavior gen_evp
+   **coefficient
+      masvol 1.e-8
+**elasticity isotropic
+young 2.e5
+poisson 0.2
+**potential gen_evp ep
+*criterion mises
+*flow plasticity
+*isotropic linear
+ R0    10
+ H     100
+***return

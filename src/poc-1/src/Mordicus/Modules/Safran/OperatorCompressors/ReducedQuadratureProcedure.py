@@ -16,42 +16,34 @@ from Mordicus.Modules.Safran.BasicAlgorithms import NNOMPA
 from Mordicus.Modules.Safran.BasicAlgorithms import LPEQP
 
 
-
 def ComputeReducedIntegrationScheme(integrationWeights, integrands, tolerance,\
         imposedIndices = None, reducedIntegrationPointsInitSet = None,\
-        initByLPEQP = False, geoMorphingMultiplier = None):
+        initByLPEQP = False, nRandom = 1):#, geoMorphingMultiplier = None):
     """
     Parameters
     ----------
     integrationWeights : np.ndarray
         of size (numberOfIntegrationPoints,), dtype = float.
         Weights of the truth quadrature
-
     integrands : np.ndarray
         of size (numberOfIntegrands,numberOfIntegrationPoints), dtype = float.
         Functions we look to integrated accurately with fewer integration
         points. Usually, the integrands are already reduced, and
         numberOfIntegrands is the product of the number of reduced integrand
         modes and the number of modes of the ReducedOrderBasis
-
     tolerance : float
         upper bound for the accuracy of the reduced integration scheme on the
         provided integrands
-
-    imposedIndices : np.ndarray
-        of size (numberOfImposedIndices,), dtype = int.
-        Optional.
+    imposedIndices : np.ndarray of size (numberOfImposedIndices,), dtype = int,
+        optional
         Indicies required to be selected in the reduced integration scheme
-
     reducedIntegrationPointsInitSet : np.ndarray
-        of size (numberOfInitReducedIntegratonPoints,), dtype = int.
-        Optional.
+        of size (numberOfInitReducedIntegratonPoints,), dtype = int, optional
         Initial guess for the indices of the reducedIntegrationScheme.
-
-    initByLPEQP : bool
-        Optional.
+    initByLPEQP : bool, optional
         Runs a preliminary LPEQP stage if True
-
+    nRandom : bool, optional
+        number of random points added at each iteration
 
     Returns
     -------
@@ -71,7 +63,6 @@ def ComputeReducedIntegrationScheme(integrationWeights, integrands, tolerance,\
     """if geoMorphingMultiplier is not None:
         for i in range(integrands.shape[0]):
             integrands[i] = np.multiply(geoMorphingMultiplier, integrands[i])"""
-
 
     print(TFormat.InGreen("Starting computing reduced integration scheme "\
     "for "+str(integrands.shape[0])+" integrands having "\
@@ -102,15 +93,12 @@ def ComputeReducedIntegrationScheme(integrationWeights, integrands, tolerance,\
         else:
             s = reducedIntegrationPointsInitSet
 
-
     # NNOMPA stage
     print(TFormat.InGreen("NNOMPA stage"))
 
     s, x = NNOMPA.NNOMPA(integrationWeights,integrands,integrals,normIntegrals,\
-                       tolerance, s)
+                       tolerance, s, nRandom = nRandom)
     PrintReducedSchemeStatistics(s, x, integrands, integrals, normIntegrals)
-
-
 
     # add imposed indices
     l1 = s.shape[0]
@@ -122,14 +110,10 @@ def ComputeReducedIntegrationScheme(integrationWeights, integrands, tolerance,\
         str(len(s))+" integration points (corresponding to "+str(round(100*\
         len(s)/numberOfIntegrationPoints, 5))+"% of the total)")); sys.stdout.flush()
 
-
     return s, x
 
 
-
-
 def PrintReducedSchemeStatistics(s, x, integrands, integrals, normIntegrals):
-
 
     print(TFormat.InRed("Reduced Integration Scheme Constructed:"))
 

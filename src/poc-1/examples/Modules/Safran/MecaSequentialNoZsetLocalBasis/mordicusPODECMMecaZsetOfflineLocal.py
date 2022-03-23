@@ -49,11 +49,11 @@ def test():
 
       collectionProblemData = CPD.CollectionProblemData()
 
-      collectionProblemData.addVariabilityAxis('config',
+      collectionProblemData.AddVariabilityAxis('config',
                                              str,
                                              description="dummy variability")
-      collectionProblemData.defineQuantity("U", "displacement", "m")
-      collectionProblemData.defineQuantity("sigma", "stress", "Pa")
+      collectionProblemData.DefineQuantity("U", "displacement", "m")
+      collectionProblemData.DefineQuantity("sigma", "stress", "Pa")
 
 
       collectionProblemDatas.append(collectionProblemData)

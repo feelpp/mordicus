@@ -101,7 +101,7 @@ def test():
     print("ROMErrors =", ROMErrors)
 
 
-    PW.WritePXDMF(mesh, onlineCompressedSolution, reducedOrderBases["U"], "U")
+    PW.WriteCompressedSolution(mesh, onlineCompressedSolution, reducedOrderBases["U"], "U")
     print("The compressed solution has been written in PXDMF Format")
 
 
@@ -109,7 +109,6 @@ def test():
     numberOfIntegrationPoints = FT.ComputeNumberOfIntegrationPoints(mesh)
 
     dualNames = ["evrcum", "sig12", "sig23", "sig31", "sig11", "sig22", "sig33", "eto12", "eto23", "eto31", "eto11", "eto22", "eto33"]
-
 
     onlineProblemData.AddSolution(solutionUApprox)
 

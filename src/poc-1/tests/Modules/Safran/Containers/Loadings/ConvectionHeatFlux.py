@@ -1,38 +1,44 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
-import collections
 from Mordicus.Modules.Safran.Containers.Loadings import ConvectionHeatFlux as CHF
 from Mordicus.Modules.Safran.IO import ZsetMeshReader as ZMR
 from Mordicus import GetTestDataPath
 
 def test():
 
-    loading = CHF.ConvectionHeatFlux("T", "set1")
+    loading = CHF.ConvectionHeatFlux("T", "x0")
 
-    h = collections.OrderedDict()
-    Text = collections.OrderedDict()
+    assert loading.GetSet() == "x0"
+    assert loading.GetType() == "convection_heat_flux"
+    assert loading.GetSolutionName() == "T"
+    assert loading.GetIdentifier() == ("T","convection_heat_flux","x0")
 
-    timeSequence = [0., 1., 2., 3.]
-    for time in timeSequence:
-        h[time] = 1.
-        Text[time] = 2.
+    h    = {}
+    Text = {}
+
+    timeSequence = [0., 0.5, 0.8, 1.8]
+    for i, time in enumerate(timeSequence):
+        h[time]    = 1.1*i
+        Text[time] = 2.2*i
 
     loading.SetH(h)
     loading.SetText(Text)
-    loading.GetCoefficientsAtTime(0.5)
+    assert loading.GetCoefficientsAtTime(0.25) == (0.55, 1.1)
 
     folder = GetTestDataPath() + "Zset/MecaSequential/"
     meshFileName = folder + "cube.geof"
 
     mesh = ZMR.ReadMesh(meshFileName)
 
-
-    reducedOrderBases = {"T":np.random.rand(2,mesh.GetNumberOfNodes())}
+    reducedOrderBases = {"T":np.arange(2*mesh.GetNumberOfNodes()).reshape((2,-1))}
     dummy = 1
+
     loading.ReduceLoading(mesh, dummy, reducedOrderBases, dummy)
 
-    loading.ComputeContributionToReducedExternalForces(0.2)
+    np.testing.assert_almost_equal(1e-5*loading.reducedPhiTPhiT, 1e-5*np.array([[35574., 93198.], [93198., 268471.]]))
+    np.testing.assert_almost_equal(1e-2*loading.reducedPhiT, 1e-2*np.array([168., 511.]))
+    np.testing.assert_almost_equal(1e-2*loading.ComputeContributionToReducedExternalForces(0.2), 1e-2*np.array([65.0496, 197.8592]))
 
     print(loading)
     return "ok"

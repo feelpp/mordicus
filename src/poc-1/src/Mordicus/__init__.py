@@ -19,7 +19,7 @@ def GetTestPath():
     import os
     from pathlib import Path
 
-    return str(Path(os.path.realpath(__file__)).parents[2]) + os.sep + "tests" + os.sep
+    return os.path.normpath(str(Path(os.path.realpath(__file__)).parents[2]) + os.sep + "tests") + os.sep
 
 
 
@@ -30,7 +30,7 @@ def GetTestDataPath():
 
     import os
 
-    return GetTestPath() + "TestsData" + os.sep
+    return os.path.normpath(GetTestPath() + "TestsData") + os.sep
 
 
 

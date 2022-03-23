@@ -11,8 +11,6 @@ from Mordicus.Modules.Safran.IO import ZsetInputReader as ZIR
 from Mordicus.Modules.Safran.IO import ZsetSolutionReader as ZSR
 from Mordicus.Modules.Safran.IO import ZsetMeshReader as ZMR
 from Mordicus.Modules.Safran.FE import FETools as FT
-from Mordicus.Core.IO import StateIO as SIO
-
 
 
 
@@ -68,10 +66,10 @@ def test():
     problemData.AddSolution(solutionEvrcum)
 
     collectionProblemData = CollectionProblemData.CollectionProblemData()
-    collectionProblemData.addVariabilityAxis("config", str)
-    collectionProblemData.defineQuantity("U", "displacement", "m")
-    collectionProblemData.defineQuantity("sigma", "stress", "Pa")
-    collectionProblemData.defineQuantity("evrcum", "cumulated plasticity", "none")
+    collectionProblemData.AddVariabilityAxis("config", str)
+    collectionProblemData.DefineQuantity("U", "displacement", "m")
+    collectionProblemData.DefineQuantity("sigma", "stress", "Pa")
+    collectionProblemData.DefineQuantity("evrcum", "cumulated plasticity", "none")
     collectionProblemData.AddProblemData(problemData, config="case-1")
 
 
@@ -143,23 +141,6 @@ def test():
     onlineEvrcumCompressedSolution, gappyError = Meca.ReconstructDualQuantity('evrcum', operatorCompressionData, onlineCompressionData, timeSequence = list(onlineCompressedSolution.keys())[1:])
 
 
-    ##############
-    # test LearnDualReconstruction
-
-    onlineDualQuantityAtReducedIntegrationPoints = {}
-    onlineDualQuantityAtReducedIntegrationPoints["evrcum"] = Meca.GetOnlineDualQuantityAtReducedIntegrationPoints("evrcum", onlineCompressionData, timeSequence)
-
-    reducedIntegrationPoints = operatorCompressionData["reducedIntegrationPoints"]
-    Meca.LearnDualReconstruction(collectionProblemData, ["evrcum"], reducedIntegrationPoints, methodDualReconstruction= "MetaModel", timeSequenceForDualReconstruction = timeSequence, snapshotsAtReducedIntegrationPoints = onlineDualQuantityAtReducedIntegrationPoints)
-    Meca.LearnDualReconstruction(collectionProblemData, ["evrcum"], reducedIntegrationPoints, methodDualReconstruction= "MetaModel", timeSequenceForDualReconstruction = timeSequence, snapshotsAtReducedIntegrationPoints = None)
-    dualReconstructionData = Meca.LearnDualReconstruction(collectionProblemData, ["evrcum"], reducedIntegrationPoints, methodDualReconstruction= "MetaModel", timeSequenceForDualReconstruction = None, snapshotsAtReducedIntegrationPoints = None)
-
-    ##############
-
-    operatorCompressionData["dualReconstructionData"] = dualReconstructionData
-    onlineEvrcumCompressedSolution, gappyError = Meca.ReconstructDualQuantity('evrcum', operatorCompressionData, onlineCompressionData, timeSequence = list(onlineCompressedSolution.keys())[1:])
-
-
     solutionEvrcumExact  = Solution.Solution("evrcum", 1, numberOfIntegrationPoints, primality = False)
     solutionUExact = Solution.Solution("U", nbeOfComponentsPrimal, numberOfNodes, primality = True)
     for t in outputTimeSequence:
@@ -197,9 +178,26 @@ def test():
             relError = np.linalg.norm(approxSolution-exactSolution)
         ROMErrorsU.append(relError)
 
-    print("ROMErrors U =", ROMErrorsU)
-    print("ROMErrors Evrcum =", ROMErrorsEvrcum)
 
+    assert np.max(ROMErrorsU) < 1.e-5, "!!! Regression detected !!! ROMErrors have become too large"
+    assert np.max(ROMErrorsEvrcum) < 1.e-5, "!!! Regression detected !!! ROMErrors have become too large"
+
+
+    ##############
+    # test LearnDualReconstruction
+
+    onlineDualQuantityAtReducedIntegrationPoints = {}
+    onlineDualQuantityAtReducedIntegrationPoints["evrcum"] = Meca.GetOnlineDualQuantityAtReducedIntegrationPoints("evrcum", onlineCompressionData, timeSequence)
+
+    reducedIntegrationPoints = operatorCompressionData["reducedIntegrationPoints"]
+    Meca.LearnDualReconstruction(collectionProblemData, ["evrcum"], reducedIntegrationPoints, methodDualReconstruction= "MetaModel", timeSequenceForDualReconstruction = timeSequence, snapshotsAtReducedIntegrationPoints = onlineDualQuantityAtReducedIntegrationPoints)
+    Meca.LearnDualReconstruction(collectionProblemData, ["evrcum"], reducedIntegrationPoints, methodDualReconstruction= "MetaModel", timeSequenceForDualReconstruction = timeSequence, snapshotsAtReducedIntegrationPoints = None)
+    dualReconstructionData = Meca.LearnDualReconstruction(collectionProblemData, ["evrcum"], reducedIntegrationPoints, methodDualReconstruction= "MetaModel", timeSequenceForDualReconstruction = None, snapshotsAtReducedIntegrationPoints = None)
+
+    ##############
+
+    operatorCompressionData["dualReconstructionData"] = dualReconstructionData
+    onlineEvrcumCompressedSolution, gappyError = Meca.ReconstructDualQuantity('evrcum', operatorCompressionData, onlineCompressionData, timeSequence = list(onlineCompressedSolution.keys())[1:])
 
 
     from Mordicus.Modules.Safran.Containers.ConstitutiveLaws import MecaUniformLinearElasticity as MULE

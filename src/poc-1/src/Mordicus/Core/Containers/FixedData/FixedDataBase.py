@@ -1,8 +1,4 @@
-'''
-Created on 17 juil. 2020
-
-@author: A34370
-'''
+# coding: utf-8
 
 class FixedDataBase(object):
     '''
@@ -10,12 +6,12 @@ class FixedDataBase(object):
     '''
     def __init__(self):
         self.__storage = None
-        
+
 
     def SetInternalStorage(self, __storage):
         """
         Sets the internal storage
-        
+
         Parameters
         ----------
         __storage : typeToDefine
@@ -36,4 +32,13 @@ class FixedDataBase(object):
         if self.__storage is None:
             raise AttributeError("Please set internal storage")  # pragma: no cover
         return self.__storage
-        
+
+
+    def __str__(self):
+        res = "I am a FixedDataBase, try instanciating a particular fixed data instead"
+        return res
+
+if __name__ == "__main__":# pragma: no cover
+
+    from Mordicus import RunTestFile
+    RunTestFile(__file__)

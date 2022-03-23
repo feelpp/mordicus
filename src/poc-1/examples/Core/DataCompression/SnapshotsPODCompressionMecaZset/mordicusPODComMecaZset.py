@@ -41,8 +41,8 @@ def test():
 
 
     collectionProblemData = CPD.CollectionProblemData()
-    collectionProblemData.defineVariabilityAxes(('config',), (str, ))
-    collectionProblemData.defineQuantity("U", "displacement", "m")
+    collectionProblemData.DefineVariabilityAxes(('config',), (str, ))
+    collectionProblemData.DefineQuantity("U", "displacement", "m")
     collectionProblemData.AddProblemData(problemData, config="case-1")
     print(
         "A collectionProblemData with problemDatas "
@@ -66,7 +66,9 @@ def test():
 
     from Mordicus.Modules.Safran.IO import PXDMFWriter as PW
 
-    PW.WritePXDMFFromSolution(mesh, solution, reducedOrderBasis)
+    compressedSolution = solution.GetCompressedSnapshots()
+
+    PW.WriteCompressedSolution(mesh, compressedSolution, reducedOrderBasis, "U")
     print("The compressed solution has been written in PXDMF Format")
 
 
@@ -75,12 +77,11 @@ def test():
     ##################################################
 
 
-    CompressedSolution = solution.GetCompressedSnapshots()
     compressionErrors = []
 
     for t in outputTimeSequence:
 
-        reconstructedCompressedSolution = np.dot(CompressedSolution[t], reducedOrderBasis)
+        reconstructedCompressedSolution = np.dot(compressedSolution[t], reducedOrderBasis)
         exactSolution = solution.GetSnapshot(t)
         norml2ExactSolution = np.linalg.norm(exactSolution)
         if norml2ExactSolution != 0:

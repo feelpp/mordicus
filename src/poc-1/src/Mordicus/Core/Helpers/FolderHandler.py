@@ -23,7 +23,7 @@ class FolderHandler(object):
         scriptAddress : str
             absolute address of the script (file name included) being executed
         """
-        self.scriptFolder = str(Path(scriptAddress).parents[0])
+        self.scriptFolder = os.path.abspath(str(Path(scriptAddress).parents[0]))
         self.executionFolder = os.getcwd()
 
 

@@ -8,9 +8,9 @@ if MPI.COMM_WORLD.Get_size() > 1: # pragma: no cover
     os.environ["VECLIB_MAXIMUM_THREADS"] = "1"
     os.environ["NUMEXPR_NUM_THREADS"] = "1"
 import numpy as np
+from scipy import sparse
 
 from Mordicus.Core.Containers import Solution
-import collections
 
 
 class ProblemData(object):
@@ -31,39 +31,37 @@ class ProblemData(object):
         dictionary with identifier (str) as keys and loading (LoadingBase) as values
     constitutiveLaws : dict
         dictionary with identifier (str) as keys and constitutive law (ConstitutiveLawBase) as values
-    parameters : collections.OrderedDict
+    parameters : dict
         dictionary with time indices as keys and a np.ndarray of size (parameterDimension,) containing the parameters
     """
 
     def __init__(self, problemName):
-        """
-        Parameters
-        ----------
-        problemName : str
-        solutions : dict
-        initialCondition : InitialConditionBase
-        loadings : dict
-        constitutiveLaws : dict
-        parametersValues : collections.OrderedDict
-        """
+
         self.problemName = problemName
         self.dataFolder = None
         self.solutions = {}
         self.initialCondition = None
         self.loadings = {}
         self.constitutiveLaws = {}
-        self.parameters = collections.OrderedDict()
+        self.parameters = {}
 
 
     def SetDataFolder(self, dataFolder):
         """
-        Sets dataFolder
+        Sets the dataFolder parameter
+
+        Parameters
+        ----------
+        dataFolder : str
+            name of folder containing the data of the problemData, relative to the mordicus client script
         """
         self.dataFolder = dataFolder
 
 
     def GetDataFolder(self):
         """
+        Returns the dataFolder parameter
+
         Returns
         -------
         str
@@ -98,7 +96,7 @@ class ProblemData(object):
 
     def DeleteSolutions(self):
         """
-        Deletes solutions
+        Reinitializes the solutions parameter
         """
         self.solutions = {}
 
@@ -109,10 +107,10 @@ class ProblemData(object):
 
         Parameters
         ----------
-        time : float, optional
-            time of the snapshot, default: 0.
         parameter : np.ndarray
             of size (parameterDimension,)
+        time : float
+            (optional) time of the snapshot, default: 0.
         """
         assert type(parameter) == np.ndarray and len(parameter.shape) == 1
         time = float(time)
@@ -153,6 +151,8 @@ class ProblemData(object):
 
     def SetInitialCondition(self, initialCondition):
         """
+        Sets the initial condition
+
         Parameters
         ----------
         initialCondition : InitialCondition
@@ -163,6 +163,8 @@ class ProblemData(object):
 
     def GetInitialCondition(self):
         """
+        Returns the initial condition
+
         Returns
         -------
         initialCondition : InitialCondition
@@ -222,9 +224,11 @@ class ProblemData(object):
 
     def GetParameters(self):
         """
+        Returns the parameters
+
         Returns
         -------
-        collections.OrderedDict()
+        dict
             parameters
         """
         if self.parameters == False:
@@ -236,6 +240,8 @@ class ProblemData(object):
 
     def GetParametersTimeSequence(self):
         """
+        Returns the time indices of the parameters
+
         Returns
         -------
         list
@@ -246,6 +252,8 @@ class ProblemData(object):
 
     def GetParametersList(self):
         """
+        Returns the parameter values in the form of a list
+
         Returns
         -------
         list
@@ -275,9 +283,10 @@ class ProblemData(object):
             return None
 
 
-
     def GetParameterAtTime(self, time):
         """
+        Returns the parameter value at a specitiy time (with time interpolation if needed)
+
         Parameters
         ----------
         time : float
@@ -289,17 +298,17 @@ class ProblemData(object):
             parameter
         """
 
-        return self.parameters[time]
-
-        """
-            from Mordicus.Core.BasicAlgorithms import Interpolation as TI
-            return TI.PieceWiseLinearInterpolation(
-            time, list(self.parameters.keys()), list(self.parameters.values())
-        )"""
+        from Mordicus.Core.BasicAlgorithms import Interpolation as TI
+        return TI.PieceWiseLinearInterpolation(
+        time, list(self.parameters.keys()), list(self.parameters.values())
+        )
+        #return self.parameters[time]
 
 
     def GetLoadings(self):
         """
+        Returns the complete loadings dictionary
+
         Returns
         -------
         dict
@@ -311,6 +320,8 @@ class ProblemData(object):
 
     def GetLoading(self, solutionName, type, set):
         """
+        Returns a specific loading for the identifiers elements
+
         Returns
         -------
         loading
@@ -324,10 +335,12 @@ class ProblemData(object):
 
     def GetLoadingsOfType(self, type):
         """
+        Returns all loadings of a specific type, in a list
+
         Returns
         -------
         list
-            list loadings of type type
+            list of loadings of type type
         """
         li = []
         for loading in self.GetLoadings().values():
@@ -338,10 +351,12 @@ class ProblemData(object):
 
     def GetLoadingsForSolution(self, solutionName):
         """
+        Returns all loadings for a specific solution name, in a list
+
         Returns
         -------
         list
-            list loadings of type type
+            list of loadings of type type
         """
         li = []
         for loading in self.GetLoadings().values():
@@ -352,6 +367,8 @@ class ProblemData(object):
 
     def GetConstitutiveLaws(self):
         """
+        Returns the complete constitutiveLaws dictionary
+
         Returns
         -------
         dict
@@ -360,13 +377,14 @@ class ProblemData(object):
         return self.constitutiveLaws
 
 
-
-    def GetConstitutiveOfType(self, type):
+    def GetConstitutiveLawsOfType(self, type):
         """
+        Returns all constitutive laws of a specific type, in a list
+
         Returns
         -------
         list
-            list loadings of type type
+            list of constitutive laws of type type
         """
         li = []
         for law in self.GetConstitutiveLaws().values():
@@ -375,22 +393,25 @@ class ProblemData(object):
         return li
 
 
-
     def GetSetsOfConstitutiveOfType(self, type):
         """
+        Returns the sets of all constitutive laws of a specific type, in a set
+
         Returns
         -------
         set
             set of strings of elementSets
         """
         se = []
-        for law in self.GetConstitutiveOfType(type):
+        for law in self.GetConstitutiveLawsOfType(type):
             se.append(law.GetSet())
         return set(se)
 
 
     def GetSolution(self, solutionName):
         """
+        Returns the solution of name solutionName
+
         Parameters
         ----------
         solutionName : str
@@ -403,9 +424,21 @@ class ProblemData(object):
         return self.solutions[solutionName]
 
 
-    def CompressSolution(self, solutionName, snapshotCorrelationOperator, reducedOrderBasis):
+    def GetSolutions(self):
         """
-        Compress solutions of name "solutionName".
+        Returns the solutions of problemData
+
+        Returns
+        -------
+        dict
+            solutions
+        """
+        return self.solutions
+
+
+    def CompressSolution(self, solutionName, reducedOrderBasis, snapshotCorrelationOperator = None):
+        """
+        Compress solutions of name solutionName ; does nothing if no solution of name solutionName exists
 
         Parameters
         ----------
@@ -418,12 +451,8 @@ class ProblemData(object):
         """
         assert isinstance(solutionName, str)
 
-        """if solutionName not in self.solutions:
-            raise AttributeError(
-                "You must provide solutions "
-                + solutionName
-                + " before trying to compress them"
-            )  # pragma: no cover"""
+        if snapshotCorrelationOperator is None:
+            snapshotCorrelationOperator = sparse.eye(self.GetSolution(solutionName).GetNumberOfDofs())
 
         try:
             solution = self.GetSolution(solutionName)
@@ -449,7 +478,7 @@ class ProblemData(object):
 
     def UncompressSolution(self, solutionName, reducedOrderBasis):
         """
-        Uncompress solutions of name "solutionName".
+        Uncompress solutions of name solutionName
 
         Parameters
         ----------
@@ -471,10 +500,8 @@ class ProblemData(object):
         solution.UncompressSnapshots(reducedOrderBasis)
 
 
-
     def __str__(self):
-        res = "ProblemData of name: "+self.problemName+"\n"
-        #res += "Solutions:" + str(list(self.solutions.keys()))
+        res = "ProblemData of name: "+self.problemName
         return res
 
 

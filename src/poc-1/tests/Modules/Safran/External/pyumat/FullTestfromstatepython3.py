@@ -27,7 +27,7 @@ def test():
         nshr = 3
         ntens = ndi + nshr
 
-        ddsdde = np.zeros((6, 6), dtype=np.float)
+        ddsdde = np.zeros((6, 6), dtype=float)
 
         sse = 0.0
         spd = 0.0

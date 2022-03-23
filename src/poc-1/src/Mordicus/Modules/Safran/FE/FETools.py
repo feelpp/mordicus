@@ -59,14 +59,11 @@ def ComputeJdetAtIntegPoint(mesh, elementSets = None, relativeDimension = 0):
     return FT.ComputeJdetAtIntegPoint(unstructuredMesh, elementSets, relativeDimension)
 
 
-
 def ComputePhiAtIntegPoint(mesh, elementSets = None, relativeDimension = 0):
 
     unstructuredMesh = ConvertMeshToUnstructuredMesh(mesh)
 
     return FT.ComputePhiAtIntegPoint(unstructuredMesh, elementSets, relativeDimension)
-
-
 
 
 def ComputeGradPhiAtIntegPoint(mesh, elementSets = None, relativeDimension = 0):
@@ -76,13 +73,11 @@ def ComputeGradPhiAtIntegPoint(mesh, elementSets = None, relativeDimension = 0):
     return FT.ComputeGradPhiAtIntegPoint(unstructuredMesh, elementSets, relativeDimension)
 
 
-
 def ComputeNormalsAtIntegPoint(mesh, elementSets = None):
 
     unstructuredMesh = ConvertMeshToUnstructuredMesh(mesh)
 
     return FT.ComputeNormalsAtIntegPoint(unstructuredMesh, elementSets)
-
 
 
 def ComputeNumberOfIntegrationPoints(mesh):
@@ -93,14 +88,11 @@ def ComputeNumberOfIntegrationPoints(mesh):
     return numberOfIntegrationPoints
 
 
-
 def ComputeIntegrationPointsTags(mesh, dimension = None):
 
     unstructuredMesh = ConvertMeshToUnstructuredMesh(mesh)
 
     return FT.ComputeIntegrationPointsTags(unstructuredMesh, dimension)
-
-
 
 
 def ComputeIndicesOfIntegPointsPerMaterial(listOfTags, keysConstitutiveLaws):
@@ -131,51 +123,18 @@ def ComputeMaterialKeyPerIntegrationPoint(listOfTags, keysConstitutiveLaws):
     return materialKeyPerIntegrationPoint
 
 
-def CellDataToIntegrationPointsData(mesh, set, scalarFields, relativeDimension = 0):
+def CellDataToIntegrationPointsData(mesh, scalarFields, set = None, relativeDimension = 0):
 
     unstructuredMesh = ConvertMeshToUnstructuredMesh(mesh)
 
-    return FT.CellDataToIntegrationPointsData(unstructuredMesh, set, scalarFields, relativeDimension)
+    return FT.CellDataToIntegrationPointsData(unstructuredMesh, scalarFields, set, relativeDimension)
 
 
-
-
-"""def ComputeMecaIntegrator(mesh, elementSet = "ALLELEMENT"):
+def IntegrationPointsToCellData(mesh, scalarFields):
 
     unstructuredMesh = ConvertMeshToUnstructuredMesh(mesh)
 
-    return FT.ComputeMecaIntegrator(unstructuredMesh)
-
-
-def IntegrateVectorNormalComponentOnSurface(mesh, set, vector):
-
-    unstructuredMesh = ConvertMeshToUnstructuredMesh(mesh)
-
-    assembledVector = FT.IntegrateVectorNormalComponentOnSurface(unstructuredMesh, set, vector)
-
-    return assembledVector
-
-
-def IntegrateCentrifugalEffect(mesh, density, direction, center):
-
-    unstructuredMesh = ConvertMeshToUnstructuredMesh(mesh)
-
-    return FT.IntegrateCentrifugalEffect(unstructuredMesh, density, direction, center)
-
-
-def IntegrateOrderOneTensorOnSurface(mesh, set, orderOneTensor):
-
-    unstructuredMesh = ConvertMeshToUnstructuredMesh(mesh)
-
-    return FT.IntegrateOrderOneTensorOnSurface(unstructuredMesh, set, orderOneTensor)
-
-
-def IntegrateOrderTwoTensorOnSurface(mesh, set, orderTwoTensor):
-
-    unstructuredMesh = ConvertMeshToUnstructuredMesh(mesh)
-
-    return FT.IntegrateOrderTwoTensorOnSurface(unstructuredMesh, set, orderTwoTensor)"""
-
+    return FT.IntegrationPointsToCellData(unstructuredMesh, scalarFields)
 
 
 def ConvertMeshToUnstructuredMesh(mesh):
