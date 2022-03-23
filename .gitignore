@@ -47,3 +47,13 @@ build-*
 __pycache__
 #IDE
 src/poc-1/.vscode/
+
+#emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+.\#*

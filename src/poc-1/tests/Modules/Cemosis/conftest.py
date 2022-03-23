@@ -20,11 +20,11 @@ def has_mpi4py():
 
 
 class InitFeelpp:
-    def __init__(self):
+    def __init__(self,config):
         try:
             print('xxx call init_feelpp')
             sys.argv = ['test_feelpp']
-            self.e = feelpp.Environment(sys.argv)
+            self.e = feelpp.Environment(sys.argv,config=config)
             print('proc:', feelpp.Environment.isMasterRank())
         except Exception:
             return
@@ -32,4 +32,4 @@ class InitFeelpp:
 
 @pytest.fixture(scope="session", autouse=True)
 def init_feelpp():
-    return InitFeelpp()
+    return InitFeelpp(feelpp.globalRepository("pyfeelpp-mordicus-tests"))

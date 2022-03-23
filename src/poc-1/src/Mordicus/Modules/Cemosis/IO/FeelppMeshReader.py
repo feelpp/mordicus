@@ -1,76 +1,79 @@
-# -*- coding: utf-8 -*-
 from Mordicus.Core.IO.MeshReaderBase import MeshReaderBase
 import feelpp
-from pathlib import Path
 
-def ReadMesh(meshFileName,dim=3,realdim=3):
+def ReadMesh(meshFileName):
     """
     Functional API
-
-    Reads the mesh defined the Gmsh mesh file "meshFileName" (.msh)
-
+    
+    Readsthe mesh defined in the Feelpp mesh file "meshFileName" (.geo, .msh, .json)
+    
     Parameters
     ----------
     meshFileName : str
-        Gmsh mesh file
-    dim: int 
-        topological dimension of the mesh
-    realdim: int
-        real space dimension
-
+        mesh file
+        
     Returns
     -------
-   FeelppUnstructuredMesh
-        mesh of the HF computation
+    FeelppMesh
+        mesh of the model
     """
-    
-    reader = FeelppMeshReader(meshFileName=meshFileName,dim=dim,realdim=realdim)
+    reader = FeelppMeshReader(meshFileName=meshFileName)
     return reader.ReadMesh()
-
 
 class FeelppMeshReader(MeshReaderBase):
     """
-    Class containing a reader for Gmsh mesh or a geo file
-
+    Class containing a reader for Feelpp mesh file
+    
     Attributes
     ----------
     meshFileName : str
-        name of the GMSH mesh file (.msh)
+        name of the mesh file (.geo, .msh, .json)
+    dim : int
+        dimension of the mesh
+    gorder : int
+        order of the mesh
+    realdim : int
+        real dimension of the mesh
+    h : double
+        hsize of the mesh (for geo)
     """
 
-    def __init__(self, meshFileName,dim,realdim):
-        """
-        Parameters
-        ----------
-        meshFileName : str, optional
-        """
-        super(FeelppMeshReader, self).__init__()
-
+    def __init__(self, meshFileName, dim=2, gorder=1, realdim=2, h=0.1):
         assert isinstance(meshFileName, str)
+        assert feelpp.Environment.initialized
 
-        folder = str(Path(meshFileName).parents[0])
-        suffix = str(Path(meshFileName).suffix)  # .msh
-        stem = str(Path(meshFileName).stem)  # mesh
+        super().__init__()
         self.meshFileName = meshFileName
-        self.m = feelpp.mesh(dim=dim,realdim=realdim)
+        self.dim = dim
+        self.gorder = gorder
+        self.realdim = realdim
+        self.h = h
 
     def ReadMesh(self):
         """
-        Read the HF mesh
-
+        Read the mesh
+        
         Returns
         -------
-        FeelppUnstructuredMesh
-            mesh of the HF computation
+        FeelppMesh
+            mesh of the model
         """
-        self.m = feelpp.load(self.m, self.meshFileName, 0.1)
+        from Mordicus.Modules.Cemosis.Containers.Meshes import FeelppMesh
+        self.mesh = feelpp.load(feelpp.mesh(dim=self.dim, geo=self.gorder, realdim=self.realdim), self.meshFileName, self.h)
         if feelpp.Environment.isMasterRank():
-            print("mesh ", self.m.dimension(), "D nelts:", self.m.numGlobalElements())
-            print("mesh ", self.m.dimension(), "D nfaces:", self.m.numGlobalFaces())
-            print("mesh ", self.m.dimension(), "D hmin:", self.m.hMin())
-            print("mesh ", self.m.dimension(), "D havg:", self.m.hAverage())
-            print("mesh ", self.m.dimension(), "D hmax:", self.m.hMax())
-            print("mesh ", self.m.dimension(), "D measure:", self.m.measure())
+            print("mesh ", self.mesh.dimension(), "D nelts:", self.mesh.numGlobalElements())
+            print("mesh ", self.mesh.dimension(), "D nfaces:", self.mesh.numGlobalFaces())
+            print("mesh ", self.mesh.dimension(), "D hmin:", self.mesh.hMin())
+            print("mesh ", self.mesh.dimension(), "D havg:", self.mesh.hAverage())
+            print("mesh ", self.mesh.dimension(), "D hmax:", self.mesh.hMax())
+            print("mesh ", self.mesh.dimension(), "D measure:", self.mesh.measure())
 
         from Mordicus.Modules.Cemosis.Containers.Meshes import FeelppUnstructuredMesh as FUM
-        return FUM.FeelppUnstructuredMesh(self.m)
+        return FUM.FeelppUnstructuredMesh(self.mesh)
+
+
+
+if __name__ == "__main__":# pragma: no cover
+
+    from Mordicus import RunTestFile
+    RunTestFile(__file__)

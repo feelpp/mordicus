@@ -1,73 +1,84 @@
 import sys
-import sys
-from feelpp.toolboxes.heat import *
-from feelpp.mor import *
+
 import feelpp
+from Mordicus.Core.Helpers import FolderHandler as FH
+from Mordicus.Core.Containers import CollectionProblemData as CPD
+from Mordicus.Modules.Cemosis.IO import FeelppMeshReader as FMR
+from Mordicus.Modules.Cemosis.DataCompressors import EIMGreedy as EG
 
+from feelpp.toolboxes.heat import toolboxes_options, heat
+from feelpp.mor import makeToolboxMorOptions, ParameterSpace
 
-o=toolboxes_options("heat")
-o.add(makeToolboxMorOptions())
-e=feelpp.Environment(sys.argv,opts=o)
+def test():
+    
+    folderHandler = FH.FolderHandler(__file__)
+    folder = folderHandler.scriptFolder+"/opusheat/"
 
-heatBox=heat(dim=2,order=1)
-heatBox.init()
-model = toolboxmor_2d()
-model.setFunctionSpaces( Vh=heatBox.spaceTemperature())
+    o = toolboxes_options("heat")
+    o.add(makeToolboxMorOptions())
+    e = feelpp.Environment(sys.argv,config=feelpp.globalRepository("mordicus"),opts=o)
 
-def assembleDEIM(mu):
-    for i in range(0,mu.size()):
-        heatBox.addParameterInModelProperties(mu.parameterName(i),mu(i))
-    heatBox.updateParameterValues()
-    heatBox.updateFieldVelocityConvection()
-    heatBox.assembleLinear()
-    return heatBox.rhs()
+    configFileName = folder+"opusheat-heat.cfg"
+    feelpp.Environment.setConfigFile(configFileName)
 
-def assembleMDEIM(mu):
-    for i in range(0,mu.size()):
-        heatBox.addParameterInModelProperties(mu.parameterName(i),mu(i))
-    heatBox.updateParameterValues()
-    heatBox.updateFieldVelocityConvection()
-    heatBox.assembleLinear()
-    return heatBox.matrix()
+    meshFileName = folder+"opusheat.geo"
+    print(meshFileName)
+    meshReader = FMR.FeelppMeshReader(meshFileName)
+    mesh = meshReader.ReadMesh()
+    print("Mesh defined in " + meshFileName + " has been read")
+    
+    heatBox = heat(dim=2,order=1)
+    heatBox.setMesh(mesh.GetInternalStorage())
+    heatBox.init()
+    def assembleDEIM(mu):
+        for i in range(0,mu.size()):
+            heatBox.addParameterInModelProperties(mu.parameterName(i),mu(i))
+        heatBox.updateParameterValues()
+        return heatBox.assembleRhs()
 
-model.setAssembleDEIM(fct=assembleDEIM)
-model.setAssembleMDEIM(fct=assembleMDEIM)
-model.initModel()
+    def assembleMDEIM(mu):
+        for i in range(0,mu.size()):
+            heatBox.addParameterInModelProperties(mu.parameterName(i),mu(i))
+        heatBox.updateParameterValues()
+        return heatBox.assembleMatrix()
 
-heatBoxDEIM=heat(dim=2,order=1)
-meshDEIM = model.getDEIMReducedMesh()
-heatBoxDEIM.setMesh(meshDEIM)
-heatBoxDEIM.init()
+    mp = heatBox.modelProperties().parameters()
+    Dmu = ParameterSpace.New(mp, e.worldCommPtr())
+    parameter_names = Dmu.parameterNames()
+    parameter_types = [float]*len(parameter_names)
 
-def assembleOnlineDEIM(mu):
-    for i in range(0,mu.size()):
-        heatBoxDEIM.addParameterInModelProperties(mu.parameterName(i),mu(i))
-    heatBoxDEIM.updateParameterValues()
-    heatBoxDEIM.updateFieldVelocityConvection()
-    heatBoxDEIM.assembleLinear()
-    return heatBoxDEIM.rhs()
+    collectionProblemData = CPD.CollectionProblemData()
+    collectionProblemData.DefineVariabilityAxes(parameter_names,parameter_types)
+    collectionProblemData.DefineQuantity("T", "temperature", "K")
+    print("CollectionProblemData with " + str(collectionProblemData.GetNumberOfVariabilityAxes()) + " parameters")
 
-model.setOnlineAssembleDEIM(assembleOnlineDEIM)
+    eim_greedy = EG.GreedyEIMReducedBasis("opusheat", collectionProblemData, heatBox.spaceTemperature(), assembleDEIM, assembleMDEIM)
+    mesh_DEIM, mesh_MDEIM = eim_greedy.getReducedMeshes()
 
-heatBoxMDEIM=heat(dim=2,order=1)
-meshMDEIM = model.getMDEIMReducedMesh()
-heatBoxMDEIM.setMesh(meshMDEIM)
-heatBoxMDEIM.init()
+    heatBoxDEIM=heat(dim=2,order=1)
+    heatBoxDEIM.setMesh(mesh_DEIM)
+    heatBoxDEIM.init()
 
-def assembleOnlineMDEIM(mu):
-    for i in range(0,mu.size()):
-        heatBoxMDEIM.addParameterInModelProperties(mu.parameterName(i),mu(i))
-    heatBoxMDEIM.updateParameterValues()
-    heatBoxMDEIM.updateFieldVelocityConvection()
-    heatBoxMDEIM.assembleLinear()
-    return heatBoxMDEIM.matrix()
+    def assembleOnlineDEIM(mu):
+        for i in range(0,mu.size()):
+            heatBoxDEIM.addParameterInModelProperties(mu.parameterName(i),mu(i))
+        heatBoxDEIM.updateParameterValues()
+        return heatBoxDEIM.assembleRhs()
 
-model.setOnlineAssembleMDEIM(assembleOnlineMDEIM)
+    heatBoxMDEIM=heat(dim=2,order=1)
+    heatBoxMDEIM.setMesh(mesh_MDEIM)
+    heatBoxMDEIM.init()
 
-model.postInitModel()
-model.setInitialized(True)
-crbmodel = crbmodel_toolboxmor_2d(model)
-crb = crb_toolboxmor_2d(crbmodel)
-crb.offline()
+    def assembleOnlineMDEIM(mu):
+        for i in range(0,mu.size()):
+            heatBoxMDEIM.addParameterInModelProperties(mu.parameterName(i),mu(i))
+        heatBoxMDEIM.updateParameterValues()
+        return heatBoxMDEIM.assembleMatrix()
 
-print("cool")
+    eim_greedy.setOnlineAssembly(assembleOnlineDEIM, assembleOnlineMDEIM)
+    eim_greedy.computeReducedBasis("T")
+
+    print(collectionProblemData.reducedOrderBases)
+
+if __name__ == "__main__":
+    test()
