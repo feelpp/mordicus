@@ -68,3 +68,10 @@ class SolutionStructureBase(object):
         if hasattr(self, "fixed"):# pragma: no cover
             return self.fixed[1]
         raise NotImplementedError("Meant to be implemented in derived classes")# pragma: no cover
+    
+    def accept(self, visitor, quantity):
+        """
+        Accepts visitor
+        """
+        return visitor.visitSolutionStructure(self, quantity)
+    

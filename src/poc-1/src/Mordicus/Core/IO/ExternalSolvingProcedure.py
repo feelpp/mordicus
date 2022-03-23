@@ -47,7 +47,8 @@ class ExternalSolvingProcedure(object):
             script = script.format(**self.solverCfg)
         seq = shlex.split(script)
         ret = subprocess.run(seq, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        #print(ret.stdout)
+
+        #print(str(ret.stdout).replace('\\n', '\n'))
         return ret
 
     def importMordicusData(self, inputData):
@@ -78,6 +79,12 @@ class ExternalSolvingProcedure(object):
         res += "callScript              : " + str(self.callScript)
         return res
 
+    def accept(self, visitor):
+        """
+        Accept visitor
+        """
+        return visitor.visitSolver(self)
+        
 
 if __name__ == "__main__":# pragma: no cover
 

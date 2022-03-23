@@ -1,0 +1,121 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://gitlab.pam-retd.fr/mordicus/mordicus/-/blob/cemosis107-json/src/poc-1/src/Mordicus/Core/Containers/Mordicus.json",
+    "title": "Mordicus schema",
+    "description": "The serialization of the classes of Mordicus",
+    "type": "object",
+    "properties": {
+        "quantityDefinitions": { "$ref": "#/$defs/quantityDefinitions" },
+        "variabilityDefinitions": { "$ref": "#/$defs/variabilityDefinitions" },
+        "operatorCompressionData": { "$ref": "#/$defs/operatorCompressionData" },
+        "reducedOrderBases": {
+            "type": "array",
+            "items": { "$ref": "#/$defs/reducedOrderBases" }
+        },
+        "problemDatas": {
+            "type": "array",
+            "items": { "$ref": "#/$defs/problemDatas" }
+        }
+    },
+    "$defs": {
+        "quantityDefinition": {
+            "type": "object",
+            "properties": {
+                "name": { "type": "string" },
+                "full_name": { "type": "string" },
+                "unit": { "type": "string" }
+            },
+            "required": ["name"]
+        },
+        "quantityDefinitions": {
+            "type": "array",
+            "items": { "$ref": "#/$defs/quantityDefinition" }
+        },
+        "variabilityDefinition": {
+            "type": "object",
+            "properties": {
+                "name": { "type": "string" },
+                "type": { "type": "string" },
+                "quantity": { "type": "string" },
+                "description": { "type": "string" }
+            },
+            "required": ["name", "type"]
+        },
+        "variabilityDefinitions": {
+            "type": "array",
+            "items": { "$ref": "#/$defs/variabilityDefinition" }
+        },
+        "reducedOrderBasis": {
+            "type": "object",
+            "properties": {
+                "path": { "type": "string" },
+                "quantity": { "type": "string" }
+            },
+            "required": ["path", "quantity"]
+        },
+        "reducedOrderBases": {
+            "type": "array",
+            "items": { "$ref": "#/$defs/reducedOrderBasis" }
+        },
+        "param": {
+            "type": "object",
+            "properties": {
+                "value": { "type": "number" },
+                "name": { "type": "string" }
+            },
+            "required": ["value", "name"]
+        },
+        "compressedSnapshot": {
+            "type": "object",
+            "properties": {
+                "time": { "type": "number" }
+            },
+            "required": ["time"]
+        },
+        "Solution": {
+            "type": "object",
+            "properties": {
+                "compressedSnapshots": {
+                    "type": "array",
+                    "items": { "$ref": "#/$defs/compressedSnapshot" }
+                },
+                "nbOfComponents": { "type": "integer" },
+                "numberOfNodes": { "type": "integer" },
+                "primality": { "type": "boolean" },
+                "quantity": { "type": "string" }
+            },
+            "required": ["quantity"]
+        },
+        "ProblemData": {
+            "type": "array",
+            "items": { "$ref": "#/$defs/Solution" }
+        },
+        "problemDataInstance": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "params": { "$ref": "#/$defs/param" },
+                    "ProblemData": { "$ref": "#/$defs/ProblemData" }
+                },
+                "required": ["param", "ProblemData"]
+            }
+        },
+        "problemDatas": {
+            "type": "array",
+            "items": { "$ref": "#/$defs/problemDataInstance" }
+        },
+        "reducedOperator": {
+            "type": "object",
+            "properties": {
+                "path": { "type": "string" },
+                "key": { "type": "string" }
+            },
+            "required": ["path", "key"]
+        },
+        "operatorCompressionData": {
+            "type": "array",
+            "items": { "$ref": "#/$defs/reducedOperator" }
+        }
+    }
+}

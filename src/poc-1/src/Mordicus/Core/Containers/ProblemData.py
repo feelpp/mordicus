@@ -499,6 +499,11 @@ class ProblemData(object):
         solution = self.GetSolution(solutionName)
         solution.UncompressSnapshots(reducedOrderBasis)
 
+    def accept(self, visitor):
+        """
+        Accept Visitor
+        """
+        return visitor.visitProblemData(self)
 
     def __str__(self):
         res = "ProblemData of name: "+self.problemName

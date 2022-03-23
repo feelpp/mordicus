@@ -160,6 +160,11 @@ class SolverDataset(object):
         res += "inputData     : " + str(self.inputData)
         return res
 
+    def accept(self, visitor, cpd):
+        """
+        Accept visitor
+        """
+        return visitor.visitDataSet(self, cpd)
 
 if __name__ == "__main__":# pragma: no cover
 

@@ -62,7 +62,7 @@ poc-1:
   image: python:3.7
   before_script:
     - apt-get update
-    - apt-get install -y python3-venv gcc python3-dev libopenmpi-dev make
+    - apt-get install -y python3-venv gcc python3-dev libopenmpi-dev make python3-lxml
     - pip install --upgrade pip
     - pip install -r ./src/poc-1/requirements.txt
     - export PYTHONPATH=$PWD/src/poc-1/src:$PYTHONPATH

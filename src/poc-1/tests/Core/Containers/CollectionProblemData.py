@@ -3,6 +3,9 @@
 import numpy as np
 import os
 import os.path as osp
+import tempfile
+import shutil
+
 from Mordicus.Core.Containers import ProblemData
 from Mordicus.Core.Containers import Solution
 from Mordicus.Core.Containers import CollectionProblemData as CPD
@@ -18,6 +21,8 @@ from Mordicus.Modules.Safran.Containers.Loadings import Temperature as T
 
 from Mordicus import GetTestDataPath
 
+
+from Mordicus.Core.Containers.Visitor import (exportToJSON, checkValidity)
 
 def test():
 
@@ -84,6 +89,8 @@ def test():
     assert collectionProblemData.GetReducedOrderBasisNumberOfModes("U") == 2
     collectionProblemData.SetDataCompressionData("toto", 1.)
     assert collectionProblemData.GetDataCompressionData("toto") == 1.
+    collectionProblemData.SetOperatorCompressionData({"toto": np.array([1., 2.])})
+    collectionProblemData.GetOperatorCompressionData()
 
     projectedReducedOrderBasis = collectionProblemData.ComputeReducedOrderBasisProjection("U", np.ones((3, 20)))
     np.testing.assert_almost_equal(projectedReducedOrderBasis, 20.*np.ones((3, 2)))
@@ -95,6 +102,20 @@ def test():
     assert collectionProblemData.GetParameterDimension() == 2
 
     collectionProblemData.CompressSolutions("U")
+    solution.CompressSnapshots(np.eye(20), reducedOrderBases)
+    
+    save_repo = tempfile.mkdtemp(suffix="Light", prefix="SaveMordicus")
+    save_repo_full = tempfile.mkdtemp(suffix="Full", prefix="SaveMordicus")
+    try:
+        exportToJSON(save_repo, collectionProblemData, reconstruct=False)
+        exportToJSON(save_repo_full, collectionProblemData, reconstruct=True)
+        assert checkValidity(osp.join(save_repo, "reducedModel.json")), "Produced xml is not valid"
+        assert checkValidity(osp.join(save_repo_full, "reducedModel.json")), "Produced xml is not valid"
+    finally:
+        # Comment these two lines in order to debug XML file
+        shutil.rmtree(save_repo)
+        shutil.rmtree(save_repo_full)
+    
 
     SIO.SaveState("temp", collectionProblemData)
     SIO.LoadState("temp")
