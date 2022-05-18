@@ -58,7 +58,7 @@ class FeelppMeshReader(MeshReaderBase):
         FeelppMesh
             mesh of the model
         """
-        from Mordicus.Modules.Cemosis.Containers.Meshes import FeelppMesh
+        from Mordicus.Modules.Cemosis.Containers.Meshes import FeelppUnstructuredMesh
         self.mesh = feelpp.load(feelpp.mesh(dim=self.dim, geo=self.gorder, realdim=self.realdim), self.meshFileName, self.h)
         if feelpp.Environment.isMasterRank():
             print("mesh ", self.mesh.dimension(), "D nelts:", self.mesh.numGlobalElements())

@@ -1,9 +1,13 @@
 import json
-from jschon import Catalogue, JSON, JSONSchema
-from jschon.exceptions import CatalogueError
+from jschon import create_catalog, JSON, JSONSchema
 import numpy as np
 import os
 import os.path as osp
+import shutil
+
+from Mordicus.Core.Containers.CollectionProblemData import CollectionProblemData
+from Mordicus.Core.Containers import ProblemData
+from Mordicus.Core.Containers.Solution import Solution
 
 class ExportToJSONVisitor(object):
     """
@@ -57,15 +61,16 @@ class ExportToJSONVisitor(object):
             root["CollectionProblemData"]["reducedOrderBases"] = elts
 
             # save problem datas
-            elts = []
+            elts = {}
             for paramValues, problemData in cpd.problemDatas.items():
-                params = []
+                params = {}
                 param_names = [k for k in cpd.variabilityDefinition.keys()]
                 for i, val in enumerate(paramValues):
-                    params.append({"value":val, "name":param_names[i]})
+                    params[param_names[i]] = val
                     
-                pb_data = problemData.accept(self)
-                elts.append({"params": params, "ProblemData": pb_data})
+                name, pb_data = problemData.accept(self)
+                pb_data["params"] = params
+                elts[name] = pb_data
             root["CollectionProblemData"]["problemDatas"] = elts
 
         # loop operatorCompressionData
@@ -92,8 +97,8 @@ class ExportToJSONVisitor(object):
         filepath = osp.join(self.folder, "solutionStructure" + quantity)
                 
         # It would be cool to have a file extension attribute to solutionStructure
-        self.solutionReader.WriteSolutionStructure(filepath, structure, quantity)
-        structureElement.text = filepath
+        if self.solutionReader:
+            self.solutionReader.WriteSolutionStructure(filepath, structure, quantity)
         return {"path": filepath, "quantity": quantity, "derivedType": type(structure).__name__}
 
     def visitDataSet(self, dataset, cpd):
@@ -192,10 +197,10 @@ class ExportToJSONVisitor(object):
 
     def visitProblemData(self, problemData):
         """Visit problemData"""
-        elts = []
-        for quantity, solution in problemData.solutions.items():
-            elts.append(solution.accept(self))
-        return elts
+        elts = {}
+        for name, solution in problemData.solutions.items():
+            elts[name] = solution.accept(self)
+        return problemData.problemName, elts
 
     def visitSolution(self, solution):
         """Visit solution"""
@@ -205,7 +210,7 @@ class ExportToJSONVisitor(object):
                   "primality": str(solution.primality).lower()}
         elts = []
         for t, arr in solution.compressedSnapshots.items():
-            elts.append({"time": str(t), "values": np.array2string(arr, precision=8)})
+            elts.append({"time": str(t), "values": np.array2string(arr, precision=8, separator=',')})
         attrib["compressedSnapshots"] = elts
         return attrib
 
@@ -220,6 +225,14 @@ class ExportToJSONVisitor(object):
         attrib["SolverConfiguration"] = cfgs
         return attrib
 
+def importFromJSON(folder, filename="reducedModel.json", solutionReader=None, reconstruct=False):
+    """
+    Import study from a json
+    """
+    visitor = ImportFromJSONVisitor(folder, filename, solutionReader, reconstruct)
+    cpd = CollectionProblemData()
+    visitor.visitCPD(cpd)
+    return cpd
 
 def exportToJSON(folder, cpd, solutionReader=None, reconstruct=False):
     """
@@ -235,12 +248,99 @@ def checkValidity(json_path):
     """
     Checks validity of JSON file
     """
-    try:
-        Catalogue.create_default_catalogue('2020-12')
-    except CatalogueError:
-        pass
+    create_catalog('2020-12')
+
     with open(osp.join(osp.dirname(__file__), "Mordicus.json")) as schema_file:
         schema = JSONSchema(json.load(schema_file))
     with open(json_path) as json_file:
         json_doc = JSON(json.load(json_file))
     return schema.evaluate(json_doc)
+
+class ImportFromJSONVisitor(object):
+    """
+    Abstract visitor
+    """
+    def __init__(self, folder, filename="reducedModel.json", solutionReader=None, reconstruct=False):
+        """
+        Initializes visitor
+        """
+        self.reconstruct = reconstruct
+        self.folder = folder
+        self.solutionReader = solutionReader
+        self.filename = filename
+        with open(osp.join(folder, filename)) as f:
+            self.json_data = json.load(f)
+
+    def visitCPD(self, cpd):
+        """Visit Collection Problem Data"""
+        if "CollectionProblemData" not in self.json_data:
+            return
+        root = self.json_data["CollectionProblemData"]
+        if "quantityDefinitions" in root:
+            cpd.quantityDefinition.accept(self)
+        if "variabilityDefinitions" in root:
+            cpd.variabilityDefinition.accept(self)
+
+        if self.reconstruct:
+            if "solutionStructures" in root:
+                pass
+
+            if "reducedOrderBases" in root:
+                for item in root["reducedOrderBases"]:
+                    filepath = item['path']
+                    quantity = item['quantity']
+                    try:
+                        basis = self.solutionReader.ReadReducedOrderBasis(filepath, cpd.solutionStructures[quantity], quantity)
+                    except:
+                        basis = np.load(filepath)
+                    cpd.AddReducedOrderBasis(quantity, basis)
+            
+            if "problemDatas" in root:
+                for pb_name, pb_data in root['problemDatas'].items():
+                    problemData = ProblemData.ProblemData(pb_name)
+                    for key, data in pb_data.items():
+                        if key == "params":
+                            params = data
+                        else:
+                            quantity = data['quantity']
+                            nbeOfComponents = data['nbeOfComponents']
+                            numberOfNodes = data['numberOfNodes']
+                            primality = data['primality']
+                            solution = Solution(quantity, nbeOfComponents, numberOfNodes, primality)
+                            if 'compressedSnapshots' in data:
+                                for item in data['compressedSnapshots']:
+                                    values = eval('np.array(' + item['values'] + ')') # not secure !
+                                    solution.AddCompressedSnapshots(values, float(item['time']))
+                            problemData.AddSolution(solution)
+                    cpd.AddProblemData(problemData, **params)
+        
+        if 'operatorCompressionData' in root:
+            datas = {}
+            for item in root['operatorCompressionData']:
+                filepath = item['path']
+                key = item['key']
+                try:
+                    data = self.solutionReader.ReadOperatorCompressionData(filepath,key)
+                except:
+                    data = np.load(filepath)
+                datas[key] = data
+            cpd.SetOperatorCompressionData(datas)
+    
+    def visitQuantityDefinitionDict(self, defdict):
+        """Visit quantity definition dictionary"""
+        for item in self.json_data["CollectionProblemData"]["quantityDefinitions"]:
+            defdict[item['name']] = (item['full_name'],item['unit'])
+
+    def visitVariabilityDefinitionDict(self, defdict):
+        """Visit variability definition dictionary"""
+        for item in self.json_data["CollectionProblemData"]["variabilityDefinitions"]:
+            defdict[item['name']] = {}
+            for k,v in item.items():
+                if k == 'type':
+                    if v == 'float':
+                        defdict[item['name']]['type'] = float
+                elif k == 'description':
+                    defdict[item['name']]['description'] = v
+                elif k == 'quantity':
+                    defdict[item['name']]['quantity'] = (v,)
+    

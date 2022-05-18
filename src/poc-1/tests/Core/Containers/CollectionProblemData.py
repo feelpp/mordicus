@@ -102,19 +102,19 @@ def test():
     assert collectionProblemData.GetParameterDimension() == 2
 
     collectionProblemData.CompressSolutions("U")
-    solution.CompressSnapshots(np.eye(20), reducedOrderBases)
     
     save_repo = tempfile.mkdtemp(suffix="Light", prefix="SaveMordicus")
     save_repo_full = tempfile.mkdtemp(suffix="Full", prefix="SaveMordicus")
     try:
         exportToJSON(save_repo, collectionProblemData, reconstruct=False)
         exportToJSON(save_repo_full, collectionProblemData, reconstruct=True)
-        assert checkValidity(osp.join(save_repo, "reducedModel.json")), "Produced xml is not valid"
-        assert checkValidity(osp.join(save_repo_full, "reducedModel.json")), "Produced xml is not valid"
+        assert checkValidity(osp.join(save_repo, "reducedModel.json")), "Produced json is not valid"
+        assert checkValidity(osp.join(save_repo_full, "reducedModel.json")), "Produced full json is not valid"
     finally:
-        # Comment these two lines in order to debug XML file
+        # Comment these two lines in order to debug JSON file
         shutil.rmtree(save_repo)
         shutil.rmtree(save_repo_full)
+        pass
     
 
     SIO.SaveState("temp", collectionProblemData)
