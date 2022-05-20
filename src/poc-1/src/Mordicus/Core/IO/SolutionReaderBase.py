@@ -81,6 +81,25 @@ class SolutionReaderBase(object):
         """
         raise NotImplementedError("Not implemented in ReaderBase")  # pragma: no cover
 
+    def ReadReducedOrderBasis(self, fileName, solutionStructure, fieldName):
+        """
+        Converts the format into Mordicus reduced order basis for reading fields
+
+        Parameters
+        ----------
+        fileName : str
+            file to read reduced basis from
+        fieldStructure : SolutionStructureBase
+            field structure giving the context to interpret the vector in terms of field values on the mesh
+        fieldName : str
+            name of field associated with the basis (e.g. "U", "sigma")
+
+        Returns
+        -------
+        reducedOrderBasis : nparray(numberOfModes, numberOfDofs)
+            numpy array of the modes
+        """
+        raise NotImplementedError("Not implemented in ReaderBase")  # pragma: no cover
 
     def WriteSparseFieldOfEmpiricalWeights(self, fileName, fieldStructure, np_coor_gauss, empirical_weights):
         """

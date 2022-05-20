@@ -35,4 +35,5 @@ class GreedyEIMReducedBasis:
         ndof = rb[0].functionSpace().nLocalDof()
         self.collectionProblemData.reducedOrderBases[solutionName] = np.zeros((N,ndof))
         for i, u in enumerate(rb):
+            print(u.to_petsc().vec()[:])
             self.collectionProblemData.reducedOrderBases[solutionName][i,:] = rb[i].to_petsc().vec()[:]

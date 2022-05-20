@@ -115,6 +115,7 @@ bash "{inputRootFolder}/{inputMainFile}"
     assert collectionProblemDataFull.GetReducedOrderBasisNumberOfModes("U") == 2
     assert len(collectionProblemDataLight.GetOperatorCompressionData()) == 1
     assert len(collectionProblemDataFull.GetOperatorCompressionData()) == 1
+    np.testing.assert_almost_equal( collectionProblemDataFull.GetOperatorCompressionData()['toto'], collectionProblemData.GetOperatorCompressionData()['toto'])
 
     return "ok"
 

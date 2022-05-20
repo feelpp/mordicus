@@ -4,10 +4,12 @@ import feelpp
 from Mordicus.Core.Helpers import FolderHandler as FH
 from Mordicus.Core.Containers import CollectionProblemData as CPD
 from Mordicus.Modules.Cemosis.IO import FeelppMeshReader as FMR
+from Mordicus.Modules.Cemosis.IO import FeelppSolutionReader as FSR
 from Mordicus.Modules.Cemosis.DataCompressors import EIMGreedy as EG
+from Mordicus.Core.Containers.Visitor import exportToJSON
 
 from feelpp.toolboxes.heat import toolboxes_options, heat
-from feelpp.mor import makeToolboxMorOptions, ParameterSpace
+from feelpp.mor import makeToolboxMorOptions, ParameterSpace, CRBModelProperties
 
 def test():
     
@@ -23,7 +25,7 @@ def test():
 
     meshFileName = folder+"opusheat.geo"
     print(meshFileName)
-    meshReader = FMR.FeelppMeshReader(meshFileName)
+    meshReader = FMR.FeelppMeshReader(meshFileName, h=0.001)
     mesh = meshReader.ReadMesh()
     print("Mesh defined in " + meshFileName + " has been read")
     
@@ -42,7 +44,9 @@ def test():
         heatBox.updateParameterValues()
         return heatBox.assembleMatrix()
 
-    mp = heatBox.modelProperties().parameters()
+    model_properties = CRBModelProperties(worldComm=feelpp.Environment.worldCommPtr())
+    model_properties.setup(feelpp.soption("toolboxmor.filename"))
+    mp = model_properties.parameters()
     Dmu = ParameterSpace.New(mp, e.worldCommPtr())
     parameter_names = Dmu.parameterNames()
     parameter_types = [float]*len(parameter_names)
@@ -78,7 +82,8 @@ def test():
     eim_greedy.setOnlineAssembly(assembleOnlineDEIM, assembleOnlineMDEIM)
     eim_greedy.computeReducedBasis("T")
 
-    print(collectionProblemData.reducedOrderBases)
+    fsr = FSR.FeelppSolutionReader(mesh.GetInternalStorage(), heatBox.spaceTemperature())
+    exportToJSON("opusheat", collectionProblemData, fsr, True)
 
 if __name__ == "__main__":
     test()
