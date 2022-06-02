@@ -1,4 +1,4 @@
-image: python:3.7-alpine
+image: python:3.8-alpine
 
 variables:
   MYPROJECT : 'mordicus'
@@ -6,13 +6,13 @@ variables:
 stages:
   - srcBasicTools
   - docLatex
-#  - docWebsite
+  - docWebsite
   - test
   - deploy
 
 srcBasicTools:
   stage: srcBasicTools
-  image: python:3.7-alpine
+  image: python:3.8-alpine
   before_script:
     - apk add --no-cache git
   script:
@@ -21,7 +21,7 @@ srcBasicTools:
     
 docLatex:
   stage: docLatex
-  image: python:3.7-alpine
+  image: python:3.8-alpine
   before_script:
     - apk add build-base texlive texmf-dist-latexextra
     - pip install -U sphinx sphinxcontrib-bibtex
@@ -37,7 +37,7 @@ docLatex:
 
 docWebsite:
   stage: docWebsite
-  image: python:3.7
+  image: python:3.8
   dependencies:
     - docLatex
   before_script:
@@ -59,7 +59,7 @@ docWebsite:
 
 poc-1:
   stage: test
-  image: python:3.7
+  image: python:3.8
   before_script:
     - apt-get update
     - apt-get install -y python3-venv gcc python3-dev libopenmpi-dev make python3-lxml
@@ -87,7 +87,7 @@ poc-1:
 
 cpp-linux:
   stage: test
-  image: python:3.7
+  image: python:3.8
   before_script:
     - apt-get update && apt-get install -y python3-dev g++ cmake pybind11-dev
   script:
