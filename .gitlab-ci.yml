@@ -6,7 +6,7 @@ variables:
 stages:
   - srcBasicTools
   - docLatex
-  - docWebsite
+#  - docWebsite
   - test
   - deploy
 
