@@ -23,10 +23,10 @@ jobs:
 #      BRANCH: "master"
 #      MESSAGE: ":github: Triggered from a GitHub Action by brain Project"
   build:
-    runs-on: self-ubuntu-20.04
+    runs-on: ubuntu-20.04
     if: "!contains(github.event.head_commit.message, 'ci skip')"
     name: Check Build, Install, Run
-    container: ghcr.io/feelpp/feelpp-mor-dev:v0.110.0-alpha.1-focal
+    container: ghcr.io/feelpp/feelpp-dev:v0.110.0-rc.1-focal
     steps:
     - uses: actions/checkout@v2
     - name: Configure Mordicus
@@ -36,6 +36,13 @@ jobs:
         cmake --preset install
     - name: Build Mordicus
       run:  cmake --build --preset install
+    - name: Build python
+      run: |
+        apt-get install -y python3-venv gcc python3-dev libopenmpi-dev make python3-lxml
+        pip install --upgrade pip
+        pip install -r ./src/poc-1/requirements.txt
+        echo "PYTHONPATH=$PWD/src/poc-1/src" >> $GITHUB_ENV
+        pytest-3 src/poc-1/examples/Core
     - name: Upload 
       uses: actions/upload-artifact@v2
       with:
