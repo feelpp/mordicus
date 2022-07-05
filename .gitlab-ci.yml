@@ -115,7 +115,6 @@ feelpp:
   stage: test
   image: ghcr.io/feelpp/feelpp-dev:focal
   before_script:
-    - tree -L 2
     - ls -l
     - sudo apt-get -y install python3-pip
 #    - pip install --upgrade pip
