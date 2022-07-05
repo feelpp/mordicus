@@ -6,6 +6,7 @@ on:
       - 'cemosis'
     paths:
       - 'docs/**'
+      - '.github/workflows/docs.yml'
 
 jobs:
   docs:
