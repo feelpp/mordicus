@@ -17,4 +17,5 @@ openturns
 sympy
 lxml
 jschon>=0.8.5
--e git+https://gitlab.com/drti/basic-tools.git#egg=basictools
+spdlog
+# -e git+https://gitlab.com/drti/basic-tools.git#egg=basictools

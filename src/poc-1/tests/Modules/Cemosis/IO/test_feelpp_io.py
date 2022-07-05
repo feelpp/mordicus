@@ -22,6 +22,7 @@ try:
             ('TestsData/Feelpp/box2', feelpp.create_box, 3, 2, 1407),
         ]
 except ImportError:
+    print("feelpp and/or spdlog not found\n")
     pass
 
 
