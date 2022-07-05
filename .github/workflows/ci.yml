@@ -39,7 +39,7 @@ jobs:
       run: |
         pip install --upgrade pip
         pip install -r ./src/poc-1/requirements.txt
-        echo "PYTHONPATH=$PWD/src/poc-1/src" >> $GITHUB_ENV
+        echo "PYTHONPATH=$GITHUB_WORKSPACE/src/poc-1/src" >> $GITHUB_ENV
         pytest-3 src/poc-1/examples/Core
     - name: Upload 
       uses: actions/upload-artifact@v2
