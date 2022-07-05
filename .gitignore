@@ -20,7 +20,9 @@ src/poc-1/coverageReports/*
 *.spyproject*
 *.png
 *.vtu
-
+mordicus/
+lib64/
+pyenv.cfg
 #autodoc generated files
 *_build*
 *_source*
@@ -47,3 +49,13 @@ build-*
 __pycache__
 #IDE
 src/poc-1/.vscode/
+
+#emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+.\#*

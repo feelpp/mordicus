@@ -1,6 +1,6 @@
 # -*- mode: Dockerfile -*-
 
-FROM ghcr.io/feelpp/feelpp-mor-dev:latest
+FROM ghcr.io/feelpp/feelpp-dev:focal
 
 USER root
 COPY . /root

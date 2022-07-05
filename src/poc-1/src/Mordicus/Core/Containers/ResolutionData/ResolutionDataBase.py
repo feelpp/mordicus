@@ -1,13 +1,4 @@
-'''
-Created on 19 juil. 2020
-
-@author: A34370
-'''
-'''
-Created on 17 juil. 2020
-
-@author: A34370
-'''
+# coding: utf-8
 
 class ResolutionDataBase(object):
     '''
@@ -15,12 +6,12 @@ class ResolutionDataBase(object):
     '''
     def __init__(self):
         self.__storage = None
-        
+
 
     def SetInternalStorage(self, __storage):
         """
         Sets the internal storage
-        
+
         Parameters
         ----------
         __storage : typeToDefine
@@ -41,4 +32,3 @@ class ResolutionDataBase(object):
         if self.__storage is None:
             raise AttributeError("Please set internal storage")  # pragma: no cover
         return self.__storage
-        

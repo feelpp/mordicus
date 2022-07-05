@@ -18,7 +18,7 @@ from BasicTools.Helpers.TextFormatHelper import TFormat
 
 
 def NNOMPA(integrationWeights, integrands, integrals, normIntegrals, tolerance,\
-          reducedIntegrationPointsInitSet, maxIter = 10000):
+          reducedIntegrationPointsInitSet, maxIter = 10000, nRandom = 1):
     """
     NonNegative Othogonal Matching Pursuit Algorithm [1].
     Modified with possibility to add random integration points.
@@ -28,30 +28,28 @@ def NNOMPA(integrationWeights, integrands, integrals, normIntegrals, tolerance,\
     integrationWeights : np.ndarray
         of size (numberOfIntegrationPoints,), dtype = float.
         Weights of the truth quadrature
-
     integrands : np.ndarray
         of size (numberOfIntegrands,numberOfIntegrationPoints), dtype = float.
         Functions we look to integrated accurately with fewer integration
         points. Usually, the integrands are already reduced, and
         numberOfIntegrands is the product of the number of reduced integrand
         modes and the number of modes of the ReducedOrderBasis
-
+    integrals : np.ndarray
+        of size (numberOfIntegrands,), dtype = float.
+        High-fidelity integral computed using the truth integration scheme
     normIntegrals : float
         np.linalg.norm(integrals), already computed in mordicus use
-
     tolerance : float
         upper bound for the accuracy of the reduced integration scheme on the
         provided integrands
-
     reducedIntegrationPointsInitSet : np.ndarray
         of size (numberOfInitReducedIntegratonPoints,), dtype = int.
         Initial guess for the indices of the reducedIntegrationScheme (can be
         empty)
-
-    maxIter : int
-        Optional.
+    maxIter : int, optional
         Maximum iteration for the matching pursuit algorithm
-
+    nRandom : int, optional
+        number of random points added at each iteration
 
     Returns
     -------
@@ -81,10 +79,10 @@ def NNOMPA(integrationWeights, integrands, integrals, normIntegrals, tolerance,\
     oldErr = 1.
     count0 = 0
 
-    # iterations
+
     while err > tolerance and count0 < maxIter:
 
-        nRandom = 1#numberOfIntegrationPointsToSelect - len(s)
+        #nRandom = numberOfIntegrationPointsToSelect - len(s)
         notSelectedIndices = np.array(list((set(np.arange(numberOfIntegrationPoints))-set(s))))
 
         count = 0
@@ -102,7 +100,6 @@ def NNOMPA(integrationWeights, integrands, integrals, normIntegrals, tolerance,\
 
 
             optimRes = CallOptimizer(integrands_s, integrals, max_iter = None)
-
 
 
             xTemp = optimRes['x']
@@ -138,9 +135,26 @@ def NNOMPA(integrationWeights, integrands, integrals, normIntegrals, tolerance,\
 
 
 
-def CallOptimizer(integrands_s, integrals, max_iter):
+def CallOptimizer(integrands_s, integrals, max_iter = None):
 
+    """
+    Exemple of scipy optimizer wrapper (here lsq_linear)
 
+    Parameters
+    ----------
+    integrands_s : array_like, sparse matrix of LinearOperator, shape (m, n)
+        Design matrix. Can be `scipy.sparse.linalg.LinearOperator`.
+    integrals : array_like, shape (m,)
+        Target vector.
+    max_iter : None or int, optional
+        Maximum number of iterations before termination. If None (default), it
+        is set to the number of variables for ``method='bvls'``.
+
+    Returns
+    -------
+    res : OptimizeResult
+        see the class `scipy.optimize.OptimizeResult`
+    """
     #from scipy.optimize import nnls as nnls
     #optimRes = {}
     #optimRes['x'] = nnls(integrands_s, integrals, maxiter=max_iter)[0]

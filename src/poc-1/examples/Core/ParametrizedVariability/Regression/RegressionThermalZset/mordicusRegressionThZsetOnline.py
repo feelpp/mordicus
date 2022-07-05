@@ -42,7 +42,8 @@ def test():
 
     mesh = ZMR.ReadMesh("cube.geof")
 
-    PW.WritePXDMF(mesh, compressedSnapshots, reducedOrderBasis, "TP")
+    PW.WriteCompressedSolution(mesh, compressedSnapshots, reducedOrderBasis, "TP")
+
     print("The compressed solution has been written in PXDMF Format")
 
 
@@ -90,7 +91,7 @@ def test():
         compressionErrors.append(relError)
 
     folderHandler.SwitchToExecutionFolder()
-    
+
     print("compressionErrors =", compressionErrors)
 
     assert np.max(compressionErrors) < 0.12, "!!! Regression detected !!! compressionErrors have become too large"

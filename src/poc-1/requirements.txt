@@ -1,7 +1,9 @@
+pytest>=5.4.0
+pytest-order>=1.0.1
 pytest-cov>=2.8
 scikit-learn>=0.22
 mpi4py
 openturns
--e git+https://gitlab.com/drti/basic-tools.git#egg=basictools
 sympy
-
+lxml
+jschon>=0.8.5

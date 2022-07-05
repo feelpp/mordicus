@@ -9,6 +9,7 @@ class SolutionReaderBase(object):
     def __init__(self):
         pass
 
+
     def ReadSnapshotComponent(self, fieldName, time, primality):
         """
         Reads a snapshots from the solutions of name "fieldName", at time "time" and of primality "primality", from the HF computation
@@ -28,6 +29,7 @@ class SolutionReaderBase(object):
             of size (numberOfDofs,)
         """
         raise NotImplementedError("Not implemented in ReaderBase")  # pragma: no cover
+
 
     def ReadSnapshotComponentTimeSequence(self, fieldName, timeSequence, primality):
         """
@@ -49,6 +51,7 @@ class SolutionReaderBase(object):
         """
         raise NotImplementedError("Not implemented in ReaderBase")  # pragma: no cover
 
+
     def ReadTimeSequenceFromSolutionFile(self):
         """
         Reads the time sequence from the solution file of the HF computation (may be different from the ones defined in the input data file if the solver chose to solve at additional time steps)
@@ -59,6 +62,7 @@ class SolutionReaderBase(object):
             of size (numberOfSnapshots,)
         """
         raise NotImplementedError("Not implemented in ReaderBase")  # pragma: no cover
+
 
     def WriteReducedOrderBasis(self, fileName, solutionStructure, reducedOrderBasis, fieldName):
         """
@@ -74,6 +78,26 @@ class SolutionReaderBase(object):
             numpy array of the modes
         fieldName : str
             name of field associated with the basis (e.g. "U", "sigma")
+        """
+        raise NotImplementedError("Not implemented in ReaderBase")  # pragma: no cover
+
+    def ReadReducedOrderBasis(self, fileName, solutionStructure, fieldName):
+        """
+        Converts the format into Mordicus reduced order basis for reading fields
+
+        Parameters
+        ----------
+        fileName : str
+            file to read reduced basis from
+        fieldStructure : SolutionStructureBase
+            field structure giving the context to interpret the vector in terms of field values on the mesh
+        fieldName : str
+            name of field associated with the basis (e.g. "U", "sigma")
+
+        Returns
+        -------
+        reducedOrderBasis : nparray(numberOfModes, numberOfDofs)
+            numpy array of the modes
         """
         raise NotImplementedError("Not implemented in ReaderBase")  # pragma: no cover
 
@@ -94,6 +118,7 @@ class SolutionReaderBase(object):
         """
         raise NotImplementedError("Not implemented in ReaderBase")  # pragma: no cover
 
+
     def WriteSolution(self, fileName, fieldStructure, solution, fieldName, nameInFile=None, append=False):
         """
         Convert a Mordicus snapshot into a field, relying on SolutionStructure to build relations
@@ -111,6 +136,7 @@ class SolutionReaderBase(object):
             identifier of the physical quantity for the field
         """
         raise NotImplementedError("Not implemented in ReaderBase")  # pragma: no cover
+
 
     def WriteNumbering(self, fileName, fieldStructure, fieldName, nameInFile=None):
         """

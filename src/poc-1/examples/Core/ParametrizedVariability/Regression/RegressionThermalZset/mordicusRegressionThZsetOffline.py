@@ -25,18 +25,13 @@ def test():
 
     collectionProblemData = CPD.CollectionProblemData()
 
-    #collectionProblemData.defineVariabilityAxes(['Text', 'Tint'],
-    #                                            [float, float],
-    #                                            [('Temperature', 'Celsius')]*2,
-    #                                            ['External temperature', 'Internal Temperature'])
-    
     collectionProblemData = CPD.CollectionProblemData()
-    collectionProblemData.addVariabilityAxis('config',
+    collectionProblemData.AddVariabilityAxis('config',
                                                 str,
                                                 description="dummy variability")
-    
-    
-    collectionProblemData.defineQuantity(solutionName, "Temperature", "Celsius")
+
+
+    collectionProblemData.DefineQuantity(solutionName, "Temperature", "Celsius")
 
     parameters = [[100.0, 1000.0], [90.0, 1100.0], [110.0, 900.0], [105.0, 1050.0]]
 
@@ -92,7 +87,7 @@ def test():
     kernel = ConstantKernel(constant_value=1.0, constant_value_bounds=(0.01, 10.0)) * Matern(length_scale=1., nu=2.5) + WhiteKernel(noise_level=1, noise_level_bounds=(1e-10, 1e0))
 
     regressors = {"TP":GaussianProcessRegressor(kernel=kernel)}
-    
+
     paramGrids = {}
     paramGrids["TP"] = {'kernel__k1__k1__constant_value':[0.1, 1.], 'kernel__k1__k2__length_scale': [1., 3., 10.], 'kernel__k2__noise_level': [1., 2.]}
 

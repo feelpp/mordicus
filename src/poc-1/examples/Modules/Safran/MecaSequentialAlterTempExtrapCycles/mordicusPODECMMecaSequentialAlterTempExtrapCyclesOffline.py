@@ -58,23 +58,23 @@ def test():
         solutionSigma.AddSnapshot(solutionReader.ReadSnapshot("sig", time, nbeOfComponentsDual, primality=False), time)
         for i, name in enumerate(dualNames):
             solutionsDual[i].AddSnapshot(solutionReader.ReadSnapshotComponent(name, time, primality=False), time)
-            
+
     problemData = PD.ProblemData(folder)
     problemData.AddSolution(solutionU)
-    problemData.AddSolution(solutionSigma)   
+    problemData.AddSolution(solutionSigma)
 
     for i, name in enumerate(dualNames):
         problemData.AddSolution(solutionsDual[i])
 
 
     collectionProblemData = CPD.CollectionProblemData()
-    collectionProblemData.addVariabilityAxis('config',
+    collectionProblemData.AddVariabilityAxis('config',
                                                 str,
                                                 description="dummy variability")
-    collectionProblemData.defineQuantity("U", "displacement", "m")
-    collectionProblemData.defineQuantity("sigma", "stress", "Pa")
+    collectionProblemData.DefineQuantity("U", "displacement", "m")
+    collectionProblemData.DefineQuantity("sigma", "stress", "Pa")
     for i, name in enumerate(dualNames):
-        collectionProblemData.defineQuantity(name)
+        collectionProblemData.DefineQuantity(name)
     collectionProblemData.AddProblemData(problemData, config="case-1")
 
 
@@ -114,7 +114,7 @@ def test():
 
 
     #construct loading, constitutive law and initial condition
-    operatorCompressionData = collectionProblemData.GetOperatorCompressionData()            
+    operatorCompressionData = collectionProblemData.GetOperatorCompressionData()
     inputReader = ZIR.ZsetInputReader(inputFileName)
     constitutiveLawsList = inputReader.ConstructConstitutiveLawsList()
     problemData.AddConstitutiveLaw(constitutiveLawsList)
@@ -122,10 +122,10 @@ def test():
     loadingList = inputReader.ConstructLoadingsList()
     problemData.AddLoading(loadingList)
     for loading in problemData.GetLoadingsForSolution("U"):
-        loading.ReduceLoading(mesh, problemData, reducedOrderBases, operatorCompressionData) 
+        loading.ReduceLoading(mesh, problemData, reducedOrderBases, operatorCompressionData)
 
     initialCondition = inputReader.ConstructInitialCondition()
-    problemData.SetInitialCondition(initialCondition)            
+    problemData.SetInitialCondition(initialCondition)
 
     initialCondition.ReduceInitialSnapshot(reducedOrderBases, snapshotCorrelationOperator)
 

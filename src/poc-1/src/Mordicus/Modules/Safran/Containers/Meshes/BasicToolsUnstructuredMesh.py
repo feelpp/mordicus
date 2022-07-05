@@ -17,7 +17,7 @@ class BasicToolsUnstructuredMesh(MeshBase):
         Parameters
         ----------
         mesh : BasicTools.Containers.UnstructuredMesh
-            the mesh wrapped to this library
+            mesh of the high-fidelity model
         """
         super(BasicToolsUnstructuredMesh, self).__init__()
         from BasicTools.Containers import UnstructuredMesh as UM

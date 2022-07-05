@@ -1,0 +1,8 @@
+#data from tests
+Zset/MecaSequentialSimpleMises/src/
+Zset/MecaSequentialSimpleMises/include/
+
+*cube.rst
+*cube-001.rst
+*cube-002.rst
+*run_para.sh

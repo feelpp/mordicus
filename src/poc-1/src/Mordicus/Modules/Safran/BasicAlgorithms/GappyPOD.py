@@ -12,26 +12,46 @@ import numpy as np
 from scipy.optimize import lsq_linear as lsq_linear
 
 
-def Fit(ModesAtMask, fieldAtMask):
+def Fit(modesAtMask, fieldAtMask):
     """
     Fits GappyPOD approximation
 
-    ModesAtMask: nbeModes, maskSize
-    fieldAtMask: maskSize
+    Parameters
+    ----------
+    modesAtMask:
+        np.ndarray of size (nbeModes, maskSize)
+    fieldAtMask: np.ndarray
+        np.ndarray of size (maskSize,)
+
+    Returns
+    -------
+    np.ndarray
+        of size (nbeModes,)
     """
-    lstqr = lsq_linear(ModesAtMask.T, fieldAtMask)
+    lstqr = lsq_linear(modesAtMask.T, fieldAtMask)
 
     return lstqr['x']
 
 
-def FitAndCost(ModesAtMask, fieldAtMask):
+def FitAndCost(modesAtMask, fieldAtMask):
     """
     Fits GappyPOD approximation an return prediction and cost
 
-    ModesAtMask: nbeModes, maskSize
-    fieldAtMask: maskSize
+    Parameters
+    ----------
+    modesAtMask:
+        np.ndarray of size (nbeModes, maskSize)
+    fieldAtMask: np.ndarray
+        np.ndarray of size (maskSize,)
+
+    Returns
+    -------
+    np.ndarray
+        of size (nbeModes,)
+    float
+        evaluation of the cost function at convergence
     """
-    lstqr = lsq_linear(ModesAtMask.T, fieldAtMask)
+    lstqr = lsq_linear(modesAtMask.T, fieldAtMask)
 
     normFieldAtMask = np.linalg.norm(fieldAtMask)
     if normFieldAtMask > 1.e-10:

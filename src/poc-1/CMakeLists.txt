@@ -1,0 +1,7 @@
+if(WIN32)
+    set(PYTHON_SITE_PACKAGES Lib/site-packages)
+else()
+    set(PYTHON_SITE_PACKAGES ${CMAKE_INSTALL_LIBDIR}/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/site-packages)
+endif()
+
+install(DIRECTORY src/Mordicus DESTINATION ${PYTHON_SITE_PACKAGES}/ REGEX "__pycache__" EXCLUDE)

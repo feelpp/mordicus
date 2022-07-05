@@ -246,6 +246,18 @@ class MEDSolutionReader(SolutionReaderBase):
         
         mf_mesh_strip.write(fileName, 2)
         f1ts.write(fileName, 0)
+        
+    def WriteSolutionStructure(self, fileName, fieldStructure, fieldName):
+        return self.WriteReducedOrderBasis(fileName,
+                                           fieldStructure,
+                                           np.zeros((1, fieldStructure.GetNumberOfNodes()*fieldStructure.GetNumberOfComponents())),
+                                           fieldName)
+
+    def WriteOperatorCompressionData(self, fileName, key, cpd):
+        self.WriteSparseFieldOfEmpiricalWeights(fileName, cpd.solutionStructures["sigma"],
+                                                cpd.operatorCompressionData[key][0],
+                                                cpd.operatorCompressionData[key][1])
+
 
     def WriteSolution(self, fileName, fieldStructure, solution, fieldName, nameInFile=None, append=False):
         """

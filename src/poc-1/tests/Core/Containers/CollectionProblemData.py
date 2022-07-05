@@ -3,6 +3,9 @@
 import numpy as np
 import os
 import os.path as osp
+import tempfile
+import shutil
+
 from Mordicus.Core.Containers import ProblemData
 from Mordicus.Core.Containers import Solution
 from Mordicus.Core.Containers import CollectionProblemData as CPD
@@ -16,6 +19,10 @@ from Mordicus.Core.Containers.SolutionStructures.SolutionStructureBase import So
 from Mordicus.Core.IO import StateIO as SIO
 from Mordicus.Modules.Safran.Containers.Loadings import Temperature as T
 
+from Mordicus import GetTestDataPath
+
+
+from Mordicus.Core.Containers.Visitor import (exportToJSON, checkValidity)
 
 def test():
 
@@ -33,45 +40,42 @@ def test():
     loading = T.Temperature("U", "set1")
     problemData.AddLoading(loading)
 
-    reducedOrderBases = np.ones((2, 20))
+    reducedOrderBasisU = np.ones((2, 20))
 
     collectionProblemData = CPD.CollectionProblemData()
-    collectionProblemData.defineVariabilityAxes(["mu1"],
+    collectionProblemData.DefineVariabilityAxes(["mu1"],
                                                 [float],
                                                 quantities=[("name", "unit")],
                                                 descriptions=["Parameter long description"])
-    collectionProblemData.addVariabilityAxis("mu2",
+    collectionProblemData.AddVariabilityAxis("mu2",
                                              float,
                                              quantity=("name", "unit"),
                                              description="Parameter long description")
-    collectionProblemData.defineQuantity("U", "velocity", "m/s")
+    collectionProblemData.DefineQuantity("U", "velocity", "m/s")
     collectionProblemData.AddProblemData(problemData, mu1=0., mu2=0.)
     collectionProblemData.AddProblemData(problemData, mu1=0., mu2=0.)
-    collectionProblemData.getNumberOfVariabilityAxes()
-    collectionProblemData.GetProblemData(mu1=0., mu2=0.)
+    assert collectionProblemData.GetNumberOfVariabilityAxes() == 2
+    assert id(collectionProblemData.GetProblemData(mu1=0., mu2=0.)) == id(problemData)
     collectionProblemData.GetProblemDatas()
-    collectionProblemData.AddReducedOrderBasis("U", reducedOrderBases)
-    collectionProblemData.GetReducedOrderBasis("U")
-    collectionProblemData.GetReducedOrderBases()
-    collectionProblemData.GetNumberOfProblemDatas()
-    collectionProblemData.GetSolutionsNumberOfDofs("U")
-    collectionProblemData.GetSolutionsNumberOfNodes("U")
-    collectionProblemData.GetProblemSampling()
-    collectionProblemData.GetGlobalNumberOfSnapshots("U")
-    collectionProblemData.GetGlobalNumberOfSnapshots("U", skipFirst = True)
-    collectionProblemData.GetSolutionTimeSteps("U")
-    collectionProblemData.GetSolutionTimeSteps("U", skipFirst = True)
-    collectionProblemData.GetSolutionsNumberOfComponents("U")
-    collectionProblemData.GetSnapshots("U")
-    collectionProblemData.GetCompressedSnapshots("U")
-    collectionProblemData.GetSnapshots("U", skipFirst = True)
-    collectionProblemData.GetCompressedSnapshots("U", skipFirst = True)
-    collectionProblemData.GetCompressedSnapshots("U", skipFirst = True)
-    collectionProblemData.GetSnapshotsAtTimes("U", np.array([0., 1.]))
-    collectionProblemData.GetCompressedSnapshotsAtTimes("U", np.array([0., 1.]))
-    collectionProblemData.GetLoadingsOfType("temperature")
-
-
+    collectionProblemData.AddReducedOrderBasis("U", reducedOrderBasisU)
+    assert id(collectionProblemData.GetReducedOrderBasis("U")) == id(reducedOrderBasisU)
+    assert id(collectionProblemData.GetReducedOrderBases()["U"]) == id(reducedOrderBasisU)
+    assert collectionProblemData.GetNumberOfProblemDatas() == 1
+    assert collectionProblemData.GetSolutionsNumberOfDofs("U") == 20
+    assert collectionProblemData.GetSolutionsNumberOfNodes("U") == 10
+    assert collectionProblemData.GetProblemSampling() == [(0.0, 0.0)]
+    assert collectionProblemData.GetGlobalNumberOfSnapshots("U") == 2
+    assert collectionProblemData.GetGlobalNumberOfSnapshots("U", skipFirst = True) == 1
+    assert collectionProblemData.GetSolutionTimeSteps("U")[0] == 0.
+    assert collectionProblemData.GetSolutionTimeSteps("U", skipFirst = True) == [1.]
+    assert collectionProblemData.GetSolutionsNumberOfComponents("U") == 2
+    np.testing.assert_almost_equal(collectionProblemData.GetSnapshots("U"), [np.ones(20),2.*np.ones(20)])
+    np.testing.assert_almost_equal(collectionProblemData.GetCompressedSnapshots("U"), [np.ones(2),2.*np.ones(2)])
+    np.testing.assert_almost_equal(collectionProblemData.GetSnapshots("U", skipFirst = True), [2.*np.ones(20)])
+    np.testing.assert_almost_equal(collectionProblemData.GetCompressedSnapshots("U", skipFirst = True), [2.*np.ones(2)])
+    np.testing.assert_almost_equal(collectionProblemData.GetSnapshotsAtTimes("U", np.array([0., 1.])), [np.ones(20),2.*np.ones(20)])
+    np.testing.assert_almost_equal(collectionProblemData.GetCompressedSnapshotsAtTimes("U", np.array([0., 1.])), [np.ones(2),2.*np.ones(2)])
+    assert id(collectionProblemData.GetLoadingsOfType("temperature")[0]) == id(loading)
 
     for s in collectionProblemData.SnapshotsIterator("U"):
         pass
@@ -82,37 +86,58 @@ def test():
     for s in collectionProblemData.GetCompressedSnapshots("U", skipFirst = True):
         pass
 
-    collectionProblemData.GetReducedOrderBasisNumberOfModes("U")
+    assert collectionProblemData.GetReducedOrderBasisNumberOfModes("U") == 2
     collectionProblemData.SetDataCompressionData("toto", 1.)
-    collectionProblemData.GetDataCompressionData("toto")
+    assert collectionProblemData.GetDataCompressionData("toto") == 1.
+    collectionProblemData.SetOperatorCompressionData({"toto": np.array([1., 2.])})
+    collectionProblemData.GetOperatorCompressionData()
 
     projectedReducedOrderBasis = collectionProblemData.ComputeReducedOrderBasisProjection("U", np.ones((3, 20)))
+    np.testing.assert_almost_equal(projectedReducedOrderBasis, 20.*np.ones((3, 2)))
+    np.testing.assert_almost_equal(solution.GetCompressedSnapshotsList(), [[1., 1.], [2., 2.]])
     collectionProblemData.ConvertCompressedSnapshotReducedOrderBasis("U", projectedReducedOrderBasis)
-
+    np.testing.assert_almost_equal(solution.GetCompressedSnapshotsList(), [[40., 40., 40.], [80., 80., 80.]])
 
     problemData.AddParameter(np.zeros(2), 0.0)
-    collectionProblemData.GetParameterDimension()
+    assert collectionProblemData.GetParameterDimension() == 2
+
+    collectionProblemData.CompressSolutions("U")
+    
+    save_repo = tempfile.mkdtemp(suffix="Light", prefix="SaveMordicus")
+    save_repo_full = tempfile.mkdtemp(suffix="Full", prefix="SaveMordicus")
+    try:
+        exportToJSON(save_repo, collectionProblemData, reconstruct=False)
+        exportToJSON(save_repo_full, collectionProblemData, reconstruct=True)
+        assert checkValidity(osp.join(save_repo, "reducedModel.json")), "Produced json is not valid"
+        assert checkValidity(osp.join(save_repo_full, "reducedModel.json")), "Produced full json is not valid"
+    finally:
+        # Comment these two lines in order to debug JSON file
+        shutil.rmtree(save_repo)
+        shutil.rmtree(save_repo_full)
+        pass
+    
 
     SIO.SaveState("temp", collectionProblemData)
     SIO.LoadState("temp")
     os.system("rm -rf temp.pkl")
 
     # Adding a dummy solver that does nothing
-    call_script = """
-bash "{input_root_folder}/{input_main_file}"
+    callScript = """
+bash "{inputRootFolder}/{inputMainFile}"
     """
     # Adding a dataset
-    data_dir = osp.join(osp.dirname(osp.abspath(__file__)), osp.pardir, osp.pardir, "TestsData", "Core", "Containers")
-    solver_cfg = {"solver_name" : "Foo"}
-    solver = ExternalSolvingProcedure(solver_call_procedure_type="shell",
-                                      solver_cfg=solver_cfg,
-                                      call_script=call_script)
-    input_data = {"input_root_folder" : data_dir,
-                  "input_main_file"   : "generate_snapshots.sh",
-                  "input_instruction_file" : "generate_snapshots.sh",
-                  "input_mordicus_data": {},
-                  "input_result_path" : "snapshot.npy",
-                  "input_result_type" : "numpy_file"}
+    #dataDir = osp.join(osp.dirname(osp.abspath(__file__)), osp.pardir, osp.pardir, "TestsData", "Core", "Containers")
+    dataDir = osp.join(GetTestDataPath(), "Core", "Containers")
+    solverCfg = {"solverName" : "Foo"}
+    solver = ExternalSolvingProcedure(solverCallProcedureType="shell",
+                                      solverCfg=solverCfg,
+                                      callScript=callScript)
+    input_data = {"inputRootFolder" : dataDir,
+                  "inputMainFile"   : "generate_snapshots.sh",
+                  "inputInstructionFile" : "generate_snapshots.sh",
+                  "inputMordicusData": {},
+                  "inputResultPath" : "snapshot.npy",
+                  "inputResultType" : "numpyFile"}
     dataset = SolverDataset(ProblemData.ProblemData, solver, input_data)
     collectionProblemData.SetTemplateDataset(dataset)
 
@@ -126,30 +151,42 @@ bash "{input_root_folder}/{input_main_file}"
         def ReadSnapshotComponent(self, fieldName, time, primality, structure):
             return np.load(self.fileName)
 
-    collectionProblemData.SetSolutionStructure("U", SolutionStructureBase(fixed=(20, 1)))
-    solStruct = collectionProblemData.GetSolutionStructure("U")
+    solStruct = SolutionStructureBase(fixed=(20, 1))
+    collectionProblemData.SetSolutionStructure("U", solStruct)
+    assert id(collectionProblemData.GetSolutionStructure("U")) == id(solStruct)
 
-    problemData = collectionProblemData.solve(mu1=0., mu2=1.,
+    problemData = collectionProblemData.Solve(mu1=0., mu2=1.,
                                               extract=("U", ),
                                               primalities={"U": True},
                                               solutionReaderType=NumPySolutionReader)
+    np.testing.assert_almost_equal(problemData.GetSolution("U").GetSnapshotAtTime(0.), np.arange(20))
     collectionProblemData.SetReducedTemplateDataset(dataset)
-    problemData = collectionProblemData.solve_reduced(mu1=0., mu2=1.,
+    problemData = collectionProblemData.SolveReduced(mu1=0., mu2=1.,
                                                       extract=("U", ),
                                                       primalities={"U": True},
                                                       solutionReaderType=NumPySolutionReader)
+    assert bool(problemData[0].GetSolution("U").GetCompressedSnapshots()) == False
     collectionProblemData.specificDatasets["computeAPosterioriError"] = dataset
-    problemData = collectionProblemData.computeAPosterioriError(extract=("U", ),
+    problemData = collectionProblemData.ComputeAPosterioriError(extract=("U", ),
                                                                 primalities={"U": True},
                                                                 solutionStructures={"U": solStruct},
                                                                 solutionReaderType=NumPySolutionReader)
+    assert bool(problemData.GetSolution("U").GetCompressedSnapshots()) == False
+
+    os.system("rm -r "+osp.join(GetTestDataPath(), "Core", "runFull_mu1_0.000e+00_mu2_1.000e+00"))
+    os.system("rm -r "+osp.join(GetTestDataPath(), "Core", "runReduced_mu1_0.000e+00_mu2_1.000e+00"))
+    os.system("rm -r "+dataDir+os.sep+"snapshot.npy")
+    os.system("rm -r "+dataDir+os.sep+"generate_snapshots.py")
+
     # Define the support of varying parameters
     arr_mu1 = np.array([0. , 1.])
     arr_mu2 = np.array([0. , 1.])
-    collectionProblemData.defineVariabilitySupport(["mu1", "mu2"],
+    collectionProblemData.DefineVariabilitySupport(["mu1", "mu2"],
                                                    [arr_mu1, arr_mu2])
-    
-    grid = collectionProblemData.generateVariabilitySupport()
+
+    grid = collectionProblemData.GenerateVariabilitySupport()
+    np.testing.assert_almost_equal(grid, [[0., 0.],[0., 1.],[1., 0.],[1., 1.]])
+
     print(collectionProblemData)
 
     return "ok"

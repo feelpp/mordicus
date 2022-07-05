@@ -3,7 +3,7 @@ name: CI
 on:
   push:
     branches:
-      - '**'
+      - 'cemosis'
     tags:
       - 'v*'
   pull_request:
@@ -26,7 +26,6 @@ jobs:
     runs-on: self-ubuntu-20.04
     if: "!contains(github.event.head_commit.message, 'ci skip')"
     name: Check Build, Install, Run
-    container: ghcr.io/feelpp/feelpp-mor-dev:v0.110.0-alpha.1-focal
     steps:
     - uses: actions/checkout@v2
     - name: Configure Mordicus
@@ -36,6 +35,26 @@ jobs:
         cmake --preset install
     - name: Build Mordicus
       run:  cmake --build --preset install
+    - name: Add Python Dependencies
+      run: |
+        pip install --upgrade pip
+        pip install -r ./src/poc-1/requirements.txt
+    - name: Add PYTHONPATH
+      run: |
+        echo "PYTHONPATH=$GITHUB_WORKSPACE/src/poc-1/src/:$HOME/.local/lib/python3.8/site-packages/" >> $GITHUB_ENV
+        ls -lrt src/poc-1/src
+        echo $GITHUB_WORKSPACE
+        ls $GITHUB_WORKSPACE/src/poc-1/src
+    - name: Run PyTest
+      run: $HOME/.local/bin/pytest --ignore Modules/Safran
+      working-directory: src/poc-1/tests
+    - name: Run Mordicus Core Coverage
+      run: |
+        echo '... NonRegression tests on Core ended'
+        mkdir -p pages/coverageReportCore
+        echo 'Starting coverage report on Core...'
+        $HOME/.local/bin/pytest --cov=../../src/Mordicus/Core --cov-report=html:../../../../pages/coverageReportCore && cd -
+      working-directory: src/poc-1/tests/Core
     - name: Upload 
       uses: actions/upload-artifact@v2
       with:

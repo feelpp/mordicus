@@ -85,10 +85,6 @@ def CompressOperator(
         numberOfSnapshots = collectionProblemData.GetGlobalNumberOfSnapshots(solutionName)
         parameterDimension = collectionProblemData.GetParameterDimension()
 
-        # print("numberOfModes      =", numberOfModes)
-        # print("numberOfSnapshots  =", numberOfSnapshots)
-        # print("parameterDimension =", parameterDimension)
-
         coefficients = np.zeros((numberOfSnapshots, numberOfModes))
         parameters = np.zeros((numberOfSnapshots, parameterDimension))
 

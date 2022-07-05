@@ -45,7 +45,7 @@ class ConstitutiveLawBase(object):
         """
         Returns
         -------
-        couple of string set
+        couple of string (type, set)
             the identifier of constitutive law
         """
         return (self.type,self.set)
