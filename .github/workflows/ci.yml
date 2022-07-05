@@ -46,7 +46,7 @@ jobs:
         echo $GITHUB_WORKSPACE
         ls $GITHUB_WORKSPACE/src/poc-1/src
     - name: Run PyTest
-      run: $HOME/.local/bin/pytest
+      run: $HOME/.local/bin/pytest --ignore Modules/Safran
       working-directory: src/poc-1/tests
     - name: Upload 
       uses: actions/upload-artifact@v2
