@@ -68,7 +68,7 @@ poc-1:
     - export PYTHONPATH=$PWD/src/poc-1/src:$PYTHONPATH
   script:
     - echo 'Starting NonRegression tests on Core...'
-    - cd tests && pytest --ignore Modules/Safran
+    - cd ./src/poc-1/tests && pytest --ignore Modules/Safran
     - echo '... NonRegression tests on Core ended'
     - mkdir -p pages/coverageReportCore
     - echo 'Starting coverage report on Core...'
@@ -85,18 +85,25 @@ cpp-linux:
   stage: test
   image: python:3.8
   before_script:
-    - apt-get update && apt-get install -y python3-dev g++ cmake pybind11-dev
+    - apt-get update
+    - apt-get -y install apt-transport-https ca-certificates gnupg software-properties-common wget
+    - add-apt-repository  'deb http://deb.debian.org/debian bullseye-backports main'
+    - apt-get update
+    - apt-get install -y python3-dev g++ cmake pybind11-dev
+    - apt-get -y install -t bullseye-backports  cmake
   script:
-    - cmake -DCMAKE_CXX_FLAGS="-Wall -Wextra -Werror -D_GLIBCXX_ASSERTIONS" -DCMAKE_INSTALL_PREFIX=~/.local src/cpp
-    - make install -j4
-    - ctest -j4 --output-on-failure --timeout 100
+    - cmake --preset install
+    - cmake --build --preset install
+    - ctest --preset install
 
 cpp-mingw:
+  allow_failure: true
   stage: test
   image: openturns/archlinux-mingw
   before_script:
     - aurman -S mingw-w64-pybind11 --noedit --noconfirm
   script:
+    - ls -l
     - CXXFLAGS="-Wall -Wextra -D_GLIBCXX_ASSERTIONS" x86_64-w64-mingw32-cmake -DCMAKE_INSTALL_PREFIX=~/.local -DPYTHON_EXECUTABLE=/usr/bin/x86_64-w64-mingw32-python39-bin -DPYTHON_INCLUDE_DIR=/usr/x86_64-w64-mingw32/include/python39 -DPYTHON_LIBRARY=/usr/x86_64-w64-mingw32/lib/libpython39.dll.a src/cpp
     - make install -j4
     - cp ~/.local/bin/*.dll lib/test
@@ -108,15 +115,17 @@ feelpp:
   stage: test
   image: ghcr.io/feelpp/feelpp-dev:focal
   before_script:
-    - apt install python3-pip
+    - tree -L 2
+    - ls -l
+    - sudo apt-get -y install python3-pip
 #    - pip install --upgrade pip
     - pip install -r ./src/poc-1/requirements.txt
     - export PYTHONPATH=$PWD/src/poc-1/src:$PYTHONPATH
     - export PYTHONPATH=$PWD/../basic-tools/src:$PYTHONPATH
   script:
-    - cmake -DCMAKE_CXX_FLAGS="-Wall -Wextra -Werror -D_GLIBCXX_ASSERTIONS" -DCMAKE_INSTALL_PREFIX=~/.local -DMORDICUS_ENABLE_CEMOSIS=ON src/cpp
-    - make install -j4
-    - ctest -j4 --output-on-failure --timeout 100
+    - cmake --preset install
+    - cmake --build --preset install
+    - ctest --preset install
     - cd src/poc-1/tests && pytest --ignore Modules/Safran
 
 # feelpp-docker:

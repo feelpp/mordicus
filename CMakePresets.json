@@ -93,6 +93,11 @@
                 "noTestsAction": "error",
                 "stopOnFailure": true
             }
+        },
+        {
+            "name": "install",
+            "inherits": "default",
+            "configurePreset": "install"
         }
     ],
     "vendor": {
