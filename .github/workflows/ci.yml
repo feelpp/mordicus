@@ -3,7 +3,7 @@ name: CI
 on:
   push:
     branches:
-      - '**'
+      - 'cemosis'
     tags:
       - 'v*'
   pull_request:
@@ -48,6 +48,13 @@ jobs:
     - name: Run PyTest
       run: $HOME/.local/bin/pytest --ignore Modules/Safran
       working-directory: src/poc-1/tests
+    - name: Run Mordicus Core Coverage
+      run: |
+        echo '... NonRegression tests on Core ended'
+        mkdir -p pages/coverageReportCore
+        echo 'Starting coverage report on Core...'
+        $HOME/.local/bin/pytest --cov=../../src/Mordicus/Core --cov-report=html:../../../../pages/coverageReportCore && cd -
+      working-directory: src/poc-1/tests/Core
     - name: Upload 
       uses: actions/upload-artifact@v2
       with:
