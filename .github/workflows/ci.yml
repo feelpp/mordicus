@@ -35,12 +35,14 @@ jobs:
         cmake --preset install
     - name: Build Mordicus
       run:  cmake --build --preset install
-    - name: Build python
+    - name: Add Python Dependencies
       run: |
         pip install --upgrade pip
         pip install -r ./src/poc-1/requirements.txt
-        echo "PYTHONPATH=src:$HOME/.local" >> $GITHUB_ENV
-        pytest-3 src/poc-1/examples/Core
+    - name: Add PYTHONPATH
+      run: echo "PYTHONPATH=src:$HOME/.local" >> $GITHUB_ENV
+    - name: Run PyTest
+      run: pytest-3 
     - name: Upload 
       uses: actions/upload-artifact@v2
       with:
