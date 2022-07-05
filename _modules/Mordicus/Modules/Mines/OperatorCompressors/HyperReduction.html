@@ -1,0 +1,194 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mordicus.Modules.Mines.OperatorCompressors.HyperReduction &#8212; Mordicus 0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/classic.css" />
+    
+    <script data-url_root="../../../../../" id="documentation_options" src="../../../../../_static/documentation_options.js"></script>
+    <script src="../../../../../_static/jquery.js"></script>
+    <script src="../../../../../_static/underscore.js"></script>
+    <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../../../../_static/doctools.js"></script>
+    
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../../index.html">Mordicus 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../../../Mordicus.html" accesskey="U">Mordicus</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Mordicus.Modules.Mines.OperatorCompressors.HyperReduction</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for Mordicus.Modules.Mines.OperatorCompressors.HyperReduction</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="kn">from</span> <span class="nn">Mordicus.Core.Containers.Meshes.MeshBase</span> <span class="kn">import</span> <span class="n">MeshBase</span>
+<span class="kn">from</span> <span class="nn">Mordicus.Core.Containers.CollectionProblemData</span> <span class="kn">import</span> <span class="n">CollectionProblemData</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span> 
+
+<span class="kn">import</span> <span class="nn">pdb</span>
+
+
+<div class="viewcode-block" id="selection"><a class="viewcode-back" href="../../../../../_source/Mordicus.Modules.Mines.OperatorCompressors.HyperReduction.html#Mordicus.Modules.Mines.OperatorCompressors.HyperReduction.selection">[docs]</a><span class="k">def</span> <span class="nf">selection</span><span class="p">(</span> <span class="n">basis</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Function to perform DEIM like selection of unknown to keep for the RID construction. Unknown can be nodal or integrated values</span>
+<span class="sd">    </span>
+<span class="sd">    Arguments:</span>
+<span class="sd">        basis {np.ndarray} -- The full reduced order basis</span>
+<span class="sd">    </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        list -- the unknown rank to keep</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="n">n_dof</span><span class="p">,</span> <span class="n">n_modes</span> <span class="o">=</span> <span class="n">basis</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">rid_ddl</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">V</span> <span class="o">=</span> <span class="n">basis</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">rk_max</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">V</span><span class="p">[:,</span><span class="mi">0</span><span class="p">])</span> <span class="p">)</span>
+    <span class="n">rid_ddl</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">rk_max</span> <span class="p">)</span>
+    <span class="n">norm0</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">V</span><span class="p">[</span><span class="n">rk_max</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">V</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span> <span class="o">/=</span> <span class="n">norm0</span>
+    <span class="n">V</span><span class="p">[</span><span class="n">rk_max</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.</span>
+    <span class="n">j_cum</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">n_modes</span><span class="p">):</span>
+        <span class="n">v_red</span> <span class="o">=</span> <span class="n">V</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ix_</span><span class="p">(</span><span class="n">rid_ddl</span><span class="p">,</span> <span class="p">[</span><span class="n">m</span><span class="p">,])]</span>
+        <span class="n">u_red</span> <span class="o">=</span> <span class="n">basis</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ix_</span><span class="p">(</span><span class="n">rid_ddl</span><span class="p">,</span> <span class="n">j_cum</span><span class="p">)]</span>
+        <span class="n">v_tmp</span> <span class="o">=</span> <span class="n">u_red</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span> <span class="n">v_red</span> <span class="p">)</span>
+        <span class="n">utu</span> <span class="o">=</span> <span class="n">u_red</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">u_red</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">sol</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span> <span class="n">utu</span><span class="p">,</span> <span class="n">v_tmp</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">LinAlgError</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Becarefull the reduce integration domain construction seems badly conditionned&quot;</span><span class="p">)</span>
+            <span class="k">continue</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">V</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="mi">1</span><span class="p">))</span>
+        <span class="n">x</span><span class="p">[:</span><span class="n">sol</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,]]</span> <span class="o">=</span> <span class="n">sol</span>
+        <span class="n">q</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.</span><span class="o">*</span><span class="n">V</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">+</span> <span class="mf">1.</span><span class="o">*</span><span class="n">V</span><span class="p">[:,[</span><span class="n">m</span><span class="p">]]</span>
+        <span class="n">rk_max</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">q</span><span class="p">)</span> <span class="p">)</span>
+        <span class="n">q</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">q</span><span class="p">[</span><span class="n">rk_max</span><span class="p">])</span>
+        <span class="n">rid_ddl</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rk_max</span><span class="p">)</span>
+        <span class="n">j_cum</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">m</span> <span class="p">)</span>
+    <span class="k">return</span> <span class="n">rid_ddl</span></div>
+
+<div class="viewcode-block" id="BuildReducedIntegrationOperator"><a class="viewcode-back" href="../../../../../_source/Mordicus.Modules.Mines.OperatorCompressors.HyperReduction.html#Mordicus.Modules.Mines.OperatorCompressors.HyperReduction.BuildReducedIntegrationOperator">[docs]</a><span class="k">def</span> <span class="nf">BuildReducedIntegrationOperator</span><span class="p">(</span><span class="n">collectionProblemData</span><span class="p">:</span> <span class="n">CollectionProblemData</span><span class="p">,</span> <span class="n">mesh</span><span class="p">:</span> <span class="n">MeshBase</span><span class="p">,</span> <span class="n">extend</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">listNameDualVarOutput</span> <span class="o">=</span> <span class="p">[]):</span>
+    <span class="sd">&quot;&quot;&quot;[summary]</span>
+<span class="sd">    </span>
+<span class="sd">    Arguments:</span>
+<span class="sd">        collectionProblemData {CollectionProblemData} -- [description]</span>
+<span class="sd">        mesh {MeshBase} -- [description]</span>
+<span class="sd">    </span>
+<span class="sd">    Keyword Arguments:</span>
+<span class="sd">        extend {int} -- the number of additional layers to keep (default: {0})</span>
+<span class="sd">        listNameDualVarOutput {list} -- the list of dual variable to use in addition to nodal ones (default: {[]})</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Compute Reduced Integration Domain ... &quot;</span><span class="p">)</span>
+    
+    <span class="c1">## Step 1. Select dofs</span>
+    <span class="n">reducedOrderBasis</span> <span class="o">=</span> <span class="n">collectionProblemData</span><span class="o">.</span><span class="n">GetReducedOrderBasis</span><span class="p">(</span><span class="s2">&quot;U&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span> 
+    <span class="n">rid_ddl</span> <span class="o">=</span> <span class="n">selection</span><span class="p">(</span><span class="n">reducedOrderBasis</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;DOFs selection done&quot;</span><span class="p">)</span>
+
+    <span class="c1">## Step 2. Select dual variable </span>
+    <span class="n">rid_dual</span> <span class="o">=</span> <span class="p">{}</span>
+    
+    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">listNameDualVarOutput</span><span class="p">:</span>
+        <span class="n">reducedOrderBasis</span> <span class="o">=</span> <span class="n">collectionProblemData</span><span class="o">.</span><span class="n">GetReducedOrderBasis</span><span class="p">(</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
+        <span class="n">rid_dual</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">selection</span><span class="p">(</span><span class="n">reducedOrderBasis</span><span class="p">)</span>
+
+    
+    <span class="n">nn</span> <span class="o">=</span> <span class="n">mesh</span><span class="o">.</span><span class="n">GetNumberOfNodes</span><span class="p">()</span>
+    <span class="n">selected_nodes</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span> <span class="n">dof</span> <span class="o">%</span> <span class="n">nn</span> <span class="k">for</span> <span class="n">dof</span> <span class="ow">in</span> <span class="n">rid_ddl</span> <span class="p">])</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Identify the associated Reduced Integration Domain&quot;</span><span class="p">)</span>
+    <span class="c1">## Build reduced mesh </span>
+    <span class="n">elem_to_keep</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">node_rk</span> <span class="ow">in</span> <span class="n">selected_nodes</span><span class="p">:</span>
+        <span class="n">elem_to_keep</span> <span class="o">+=</span> <span class="n">mesh</span><span class="o">.</span><span class="n">GetElemAttach</span><span class="p">(</span><span class="n">node_rk</span><span class="p">)</span>
+
+    <span class="c1">## Integration point to element</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">rid_dual</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">nb_comp</span> <span class="o">=</span> <span class="n">collectionProblemData</span><span class="o">.</span><span class="n">GetSolutionsNumberOfComponents</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="n">selected_ip</span> <span class="o">=</span><span class="nb">set</span><span class="p">([</span> <span class="nb">int</span><span class="p">(</span><span class="n">ip</span><span class="o">/</span><span class="n">nb_comp</span><span class="p">)</span> <span class="k">for</span> <span class="n">ip</span> <span class="ow">in</span> <span class="n">value</span> <span class="p">])</span>
+        <span class="n">elem_to_keep</span> <span class="o">+=</span> <span class="p">[</span> <span class="n">mesh</span><span class="o">.</span><span class="n">GetElemContaining</span><span class="p">(</span> <span class="n">ip_rank</span> <span class="p">)</span> <span class="k">for</span> <span class="n">ip_rank</span> <span class="ow">in</span> <span class="n">selected_ip</span> <span class="p">]</span>
+
+    <span class="n">elem_to_keep</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">elem_to_keep</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span> <span class="n">extend</span> <span class="p">):</span>
+        <span class="n">dirty_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="n">elem_to_keep</span><span class="p">:</span> 
+            <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">mesh</span><span class="o">.</span><span class="n">GetElement</span><span class="p">(</span> <span class="n">elem</span> <span class="p">):</span>
+                <span class="n">dirty_list</span> <span class="o">+=</span> <span class="n">mesh</span><span class="o">.</span><span class="n">GetElemAttach</span><span class="p">(</span><span class="n">node</span><span class="p">)</span> 
+        
+        <span class="n">new_elems</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">dirty_list</span><span class="p">)</span> <span class="o">-</span> <span class="n">elem_to_keep</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">new_elems</span><span class="p">)</span><span class="si">}</span><span class="s2"> elements added in the RID&quot;</span><span class="p">)</span>
+
+        <span class="n">elem_to_keep</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span> <span class="nb">list</span><span class="p">(</span><span class="n">elem_to_keep</span><span class="p">)</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">new_elems</span><span class="p">)</span> <span class="p">)</span>
+
+
+    <span class="n">operatorCompressionData</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">operatorCompressionData</span><span class="p">[</span><span class="s2">&quot;dofs&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">rid_ddl</span>
+    <span class="n">operatorCompressionData</span><span class="p">[</span><span class="s2">&quot;rid&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">elem_to_keep</span>
+    <span class="n">collectionProblemData</span><span class="o">.</span><span class="n">SetOperatorCompressionData</span><span class="p">(</span> <span class="n">operatorCompressionData</span> <span class="p">)</span></div>
+
+    
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../../index.html">Mordicus 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../../../Mordicus.html" >Mordicus</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Mordicus.Modules.Mines.OperatorCompressors.HyperReduction</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright Mordicus Consortium.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.0.2.
+    </div>
+  </body>
+</html>

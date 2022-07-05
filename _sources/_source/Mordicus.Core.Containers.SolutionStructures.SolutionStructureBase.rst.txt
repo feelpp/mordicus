@@ -1,0 +1,7 @@
+Mordicus.Core.Containers.SolutionStructures.SolutionStructureBase module
+========================================================================
+
+.. automodule:: Mordicus.Core.Containers.SolutionStructures.SolutionStructureBase
+   :members:
+   :undoc-members:
+   :show-inheritance:

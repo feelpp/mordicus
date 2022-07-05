@@ -1,0 +1,7 @@
+Mordicus.Modules.Safran.BasicAlgorithms.NNOMPA module
+=====================================================
+
+.. automodule:: Mordicus.Modules.Safran.BasicAlgorithms.NNOMPA
+   :members:
+   :undoc-members:
+   :show-inheritance:

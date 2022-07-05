@@ -1,0 +1,7 @@
+Mordicus.Modules.Safran.Containers.Loadings.Radiation module
+============================================================
+
+.. automodule:: Mordicus.Modules.Safran.Containers.Loadings.Radiation
+   :members:
+   :undoc-members:
+   :show-inheritance:

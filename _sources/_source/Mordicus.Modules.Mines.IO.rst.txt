@@ -1,0 +1,15 @@
+Mordicus.Modules.Mines.IO package
+=================================
+
+.. automodule:: Mordicus.Modules.Mines.IO
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   Mordicus.Modules.Mines.IO.ZsetReader

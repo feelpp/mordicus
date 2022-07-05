@@ -1,0 +1,7 @@
+Mordicus.Modules.Safran.Containers.Loadings.Temperature module
+==============================================================
+
+.. automodule:: Mordicus.Modules.Safran.Containers.Loadings.Temperature
+   :members:
+   :undoc-members:
+   :show-inheritance:

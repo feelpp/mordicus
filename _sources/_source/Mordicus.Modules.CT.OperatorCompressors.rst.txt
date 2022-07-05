@@ -1,0 +1,15 @@
+Mordicus.Modules.CT.OperatorCompressors package
+===============================================
+
+.. automodule:: Mordicus.Modules.CT.OperatorCompressors
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   Mordicus.Modules.CT.OperatorCompressors.Regression

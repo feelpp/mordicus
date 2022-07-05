@@ -1,0 +1,7 @@
+Mordicus.Core.IO.MeshReaderBase module
+======================================
+
+.. automodule:: Mordicus.Core.IO.MeshReaderBase
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -1,0 +1,7 @@
+Mordicus.Modules.EDF.Containers.SolutionStructures.MEDAsterSolutionStructure module
+===================================================================================
+
+.. automodule:: Mordicus.Modules.EDF.Containers.SolutionStructures.MEDAsterSolutionStructure
+   :members:
+   :undoc-members:
+   :show-inheritance:

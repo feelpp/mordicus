@@ -1,0 +1,7 @@
+Mordicus.Modules.Scilab\_ESI\_Group.SciSolutionReader module
+============================================================
+
+.. automodule:: Mordicus.Modules.Scilab_ESI_Group.SciSolutionReader
+   :members:
+   :undoc-members:
+   :show-inheritance:

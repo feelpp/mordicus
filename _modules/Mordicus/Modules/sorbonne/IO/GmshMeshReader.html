@@ -1,0 +1,278 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mordicus.Modules.sorbonne.IO.GmshMeshReader &#8212; Mordicus 0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/classic.css" />
+    
+    <script data-url_root="../../../../../" id="documentation_options" src="../../../../../_static/documentation_options.js"></script>
+    <script src="../../../../../_static/jquery.js"></script>
+    <script src="../../../../../_static/underscore.js"></script>
+    <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../../../../_static/doctools.js"></script>
+    
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../../index.html">Mordicus 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../../../Mordicus.html" accesskey="U">Mordicus</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Mordicus.Modules.sorbonne.IO.GmshMeshReader</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for Mordicus.Modules.sorbonne.IO.GmshMeshReader</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">Mordicus.Core.IO.MeshReaderBase</span> <span class="kn">import</span> <span class="n">MeshReaderBase</span>
+<span class="kn">from</span> <span class="nn">mpi4py</span> <span class="kn">import</span> <span class="n">MPI</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">meshio</span>
+<span class="kn">import</span> <span class="nn">argparse</span>
+
+
+<div class="viewcode-block" id="ReadMesh"><a class="viewcode-back" href="../../../../../_source/Mordicus.Modules.sorbonne.IO.GmshMeshReader.html#Mordicus.Modules.sorbonne.IO.GmshMeshReader.ReadMesh">[docs]</a><span class="k">def</span> <span class="nf">ReadMesh</span><span class="p">(</span><span class="n">meshFileName</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Functional API</span>
+<span class="sd">    </span>
+<span class="sd">    Reads the mesh defined the Gmsh mesh file &quot;meshFileName&quot; (.msh)</span>
+<span class="sd">            </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    meshFileName : str</span>
+<span class="sd">        Gmsh mesh file </span>
+<span class="sd">                    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    BasicToolsUnstructuredMesh</span>
+<span class="sd">        mesh of the HF computation</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">reader</span> <span class="o">=</span> <span class="n">GmshMeshReader</span><span class="p">(</span><span class="n">meshFileName</span><span class="o">=</span><span class="n">meshFileName</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">reader</span><span class="o">.</span><span class="n">ReadMesh</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="ReadGMSHBase"><a class="viewcode-back" href="../../../../../_source/Mordicus.Modules.sorbonne.IO.GmshMeshReader.html#Mordicus.Modules.sorbonne.IO.GmshMeshReader.ReadGMSHBase">[docs]</a><span class="k">def</span> <span class="nf">ReadGMSHBase</span><span class="p">(</span><span class="n">meshFileName</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Functional API</span>
+<span class="sd">    </span>
+<span class="sd">    Reads the file &quot;meshFileName&quot; VTK (.vtu)</span>
+<span class="sd">            </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    meshFileName : str</span>
+<span class="sd">        VTK mesh and fields file </span>
+<span class="sd">                    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    VTK data structure (UnstructuredMesh)</span>
+<span class="sd">        mesh and fields of the HF computation</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">reader</span> <span class="o">=</span> <span class="n">GmshMeshReader</span><span class="p">(</span><span class="n">meshFileName</span><span class="o">=</span><span class="n">meshFileName</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">reader</span><span class="o">.</span><span class="n">ReadGmshBase</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="GmshMeshReader"><a class="viewcode-back" href="../../../../../_source/Mordicus.Modules.sorbonne.IO.GmshMeshReader.html#Mordicus.Modules.sorbonne.IO.GmshMeshReader.GmshMeshReader">[docs]</a><span class="k">class</span> <span class="nc">GmshMeshReader</span><span class="p">(</span><span class="n">MeshReaderBase</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class containing a reader for Z-set mesh file</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    meshFileName : str</span>
+<span class="sd">        name of the GMSH mesh file (.msh)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">meshFileName</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        meshFileName : str, optional</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">GmshMeshReader</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">meshFileName</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+            
+
+        <span class="n">folder</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">meshFileName</span><span class="p">)</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">suffix</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">meshFileName</span><span class="p">)</span><span class="o">.</span><span class="n">suffix</span><span class="p">)</span> <span class="c1">#.msh</span>
+        <span class="n">stem</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">meshFileName</span><span class="p">)</span><span class="o">.</span><span class="n">stem</span><span class="p">)</span> <span class="c1">#mesh</span>
+        
+        
+        <span class="k">if</span> <span class="n">MPI</span><span class="o">.</span><span class="n">COMM_WORLD</span><span class="o">.</span><span class="n">Get_size</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span> <span class="c1"># pragma: no cover </span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">meshFileName</span> <span class="o">=</span> <span class="n">folder</span> <span class="o">+</span> <span class="n">os</span><span class="o">.</span><span class="n">sep</span> <span class="o">+</span> <span class="n">stem</span> <span class="o">+</span> <span class="s2">&quot;-pmeshes&quot;</span> <span class="o">+</span> <span class="n">os</span><span class="o">.</span><span class="n">sep</span> <span class="o">+</span> <span class="n">stem</span> <span class="o">+</span> <span class="s2">&quot;-&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">MPI</span><span class="o">.</span><span class="n">COMM_WORLD</span><span class="o">.</span><span class="n">Get_rank</span><span class="p">()</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="o">+</span> <span class="n">suffix</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">meshFileName</span> <span class="o">=</span> <span class="n">meshFileName</span>
+
+<div class="viewcode-block" id="GmshMeshReader.ReadMesh"><a class="viewcode-back" href="../../../../../_source/Mordicus.Modules.sorbonne.IO.GmshMeshReader.html#Mordicus.Modules.sorbonne.IO.GmshMeshReader.GmshMeshReader.ReadMesh">[docs]</a>    <span class="k">def</span> <span class="nf">ReadMesh</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Read the HF GMSH mesh</span>
+<span class="sd">                    </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        BasicToolsUnstructuredMesh</span>
+<span class="sd">            mesh of the HF computation</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1">#from GmshReader import ReadGmsh as Read</span>
+        <span class="kn">from</span> <span class="nn">BasicTools.IO.GmshReader</span> <span class="kn">import</span> <span class="n">ReadGmsh</span> <span class="k">as</span> <span class="n">Read</span>
+        <span class="n">data</span><span class="o">=</span><span class="n">Read</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">meshFileName</span><span class="p">)</span>
+       
+        <span class="c1">#print(&quot;data&quot;,data)</span>
+        <span class="kn">from</span> <span class="nn">Mordicus.Modules.Safran.Containers.Meshes</span> <span class="kn">import</span> <span class="n">BasicToolsUnstructuredMesh</span> <span class="k">as</span> <span class="n">BTUM</span>
+
+        <span class="n">mesh</span> <span class="o">=</span> <span class="n">BTUM</span><span class="o">.</span><span class="n">BasicToolsUnstructuredMesh</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">mesh</span></div>
+<div class="viewcode-block" id="GmshMeshReader.ReadGmshBase"><a class="viewcode-back" href="../../../../../_source/Mordicus.Modules.sorbonne.IO.GmshMeshReader.html#Mordicus.Modules.sorbonne.IO.GmshMeshReader.GmshMeshReader.ReadGmshBase">[docs]</a>    <span class="k">def</span> <span class="nf">ReadGmshBase</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        
+        
+        <span class="n">suffix</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">meshFileName</span><span class="p">)</span><span class="o">.</span><span class="n">suffix</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">suffix</span> <span class="o">==</span> <span class="s2">&quot;.msh&quot;</span><span class="p">,</span> <span class="s2">&quot;! Filename error !&quot;</span>
+      
+        <span class="kn">from</span> <span class="nn">BasicTools.IO.GmshReader</span> <span class="kn">import</span> <span class="n">ReadGmsh</span> <span class="k">as</span> <span class="n">Read</span>
+        <span class="n">GMSHBase</span><span class="o">=</span><span class="n">Read</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">meshFileName</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">GMSHBase</span></div></div>
+
+<div class="viewcode-block" id="CheckAndConvertMeshFFtoGMSH"><a class="viewcode-back" href="../../../../../_source/Mordicus.Modules.sorbonne.IO.GmshMeshReader.html#Mordicus.Modules.sorbonne.IO.GmshMeshReader.CheckAndConvertMeshFFtoGMSH">[docs]</a><span class="k">def</span> <span class="nf">CheckAndConvertMeshFFtoGMSH</span><span class="p">(</span><span class="n">meshFileName</span><span class="p">,</span><span class="n">meshFileNameGMSH</span><span class="p">,</span><span class="n">dimension</span><span class="p">):</span>
+     <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Functional API</span>
+<span class="sd">    </span>
+<span class="sd">    Convert the mesh from FreeFem++ to Gmsh mesh format &quot;meshFileName&quot; (.msh)</span>
+<span class="sd">            </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    meshFileName : str</span>
+<span class="sd">        Gmsh or FF++ mesh file </span>
+<span class="sd">                    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    GMSH mesh</span>
+<span class="sd">        mesh of the HF computation</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;meshfilename: &quot;</span><span class="p">,</span><span class="n">meshFileName</span><span class="p">)</span>
+     <span class="n">meshFile</span><span class="o">=</span><span class="nb">open</span><span class="p">(</span><span class="n">meshFileName</span><span class="p">,</span><span class="s2">&quot;r&quot;</span><span class="p">)</span>
+     <span class="n">firstline</span><span class="o">=</span><span class="n">meshFile</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+     <span class="n">firstlineGMSH</span><span class="o">=</span><span class="s2">&quot;MeshFormat&quot;</span>
+
+     <span class="k">if</span> <span class="n">firstline</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">firstlineGMSH</span><span class="p">[:]:</span> <span class="c1">#if already in GMSH</span>
+         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;GMSH format&quot;</span><span class="p">)</span>
+         <span class="c1">#os.rename(meshFileName, meshFileNameGMSH)</span>
+         <span class="k">return</span> <span class="mi">1</span>
+     <span class="k">else</span><span class="p">:</span> <span class="c1">#if FreeFem++ format, convert to GMSH format</span>
+         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Convert FF++ format to GMSH...&quot;</span><span class="p">)</span>
+     
+         <span class="n">ConvertFFtoGMSH</span><span class="p">(</span><span class="n">meshFileName</span><span class="p">,</span><span class="n">meshFileNameGMSH</span><span class="p">,</span><span class="n">dimension</span><span class="p">)</span>
+         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Converted!&quot;</span><span class="p">)</span>
+         <span class="k">return</span> <span class="mi">0</span></div>
+
+<div class="viewcode-block" id="ConvertFFtoGMSH"><a class="viewcode-back" href="../../../../../_source/Mordicus.Modules.sorbonne.IO.GmshMeshReader.html#Mordicus.Modules.sorbonne.IO.GmshMeshReader.ConvertFFtoGMSH">[docs]</a><span class="k">def</span> <span class="nf">ConvertFFtoGMSH</span><span class="p">(</span><span class="n">meshFileName</span><span class="p">,</span><span class="n">meshFileNameGMSH</span><span class="p">,</span><span class="n">dimension</span><span class="p">):</span>
+    <span class="k">assert</span> <span class="n">dimension</span><span class="o">==</span><span class="mi">2</span> <span class="ow">or</span> <span class="n">dimension</span><span class="o">==</span><span class="mi">3</span><span class="p">,</span> <span class="s2">&quot;Error dimension must be 2 or 3&quot;</span>
+    <span class="c1"># Read file and store data</span>
+    <span class="n">infile</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">meshFileName</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> 
+    <span class="n">outfile</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">meshFileNameGMSH</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> 
+    <span class="n">Lines</span> <span class="o">=</span> <span class="n">infile</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+
+    <span class="c1"># first line is &quot;NNodes NTri Nseg&quot;</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">Lines</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)</span>
+    <span class="n">nnodes</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">nelem</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">nelem_tot</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)]:</span>
+        <span class="n">nelem</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">d</span><span class="p">))</span>
+        <span class="n">nelem_tot</span> <span class="o">+=</span> <span class="nb">int</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Nnodes = &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">nnodes</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Nelem  = &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">nelem_tot</span><span class="p">))</span>
+
+    <span class="c1"># Header</span>
+    <span class="n">outfile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;$MeshFormat</span><span class="se">\n</span><span class="s2">2.2 0 8</span><span class="se">\n</span><span class="s2">$EndMeshFormat</span><span class="se">\n</span><span class="s2">$Nodes</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">);</span>
+    <span class="c1"># Points</span>
+    <span class="n">cpt</span> <span class="o">=</span> <span class="mi">1</span> <span class="c1">#line counter</span>
+    <span class="n">outfile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">nnodes</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">);</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nnodes</span><span class="p">):</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">dimension</span><span class="o">==</span><span class="mi">2</span><span class="p">):</span>
+            <span class="n">outfile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">+</span> <span class="s2">&quot; &quot;</span> <span class="o">+</span> <span class="n">Lines</span><span class="p">[</span><span class="n">cpt</span><span class="p">][:</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span><span class="o">+</span><span class="s2">&quot; &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">);</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">outfile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">+</span> <span class="s2">&quot; &quot;</span> <span class="o">+</span> <span class="n">Lines</span><span class="p">[</span><span class="n">cpt</span><span class="p">]);</span>
+        <span class="n">cpt</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="n">outfile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;$EndNodes</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">);</span>
+    <span class="c1"># Element</span>
+    <span class="n">outfile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;$Elements</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">);</span>
+    <span class="n">outfile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">nelem_tot</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">);</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nelem_tot</span><span class="p">):</span>
+    <span class="c1">#Loop on all element, without knowing what type they are</span>
+        <span class="n">elem</span> <span class="o">=</span> <span class="n">Lines</span><span class="p">[</span><span class="n">cpt</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)</span>
+        <span class="k">if</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">elem</span><span class="p">)</span><span class="o">==</span><span class="mi">3</span><span class="p">):</span>
+      <span class="c1"># Segment</span>
+            <span class="n">outfile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">+</span> <span class="s2">&quot; &quot;</span> <span class="p">)</span> <span class="c1"># new element</span>
+            <span class="n">outfile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;1 2 &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">elem</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span><span class="o">+</span> <span class="s2">&quot; 0 &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">elem</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span><span class="s2">&quot; &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">elem</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">+</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">elif</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">elem</span><span class="p">)</span><span class="o">==</span><span class="mi">4</span><span class="p">):</span>
+            <span class="c1">#Triangle</span>
+            <span class="n">outfile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">+</span> <span class="s2">&quot; &quot;</span> <span class="p">)</span> <span class="c1"># new element</span>
+            <span class="n">outfile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;2 2 &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">elem</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span><span class="o">+</span> <span class="s2">&quot; 0 &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">elem</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span><span class="s2">&quot; &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">elem</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">+</span><span class="s2">&quot; &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">elem</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span><span class="o">+</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1">#Do not know</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;unrecognized format! &quot;</span><span class="p">)</span>
+        <span class="n">cpt</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="n">outfile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;$EndElements</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">);</span>
+    <span class="c1"># close everything</span>
+    <span class="n">infile</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="n">outfile</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../../index.html">Mordicus 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../../../Mordicus.html" >Mordicus</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Mordicus.Modules.sorbonne.IO.GmshMeshReader</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright Mordicus Consortium.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.0.2.
+    </div>
+  </body>
+</html>

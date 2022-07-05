@@ -1,0 +1,7 @@
+Mordicus.Modules.sorbonne.IO.VTKMeshReader module
+=================================================
+
+.. automodule:: Mordicus.Modules.sorbonne.IO.VTKMeshReader
+   :members:
+   :undoc-members:
+   :show-inheritance:

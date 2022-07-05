@@ -1,0 +1,7 @@
+Mordicus.Modules.Safran.Containers.Loadings.Centrifugal module
+==============================================================
+
+.. automodule:: Mordicus.Modules.Safran.Containers.Loadings.Centrifugal
+   :members:
+   :undoc-members:
+   :show-inheritance:

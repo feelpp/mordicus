@@ -1,0 +1,15 @@
+Mordicus.Modules.Mines.OperatorCompressors package
+==================================================
+
+.. automodule:: Mordicus.Modules.Mines.OperatorCompressors
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   Mordicus.Modules.Mines.OperatorCompressors.HyperReduction

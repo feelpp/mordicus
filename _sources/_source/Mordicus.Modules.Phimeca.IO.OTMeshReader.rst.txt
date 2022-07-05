@@ -1,0 +1,7 @@
+Mordicus.Modules.Phimeca.IO.OTMeshReader module
+===============================================
+
+.. automodule:: Mordicus.Modules.Phimeca.IO.OTMeshReader
+   :members:
+   :undoc-members:
+   :show-inheritance:

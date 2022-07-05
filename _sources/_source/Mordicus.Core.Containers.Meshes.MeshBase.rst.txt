@@ -1,0 +1,7 @@
+Mordicus.Core.Containers.Meshes.MeshBase module
+===============================================
+
+.. automodule:: Mordicus.Core.Containers.Meshes.MeshBase
+   :members:
+   :undoc-members:
+   :show-inheritance:

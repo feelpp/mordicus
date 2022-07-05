@@ -1,0 +1,16 @@
+Mordicus package
+================
+
+.. automodule:: Mordicus
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   Mordicus.Core
+   Mordicus.Modules

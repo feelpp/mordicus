@@ -1,0 +1,7 @@
+Mordicus.Modules.CT.OperatorCompressors.Regression module
+=========================================================
+
+.. automodule:: Mordicus.Modules.CT.OperatorCompressors.Regression
+   :members:
+   :undoc-members:
+   :show-inheritance:

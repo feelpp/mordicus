@@ -1,0 +1,7 @@
+Mordicus.Modules.sorbonne.IO.numpyToVTKWriter module
+====================================================
+
+.. automodule:: Mordicus.Modules.sorbonne.IO.numpyToVTKWriter
+   :members:
+   :undoc-members:
+   :show-inheritance:

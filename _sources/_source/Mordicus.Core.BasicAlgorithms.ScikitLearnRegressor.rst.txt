@@ -1,0 +1,7 @@
+Mordicus.Core.BasicAlgorithms.ScikitLearnRegressor module
+=========================================================
+
+.. automodule:: Mordicus.Core.BasicAlgorithms.ScikitLearnRegressor
+   :members:
+   :undoc-members:
+   :show-inheritance:

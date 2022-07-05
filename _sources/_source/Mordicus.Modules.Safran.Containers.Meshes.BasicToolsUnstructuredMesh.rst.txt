@@ -1,0 +1,7 @@
+Mordicus.Modules.Safran.Containers.Meshes.BasicToolsUnstructuredMesh module
+===========================================================================
+
+.. automodule:: Mordicus.Modules.Safran.Containers.Meshes.BasicToolsUnstructuredMesh
+   :members:
+   :undoc-members:
+   :show-inheritance:

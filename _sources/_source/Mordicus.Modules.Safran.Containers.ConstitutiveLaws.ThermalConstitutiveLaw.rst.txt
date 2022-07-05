@@ -1,0 +1,7 @@
+Mordicus.Modules.Safran.Containers.ConstitutiveLaws.ThermalConstitutiveLaw module
+=================================================================================
+
+.. automodule:: Mordicus.Modules.Safran.Containers.ConstitutiveLaws.ThermalConstitutiveLaw
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -1,0 +1,7 @@
+Mordicus.Modules.EDF.IO.Code\_Aster\_Solver module
+==================================================
+
+.. automodule:: Mordicus.Modules.EDF.IO.Code_Aster_Solver
+   :members:
+   :undoc-members:
+   :show-inheritance:

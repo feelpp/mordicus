@@ -1,0 +1,7 @@
+Mordicus.Modules.Mines.OperatorCompressors.HyperReduction module
+================================================================
+
+.. automodule:: Mordicus.Modules.Mines.OperatorCompressors.HyperReduction
+   :members:
+   :undoc-members:
+   :show-inheritance:

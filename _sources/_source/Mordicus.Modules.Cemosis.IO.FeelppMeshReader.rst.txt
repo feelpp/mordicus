@@ -1,0 +1,7 @@
+Mordicus.Modules.Cemosis.IO.FeelppMeshReader module
+===================================================
+
+.. automodule:: Mordicus.Modules.Cemosis.IO.FeelppMeshReader
+   :members:
+   :undoc-members:
+   :show-inheritance:

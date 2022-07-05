@@ -1,0 +1,7 @@
+Mordicus.Modules.Safran.Containers.InitialConditions.InitialCondition module
+============================================================================
+
+.. automodule:: Mordicus.Modules.Safran.Containers.InitialConditions.InitialCondition
+   :members:
+   :undoc-members:
+   :show-inheritance:

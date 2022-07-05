@@ -1,0 +1,21 @@
+Mordicus.Modules.sorbonne.IO package
+====================================
+
+.. automodule:: Mordicus.Modules.sorbonne.IO
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   Mordicus.Modules.sorbonne.IO.FFSolutionReader
+   Mordicus.Modules.sorbonne.IO.GmshMeshReader
+   Mordicus.Modules.sorbonne.IO.InterpolationOperatorWriter
+   Mordicus.Modules.sorbonne.IO.MeshReader
+   Mordicus.Modules.sorbonne.IO.VTKMeshReader
+   Mordicus.Modules.sorbonne.IO.VTKSolutionReader
+   Mordicus.Modules.sorbonne.IO.numpyToVTKWriter

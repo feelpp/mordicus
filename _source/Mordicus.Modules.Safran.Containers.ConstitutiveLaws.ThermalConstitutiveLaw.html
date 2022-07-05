@@ -1,0 +1,311 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Mordicus.Modules.Safran.Containers.ConstitutiveLaws.ThermalConstitutiveLaw module &#8212; Mordicus 0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/classic.css" />
+    
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../_static/doctools.js"></script>
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Mordicus.Modules.Safran.Containers.ConstitutiveLaws.ZmatConstitutiveLaw module" href="Mordicus.Modules.Safran.Containers.ConstitutiveLaws.ZmatConstitutiveLaw.html" />
+    <link rel="prev" title="Mordicus.Modules.Safran.Containers.ConstitutiveLaws.MfrontConstitutiveLaw module" href="Mordicus.Modules.Safran.Containers.ConstitutiveLaws.MfrontConstitutiveLaw.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="Mordicus.Modules.Safran.Containers.ConstitutiveLaws.ZmatConstitutiveLaw.html" title="Mordicus.Modules.Safran.Containers.ConstitutiveLaws.ZmatConstitutiveLaw module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="Mordicus.Modules.Safran.Containers.ConstitutiveLaws.MfrontConstitutiveLaw.html" title="Mordicus.Modules.Safran.Containers.ConstitutiveLaws.MfrontConstitutiveLaw module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Mordicus 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="Mordicus.html" >Mordicus package</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="Mordicus.Modules.html" >Mordicus.Modules package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="Mordicus.Modules.Safran.html" >Mordicus.Modules.Safran package</a> &#187;</li>
+          <li class="nav-item nav-item-4"><a href="Mordicus.Modules.Safran.Containers.html" >Mordicus.Modules.Safran.Containers package</a> &#187;</li>
+          <li class="nav-item nav-item-5"><a href="Mordicus.Modules.Safran.Containers.ConstitutiveLaws.html" accesskey="U">Mordicus.Modules.Safran.Containers.ConstitutiveLaws package</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Mordicus.Modules.Safran.Containers.ConstitutiveLaws.ThermalConstitutiveLaw module</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="module-Mordicus.Modules.Safran.Containers.ConstitutiveLaws.ThermalConstitutiveLaw">
+<span id="mordicus-modules-safran-containers-constitutivelaws-thermalconstitutivelaw-module"></span><h1>Mordicus.Modules.Safran.Containers.ConstitutiveLaws.ThermalConstitutiveLaw module<a class="headerlink" href="#module-Mordicus.Modules.Safran.Containers.ConstitutiveLaws.ThermalConstitutiveLaw" title="Permalink to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="Mordicus.Modules.Safran.Containers.ConstitutiveLaws.ThermalConstitutiveLaw.ThermalConstitutiveLaw">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">Mordicus.Modules.Safran.Containers.ConstitutiveLaws.ThermalConstitutiveLaw.</span></span><span class="sig-name descname"><span class="pre">ThermalConstitutiveLaw</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">set</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Modules/Safran/Containers/ConstitutiveLaws/ThermalConstitutiveLaw.html#ThermalConstitutiveLaw"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Modules.Safran.Containers.ConstitutiveLaws.ThermalConstitutiveLaw.ThermalConstitutiveLaw" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="Mordicus.Core.Containers.ConstitutiveLaws.ConstitutiveLawBase.html#Mordicus.Core.Containers.ConstitutiveLaws.ConstitutiveLawBase.ConstitutiveLawBase" title="Mordicus.Core.Containers.ConstitutiveLaws.ConstitutiveLawBase.ConstitutiveLawBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">ConstitutiveLawBase</span></code></a></p>
+<p>Class containing a ThermalConstitutiveLaw
+thermal capacity (in J.K-1.kg-1) and thermal conductivity (in W.K-1.m-1)
+are modeled as piecewise linear functions of the temperature</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="Mordicus.Modules.Safran.Containers.ConstitutiveLaws.ThermalConstitutiveLaw.ThermalConstitutiveLaw.capacityTemp">
+<span class="sig-name descname"><span class="pre">capacityTemp</span></span><a class="headerlink" href="#Mordicus.Modules.Safran.Containers.ConstitutiveLaws.ThermalConstitutiveLaw.ThermalConstitutiveLaw.capacityTemp" title="Permalink to this definition">¶</a></dt>
+<dd><p>temperature values on which thermal capacities are provided</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>np.ndarray or list of floats</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="Mordicus.Modules.Safran.Containers.ConstitutiveLaws.ThermalConstitutiveLaw.ThermalConstitutiveLaw.capacityFunction">
+<span class="sig-name descname"><span class="pre">capacityFunction</span></span><a class="headerlink" href="#Mordicus.Modules.Safran.Containers.ConstitutiveLaws.ThermalConstitutiveLaw.ThermalConstitutiveLaw.capacityFunction" title="Permalink to this definition">¶</a></dt>
+<dd><p>thermal capacity as a piecewise linear functions of the temperature</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>scipy.interpolate.interp1d</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="Mordicus.Modules.Safran.Containers.ConstitutiveLaws.ThermalConstitutiveLaw.ThermalConstitutiveLaw.internalEnergyFunctions">
+<span class="sig-name descname"><span class="pre">internalEnergyFunctions</span></span><a class="headerlink" href="#Mordicus.Modules.Safran.Containers.ConstitutiveLaws.ThermalConstitutiveLaw.ThermalConstitutiveLaw.internalEnergyFunctions" title="Permalink to this definition">¶</a></dt>
+<dd><p>internal energy modeled as a set of piecewise linear functions of the
+temperature up to a constant</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>list of scipy.interpolate.interp1d</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="Mordicus.Modules.Safran.Containers.ConstitutiveLaws.ThermalConstitutiveLaw.ThermalConstitutiveLaw.internalEnergyConstants">
+<span class="sig-name descname"><span class="pre">internalEnergyConstants</span></span><a class="headerlink" href="#Mordicus.Modules.Safran.Containers.ConstitutiveLaws.ThermalConstitutiveLaw.ThermalConstitutiveLaw.internalEnergyConstants" title="Permalink to this definition">¶</a></dt>
+<dd><p>additive constants associated to internalEnergyFunctions</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>np.ndarray or list of floats</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="Mordicus.Modules.Safran.Containers.ConstitutiveLaws.ThermalConstitutiveLaw.ThermalConstitutiveLaw.conductivityFunction">
+<span class="sig-name descname"><span class="pre">conductivityFunction</span></span><a class="headerlink" href="#Mordicus.Modules.Safran.Containers.ConstitutiveLaws.ThermalConstitutiveLaw.ThermalConstitutiveLaw.conductivityFunction" title="Permalink to this definition">¶</a></dt>
+<dd><p>thermal conductivity as a piecewise linear functions of the temperature</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>scipy.interpolate.interp1d</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="Mordicus.Modules.Safran.Containers.ConstitutiveLaws.ThermalConstitutiveLaw.ThermalConstitutiveLaw.behavior">
+<span class="sig-name descname"><span class="pre">behavior</span></span><a class="headerlink" href="#Mordicus.Modules.Safran.Containers.ConstitutiveLaws.ThermalConstitutiveLaw.ThermalConstitutiveLaw.behavior" title="Permalink to this definition">¶</a></dt>
+<dd><p>name of the model behavior</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Modules.Safran.Containers.ConstitutiveLaws.ThermalConstitutiveLaw.ThermalConstitutiveLaw.ComputeCapacity">
+<span class="sig-name descname"><span class="pre">ComputeCapacity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">temperature</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Modules/Safran/Containers/ConstitutiveLaws/ThermalConstitutiveLaw.html#ThermalConstitutiveLaw.ComputeCapacity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Modules.Safran.Containers.ConstitutiveLaws.ThermalConstitutiveLaw.ThermalConstitutiveLaw.ComputeCapacity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the thermal capacity for a given temperature value</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>temperature</strong> (<em>float</em>) – temperature at which the capacity is computed</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>thermal capacity</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Modules.Safran.Containers.ConstitutiveLaws.ThermalConstitutiveLaw.ThermalConstitutiveLaw.ComputeConductivity">
+<span class="sig-name descname"><span class="pre">ComputeConductivity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">temperature</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Modules/Safran/Containers/ConstitutiveLaws/ThermalConstitutiveLaw.html#ThermalConstitutiveLaw.ComputeConductivity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Modules.Safran.Containers.ConstitutiveLaws.ThermalConstitutiveLaw.ThermalConstitutiveLaw.ComputeConductivity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the thermal conductivity for a given temperature value</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>temperature</strong> (<em>float</em>) – temperature at which the conductivity is computed</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>thermal conductivity</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Modules.Safran.Containers.ConstitutiveLaws.ThermalConstitutiveLaw.ThermalConstitutiveLaw.ComputeInternalEnergy">
+<span class="sig-name descname"><span class="pre">ComputeInternalEnergy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">temperature</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Modules/Safran/Containers/ConstitutiveLaws/ThermalConstitutiveLaw.html#ThermalConstitutiveLaw.ComputeInternalEnergy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Modules.Safran.Containers.ConstitutiveLaws.ThermalConstitutiveLaw.ThermalConstitutiveLaw.ComputeInternalEnergy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the internal energy for a given temperature value</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>temperature</strong> (<em>float</em>) – temperature at which the conductivity is computed</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>internal energy</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Modules.Safran.Containers.ConstitutiveLaws.ThermalConstitutiveLaw.ThermalConstitutiveLaw.ComputeInternalEnergyVectorized">
+<span class="sig-name descname"><span class="pre">ComputeInternalEnergyVectorized</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">temperature</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Modules/Safran/Containers/ConstitutiveLaws/ThermalConstitutiveLaw.html#ThermalConstitutiveLaw.ComputeInternalEnergyVectorized"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Modules.Safran.Containers.ConstitutiveLaws.ThermalConstitutiveLaw.ThermalConstitutiveLaw.ComputeInternalEnergyVectorized" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the internal energy for a set of given temperature values</p>
+<p class="rubric">Notes</p>
+<p>Out of bounds: we take for internal energy the constant value of the
+bound, not extrapolate the primitive</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>temperature</strong> (<em>np.ndarray</em><em> or </em><em>list of floats</em>) – temperature values at which the internal energy is computed</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>set of internal energy values</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray of floats</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Modules.Safran.Containers.ConstitutiveLaws.ThermalConstitutiveLaw.ThermalConstitutiveLaw.SetBehavior">
+<span class="sig-name descname"><span class="pre">SetBehavior</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">behavior</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Modules/Safran/Containers/ConstitutiveLaws/ThermalConstitutiveLaw.html#ThermalConstitutiveLaw.SetBehavior"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Modules.Safran.Containers.ConstitutiveLaws.ThermalConstitutiveLaw.ThermalConstitutiveLaw.SetBehavior" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the name of the model behavior</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>behavior</strong> (<em>str</em>) – name of the model behavior</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Modules.Safran.Containers.ConstitutiveLaws.ThermalConstitutiveLaw.ThermalConstitutiveLaw.SetThermalCapacity">
+<span class="sig-name descname"><span class="pre">SetThermalCapacity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">capacityTemp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacityVal</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Modules/Safran/Containers/ConstitutiveLaws/ThermalConstitutiveLaw.html#ThermalConstitutiveLaw.SetThermalCapacity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Modules.Safran.Containers.ConstitutiveLaws.ThermalConstitutiveLaw.ThermalConstitutiveLaw.SetThermalCapacity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the model of thermal capacity</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>capacityTemp</strong> (<em>np.ndarray</em><em> or </em><em>list of floats</em>) – temperature values on which thermal capacity are provided</p></li>
+<li><p><strong>capacityVal</strong> (<em>np.ndarray</em><em> or </em><em>list of floats</em>) – thermal capacity values on corresponding temperature values</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Modules.Safran.Containers.ConstitutiveLaws.ThermalConstitutiveLaw.ThermalConstitutiveLaw.SetThermalConductivity">
+<span class="sig-name descname"><span class="pre">SetThermalConductivity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conductivityTemp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conductivityVal</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Modules/Safran/Containers/ConstitutiveLaws/ThermalConstitutiveLaw.html#ThermalConstitutiveLaw.SetThermalConductivity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Modules.Safran.Containers.ConstitutiveLaws.ThermalConstitutiveLaw.ThermalConstitutiveLaw.SetThermalConductivity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the model of thermal conductivity</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>conductivityTemp</strong> (<em>np.ndarray</em><em> or </em><em>list of floats</em>) – temperature values on which thermal conductivity values are provided</p></li>
+<li><p><strong>conductivityVal</strong> (<em>np.ndarray</em><em> or </em><em>list of floats</em>) – thermal conductivity values on corresponding temperature values</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="Mordicus.Modules.Safran.Containers.ConstitutiveLaws.MfrontConstitutiveLaw.html"
+                          title="previous chapter">Mordicus.Modules.Safran.Containers.ConstitutiveLaws.MfrontConstitutiveLaw module</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="Mordicus.Modules.Safran.Containers.ConstitutiveLaws.ZmatConstitutiveLaw.html"
+                          title="next chapter">Mordicus.Modules.Safran.Containers.ConstitutiveLaws.ZmatConstitutiveLaw module</a></p>
+  </div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/_source/Mordicus.Modules.Safran.Containers.ConstitutiveLaws.ThermalConstitutiveLaw.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="Mordicus.Modules.Safran.Containers.ConstitutiveLaws.ZmatConstitutiveLaw.html" title="Mordicus.Modules.Safran.Containers.ConstitutiveLaws.ZmatConstitutiveLaw module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="Mordicus.Modules.Safran.Containers.ConstitutiveLaws.MfrontConstitutiveLaw.html" title="Mordicus.Modules.Safran.Containers.ConstitutiveLaws.MfrontConstitutiveLaw module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Mordicus 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="Mordicus.html" >Mordicus package</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="Mordicus.Modules.html" >Mordicus.Modules package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="Mordicus.Modules.Safran.html" >Mordicus.Modules.Safran package</a> &#187;</li>
+          <li class="nav-item nav-item-4"><a href="Mordicus.Modules.Safran.Containers.html" >Mordicus.Modules.Safran.Containers package</a> &#187;</li>
+          <li class="nav-item nav-item-5"><a href="Mordicus.Modules.Safran.Containers.ConstitutiveLaws.html" >Mordicus.Modules.Safran.Containers.ConstitutiveLaws package</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Mordicus.Modules.Safran.Containers.ConstitutiveLaws.ThermalConstitutiveLaw module</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright Mordicus Consortium.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.0.2.
+    </div>
+  </body>
+</html>

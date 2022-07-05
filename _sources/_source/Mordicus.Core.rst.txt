@@ -1,0 +1,20 @@
+Mordicus.Core package
+=====================
+
+.. automodule:: Mordicus.Core
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   Mordicus.Core.BasicAlgorithms
+   Mordicus.Core.Containers
+   Mordicus.Core.DataCompressors
+   Mordicus.Core.Helpers
+   Mordicus.Core.IO
+   Mordicus.Core.OperatorCompressors

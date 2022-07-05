@@ -1,0 +1,17 @@
+Mordicus.Core.BasicAlgorithms package
+=====================================
+
+.. automodule:: Mordicus.Core.BasicAlgorithms
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   Mordicus.Core.BasicAlgorithms.Interpolation
+   Mordicus.Core.BasicAlgorithms.SVD
+   Mordicus.Core.BasicAlgorithms.ScikitLearnRegressor

@@ -1,0 +1,16 @@
+Mordicus.Modules.Phimeca package
+================================
+
+.. automodule:: Mordicus.Modules.Phimeca
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   Mordicus.Modules.Phimeca.Containers
+   Mordicus.Modules.Phimeca.IO

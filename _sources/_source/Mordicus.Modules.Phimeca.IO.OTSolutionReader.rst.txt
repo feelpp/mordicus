@@ -1,0 +1,7 @@
+Mordicus.Modules.Phimeca.IO.OTSolutionReader module
+===================================================
+
+.. automodule:: Mordicus.Modules.Phimeca.IO.OTSolutionReader
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -1,0 +1,7 @@
+Mordicus.Modules.Safran.IO.XDMFWriter module
+============================================
+
+.. automodule:: Mordicus.Modules.Safran.IO.XDMFWriter
+   :members:
+   :undoc-members:
+   :show-inheritance:

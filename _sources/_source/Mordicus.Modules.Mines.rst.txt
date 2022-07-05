@@ -1,0 +1,17 @@
+Mordicus.Modules.Mines package
+==============================
+
+.. automodule:: Mordicus.Modules.Mines
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   Mordicus.Modules.Mines.Containers
+   Mordicus.Modules.Mines.IO
+   Mordicus.Modules.Mines.OperatorCompressors

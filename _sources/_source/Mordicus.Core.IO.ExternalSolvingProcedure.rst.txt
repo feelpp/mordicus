@@ -1,0 +1,7 @@
+Mordicus.Core.IO.ExternalSolvingProcedure module
+================================================
+
+.. automodule:: Mordicus.Core.IO.ExternalSolvingProcedure
+   :members:
+   :undoc-members:
+   :show-inheritance:

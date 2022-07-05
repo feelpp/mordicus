@@ -1,0 +1,7 @@
+Mordicus.Core.Containers.ConstitutiveLaws.ConstitutiveLawBase module
+====================================================================
+
+.. automodule:: Mordicus.Core.Containers.ConstitutiveLaws.ConstitutiveLawBase
+   :members:
+   :undoc-members:
+   :show-inheritance:

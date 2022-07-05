@@ -1,0 +1,304 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mordicus.Modules.Safran.Containers.ConstitutiveLaws.ThermalConstitutiveLaw &#8212; Mordicus 0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../../../_static/classic.css" />
+    
+    <script data-url_root="../../../../../../" id="documentation_options" src="../../../../../../_static/documentation_options.js"></script>
+    <script src="../../../../../../_static/jquery.js"></script>
+    <script src="../../../../../../_static/underscore.js"></script>
+    <script src="../../../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../../../../../_static/doctools.js"></script>
+    
+    <link rel="index" title="Index" href="../../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../../../index.html">Mordicus 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../../../../Mordicus.html" accesskey="U">Mordicus</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Mordicus.Modules.Safran.Containers.ConstitutiveLaws.ThermalConstitutiveLaw</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for Mordicus.Modules.Safran.Containers.ConstitutiveLaws.ThermalConstitutiveLaw</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">mpi4py</span> <span class="kn">import</span> <span class="n">MPI</span>
+<span class="k">if</span> <span class="n">MPI</span><span class="o">.</span><span class="n">COMM_WORLD</span><span class="o">.</span><span class="n">Get_size</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span> <span class="c1"># pragma: no cover</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;OMP_NUM_THREADS&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;1&quot;</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;OPENBLAS_NUM_THREADS&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;1&quot;</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;MKL_NUM_THREADS&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;1&quot;</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;VECLIB_MAXIMUM_THREADS&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;1&quot;</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;NUMEXPR_NUM_THREADS&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;1&quot;</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">Mordicus.Core.Containers.ConstitutiveLaws.ConstitutiveLawBase</span> <span class="kn">import</span> <span class="n">ConstitutiveLawBase</span>
+<span class="kn">from</span> <span class="nn">Mordicus.Core.BasicAlgorithms</span> <span class="kn">import</span> <span class="n">Interpolation</span> <span class="k">as</span> <span class="n">TI</span>
+<span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">integrate</span><span class="p">,</span> <span class="n">interpolate</span>
+
+
+
+<div class="viewcode-block" id="ThermalConstitutiveLaw"><a class="viewcode-back" href="../../../../../../_source/Mordicus.Modules.Safran.Containers.ConstitutiveLaws.ThermalConstitutiveLaw.html#Mordicus.Modules.Safran.Containers.ConstitutiveLaws.ThermalConstitutiveLaw.ThermalConstitutiveLaw">[docs]</a><span class="k">class</span> <span class="nc">ThermalConstitutiveLaw</span><span class="p">(</span><span class="n">ConstitutiveLawBase</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class containing a ThermalConstitutiveLaw</span>
+<span class="sd">    thermal capacity (in J.K-1.kg-1) and thermal conductivity (in W.K-1.m-1)</span>
+<span class="sd">    are modeled as piecewise linear functions of the temperature</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    capacityTemp : np.ndarray or list of floats</span>
+<span class="sd">        temperature values on which thermal capacities are provided</span>
+<span class="sd">    capacityFunction : scipy.interpolate.interp1d</span>
+<span class="sd">        thermal capacity as a piecewise linear functions of the temperature</span>
+<span class="sd">    internalEnergyFunctions : list of scipy.interpolate.interp1d</span>
+<span class="sd">        internal energy modeled as a set of piecewise linear functions of the</span>
+<span class="sd">        temperature up to a constant</span>
+<span class="sd">    internalEnergyConstants : np.ndarray or list of floats</span>
+<span class="sd">        additive constants associated to internalEnergyFunctions</span>
+<span class="sd">    conductivityFunction : scipy.interpolate.interp1d</span>
+<span class="sd">        thermal conductivity as a piecewise linear functions of the temperature</span>
+<span class="sd">    behavior : str</span>
+<span class="sd">        name of the model behavior</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">set</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">set</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+
+        <span class="nb">super</span><span class="p">(</span><span class="n">ThermalConstitutiveLaw</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="nb">set</span><span class="p">,</span> <span class="s2">&quot;thermal&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">capacityTemp</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">capacityFunction</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">internalEnergyFunctions</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">internalEnergyConstants</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conductivityFunction</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">behavior</span> <span class="o">=</span> <span class="kc">None</span>
+
+
+<div class="viewcode-block" id="ThermalConstitutiveLaw.SetBehavior"><a class="viewcode-back" href="../../../../../../_source/Mordicus.Modules.Safran.Containers.ConstitutiveLaws.ThermalConstitutiveLaw.html#Mordicus.Modules.Safran.Containers.ConstitutiveLaws.ThermalConstitutiveLaw.ThermalConstitutiveLaw.SetBehavior">[docs]</a>    <span class="k">def</span> <span class="nf">SetBehavior</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">behavior</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the name of the model behavior</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        behavior : str</span>
+<span class="sd">            name of the model behavior</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">behavior</span> <span class="o">=</span> <span class="n">behavior</span></div>
+
+
+<div class="viewcode-block" id="ThermalConstitutiveLaw.SetThermalCapacity"><a class="viewcode-back" href="../../../../../../_source/Mordicus.Modules.Safran.Containers.ConstitutiveLaws.ThermalConstitutiveLaw.html#Mordicus.Modules.Safran.Containers.ConstitutiveLaws.ThermalConstitutiveLaw.ThermalConstitutiveLaw.SetThermalCapacity">[docs]</a>    <span class="k">def</span> <span class="nf">SetThermalCapacity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">capacityTemp</span><span class="p">,</span> <span class="n">capacityVal</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the model of thermal capacity</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        capacityTemp : np.ndarray or list of floats</span>
+<span class="sd">            temperature values on which thermal capacity are provided</span>
+<span class="sd">        capacityVal : np.ndarray or list of floats</span>
+<span class="sd">            thermal capacity values on corresponding temperature values</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">capacityTemp</span> <span class="o">=</span> <span class="n">capacityTemp</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">internalEnergyFunctions</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">internalEnergyConstants</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="n">constant</span> <span class="o">=</span> <span class="mf">0.</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">capacityTemp</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+            <span class="n">xx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">capacityTemp</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="mf">0.5</span><span class="o">*</span><span class="p">(</span><span class="n">capacityTemp</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">+</span><span class="n">capacityTemp</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]),</span> <span class="n">capacityTemp</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]])</span>
+            <span class="n">yy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">capacityVal</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="mf">0.5</span><span class="o">*</span><span class="p">(</span><span class="n">capacityVal</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">+</span><span class="n">capacityVal</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]),</span> <span class="n">capacityVal</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]])</span>
+            <span class="n">y_int</span> <span class="o">=</span> <span class="n">integrate</span><span class="o">.</span><span class="n">cumtrapz</span><span class="p">(</span><span class="n">y</span> <span class="o">=</span> <span class="n">yy</span> <span class="p">,</span> <span class="n">x</span> <span class="o">=</span> <span class="n">xx</span><span class="p">,</span> <span class="n">initial</span> <span class="o">=</span> <span class="mf">0.</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">internalEnergyFunctions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">interpolate</span><span class="o">.</span><span class="n">interp1d</span><span class="p">(</span><span class="n">xx</span><span class="p">,</span> <span class="n">y_int</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s1">&#39;quadratic&#39;</span><span class="p">,</span>  <span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">bounds_error</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">assume_sorted</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">internalEnergyConstants</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">constant</span><span class="p">)</span>
+
+            <span class="n">constant</span> <span class="o">+=</span> <span class="n">y_int</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">capacityFunction</span> <span class="o">=</span> <span class="n">interpolate</span><span class="o">.</span><span class="n">interp1d</span><span class="p">(</span><span class="n">capacityTemp</span><span class="p">,</span> <span class="n">capacityVal</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s1">&#39;linear&#39;</span><span class="p">,</span>  <span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">bounds_error</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">assume_sorted</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ThermalConstitutiveLaw.SetThermalConductivity"><a class="viewcode-back" href="../../../../../../_source/Mordicus.Modules.Safran.Containers.ConstitutiveLaws.ThermalConstitutiveLaw.html#Mordicus.Modules.Safran.Containers.ConstitutiveLaws.ThermalConstitutiveLaw.ThermalConstitutiveLaw.SetThermalConductivity">[docs]</a>    <span class="k">def</span> <span class="nf">SetThermalConductivity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">conductivityTemp</span><span class="p">,</span> <span class="n">conductivityVal</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the model of thermal conductivity</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        conductivityTemp : np.ndarray or list of floats</span>
+<span class="sd">            temperature values on which thermal conductivity values are provided</span>
+<span class="sd">        conductivityVal : np.ndarray or list of floats</span>
+<span class="sd">            thermal conductivity values on corresponding temperature values</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">conductivityFunction</span> <span class="o">=</span> <span class="n">interpolate</span><span class="o">.</span><span class="n">interp1d</span><span class="p">(</span><span class="n">conductivityTemp</span><span class="p">,</span> <span class="n">conductivityVal</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s1">&#39;linear&#39;</span><span class="p">,</span>  <span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">bounds_error</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">assume_sorted</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ThermalConstitutiveLaw.ComputeCapacity"><a class="viewcode-back" href="../../../../../../_source/Mordicus.Modules.Safran.Containers.ConstitutiveLaws.ThermalConstitutiveLaw.html#Mordicus.Modules.Safran.Containers.ConstitutiveLaws.ThermalConstitutiveLaw.ThermalConstitutiveLaw.ComputeCapacity">[docs]</a>    <span class="k">def</span> <span class="nf">ComputeCapacity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">temperature</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes the thermal capacity for a given temperature value</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        temperature : float</span>
+<span class="sd">            temperature at which the capacity is computed</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">            thermal capacity</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">capacityFunction</span><span class="p">(</span><span class="n">temperature</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ThermalConstitutiveLaw.ComputeConductivity"><a class="viewcode-back" href="../../../../../../_source/Mordicus.Modules.Safran.Containers.ConstitutiveLaws.ThermalConstitutiveLaw.html#Mordicus.Modules.Safran.Containers.ConstitutiveLaws.ThermalConstitutiveLaw.ThermalConstitutiveLaw.ComputeConductivity">[docs]</a>    <span class="k">def</span> <span class="nf">ComputeConductivity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">temperature</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes the thermal conductivity for a given temperature value</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        temperature : float</span>
+<span class="sd">            temperature at which the conductivity is computed</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">            thermal conductivity</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">conductivityFunction</span><span class="p">(</span><span class="n">temperature</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ThermalConstitutiveLaw.ComputeInternalEnergy"><a class="viewcode-back" href="../../../../../../_source/Mordicus.Modules.Safran.Containers.ConstitutiveLaws.ThermalConstitutiveLaw.html#Mordicus.Modules.Safran.Containers.ConstitutiveLaws.ThermalConstitutiveLaw.ThermalConstitutiveLaw.ComputeInternalEnergy">[docs]</a>    <span class="k">def</span> <span class="nf">ComputeInternalEnergy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">temperature</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes the internal energy for a given temperature value</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        temperature : float</span>
+<span class="sd">            temperature at which the conductivity is computed</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">            internal energy</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">previousTempStep</span> <span class="o">=</span> <span class="n">TI</span><span class="o">.</span><span class="n">BinarySearch</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">capacityTemp</span><span class="p">,</span> <span class="n">temperature</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">internalEnergyConstants</span><span class="p">[</span><span class="n">previousTempStep</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">internalEnergyFunctions</span><span class="p">[</span><span class="n">previousTempStep</span><span class="p">](</span><span class="n">temperature</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ThermalConstitutiveLaw.ComputeInternalEnergyVectorized"><a class="viewcode-back" href="../../../../../../_source/Mordicus.Modules.Safran.Containers.ConstitutiveLaws.ThermalConstitutiveLaw.html#Mordicus.Modules.Safran.Containers.ConstitutiveLaws.ThermalConstitutiveLaw.ThermalConstitutiveLaw.ComputeInternalEnergyVectorized">[docs]</a>    <span class="k">def</span> <span class="nf">ComputeInternalEnergyVectorized</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">temperature</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes the internal energy for a set of given temperature values</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        Out of bounds: we take for internal energy the constant value of the</span>
+<span class="sd">        bound, not extrapolate the primitive</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        temperature : np.ndarray or list of floats</span>
+<span class="sd">            temperature values at which the internal energy is computed</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        np.ndarray of floats</span>
+<span class="sd">            set of internal energy values</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">temperature</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">temperature</span><span class="p">)</span>
+
+        <span class="n">previousTempStep</span> <span class="o">=</span> <span class="n">TI</span><span class="o">.</span><span class="n">BinarySearchVectorized</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">capacityTemp</span><span class="p">,</span> <span class="n">temperature</span><span class="p">)</span>
+
+        <span class="n">underOutOfBoundsInidices</span> <span class="o">=</span> <span class="n">temperature</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">capacityTemp</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">overOutOfBoundsInidices</span> <span class="o">=</span> <span class="n">temperature</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">capacityTemp</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="n">previousTempStep</span><span class="p">[</span><span class="n">underOutOfBoundsInidices</span><span class="p">]</span>  <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="n">previousTempStep</span><span class="p">[</span><span class="n">overOutOfBoundsInidices</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+
+        <span class="n">res</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">temperature</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+
+        <span class="n">res</span><span class="p">[</span><span class="n">underOutOfBoundsInidices</span><span class="p">]</span>  <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">internalEnergyConstants</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">res</span><span class="p">[</span><span class="n">overOutOfBoundsInidices</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">internalEnergyConstants</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">internalEnergyFunctions</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">](</span><span class="bp">self</span><span class="o">.</span><span class="n">capacityTemp</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">capacityTemp</span><span class="p">)):</span>
+            <span class="n">indices</span> <span class="o">=</span> <span class="n">previousTempStep</span> <span class="o">==</span> <span class="n">i</span>
+            <span class="n">localTemperature</span> <span class="o">=</span> <span class="n">temperature</span><span class="p">[</span><span class="n">indices</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">localTemperature</span><span class="o">.</span><span class="n">size</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">res</span><span class="p">[</span><span class="n">indices</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">internalEnergyConstants</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">internalEnergyFunctions</span><span class="p">[</span><span class="n">i</span><span class="p">](</span><span class="n">localTemperature</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">res</span></div>
+
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="s2">&quot;ThermalConstitutiveLaw on set &quot;</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">set</span>
+        <span class="k">return</span> <span class="n">res</span></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span><span class="c1"># pragma: no cover</span>
+
+    <span class="kn">from</span> <span class="nn">Mordicus</span> <span class="kn">import</span> <span class="n">RunTestFile</span>
+    <span class="n">RunTestFile</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../../../index.html">Mordicus 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../../../../Mordicus.html" >Mordicus</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Mordicus.Modules.Safran.Containers.ConstitutiveLaws.ThermalConstitutiveLaw</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright Mordicus Consortium.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.0.2.
+    </div>
+  </body>
+</html>

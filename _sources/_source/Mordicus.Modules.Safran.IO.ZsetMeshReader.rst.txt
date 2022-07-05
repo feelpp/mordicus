@@ -1,0 +1,7 @@
+Mordicus.Modules.Safran.IO.ZsetMeshReader module
+================================================
+
+.. automodule:: Mordicus.Modules.Safran.IO.ZsetMeshReader
+   :members:
+   :undoc-members:
+   :show-inheritance:

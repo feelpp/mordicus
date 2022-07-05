@@ -1,0 +1,216 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mordicus.Core.Containers.Meshes.MeshBase &#8212; Mordicus 0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/classic.css" />
+    
+    <script data-url_root="../../../../../" id="documentation_options" src="../../../../../_static/documentation_options.js"></script>
+    <script src="../../../../../_static/jquery.js"></script>
+    <script src="../../../../../_static/underscore.js"></script>
+    <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../../../../_static/doctools.js"></script>
+    
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../../index.html">Mordicus 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../../../Mordicus.html" accesskey="U">Mordicus</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Mordicus.Core.Containers.Meshes.MeshBase</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for Mordicus.Core.Containers.Meshes.MeshBase</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">mpi4py</span> <span class="kn">import</span> <span class="n">MPI</span>
+<span class="k">if</span> <span class="n">MPI</span><span class="o">.</span><span class="n">COMM_WORLD</span><span class="o">.</span><span class="n">Get_size</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span> <span class="c1"># pragma: no cover</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;OMP_NUM_THREADS&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;1&quot;</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;OPENBLAS_NUM_THREADS&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;1&quot;</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;MKL_NUM_THREADS&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;1&quot;</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;VECLIB_MAXIMUM_THREADS&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;1&quot;</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;NUMEXPR_NUM_THREADS&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;1&quot;</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+
+<div class="viewcode-block" id="MeshBase"><a class="viewcode-back" href="../../../../../_source/Mordicus.Core.Containers.Meshes.MeshBase.html#Mordicus.Core.Containers.Meshes.MeshBase.MeshBase">[docs]</a><span class="k">class</span> <span class="nc">MeshBase</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class containing a MeshBase, with an internal storage hidden to all its children classes</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    __storage : typeToDefine</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__storage</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="MeshBase.SetInternalStorage"><a class="viewcode-back" href="../../../../../_source/Mordicus.Core.Containers.Meshes.MeshBase.html#Mordicus.Core.Containers.Meshes.MeshBase.MeshBase.SetInternalStorage">[docs]</a>    <span class="k">def</span> <span class="nf">SetInternalStorage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">__storage</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the internal storage</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        __storage : typeToDefine</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__storage</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="s2">&quot;Internal storage already set. Replacing it anyway.&quot;</span>
+            <span class="p">)</span>  <span class="c1"># pragma: no cover</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__storage</span> <span class="o">=</span> <span class="n">__storage</span></div>
+
+<div class="viewcode-block" id="MeshBase.GetInternalStorage"><a class="viewcode-back" href="../../../../../_source/Mordicus.Core.Containers.Meshes.MeshBase.html#Mordicus.Core.Containers.Meshes.MeshBase.MeshBase.GetInternalStorage">[docs]</a>    <span class="k">def</span> <span class="nf">GetInternalStorage</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        typeToDefine</span>
+<span class="sd">            internal storage</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__storage</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s2">&quot;Please set internal storage&quot;</span><span class="p">)</span>  <span class="c1"># pragma: no cover</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__storage</span></div>
+
+
+<div class="viewcode-block" id="MeshBase.GetNodes"><a class="viewcode-back" href="../../../../../_source/Mordicus.Core.Containers.Meshes.MeshBase.html#Mordicus.Core.Containers.Meshes.MeshBase.MeshBase.GetNodes">[docs]</a>    <span class="k">def</span> <span class="nf">GetNodes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        np.ndarray</span>
+<span class="sd">            nodes of the mesh, of size (numberOfNodes,dimensionality)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="s2">&quot;WARNING: I am a MeshBase! Try instanciating a particular mesh instead. Returning an empty np.ndarray&quot;</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="MeshBase.AllElementsIterator"><a class="viewcode-back" href="../../../../../_source/Mordicus.Core.Containers.Meshes.MeshBase.html#Mordicus.Core.Containers.Meshes.MeshBase.MeshBase.AllElementsIterator">[docs]</a>    <span class="k">def</span> <span class="nf">AllElementsIterator</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Constructs an iterator over all the elements of the mesh.</span>
+<span class="sd">        An element is np.ndarray of size (numberOfNodes,dimensionality)</span>
+<span class="sd">        containing the indices of the nodes included in this element</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        iterator</span>
+<span class="sd">            an iterator over all the elements of the mesh</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Not implemented in MeshBase&quot;</span><span class="p">)</span>  <span class="c1"># pragma: no cover</span></div>
+
+<div class="viewcode-block" id="MeshBase.GetNumberOfNodes"><a class="viewcode-back" href="../../../../../_source/Mordicus.Core.Containers.Meshes.MeshBase.html#Mordicus.Core.Containers.Meshes.MeshBase.MeshBase.GetNumberOfNodes">[docs]</a>    <span class="k">def</span> <span class="nf">GetNumberOfNodes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        int</span>
+<span class="sd">            the number of nodes of the mesh</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetNodes</span><span class="p">()</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="MeshBase.GetDimensionality"><a class="viewcode-back" href="../../../../../_source/Mordicus.Core.Containers.Meshes.MeshBase.html#Mordicus.Core.Containers.Meshes.MeshBase.MeshBase.GetDimensionality">[docs]</a>    <span class="k">def</span> <span class="nf">GetDimensionality</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        int</span>
+<span class="sd">            the dimensionality of the mesh</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetNodes</span><span class="p">()</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="MeshBase.GetElemAttach"><a class="viewcode-back" href="../../../../../_source/Mordicus.Core.Containers.Meshes.MeshBase.html#Mordicus.Core.Containers.Meshes.MeshBase.MeshBase.GetElemAttach">[docs]</a>    <span class="k">def</span> <span class="nf">GetElemAttach</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_rk</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the list of all elements ranks (the index in the full element list )</span>
+<span class="sd">        attach to a given node</span>
+
+<span class="sd">        Arguments:</span>
+<span class="sd">            node_rk {int} -- the rank of the node</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            list -- the list of all elements attach to the input node</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Not implemented in mesh base&quot;</span><span class="p">)</span> <span class="c1"># pragma: no cover</span></div>
+
+<div class="viewcode-block" id="MeshBase.GetElemContaining"><a class="viewcode-back" href="../../../../../_source/Mordicus.Core.Containers.Meshes.MeshBase.html#Mordicus.Core.Containers.Meshes.MeshBase.MeshBase.GetElemContaining">[docs]</a>    <span class="k">def</span> <span class="nf">GetElemContaining</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ip_rk</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the rank of the element containint the given integration point</span>
+
+<span class="sd">        Arguments:</span>
+<span class="sd">            ip_rk {int} -- the rank of the integration point to locate, i.e. the index of this integration point in the full list of ip.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            int -- the rank of the element containing the input integration point</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Not implemented in mesh base&quot;</span><span class="p">)</span> <span class="c1"># pragma: no cover</span></div>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="s2">&quot;I am a MeshBase, try instanciating a particular mesh instead&quot;</span>
+        <span class="k">return</span> <span class="n">res</span></div>
+
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span><span class="c1"># pragma: no cover</span>
+
+    <span class="kn">from</span> <span class="nn">Mordicus</span> <span class="kn">import</span> <span class="n">RunTestFile</span>
+    <span class="n">RunTestFile</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span>
+
+
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../../index.html">Mordicus 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../../../Mordicus.html" >Mordicus</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Mordicus.Core.Containers.Meshes.MeshBase</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright Mordicus Consortium.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.0.2.
+    </div>
+  </body>
+</html>

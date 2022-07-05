@@ -1,0 +1,7 @@
+Mordicus.Core.IO.InputReaderBase module
+=======================================
+
+.. automodule:: Mordicus.Core.IO.InputReaderBase
+   :members:
+   :undoc-members:
+   :show-inheritance:

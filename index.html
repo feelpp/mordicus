@@ -1,0 +1,229 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Welcome to Mordicus’ documentation! &#8212; Mordicus 0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/classic.css" />
+    
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="_static/doctools.js"></script>
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Mordicus package" href="_source/Mordicus.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="_source/Mordicus.html" title="Mordicus package"
+             accesskey="N">next</a> |</li>
+        <li class="nav-item nav-item-0"><a href="#">Mordicus 0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Welcome to Mordicus’ documentation!</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="welcome-to-mordicus-documentation">
+<h1>Welcome to Mordicus’ documentation!<a class="headerlink" href="#welcome-to-mordicus-documentation" title="Permalink to this heading">¶</a></h1>
+<p>Download the latest version of the requirements file here <code class="xref download docutils literal notranslate"><span class="pre">pdf</span></code></p>
+<p>Contents:</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="_source/Mordicus.html">Mordicus package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="_source/Mordicus.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="_source/Mordicus.Core.html">Mordicus.Core package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="_source/Mordicus.Core.html#subpackages">Subpackages</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="_source/Mordicus.Modules.html">Mordicus.Modules package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="_source/Mordicus.Modules.html#subpackages">Subpackages</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>[![pipeline status](https://gitlab.pam-retd.fr/mordicus/mordicus/badges/master/pipeline.svg)](https://gitlab.pam-retd.fr/mordicus/mordicus/commits/master)   [![Coverage report](https://gitlab.pam-retd.fr/mordicus/mordicus/badges/master/coverage.svg?job=poc-1)](http://mordicus.pages.gitlab.pam-retd.fr/mordicus/coverageReportCore/)
+
+
+        Reduced Order Modelling library of the FUI project &quot;MOR_DICUS&quot;.
+
+
+
+**Scientific publications:**
+
+
+    For Safran&#39;s module:
+
+    article 1: A Nonintrusive Distributed Reduced Order Modeling Framework for nonlinear structural mechanics -- application to elastoviscoplastic computations [arXiv](https://arxiv.org/abs/1812.07228)
+
+    article 2: An error indicator-based adaptive reduced order model for nonlinear structural mechanics -- application to fatigue computation of high-pressure turbine blades [open access](https://www.mdpi.com/2297-8747/24/2/41)
+
+
+
+1) **DEPENDENCIES**
+
+    python minversion  3.6
+    Dependencies :
+      - pytest pytest-cov mpi4py appdirs scikit-learn
+      - BasicTools, and its dependencies : numpy scipy scikit-sparse vtk sympy pyamg h5py pyparsing Cython sphinx setuptools
+
+    during developement, pylint and black where used
+
+    recommandation: create a compatible conda environment by typing:
+
+    conda env create -f environment.yml
+
+    to update the environement, go in the folder containing environment.yml (/src/poc-1) and type:
+
+    conda env update
+
+
+    When using a cluster with optimized mpi already installed, do not install mpi4py from conda, but using « pip install mpi4py » (having loaded the optimized mpi beforehand: &quot;which mpicc&quot; should point to something). Deleting the pip cache can help (rm -rf ~/.cache/pip)
+    Check also https://conda-forge.org/docs/user/tipsandtricks.html#using-external-message-passing-interface-mpi-libraries
+
+
+    REMARK for windows:
+        mpi4py does not work on its own, requires MPICH https://docs.microsoft.com/en-us/message-passing-interface/microsoft-mpi?redirectedfrom=MSDN
+
+
+
+2) **DOCUMENTATION**
+
+    Documentation is generated using sphinx in the form of a website by executing the following command in the main folder
+
+	python setup.py build_sphinx
+
+
+
+3) **TESTING INFRASTRUCTURE**
+
+    Every file from the src folder must have a file of the same name in the tests folder,
+    the contains a function called &quot;test&quot; that takes no
+    argument and returns the string &quot;ok&quot; if and only if the test was successful. This function
+    is meant to test the code in the corresponding file from the src folder
+
+    The testing and coverage are done using pytest:
+
+    Core:
+    go to tests/Mordicus/Core and run
+    pytest --cov=../../src/Mordicus/Core --cov-report=html:../../coverageReports/coverageReportCore
+
+    Safran&#39;s module:
+    go to tests/Mordicus/Modules/Safran and run
+    pytest --cov=../../../src/Mordicus/Modules/Safran --cov-report=html:../../../coverageReports/coverageReportModuleSafran
+
+    The Core and all modules must keep 100% coverage independantly.
+
+
+
+4) **EXAMPLES**
+
+    Examples are available in the folder examples/
+    They can be run by excuting the &quot;mordicusScript&quot; files
+
+
+5) **CONTRIBUTION**
+
+    see [CONTRIBUTING.md](https://gitlab.pam-retd.fr/mordicus/mordicus/blob/safran/src/poc-1/CONTRIBUTING.md)
+
+
+6) **Used conda environment for dev**
+
+    see environment.yml
+</pre></div>
+</div>
+</section>
+<section id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this heading">¶</a></h1>
+<ul class="simple">
+<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
+<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
+<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
+</ul>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div>
+    <h3><a href="#">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">Welcome to Mordicus’ documentation!</a></li>
+<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
+</ul>
+
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="_source/Mordicus.html"
+                          title="next chapter">Mordicus package</a></p>
+  </div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/index.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="_source/Mordicus.html" title="Mordicus package"
+             >next</a> |</li>
+        <li class="nav-item nav-item-0"><a href="#">Mordicus 0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Welcome to Mordicus’ documentation!</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright Mordicus Consortium.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.0.2.
+    </div>
+  </body>
+</html>

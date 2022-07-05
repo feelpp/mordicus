@@ -1,0 +1,16 @@
+Mordicus.Modules.Phimeca.IO package
+===================================
+
+.. automodule:: Mordicus.Modules.Phimeca.IO
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   Mordicus.Modules.Phimeca.IO.OTMeshReader
+   Mordicus.Modules.Phimeca.IO.OTSolutionReader

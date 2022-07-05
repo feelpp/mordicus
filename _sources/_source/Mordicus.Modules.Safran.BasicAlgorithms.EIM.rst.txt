@@ -1,0 +1,7 @@
+Mordicus.Modules.Safran.BasicAlgorithms.EIM module
+==================================================
+
+.. automodule:: Mordicus.Modules.Safran.BasicAlgorithms.EIM
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -1,0 +1,7 @@
+Mordicus.Modules.Phimeca.Containers.Meshes.OTMesh module
+========================================================
+
+.. automodule:: Mordicus.Modules.Phimeca.Containers.Meshes.OTMesh
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -1,0 +1,7 @@
+Mordicus.Core.BasicAlgorithms.SVD module
+========================================
+
+.. automodule:: Mordicus.Core.BasicAlgorithms.SVD
+   :members:
+   :undoc-members:
+   :show-inheritance:

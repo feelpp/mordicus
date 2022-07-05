@@ -1,0 +1,7 @@
+Mordicus.Modules.CT.IO.MeshReader module
+========================================
+
+.. automodule:: Mordicus.Modules.CT.IO.MeshReader
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -1,0 +1,16 @@
+Mordicus.Modules.EDF.Containers package
+=======================================
+
+.. automodule:: Mordicus.Modules.EDF.Containers
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   Mordicus.Modules.EDF.Containers.FieldHandlers
+   Mordicus.Modules.EDF.Containers.SolutionStructures

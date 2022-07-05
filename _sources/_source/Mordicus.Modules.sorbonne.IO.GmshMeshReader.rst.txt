@@ -1,0 +1,7 @@
+Mordicus.Modules.sorbonne.IO.GmshMeshReader module
+==================================================
+
+.. automodule:: Mordicus.Modules.sorbonne.IO.GmshMeshReader
+   :members:
+   :undoc-members:
+   :show-inheritance:

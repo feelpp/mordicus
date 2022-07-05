@@ -1,0 +1,186 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Mordicus.Modules.Safran.BasicAlgorithms.LPEQP module &#8212; Mordicus 0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/classic.css" />
+    
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../_static/doctools.js"></script>
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Mordicus.Modules.Safran.BasicAlgorithms.NNOMPA module" href="Mordicus.Modules.Safran.BasicAlgorithms.NNOMPA.html" />
+    <link rel="prev" title="Mordicus.Modules.Safran.BasicAlgorithms.GappyPOD module" href="Mordicus.Modules.Safran.BasicAlgorithms.GappyPOD.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="Mordicus.Modules.Safran.BasicAlgorithms.NNOMPA.html" title="Mordicus.Modules.Safran.BasicAlgorithms.NNOMPA module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="Mordicus.Modules.Safran.BasicAlgorithms.GappyPOD.html" title="Mordicus.Modules.Safran.BasicAlgorithms.GappyPOD module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Mordicus 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="Mordicus.html" >Mordicus package</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="Mordicus.Modules.html" >Mordicus.Modules package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="Mordicus.Modules.Safran.html" >Mordicus.Modules.Safran package</a> &#187;</li>
+          <li class="nav-item nav-item-4"><a href="Mordicus.Modules.Safran.BasicAlgorithms.html" accesskey="U">Mordicus.Modules.Safran.BasicAlgorithms package</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Mordicus.Modules.Safran.BasicAlgorithms.LPEQP module</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="module-Mordicus.Modules.Safran.BasicAlgorithms.LPEQP">
+<span id="mordicus-modules-safran-basicalgorithms-lpeqp-module"></span><h1>Mordicus.Modules.Safran.BasicAlgorithms.LPEQP module<a class="headerlink" href="#module-Mordicus.Modules.Safran.BasicAlgorithms.LPEQP" title="Permalink to this heading">¶</a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="Mordicus.Modules.Safran.BasicAlgorithms.LPEQP.CallOptimizer">
+<span class="sig-prename descclassname"><span class="pre">Mordicus.Modules.Safran.BasicAlgorithms.LPEQP.</span></span><span class="sig-name descname"><span class="pre">CallOptimizer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">c</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">A_ub</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b_ub</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Modules/Safran/BasicAlgorithms/LPEQP.html#CallOptimizer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Modules.Safran.BasicAlgorithms.LPEQP.CallOptimizer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exemple of scipy optimizer wrapper (here linprog)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>c</strong> (<em>1-D array</em>) – The coefficients of the linear objective function to be minimized.</p></li>
+<li><p><strong>A_ub</strong> (<em>2-D array</em>) – The inequality constraint matrix. Each row of <code class="docutils literal notranslate"><span class="pre">A_ub</span></code> specifies the
+coefficients of a linear inequality constraint on <code class="docutils literal notranslate"><span class="pre">x</span></code>.</p></li>
+<li><p><strong>b_ub</strong> (<em>1-D array</em>) – The inequality constraint vector. Each element represents an
+upper bound on the corresponding value of <code class="docutils literal notranslate"><span class="pre">A_ub</span> <span class="pre">&#64;</span> <span class="pre">x</span></code>.</p></li>
+<li><p><strong>method</strong> (<em>str</em><em>, </em><em>optional</em>) – The algorithm used to solve the standard form problem.</p></li>
+<li><p><strong>options</strong> (<em>dict</em><em>, </em><em>optional</em>) – A dictionary of solver options.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>res</strong> – see the class <cite>scipy.optimize.OptimizeResult</cite></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>OptimizeResult</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="Mordicus.Modules.Safran.BasicAlgorithms.LPEQP.LPEQP">
+<span class="sig-prename descclassname"><span class="pre">Mordicus.Modules.Safran.BasicAlgorithms.LPEQP.</span></span><span class="sig-name descname"><span class="pre">LPEQP</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">integrationWeights</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">integrands</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">integrals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normIntegrals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tolerance</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Modules/Safran/BasicAlgorithms/LPEQP.html#LPEQP"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Modules.Safran.BasicAlgorithms.LPEQP.LPEQP" title="Permalink to this definition">¶</a></dt>
+<dd><p>Linear Programming Empirical Quadrature Procedure [1].</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>integrationWeights</strong> (<em>np.ndarray</em>) – of size (numberOfIntegrationPoints,), dtype = float.
+Weights of the truth quadrature</p></li>
+<li><p><strong>integrands</strong> (<em>np.ndarray</em>) – of size (numberOfIntegrands,numberOfIntegrationPoints), dtype = float.
+Functions we look to integrated accurately with fewer integration
+points. Usually, the integrands are already reduced, and
+numberOfIntegrands is the product of the number of reduced integrand
+modes and the number of modes of the ReducedOrderBasis</p></li>
+<li><p><strong>integrals</strong> (<em>np.ndarray</em>) – of size (numberOfIntegrands,), dtype = float.
+High-fidelity integral computed using the truth integration scheme</p></li>
+<li><p><strong>normIntegrals</strong> (<em>float</em>) – np.linalg.norm(integrals), already computed in mordicus use</p></li>
+<li><p><strong>tolerance</strong> (<em>float</em>) – upper bound for the accuracy of the reduced integration scheme on the
+provided integrands</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>np.ndarray of size (numberOfReducedIntegrationPoints,), dtype = int</em> – indices of the kepts integration points (reducedIntegrationPoints)</p></li>
+<li><p><em>np.ndarray of size (numberOfReducedIntegrationPoints,), dtype = float</em> – weights associated to the kepts integration points
+(reducedIntegrationWeights)</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<p class="rubric">References</p>
+<p>[1] M. Yano and A. T. Patera. An LP empirical quadrature procedure for
+reduced basis treatment of parametrized nonlinear PDEs, 2017.
+URL: <a class="reference external" href="https://www.researchgate.net/publication/323633428_An_LP_empirical">https://www.researchgate.net/publication/323633428_An_LP_empirical</a>
+_quadrature_procedure_for_reduced_basis_treatment_of_parametrized_nonli
+near_PDEs.</p>
+</dd></dl>
+
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="Mordicus.Modules.Safran.BasicAlgorithms.GappyPOD.html"
+                          title="previous chapter">Mordicus.Modules.Safran.BasicAlgorithms.GappyPOD module</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="Mordicus.Modules.Safran.BasicAlgorithms.NNOMPA.html"
+                          title="next chapter">Mordicus.Modules.Safran.BasicAlgorithms.NNOMPA module</a></p>
+  </div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/_source/Mordicus.Modules.Safran.BasicAlgorithms.LPEQP.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="Mordicus.Modules.Safran.BasicAlgorithms.NNOMPA.html" title="Mordicus.Modules.Safran.BasicAlgorithms.NNOMPA module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="Mordicus.Modules.Safran.BasicAlgorithms.GappyPOD.html" title="Mordicus.Modules.Safran.BasicAlgorithms.GappyPOD module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Mordicus 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="Mordicus.html" >Mordicus package</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="Mordicus.Modules.html" >Mordicus.Modules package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="Mordicus.Modules.Safran.html" >Mordicus.Modules.Safran package</a> &#187;</li>
+          <li class="nav-item nav-item-4"><a href="Mordicus.Modules.Safran.BasicAlgorithms.html" >Mordicus.Modules.Safran.BasicAlgorithms package</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Mordicus.Modules.Safran.BasicAlgorithms.LPEQP module</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright Mordicus Consortium.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.0.2.
+    </div>
+  </body>
+</html>

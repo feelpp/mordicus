@@ -1,0 +1,15 @@
+Mordicus.Core.Helpers package
+=============================
+
+.. automodule:: Mordicus.Core.Helpers
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   Mordicus.Core.Helpers.FolderHandler

@@ -1,0 +1,33 @@
+Mordicus.Core.Containers package
+================================
+
+.. automodule:: Mordicus.Core.Containers
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   Mordicus.Core.Containers.ConstitutiveLaws
+   Mordicus.Core.Containers.FieldHandlers
+   Mordicus.Core.Containers.FixedData
+   Mordicus.Core.Containers.InitialConditions
+   Mordicus.Core.Containers.Loadings
+   Mordicus.Core.Containers.Meshes
+   Mordicus.Core.Containers.ResolutionData
+   Mordicus.Core.Containers.SolutionStructures
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   Mordicus.Core.Containers.CollectionProblemData
+   Mordicus.Core.Containers.ProblemData
+   Mordicus.Core.Containers.Solution
+   Mordicus.Core.Containers.Visitor

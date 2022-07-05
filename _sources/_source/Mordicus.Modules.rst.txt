@@ -1,0 +1,22 @@
+Mordicus.Modules package
+========================
+
+.. automodule:: Mordicus.Modules
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   Mordicus.Modules.CT
+   Mordicus.Modules.Cemosis
+   Mordicus.Modules.EDF
+   Mordicus.Modules.Mines
+   Mordicus.Modules.Phimeca
+   Mordicus.Modules.Safran
+   Mordicus.Modules.Scilab_ESI_Group
+   Mordicus.Modules.sorbonne

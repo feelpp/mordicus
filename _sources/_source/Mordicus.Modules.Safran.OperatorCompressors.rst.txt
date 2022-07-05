@@ -1,0 +1,16 @@
+Mordicus.Modules.Safran.OperatorCompressors package
+===================================================
+
+.. automodule:: Mordicus.Modules.Safran.OperatorCompressors
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   Mordicus.Modules.Safran.OperatorCompressors.Mechanical
+   Mordicus.Modules.Safran.OperatorCompressors.ReducedQuadratureProcedure

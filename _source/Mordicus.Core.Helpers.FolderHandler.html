@@ -1,0 +1,163 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Mordicus.Core.Helpers.FolderHandler module &#8212; Mordicus 0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/classic.css" />
+    
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../_static/doctools.js"></script>
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Mordicus.Core.IO package" href="Mordicus.Core.IO.html" />
+    <link rel="prev" title="Mordicus.Core.Helpers package" href="Mordicus.Core.Helpers.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="Mordicus.Core.IO.html" title="Mordicus.Core.IO package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="Mordicus.Core.Helpers.html" title="Mordicus.Core.Helpers package"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Mordicus 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="Mordicus.html" >Mordicus package</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="Mordicus.Core.html" >Mordicus.Core package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="Mordicus.Core.Helpers.html" accesskey="U">Mordicus.Core.Helpers package</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Mordicus.Core.Helpers.FolderHandler module</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="module-Mordicus.Core.Helpers.FolderHandler">
+<span id="mordicus-core-helpers-folderhandler-module"></span><h1>Mordicus.Core.Helpers.FolderHandler module<a class="headerlink" href="#module-Mordicus.Core.Helpers.FolderHandler" title="Permalink to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="Mordicus.Core.Helpers.FolderHandler.FolderHandler">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">Mordicus.Core.Helpers.FolderHandler.</span></span><span class="sig-name descname"><span class="pre">FolderHandler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scriptAddress</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Helpers/FolderHandler.html#FolderHandler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Helpers.FolderHandler.FolderHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class containing on object for switching between two folders:
+the one from which the script is launched and the one containing the script.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="Mordicus.Core.Helpers.FolderHandler.FolderHandler.scriptFolder">
+<span class="sig-name descname"><span class="pre">scriptFolder</span></span><a class="headerlink" href="#Mordicus.Core.Helpers.FolderHandler.FolderHandler.scriptFolder" title="Permalink to this definition">¶</a></dt>
+<dd><p>address of the folder containing the executed script</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="Mordicus.Core.Helpers.FolderHandler.FolderHandler.executionFolder">
+<span class="sig-name descname"><span class="pre">executionFolder</span></span><a class="headerlink" href="#Mordicus.Core.Helpers.FolderHandler.FolderHandler.executionFolder" title="Permalink to this definition">¶</a></dt>
+<dd><p>address of the folder from which the script is executed</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Helpers.FolderHandler.FolderHandler.SwitchToExecutionFolder">
+<span class="sig-name descname"><span class="pre">SwitchToExecutionFolder</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Helpers/FolderHandler.html#FolderHandler.SwitchToExecutionFolder"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Helpers.FolderHandler.FolderHandler.SwitchToExecutionFolder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Changes working directory to self.executionFolder</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Helpers.FolderHandler.FolderHandler.SwitchToScriptFolder">
+<span class="sig-name descname"><span class="pre">SwitchToScriptFolder</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Helpers/FolderHandler.html#FolderHandler.SwitchToScriptFolder"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Helpers.FolderHandler.FolderHandler.SwitchToScriptFolder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Changes working directory to self.scriptFolder</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="Mordicus.Core.Helpers.html"
+                          title="previous chapter">Mordicus.Core.Helpers package</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="Mordicus.Core.IO.html"
+                          title="next chapter">Mordicus.Core.IO package</a></p>
+  </div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/_source/Mordicus.Core.Helpers.FolderHandler.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="Mordicus.Core.IO.html" title="Mordicus.Core.IO package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="Mordicus.Core.Helpers.html" title="Mordicus.Core.Helpers package"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Mordicus 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="Mordicus.html" >Mordicus package</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="Mordicus.Core.html" >Mordicus.Core package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="Mordicus.Core.Helpers.html" >Mordicus.Core.Helpers package</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Mordicus.Core.Helpers.FolderHandler module</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright Mordicus Consortium.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.0.2.
+    </div>
+  </body>
+</html>

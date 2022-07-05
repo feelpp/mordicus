@@ -1,0 +1,7 @@
+Mordicus.Core.IO.StateIO module
+===============================
+
+.. automodule:: Mordicus.Core.IO.StateIO
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -1,0 +1,7 @@
+Mordicus.Modules.Scilab\_ESI\_Group.IO.SciMeshReader module
+===========================================================
+
+.. automodule:: Mordicus.Modules.Scilab_ESI_Group.IO.SciMeshReader
+   :members:
+   :undoc-members:
+   :show-inheritance:

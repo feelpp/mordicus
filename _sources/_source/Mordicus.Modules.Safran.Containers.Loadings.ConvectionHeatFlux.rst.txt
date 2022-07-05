@@ -1,0 +1,7 @@
+Mordicus.Modules.Safran.Containers.Loadings.ConvectionHeatFlux module
+=====================================================================
+
+.. automodule:: Mordicus.Modules.Safran.Containers.Loadings.ConvectionHeatFlux
+   :members:
+   :undoc-members:
+   :show-inheritance:

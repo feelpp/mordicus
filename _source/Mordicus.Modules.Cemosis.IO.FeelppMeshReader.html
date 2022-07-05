@@ -1,0 +1,217 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Mordicus.Modules.Cemosis.IO.FeelppMeshReader module &#8212; Mordicus 0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/classic.css" />
+    
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../_static/doctools.js"></script>
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Mordicus.Modules.Cemosis.IO.FeelppSolutionReader module" href="Mordicus.Modules.Cemosis.IO.FeelppSolutionReader.html" />
+    <link rel="prev" title="Mordicus.Modules.Cemosis.IO package" href="Mordicus.Modules.Cemosis.IO.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="Mordicus.Modules.Cemosis.IO.FeelppSolutionReader.html" title="Mordicus.Modules.Cemosis.IO.FeelppSolutionReader module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="Mordicus.Modules.Cemosis.IO.html" title="Mordicus.Modules.Cemosis.IO package"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Mordicus 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="Mordicus.html" >Mordicus package</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="Mordicus.Modules.html" >Mordicus.Modules package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="Mordicus.Modules.Cemosis.html" >Mordicus.Modules.Cemosis package</a> &#187;</li>
+          <li class="nav-item nav-item-4"><a href="Mordicus.Modules.Cemosis.IO.html" accesskey="U">Mordicus.Modules.Cemosis.IO package</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Mordicus.Modules.Cemosis.IO.FeelppMeshReader module</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="module-Mordicus.Modules.Cemosis.IO.FeelppMeshReader">
+<span id="mordicus-modules-cemosis-io-feelppmeshreader-module"></span><h1>Mordicus.Modules.Cemosis.IO.FeelppMeshReader module<a class="headerlink" href="#module-Mordicus.Modules.Cemosis.IO.FeelppMeshReader" title="Permalink to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="Mordicus.Modules.Cemosis.IO.FeelppMeshReader.FeelppMeshReader">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">Mordicus.Modules.Cemosis.IO.FeelppMeshReader.</span></span><span class="sig-name descname"><span class="pre">FeelppMeshReader</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">meshFileName</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gorder</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">realdim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Modules/Cemosis/IO/FeelppMeshReader.html#FeelppMeshReader"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Modules.Cemosis.IO.FeelppMeshReader.FeelppMeshReader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="Mordicus.Core.IO.MeshReaderBase.html#Mordicus.Core.IO.MeshReaderBase.MeshReaderBase" title="Mordicus.Core.IO.MeshReaderBase.MeshReaderBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">MeshReaderBase</span></code></a></p>
+<p>Class containing a reader for Feelpp mesh file</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="Mordicus.Modules.Cemosis.IO.FeelppMeshReader.FeelppMeshReader.meshFileName">
+<span class="sig-name descname"><span class="pre">meshFileName</span></span><a class="headerlink" href="#Mordicus.Modules.Cemosis.IO.FeelppMeshReader.FeelppMeshReader.meshFileName" title="Permalink to this definition">¶</a></dt>
+<dd><p>name of the mesh file (.geo, .msh, .json)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="Mordicus.Modules.Cemosis.IO.FeelppMeshReader.FeelppMeshReader.dim">
+<span class="sig-name descname"><span class="pre">dim</span></span><a class="headerlink" href="#Mordicus.Modules.Cemosis.IO.FeelppMeshReader.FeelppMeshReader.dim" title="Permalink to this definition">¶</a></dt>
+<dd><p>dimension of the mesh</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="Mordicus.Modules.Cemosis.IO.FeelppMeshReader.FeelppMeshReader.gorder">
+<span class="sig-name descname"><span class="pre">gorder</span></span><a class="headerlink" href="#Mordicus.Modules.Cemosis.IO.FeelppMeshReader.FeelppMeshReader.gorder" title="Permalink to this definition">¶</a></dt>
+<dd><p>order of the mesh</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="Mordicus.Modules.Cemosis.IO.FeelppMeshReader.FeelppMeshReader.realdim">
+<span class="sig-name descname"><span class="pre">realdim</span></span><a class="headerlink" href="#Mordicus.Modules.Cemosis.IO.FeelppMeshReader.FeelppMeshReader.realdim" title="Permalink to this definition">¶</a></dt>
+<dd><p>real dimension of the mesh</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="Mordicus.Modules.Cemosis.IO.FeelppMeshReader.FeelppMeshReader.h">
+<span class="sig-name descname"><span class="pre">h</span></span><a class="headerlink" href="#Mordicus.Modules.Cemosis.IO.FeelppMeshReader.FeelppMeshReader.h" title="Permalink to this definition">¶</a></dt>
+<dd><p>hsize of the mesh (for geo)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>double</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Modules.Cemosis.IO.FeelppMeshReader.FeelppMeshReader.ReadMesh">
+<span class="sig-name descname"><span class="pre">ReadMesh</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Modules/Cemosis/IO/FeelppMeshReader.html#FeelppMeshReader.ReadMesh"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Modules.Cemosis.IO.FeelppMeshReader.FeelppMeshReader.ReadMesh" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read the mesh</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>mesh of the model</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>FeelppMesh</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="Mordicus.Modules.Cemosis.IO.FeelppMeshReader.ReadMesh">
+<span class="sig-prename descclassname"><span class="pre">Mordicus.Modules.Cemosis.IO.FeelppMeshReader.</span></span><span class="sig-name descname"><span class="pre">ReadMesh</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">meshFileName</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Modules/Cemosis/IO/FeelppMeshReader.html#ReadMesh"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Modules.Cemosis.IO.FeelppMeshReader.ReadMesh" title="Permalink to this definition">¶</a></dt>
+<dd><p>Functional API</p>
+<p>Readsthe mesh defined in the Feelpp mesh file “meshFileName” (.geo, .msh, .json)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>meshFileName</strong> (<em>str</em>) – mesh file</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>mesh of the model</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>FeelppMesh</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="Mordicus.Modules.Cemosis.IO.html"
+                          title="previous chapter">Mordicus.Modules.Cemosis.IO package</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="Mordicus.Modules.Cemosis.IO.FeelppSolutionReader.html"
+                          title="next chapter">Mordicus.Modules.Cemosis.IO.FeelppSolutionReader module</a></p>
+  </div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/_source/Mordicus.Modules.Cemosis.IO.FeelppMeshReader.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="Mordicus.Modules.Cemosis.IO.FeelppSolutionReader.html" title="Mordicus.Modules.Cemosis.IO.FeelppSolutionReader module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="Mordicus.Modules.Cemosis.IO.html" title="Mordicus.Modules.Cemosis.IO package"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Mordicus 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="Mordicus.html" >Mordicus package</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="Mordicus.Modules.html" >Mordicus.Modules package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="Mordicus.Modules.Cemosis.html" >Mordicus.Modules.Cemosis package</a> &#187;</li>
+          <li class="nav-item nav-item-4"><a href="Mordicus.Modules.Cemosis.IO.html" >Mordicus.Modules.Cemosis.IO package</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Mordicus.Modules.Cemosis.IO.FeelppMeshReader module</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright Mordicus Consortium.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.0.2.
+    </div>
+  </body>
+</html>

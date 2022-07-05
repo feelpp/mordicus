@@ -1,0 +1,7 @@
+Mordicus.Modules.Cemosis.IO.FeelppSolutionReader module
+=======================================================
+
+.. automodule:: Mordicus.Modules.Cemosis.IO.FeelppSolutionReader
+   :members:
+   :undoc-members:
+   :show-inheritance:

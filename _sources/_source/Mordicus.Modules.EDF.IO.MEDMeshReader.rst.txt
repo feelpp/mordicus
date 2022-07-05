@@ -1,0 +1,7 @@
+Mordicus.Modules.EDF.IO.MEDMeshReader module
+============================================
+
+.. automodule:: Mordicus.Modules.EDF.IO.MEDMeshReader
+   :members:
+   :undoc-members:
+   :show-inheritance:

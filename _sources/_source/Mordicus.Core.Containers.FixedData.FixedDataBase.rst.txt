@@ -1,0 +1,7 @@
+Mordicus.Core.Containers.FixedData.FixedDataBase module
+=======================================================
+
+.. automodule:: Mordicus.Core.Containers.FixedData.FixedDataBase
+   :members:
+   :undoc-members:
+   :show-inheritance:

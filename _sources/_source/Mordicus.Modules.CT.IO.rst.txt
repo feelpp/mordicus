@@ -1,0 +1,17 @@
+Mordicus.Modules.CT.IO package
+==============================
+
+.. automodule:: Mordicus.Modules.CT.IO
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   Mordicus.Modules.CT.IO.MeshReader
+   Mordicus.Modules.CT.IO.VTKSolutionReader
+   Mordicus.Modules.CT.IO.numpyToVTKWriter

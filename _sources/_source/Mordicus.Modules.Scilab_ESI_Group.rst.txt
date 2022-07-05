@@ -1,0 +1,24 @@
+Mordicus.Modules.Scilab\_ESI\_Group package
+===========================================
+
+.. automodule:: Mordicus.Modules.Scilab_ESI_Group
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   Mordicus.Modules.Scilab_ESI_Group.Containers
+   Mordicus.Modules.Scilab_ESI_Group.IO
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   Mordicus.Modules.Scilab_ESI_Group.SciSolutionReader

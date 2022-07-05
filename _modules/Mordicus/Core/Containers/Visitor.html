@@ -1,0 +1,431 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mordicus.Core.Containers.Visitor &#8212; Mordicus 0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/classic.css" />
+    
+    <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+    <script src="../../../../_static/jquery.js"></script>
+    <script src="../../../../_static/underscore.js"></script>
+    <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../../../_static/doctools.js"></script>
+    
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">Mordicus 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../../Mordicus.html" accesskey="U">Mordicus</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Mordicus.Core.Containers.Visitor</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for Mordicus.Core.Containers.Visitor</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">from</span> <span class="nn">jschon</span> <span class="kn">import</span> <span class="n">create_catalog</span><span class="p">,</span> <span class="n">JSON</span><span class="p">,</span> <span class="n">JSONSchema</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">os.path</span> <span class="k">as</span> <span class="nn">osp</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
+
+<span class="kn">from</span> <span class="nn">Mordicus.Core.Containers.CollectionProblemData</span> <span class="kn">import</span> <span class="n">CollectionProblemData</span>
+<span class="kn">from</span> <span class="nn">Mordicus.Core.Containers</span> <span class="kn">import</span> <span class="n">ProblemData</span>
+<span class="kn">from</span> <span class="nn">Mordicus.Core.Containers.Solution</span> <span class="kn">import</span> <span class="n">Solution</span>
+
+<div class="viewcode-block" id="ExportToJSONVisitor"><a class="viewcode-back" href="../../../../_source/Mordicus.Core.Containers.Visitor.html#Mordicus.Core.Containers.Visitor.ExportToJSONVisitor">[docs]</a><span class="k">class</span> <span class="nc">ExportToJSONVisitor</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Abstract visitor</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">folder</span><span class="p">,</span> <span class="n">solutionReader</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">reconstruct</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes visitor</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reconstruct</span> <span class="o">=</span> <span class="n">reconstruct</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">folder</span> <span class="o">=</span> <span class="n">folder</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">solutionReader</span> <span class="o">=</span> <span class="n">solutionReader</span>
+
+<div class="viewcode-block" id="ExportToJSONVisitor.visitCPD"><a class="viewcode-back" href="../../../../_source/Mordicus.Core.Containers.Visitor.html#Mordicus.Core.Containers.Visitor.ExportToJSONVisitor.visitCPD">[docs]</a>    <span class="k">def</span> <span class="nf">visitCPD</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cpd</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Visit Collection Problem Data Structure</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">root</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;CollectionProblemData&quot;</span><span class="p">:</span> <span class="p">{}}</span>
+
+        <span class="n">quantityDefinitions</span> <span class="o">=</span> <span class="n">cpd</span><span class="o">.</span><span class="n">quantityDefinition</span><span class="o">.</span><span class="n">accept</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">root</span><span class="p">[</span><span class="s2">&quot;CollectionProblemData&quot;</span><span class="p">][</span><span class="s2">&quot;quantityDefinitions&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">quantityDefinitions</span>
+        <span class="n">variabilityDefinitions</span> <span class="o">=</span> <span class="n">cpd</span><span class="o">.</span><span class="n">variabilityDefinition</span><span class="o">.</span><span class="n">accept</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">root</span><span class="p">[</span><span class="s2">&quot;CollectionProblemData&quot;</span><span class="p">][</span><span class="s2">&quot;variabilityDefinitions&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">variabilityDefinitions</span>
+
+        <span class="c1"># if cpd.reducedTemplateDataset is not None:</span>
+        <span class="c1">#     subelement = cpd.reducedTemplateDataset.accept(self, cpd)</span>
+        <span class="c1">#     root[&quot;CollectionProblemData&quot;].append(subelement)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">reconstruct</span><span class="p">:</span>
+            <span class="c1"># save solution structures</span>
+            <span class="k">if</span> <span class="n">cpd</span><span class="o">.</span><span class="n">solutionStructures</span><span class="p">:</span>
+                <span class="n">elts</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">for</span> <span class="n">quantity</span><span class="p">,</span> <span class="n">structure</span> <span class="ow">in</span> <span class="n">cpd</span><span class="o">.</span><span class="n">solutionStructures</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="n">elts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">structure</span><span class="o">.</span><span class="n">accept</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">quantity</span><span class="p">))</span>
+                    <span class="n">root</span><span class="p">[</span><span class="s2">&quot;CollectionProblemData&quot;</span><span class="p">][</span><span class="s2">&quot;solutionStructures&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">elts</span>
+                    
+            <span class="c1"># save reduced bases</span>
+            <span class="n">elts</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">quantity</span><span class="p">,</span> <span class="n">basis</span> <span class="ow">in</span> <span class="n">cpd</span><span class="o">.</span><span class="n">reducedOrderBases</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">filepath</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">folder</span><span class="p">,</span> <span class="s2">&quot;reducedOrderBasis&quot;</span> <span class="o">+</span> <span class="n">quantity</span><span class="p">)</span>
+                
+                <span class="c1"># Try to write it to custom format, otherwise to numpy</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">solutionReader</span><span class="o">.</span><span class="n">WriteReducedOrderBasis</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">cpd</span><span class="o">.</span><span class="n">solutionStructures</span><span class="p">[</span><span class="n">quantity</span><span class="p">],</span> <span class="n">basis</span><span class="p">,</span> <span class="n">quantity</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">osp</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">filepath</span><span class="p">):</span>
+                        <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
+                    <span class="n">filepath</span> <span class="o">=</span> <span class="n">filepath</span> <span class="o">+</span> <span class="s2">&quot;.npy&quot;</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">basis</span><span class="p">)</span>
+                <span class="n">elts</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="n">filepath</span><span class="p">,</span> <span class="s2">&quot;quantity&quot;</span><span class="p">:</span> <span class="n">quantity</span> <span class="p">})</span>
+            <span class="n">root</span><span class="p">[</span><span class="s2">&quot;CollectionProblemData&quot;</span><span class="p">][</span><span class="s2">&quot;reducedOrderBases&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">elts</span>
+
+            <span class="c1"># save problem datas</span>
+            <span class="n">elts</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">paramValues</span><span class="p">,</span> <span class="n">problemData</span> <span class="ow">in</span> <span class="n">cpd</span><span class="o">.</span><span class="n">problemDatas</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">params</span> <span class="o">=</span> <span class="p">{}</span>
+                <span class="n">param_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">cpd</span><span class="o">.</span><span class="n">variabilityDefinition</span><span class="o">.</span><span class="n">keys</span><span class="p">()]</span>
+                <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">paramValues</span><span class="p">):</span>
+                    <span class="n">params</span><span class="p">[</span><span class="n">param_names</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span> <span class="o">=</span> <span class="n">val</span>
+                    
+                <span class="n">name</span><span class="p">,</span> <span class="n">pb_data</span> <span class="o">=</span> <span class="n">problemData</span><span class="o">.</span><span class="n">accept</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+                <span class="n">pb_data</span><span class="p">[</span><span class="s2">&quot;params&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">params</span>
+                <span class="n">elts</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">pb_data</span>
+            <span class="n">root</span><span class="p">[</span><span class="s2">&quot;CollectionProblemData&quot;</span><span class="p">][</span><span class="s2">&quot;problemDatas&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">elts</span>
+
+        <span class="c1"># loop operatorCompressionData</span>
+        <span class="n">elts</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">reducedOperator</span> <span class="ow">in</span> <span class="n">cpd</span><span class="o">.</span><span class="n">operatorCompressionData</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="c1"># Try exporting through reader, and numpy if this fails</span>
+            <span class="n">filepath</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">folder</span><span class="p">,</span> <span class="s2">&quot;reducedOperator&quot;</span> <span class="o">+</span> <span class="n">key</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">solutionReader</span><span class="o">.</span><span class="n">WriteOperatorCompressionData</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">cpd</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">osp</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">filepath</span><span class="p">):</span>
+                    <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
+                <span class="n">filepath</span> <span class="o">=</span> <span class="n">filepath</span> <span class="o">+</span> <span class="s2">&quot;.npy&quot;</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">reducedOperator</span><span class="p">)</span>
+            <span class="n">elts</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="n">filepath</span><span class="p">,</span> <span class="s2">&quot;key&quot;</span><span class="p">:</span> <span class="n">key</span><span class="p">})</span>
+        <span class="n">root</span><span class="p">[</span><span class="s2">&quot;CollectionProblemData&quot;</span><span class="p">][</span><span class="s2">&quot;operatorCompressionData&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">elts</span>
+
+        <span class="k">return</span> <span class="n">root</span></div>
+
+<div class="viewcode-block" id="ExportToJSONVisitor.visitSolutionStructure"><a class="viewcode-back" href="../../../../_source/Mordicus.Core.Containers.Visitor.html#Mordicus.Core.Containers.Visitor.ExportToJSONVisitor.visitSolutionStructure">[docs]</a>    <span class="k">def</span> <span class="nf">visitSolutionStructure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">quantity</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Visit Solution Structure</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">filepath</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">folder</span><span class="p">,</span> <span class="s2">&quot;solutionStructure&quot;</span> <span class="o">+</span> <span class="n">quantity</span><span class="p">)</span>
+                
+        <span class="c1"># It would be cool to have a file extension attribute to solutionStructure</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">solutionReader</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">solutionReader</span><span class="o">.</span><span class="n">WriteSolutionStructure</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">quantity</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="n">filepath</span><span class="p">,</span> <span class="s2">&quot;quantity&quot;</span><span class="p">:</span> <span class="n">quantity</span><span class="p">,</span> <span class="s2">&quot;derivedType&quot;</span><span class="p">:</span> <span class="nb">type</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">}</span></div>
+
+<div class="viewcode-block" id="ExportToJSONVisitor.visitDataSet"><a class="viewcode-back" href="../../../../_source/Mordicus.Core.Containers.Visitor.html#Mordicus.Core.Containers.Visitor.ExportToJSONVisitor.visitDataSet">[docs]</a>    <span class="k">def</span> <span class="nf">visitDataSet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">cpd</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Visit Dataset</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">attrib</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;derivedType&quot;</span>     <span class="p">:</span> <span class="nb">type</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
+                  <span class="s2">&quot;produced_object&quot;</span> <span class="p">:</span> <span class="nb">type</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">produced_object</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
+                  <span class="s2">&quot;solver&quot;</span>          <span class="p">:</span> <span class="n">dataset</span><span class="o">.</span><span class="n">solver</span><span class="o">.</span><span class="n">id</span><span class="p">}</span>
+
+        <span class="c1"># Handle input_data</span>
+        <span class="n">input_data</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">input_data</span>
+        
+        <span class="c1"># Copy the content of input_root_folder</span>
+        <span class="n">dest</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">folder</span><span class="p">,</span> <span class="s2">&quot;reducedDataset&quot;</span><span class="p">)</span>
+        <span class="n">shutil</span><span class="o">.</span><span class="n">copytree</span><span class="p">(</span><span class="n">input_data</span><span class="p">[</span><span class="s2">&quot;input_root_folder&quot;</span><span class="p">],</span> <span class="n">dest</span><span class="p">)</span>
+        <span class="n">attribData</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">attribData</span><span class="p">[</span><span class="s2">&quot;input_root_folder&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dest</span>
+        
+        <span class="c1"># Copy input_main_file and input_instruction_file if not already in tree</span>
+        <span class="n">cwd</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">input_data</span><span class="p">[</span><span class="s2">&quot;input_root_folder&quot;</span><span class="p">])</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;input_main_file&quot;</span><span class="p">,</span> <span class="s2">&quot;input_instruction_file&quot;</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">input_data</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">osp</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="n">input_data</span><span class="p">[</span><span class="n">key</span><span class="p">]))</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">input_data</span><span class="p">[</span><span class="s2">&quot;input_root_folder&quot;</span><span class="p">]):</span>
+                        <span class="n">dest</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">folder</span><span class="p">,</span> <span class="s2">&quot;reducedDataset&quot;</span><span class="p">,</span> <span class="n">osp</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">input_data</span><span class="p">[</span><span class="n">key</span><span class="p">]))</span>
+                        <span class="n">shutil</span><span class="o">.</span><span class="n">copy2</span><span class="p">(</span><span class="n">input_data</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="n">dest</span><span class="p">)</span>
+                        <span class="n">attribData</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">dest</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">attribData</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">input_data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">cwd</span><span class="p">)</span>
+            
+        <span class="c1"># Copy input_result_type and input_result_path</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;input_result_type&quot;</span><span class="p">,</span> <span class="s2">&quot;input_result_path&quot;</span><span class="p">):</span>
+            <span class="n">attribData</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">input_data</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>      
+            
+        <span class="c1"># mordicus_input_data: loop over keys:</span>
+        <span class="c1">#     - if key is &quot;modes&quot;: reference reducedOrderBases</span>
+        <span class="c1">#     - if key is in operatorCompressionData: reference reducedOperator&lt;key&gt;</span>
+        <span class="c1">#     - otherwise, copy and reference original path</span>
+        <span class="n">inputMordicus</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">input_data</span><span class="p">[</span><span class="s2">&quot;input_mordicus_data&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;modes&quot;</span><span class="p">,</span> <span class="p">):</span>
+                <span class="n">inputModes</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">value</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                    <span class="n">inputModes</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;quantity&quot;</span><span class="p">:</span> <span class="n">k</span><span class="p">,</span> <span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">folder</span><span class="p">,</span> <span class="s2">&quot;reducedOrderBasis&quot;</span><span class="o">+</span><span class="n">k</span><span class="p">)})</span>
+                <span class="n">inputMordicus</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">inputModes</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">cpd</span><span class="o">.</span><span class="n">operatorCompressionData</span><span class="p">:</span>
+                <span class="n">inputMordicus</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;key&quot;</span><span class="p">:</span> <span class="n">key</span><span class="p">,</span> <span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">folder</span><span class="p">,</span> <span class="s2">&quot;reducedOperator&quot;</span> <span class="o">+</span> <span class="n">key</span><span class="p">)})</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">cwd</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">input_data</span><span class="p">[</span><span class="s2">&quot;input_root_folder&quot;</span><span class="p">])</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                        <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">GetInternalStorage</span><span class="p">()</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">osp</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="n">value</span><span class="p">))</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">input_data</span><span class="p">[</span><span class="s2">&quot;input_root_folder&quot;</span><span class="p">]):</span>
+                        <span class="n">dest</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">folder</span><span class="p">,</span> <span class="s2">&quot;reducedDataset&quot;</span><span class="p">,</span> <span class="n">osp</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+                        <span class="k">if</span> <span class="n">osp</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+                            <span class="n">shutil</span><span class="o">.</span><span class="n">copytree</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">dest</span><span class="p">)</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">shutil</span><span class="o">.</span><span class="n">copy2</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">dest</span><span class="p">)</span>
+                        <span class="n">path</span> <span class="o">=</span> <span class="n">dest</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">path</span> <span class="o">=</span> <span class="n">value</span>
+                <span class="k">finally</span><span class="p">:</span>
+                    <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">cwd</span><span class="p">)</span>
+                <span class="n">inputMordicus</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;key&quot;</span><span class="p">:</span> <span class="n">key</span><span class="p">,</span> <span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="n">path</span><span class="p">})</span>
+
+        <span class="n">attribData</span><span class="p">[</span><span class="s2">&quot;inputMordicusDatas&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">inputMordicus</span>
+        <span class="n">attrib</span><span class="p">[</span><span class="s2">&quot;inputData&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">attribData</span>
+
+        <span class="k">return</span> <span class="n">attrib</span></div>
+
+<div class="viewcode-block" id="ExportToJSONVisitor.visitQuantityDefinitionDict"><a class="viewcode-back" href="../../../../_source/Mordicus.Core.Containers.Visitor.html#Mordicus.Core.Containers.Visitor.ExportToJSONVisitor.visitQuantityDefinitionDict">[docs]</a>    <span class="k">def</span> <span class="nf">visitQuantityDefinitionDict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">defdict</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Visit quantity definition dictionary&quot;&quot;&quot;</span>
+        <span class="n">elts</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="p">(</span><span class="n">full_name</span><span class="p">,</span> <span class="n">unit</span><span class="p">)</span> <span class="ow">in</span> <span class="n">defdict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">elts</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;name&quot;</span><span class="p">:</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;full_name&quot;</span><span class="p">:</span><span class="n">full_name</span><span class="p">,</span> <span class="s2">&quot;unit&quot;</span><span class="p">:</span><span class="n">unit</span><span class="p">})</span>
+        <span class="k">return</span> <span class="n">elts</span></div>
+
+<div class="viewcode-block" id="ExportToJSONVisitor.visitVariabilityDefinitionDict"><a class="viewcode-back" href="../../../../_source/Mordicus.Core.Containers.Visitor.html#Mordicus.Core.Containers.Visitor.ExportToJSONVisitor.visitVariabilityDefinitionDict">[docs]</a>    <span class="k">def</span> <span class="nf">visitVariabilityDefinitionDict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">defdict</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Visit variability definition dictionary&quot;&quot;&quot;</span>
+        <span class="n">elts</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">valdict</span> <span class="ow">in</span> <span class="n">defdict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">attrib</span> <span class="o">=</span> <span class="n">valdict</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">attrib</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">name</span>
+            <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">valdict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="s2">&quot;type&quot;</span><span class="p">:</span>
+                    <span class="n">attrib</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span><span class="o">.</span><span class="vm">__name__</span>
+                <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="s2">&quot;quantity&quot;</span><span class="p">:</span>
+                    <span class="n">attrib</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">elts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">attrib</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">elts</span></div>
+
+<div class="viewcode-block" id="ExportToJSONVisitor.visitProblemData"><a class="viewcode-back" href="../../../../_source/Mordicus.Core.Containers.Visitor.html#Mordicus.Core.Containers.Visitor.ExportToJSONVisitor.visitProblemData">[docs]</a>    <span class="k">def</span> <span class="nf">visitProblemData</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">problemData</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Visit problemData&quot;&quot;&quot;</span>
+        <span class="n">elts</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">solution</span> <span class="ow">in</span> <span class="n">problemData</span><span class="o">.</span><span class="n">solutions</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">elts</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">solution</span><span class="o">.</span><span class="n">accept</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">problemData</span><span class="o">.</span><span class="n">problemName</span><span class="p">,</span> <span class="n">elts</span></div>
+
+<div class="viewcode-block" id="ExportToJSONVisitor.visitSolution"><a class="viewcode-back" href="../../../../_source/Mordicus.Core.Containers.Visitor.html#Mordicus.Core.Containers.Visitor.ExportToJSONVisitor.visitSolution">[docs]</a>    <span class="k">def</span> <span class="nf">visitSolution</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">solution</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Visit solution&quot;&quot;&quot;</span>
+        <span class="n">attrib</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;quantity&quot;</span><span class="p">:</span> <span class="n">solution</span><span class="o">.</span><span class="n">solutionName</span><span class="p">,</span>
+                  <span class="s2">&quot;nbeOfComponents&quot;</span><span class="p">:</span> <span class="n">solution</span><span class="o">.</span><span class="n">nbeOfComponents</span><span class="p">,</span>
+                  <span class="s2">&quot;numberOfNodes&quot;</span><span class="p">:</span> <span class="n">solution</span><span class="o">.</span><span class="n">numberOfNodes</span><span class="p">,</span> 
+                  <span class="s2">&quot;primality&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">solution</span><span class="o">.</span><span class="n">primality</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()}</span>
+        <span class="n">elts</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">t</span><span class="p">,</span> <span class="n">arr</span> <span class="ow">in</span> <span class="n">solution</span><span class="o">.</span><span class="n">compressedSnapshots</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">elts</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;time&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">t</span><span class="p">),</span> <span class="s2">&quot;values&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array2string</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">separator</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">)})</span>
+        <span class="n">attrib</span><span class="p">[</span><span class="s2">&quot;compressedSnapshots&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">elts</span>
+        <span class="k">return</span> <span class="n">attrib</span></div>
+
+<div class="viewcode-block" id="ExportToJSONVisitor.visitSolver"><a class="viewcode-back" href="../../../../_source/Mordicus.Core.Containers.Visitor.html#Mordicus.Core.Containers.Visitor.ExportToJSONVisitor.visitSolver">[docs]</a>    <span class="k">def</span> <span class="nf">visitSolver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">solver</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Visit Solver&quot;&quot;&quot;</span>
+        <span class="n">attrib</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">solver</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+                  <span class="s2">&quot;solver_call_procedure_type&quot;</span><span class="p">:</span> <span class="n">solver</span><span class="o">.</span><span class="n">solver_call_procedure_type</span><span class="p">,</span>
+                  <span class="s2">&quot;call_script&quot;</span><span class="p">:</span> <span class="n">solver</span><span class="o">.</span><span class="n">call_script</span><span class="p">}</span>
+        <span class="n">cfgs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">solver</span><span class="o">.</span><span class="n">solver_cfg</span><span class="p">:</span>
+            <span class="n">cfgs</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">key</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="n">value</span><span class="p">})</span>
+        <span class="n">attrib</span><span class="p">[</span><span class="s2">&quot;SolverConfiguration&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cfgs</span>
+        <span class="k">return</span> <span class="n">attrib</span></div></div>
+
+<div class="viewcode-block" id="importFromJSON"><a class="viewcode-back" href="../../../../_source/Mordicus.Core.Containers.Visitor.html#Mordicus.Core.Containers.Visitor.importFromJSON">[docs]</a><span class="k">def</span> <span class="nf">importFromJSON</span><span class="p">(</span><span class="n">folder</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;reducedModel.json&quot;</span><span class="p">,</span> <span class="n">solutionReader</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">reconstruct</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Import study from a json</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">visitor</span> <span class="o">=</span> <span class="n">ImportFromJSONVisitor</span><span class="p">(</span><span class="n">folder</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">solutionReader</span><span class="p">,</span> <span class="n">reconstruct</span><span class="p">)</span>
+    <span class="n">cpd</span> <span class="o">=</span> <span class="n">CollectionProblemData</span><span class="p">()</span>
+    <span class="n">visitor</span><span class="o">.</span><span class="n">visitCPD</span><span class="p">(</span><span class="n">cpd</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">cpd</span></div>
+
+<div class="viewcode-block" id="exportToJSON"><a class="viewcode-back" href="../../../../_source/Mordicus.Core.Containers.Visitor.html#Mordicus.Core.Containers.Visitor.exportToJSON">[docs]</a><span class="k">def</span> <span class="nf">exportToJSON</span><span class="p">(</span><span class="n">folder</span><span class="p">,</span> <span class="n">cpd</span><span class="p">,</span> <span class="n">solutionReader</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">reconstruct</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Export study to a folder with directing JSON file</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">folder</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">visitor</span> <span class="o">=</span> <span class="n">ExportToJSONVisitor</span><span class="p">(</span><span class="n">folder</span><span class="p">,</span> <span class="n">solutionReader</span><span class="o">=</span><span class="n">solutionReader</span><span class="p">,</span> <span class="n">reconstruct</span><span class="o">=</span><span class="n">reconstruct</span><span class="p">)</span>
+    <span class="n">root</span> <span class="o">=</span> <span class="n">visitor</span><span class="o">.</span><span class="n">visitCPD</span><span class="p">(</span><span class="n">cpd</span><span class="p">)</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">folder</span><span class="p">,</span> <span class="s2">&quot;reducedModel.json&quot;</span><span class="p">),</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">out_file</span><span class="p">:</span>
+        <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">out_file</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="checkValidity"><a class="viewcode-back" href="../../../../_source/Mordicus.Core.Containers.Visitor.html#Mordicus.Core.Containers.Visitor.checkValidity">[docs]</a><span class="k">def</span> <span class="nf">checkValidity</span><span class="p">(</span><span class="n">json_path</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Checks validity of JSON file</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">create_catalog</span><span class="p">(</span><span class="s1">&#39;2020-12&#39;</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s2">&quot;Mordicus.json&quot;</span><span class="p">))</span> <span class="k">as</span> <span class="n">schema_file</span><span class="p">:</span>
+        <span class="n">schema</span> <span class="o">=</span> <span class="n">JSONSchema</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">schema_file</span><span class="p">))</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">json_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">json_file</span><span class="p">:</span>
+        <span class="n">json_doc</span> <span class="o">=</span> <span class="n">JSON</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">json_file</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">schema</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">json_doc</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ImportFromJSONVisitor"><a class="viewcode-back" href="../../../../_source/Mordicus.Core.Containers.Visitor.html#Mordicus.Core.Containers.Visitor.ImportFromJSONVisitor">[docs]</a><span class="k">class</span> <span class="nc">ImportFromJSONVisitor</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Abstract visitor</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">folder</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;reducedModel.json&quot;</span><span class="p">,</span> <span class="n">solutionReader</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">reconstruct</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes visitor</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reconstruct</span> <span class="o">=</span> <span class="n">reconstruct</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">folder</span> <span class="o">=</span> <span class="n">folder</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">solutionReader</span> <span class="o">=</span> <span class="n">solutionReader</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filename</span> <span class="o">=</span> <span class="n">filename</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">folder</span><span class="p">,</span> <span class="n">filename</span><span class="p">))</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">json_data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ImportFromJSONVisitor.visitCPD"><a class="viewcode-back" href="../../../../_source/Mordicus.Core.Containers.Visitor.html#Mordicus.Core.Containers.Visitor.ImportFromJSONVisitor.visitCPD">[docs]</a>    <span class="k">def</span> <span class="nf">visitCPD</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cpd</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Visit Collection Problem Data&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="s2">&quot;CollectionProblemData&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">json_data</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="n">root</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">json_data</span><span class="p">[</span><span class="s2">&quot;CollectionProblemData&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s2">&quot;quantityDefinitions&quot;</span> <span class="ow">in</span> <span class="n">root</span><span class="p">:</span>
+            <span class="n">cpd</span><span class="o">.</span><span class="n">quantityDefinition</span><span class="o">.</span><span class="n">accept</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s2">&quot;variabilityDefinitions&quot;</span> <span class="ow">in</span> <span class="n">root</span><span class="p">:</span>
+            <span class="n">cpd</span><span class="o">.</span><span class="n">variabilityDefinition</span><span class="o">.</span><span class="n">accept</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">reconstruct</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">&quot;solutionStructures&quot;</span> <span class="ow">in</span> <span class="n">root</span><span class="p">:</span>
+                <span class="k">pass</span>
+
+            <span class="k">if</span> <span class="s2">&quot;reducedOrderBases&quot;</span> <span class="ow">in</span> <span class="n">root</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">root</span><span class="p">[</span><span class="s2">&quot;reducedOrderBases&quot;</span><span class="p">]:</span>
+                    <span class="n">filepath</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="s1">&#39;path&#39;</span><span class="p">]</span>
+                    <span class="n">quantity</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="s1">&#39;quantity&#39;</span><span class="p">]</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">basis</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">solutionReader</span><span class="o">.</span><span class="n">ReadReducedOrderBasis</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">cpd</span><span class="o">.</span><span class="n">solutionStructures</span><span class="p">[</span><span class="n">quantity</span><span class="p">],</span> <span class="n">quantity</span><span class="p">)</span>
+                    <span class="k">except</span><span class="p">:</span>
+                        <span class="n">basis</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
+                    <span class="n">cpd</span><span class="o">.</span><span class="n">AddReducedOrderBasis</span><span class="p">(</span><span class="n">quantity</span><span class="p">,</span> <span class="n">basis</span><span class="p">)</span>
+            
+            <span class="k">if</span> <span class="s2">&quot;problemDatas&quot;</span> <span class="ow">in</span> <span class="n">root</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">pb_name</span><span class="p">,</span> <span class="n">pb_data</span> <span class="ow">in</span> <span class="n">root</span><span class="p">[</span><span class="s1">&#39;problemDatas&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="n">problemData</span> <span class="o">=</span> <span class="n">ProblemData</span><span class="o">.</span><span class="n">ProblemData</span><span class="p">(</span><span class="n">pb_name</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">pb_data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                        <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;params&quot;</span><span class="p">:</span>
+                            <span class="n">params</span> <span class="o">=</span> <span class="n">data</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">quantity</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;quantity&#39;</span><span class="p">]</span>
+                            <span class="n">nbeOfComponents</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;nbeOfComponents&#39;</span><span class="p">]</span>
+                            <span class="n">numberOfNodes</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;numberOfNodes&#39;</span><span class="p">]</span>
+                            <span class="n">primality</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;primality&#39;</span><span class="p">]</span>
+                            <span class="n">solution</span> <span class="o">=</span> <span class="n">Solution</span><span class="p">(</span><span class="n">quantity</span><span class="p">,</span> <span class="n">nbeOfComponents</span><span class="p">,</span> <span class="n">numberOfNodes</span><span class="p">,</span> <span class="n">primality</span><span class="p">)</span>
+                            <span class="k">if</span> <span class="s1">&#39;compressedSnapshots&#39;</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+                                <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;compressedSnapshots&#39;</span><span class="p">]:</span>
+                                    <span class="n">values</span> <span class="o">=</span> <span class="nb">eval</span><span class="p">(</span><span class="s1">&#39;np.array(&#39;</span> <span class="o">+</span> <span class="n">item</span><span class="p">[</span><span class="s1">&#39;values&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;)&#39;</span><span class="p">)</span> <span class="c1"># not secure !</span>
+                                    <span class="n">solution</span><span class="o">.</span><span class="n">AddCompressedSnapshots</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">]))</span>
+                            <span class="n">problemData</span><span class="o">.</span><span class="n">AddSolution</span><span class="p">(</span><span class="n">solution</span><span class="p">)</span>
+                    <span class="n">cpd</span><span class="o">.</span><span class="n">AddProblemData</span><span class="p">(</span><span class="n">problemData</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="s1">&#39;operatorCompressionData&#39;</span> <span class="ow">in</span> <span class="n">root</span><span class="p">:</span>
+            <span class="n">datas</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">root</span><span class="p">[</span><span class="s1">&#39;operatorCompressionData&#39;</span><span class="p">]:</span>
+                <span class="n">filepath</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="s1">&#39;path&#39;</span><span class="p">]</span>
+                <span class="n">key</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="s1">&#39;key&#39;</span><span class="p">]</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">solutionReader</span><span class="o">.</span><span class="n">ReadOperatorCompressionData</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span><span class="n">key</span><span class="p">)</span>
+                <span class="k">except</span><span class="p">:</span>
+                    <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
+                <span class="n">datas</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span>
+            <span class="n">cpd</span><span class="o">.</span><span class="n">SetOperatorCompressionData</span><span class="p">(</span><span class="n">datas</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="ImportFromJSONVisitor.visitQuantityDefinitionDict"><a class="viewcode-back" href="../../../../_source/Mordicus.Core.Containers.Visitor.html#Mordicus.Core.Containers.Visitor.ImportFromJSONVisitor.visitQuantityDefinitionDict">[docs]</a>    <span class="k">def</span> <span class="nf">visitQuantityDefinitionDict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">defdict</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Visit quantity definition dictionary&quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">json_data</span><span class="p">[</span><span class="s2">&quot;CollectionProblemData&quot;</span><span class="p">][</span><span class="s2">&quot;quantityDefinitions&quot;</span><span class="p">]:</span>
+            <span class="n">defdict</span><span class="p">[</span><span class="n">item</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]]</span> <span class="o">=</span> <span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="s1">&#39;full_name&#39;</span><span class="p">],</span><span class="n">item</span><span class="p">[</span><span class="s1">&#39;unit&#39;</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="ImportFromJSONVisitor.visitVariabilityDefinitionDict"><a class="viewcode-back" href="../../../../_source/Mordicus.Core.Containers.Visitor.html#Mordicus.Core.Containers.Visitor.ImportFromJSONVisitor.visitVariabilityDefinitionDict">[docs]</a>    <span class="k">def</span> <span class="nf">visitVariabilityDefinitionDict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">defdict</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Visit variability definition dictionary&quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">json_data</span><span class="p">[</span><span class="s2">&quot;CollectionProblemData&quot;</span><span class="p">][</span><span class="s2">&quot;variabilityDefinitions&quot;</span><span class="p">]:</span>
+            <span class="n">defdict</span><span class="p">[</span><span class="n">item</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="n">item</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="s1">&#39;type&#39;</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">v</span> <span class="o">==</span> <span class="s1">&#39;float&#39;</span><span class="p">:</span>
+                        <span class="n">defdict</span><span class="p">[</span><span class="n">item</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]][</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span>
+                <span class="k">elif</span> <span class="n">k</span> <span class="o">==</span> <span class="s1">&#39;description&#39;</span><span class="p">:</span>
+                    <span class="n">defdict</span><span class="p">[</span><span class="n">item</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]][</span><span class="s1">&#39;description&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+                <span class="k">elif</span> <span class="n">k</span> <span class="o">==</span> <span class="s1">&#39;quantity&#39;</span><span class="p">:</span>
+                    <span class="n">defdict</span><span class="p">[</span><span class="n">item</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]][</span><span class="s1">&#39;quantity&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">v</span><span class="p">,)</span></div></div>
+    
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">Mordicus 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../../Mordicus.html" >Mordicus</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Mordicus.Core.Containers.Visitor</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright Mordicus Consortium.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.0.2.
+    </div>
+  </body>
+</html>

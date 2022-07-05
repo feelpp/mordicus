@@ -1,0 +1,7 @@
+Mordicus.Core.IO.SolutionReaderBase module
+==========================================
+
+.. automodule:: Mordicus.Core.IO.SolutionReaderBase
+   :members:
+   :undoc-members:
+   :show-inheritance:

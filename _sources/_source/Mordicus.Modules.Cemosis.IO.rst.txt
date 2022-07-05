@@ -1,0 +1,16 @@
+Mordicus.Modules.Cemosis.IO package
+===================================
+
+.. automodule:: Mordicus.Modules.Cemosis.IO
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   Mordicus.Modules.Cemosis.IO.FeelppMeshReader
+   Mordicus.Modules.Cemosis.IO.FeelppSolutionReader

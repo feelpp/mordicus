@@ -1,0 +1,7 @@
+Mordicus.Modules.Safran.External package
+========================================
+
+.. automodule:: Mordicus.Modules.Safran.External
+   :members:
+   :undoc-members:
+   :show-inheritance:

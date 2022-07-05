@@ -1,0 +1,7 @@
+Mordicus.Core.IO.SolverDataset module
+=====================================
+
+.. automodule:: Mordicus.Core.IO.SolverDataset
+   :members:
+   :undoc-members:
+   :show-inheritance:

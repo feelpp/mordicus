@@ -1,0 +1,290 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Mordicus.Core.Containers.FieldHandlers.FieldHandlerBase module &#8212; Mordicus 0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/classic.css" />
+    
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../_static/doctools.js"></script>
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Mordicus.Core.Containers.FixedData package" href="Mordicus.Core.Containers.FixedData.html" />
+    <link rel="prev" title="Mordicus.Core.Containers.FieldHandlers package" href="Mordicus.Core.Containers.FieldHandlers.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="Mordicus.Core.Containers.FixedData.html" title="Mordicus.Core.Containers.FixedData package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="Mordicus.Core.Containers.FieldHandlers.html" title="Mordicus.Core.Containers.FieldHandlers package"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Mordicus 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="Mordicus.html" >Mordicus package</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="Mordicus.Core.html" >Mordicus.Core package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="Mordicus.Core.Containers.html" >Mordicus.Core.Containers package</a> &#187;</li>
+          <li class="nav-item nav-item-4"><a href="Mordicus.Core.Containers.FieldHandlers.html" accesskey="U">Mordicus.Core.Containers.FieldHandlers package</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Mordicus.Core.Containers.FieldHandlers.FieldHandlerBase module</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="module-Mordicus.Core.Containers.FieldHandlers.FieldHandlerBase">
+<span id="mordicus-core-containers-fieldhandlers-fieldhandlerbase-module"></span><h1>Mordicus.Core.Containers.FieldHandlers.FieldHandlerBase module<a class="headerlink" href="#module-Mordicus.Core.Containers.FieldHandlers.FieldHandlerBase" title="Permalink to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.FieldHandlers.FieldHandlerBase.FieldHandlerBase">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">Mordicus.Core.Containers.FieldHandlers.FieldHandlerBase.</span></span><span class="sig-name descname"><span class="pre">FieldHandlerBase</span></span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/FieldHandlers/FieldHandlerBase.html#FieldHandlerBase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.FieldHandlers.FieldHandlerBase.FieldHandlerBase" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class containing a FieldHandlerBase, with an internal storage hidden to all its children classes</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.FieldHandlers.FieldHandlerBase.FieldHandlerBase.__storage">
+<span class="sig-name descname"><span class="pre">__storage</span></span><a class="headerlink" href="#Mordicus.Core.Containers.FieldHandlers.FieldHandlerBase.FieldHandlerBase.__storage" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>typeToDefine</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.FieldHandlers.FieldHandlerBase.FieldHandlerBase.ConvertFromLocalField">
+<span class="sig-name descname"><span class="pre">ConvertFromLocalField</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">field</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/FieldHandlers/FieldHandlerBase.html#FieldHandlerBase.ConvertFromLocalField"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.FieldHandlers.FieldHandlerBase.FieldHandlerBase.ConvertFromLocalField" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>field</strong> (<em>localFieldType</em>) – field in the local Type</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>numpy array of field values</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.FieldHandlers.FieldHandlerBase.FieldHandlerBase.ConvertToLocalField">
+<span class="sig-name descname"><span class="pre">ConvertToLocalField</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vector</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/FieldHandlers/FieldHandlerBase.html#FieldHandlerBase.ConvertToLocalField"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.FieldHandlers.FieldHandlerBase.FieldHandlerBase.ConvertToLocalField" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> (<em>SolutionStructure</em>) – Structure instance as defined by mordicus datamodel</p></li>
+<li><p><strong>vector</strong> (<em>nparray</em>) – numpy array of solution to convert</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>field in the local Type</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>localFieldType</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.FieldHandlers.FieldHandlerBase.FieldHandlerBase.DoublContractedProduct">
+<span class="sig-name descname"><span class="pre">DoublContractedProduct</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">field1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/FieldHandlers/FieldHandlerBase.html#FieldHandlerBase.DoublContractedProduct"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.FieldHandlers.FieldHandlerBase.FieldHandlerBase.DoublContractedProduct" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>field1</strong> (<em>localFieldType</em>) – first symmetric 3x3 tensor s</p></li>
+<li><p><strong>field2</strong> (<em>localFieldType</em>) – second symmetric 3x3 tensor e</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>s</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>e, i.e. s(1)*e(1) + s(2)*e(2) + s(3)*e(3) + 2*s(4)*e(4) + 2*s(5)*e(5) + 2*s(6)*s(6)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.FieldHandlers.FieldHandlerBase.FieldHandlerBase.GaussPointsCoordinates">
+<span class="sig-name descname"><span class="pre">GaussPointsCoordinates</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solutionStructureGauss</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/FieldHandlers/FieldHandlerBase.html#FieldHandlerBase.GaussPointsCoordinates"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.FieldHandlers.FieldHandlerBase.FieldHandlerBase.GaussPointsCoordinates" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the Gauss point coordinate a family of solutions relies on</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>solutionStructureGauss</strong> – a solution structure with discretization on Gauss points (any number of components)</p></li>
+<li><p><strong>Returns</strong> – </p></li>
+<li><p><strong>-------</strong> – </p></li>
+<li><p><strong>ndarray</strong> – numpy array of Gauss points coordinates for the given solutionStructureGauss</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.FieldHandlers.FieldHandlerBase.FieldHandlerBase.GetInternalStorage">
+<span class="sig-name descname"><span class="pre">GetInternalStorage</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/FieldHandlers/FieldHandlerBase.html#FieldHandlerBase.GetInternalStorage"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.FieldHandlers.FieldHandlerBase.FieldHandlerBase.GetInternalStorage" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>internal storage</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>typeToDefine</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.FieldHandlers.FieldHandlerBase.FieldHandlerBase.GetVolume">
+<span class="sig-name descname"><span class="pre">GetVolume</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solutionStructureGauss</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/FieldHandlers/FieldHandlerBase.html#FieldHandlerBase.GetVolume"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.FieldHandlers.FieldHandlerBase.FieldHandlerBase.GetVolume" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute volume getting Gauss points from a sample field</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>solutionStructureGauss</strong> – a solution structure with discretization on Gauss points (any number of components)</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>volume of the domain the family of solutions is defined on</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>double</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.FieldHandlers.FieldHandlerBase.FieldHandlerBase.Integral">
+<span class="sig-name descname"><span class="pre">Integral</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">field</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">componentNumber</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/FieldHandlers/FieldHandlerBase.html#FieldHandlerBase.Integral"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.FieldHandlers.FieldHandlerBase.FieldHandlerBase.Integral" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>field</strong> (<em>localFieldType</em>) – field to integrate over its whole domain Omega</p></li>
+<li><p><strong>componentNumber</strong> (<em>int</em>) – number of the component number to integrate</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>double</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>integral over Omega of field(componentNumber)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.FieldHandlers.FieldHandlerBase.FieldHandlerBase.SetInternalStorage">
+<span class="sig-name descname"><span class="pre">SetInternalStorage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">_FieldHandlerBase__storage</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/FieldHandlers/FieldHandlerBase.html#FieldHandlerBase.SetInternalStorage"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.FieldHandlers.FieldHandlerBase.FieldHandlerBase.SetInternalStorage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the internal storage</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>__storage</strong> (<em>typeToDefine</em>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.FieldHandlers.FieldHandlerBase.FieldHandlerBase.SymetricGradient">
+<span class="sig-name descname"><span class="pre">SymetricGradient</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">field</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solutionStructureGauss</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solutionStructureNode</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/FieldHandlers/FieldHandlerBase.html#FieldHandlerBase.SymetricGradient"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.FieldHandlers.FieldHandlerBase.FieldHandlerBase.SymetricGradient" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>field</strong> (<em>localFieldType</em>) – local field to derive</p></li>
+<li><p><strong>solutionStructureGauss</strong> (<em>SolutionStructure</em>) – solution structure of the result</p></li>
+<li><p><strong>solutionStructureNode</strong> (<em>SolutionStructure</em>) – solutionStructure of the field to derive</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>field</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>localFieldType</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="Mordicus.Core.Containers.FieldHandlers.html"
+                          title="previous chapter">Mordicus.Core.Containers.FieldHandlers package</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="Mordicus.Core.Containers.FixedData.html"
+                          title="next chapter">Mordicus.Core.Containers.FixedData package</a></p>
+  </div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/_source/Mordicus.Core.Containers.FieldHandlers.FieldHandlerBase.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="Mordicus.Core.Containers.FixedData.html" title="Mordicus.Core.Containers.FixedData package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="Mordicus.Core.Containers.FieldHandlers.html" title="Mordicus.Core.Containers.FieldHandlers package"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Mordicus 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="Mordicus.html" >Mordicus package</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="Mordicus.Core.html" >Mordicus.Core package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="Mordicus.Core.Containers.html" >Mordicus.Core.Containers package</a> &#187;</li>
+          <li class="nav-item nav-item-4"><a href="Mordicus.Core.Containers.FieldHandlers.html" >Mordicus.Core.Containers.FieldHandlers package</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Mordicus.Core.Containers.FieldHandlers.FieldHandlerBase module</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright Mordicus Consortium.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.0.2.
+    </div>
+  </body>
+</html>

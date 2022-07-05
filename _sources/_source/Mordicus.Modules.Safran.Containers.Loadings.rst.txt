@@ -1,0 +1,20 @@
+Mordicus.Modules.Safran.Containers.Loadings package
+===================================================
+
+.. automodule:: Mordicus.Modules.Safran.Containers.Loadings
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   Mordicus.Modules.Safran.Containers.Loadings.Centrifugal
+   Mordicus.Modules.Safran.Containers.Loadings.ConvectionHeatFlux
+   Mordicus.Modules.Safran.Containers.Loadings.Dirichlet
+   Mordicus.Modules.Safran.Containers.Loadings.PressureBC
+   Mordicus.Modules.Safran.Containers.Loadings.Radiation
+   Mordicus.Modules.Safran.Containers.Loadings.Temperature

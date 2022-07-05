@@ -1,0 +1,255 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Mordicus.Modules.Safran.Containers.Loadings.Radiation module &#8212; Mordicus 0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/classic.css" />
+    
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../_static/doctools.js"></script>
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Mordicus.Modules.Safran.Containers.Loadings.Temperature module" href="Mordicus.Modules.Safran.Containers.Loadings.Temperature.html" />
+    <link rel="prev" title="Mordicus.Modules.Safran.Containers.Loadings.PressureBC module" href="Mordicus.Modules.Safran.Containers.Loadings.PressureBC.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="Mordicus.Modules.Safran.Containers.Loadings.Temperature.html" title="Mordicus.Modules.Safran.Containers.Loadings.Temperature module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="Mordicus.Modules.Safran.Containers.Loadings.PressureBC.html" title="Mordicus.Modules.Safran.Containers.Loadings.PressureBC module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Mordicus 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="Mordicus.html" >Mordicus package</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="Mordicus.Modules.html" >Mordicus.Modules package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="Mordicus.Modules.Safran.html" >Mordicus.Modules.Safran package</a> &#187;</li>
+          <li class="nav-item nav-item-4"><a href="Mordicus.Modules.Safran.Containers.html" >Mordicus.Modules.Safran.Containers package</a> &#187;</li>
+          <li class="nav-item nav-item-5"><a href="Mordicus.Modules.Safran.Containers.Loadings.html" accesskey="U">Mordicus.Modules.Safran.Containers.Loadings package</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Mordicus.Modules.Safran.Containers.Loadings.Radiation module</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="module-Mordicus.Modules.Safran.Containers.Loadings.Radiation">
+<span id="mordicus-modules-safran-containers-loadings-radiation-module"></span><h1>Mordicus.Modules.Safran.Containers.Loadings.Radiation module<a class="headerlink" href="#module-Mordicus.Modules.Safran.Containers.Loadings.Radiation" title="Permalink to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="Mordicus.Modules.Safran.Containers.Loadings.Radiation.Radiation">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">Mordicus.Modules.Safran.Containers.Loadings.Radiation.</span></span><span class="sig-name descname"><span class="pre">Radiation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solutionName</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">set</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Modules/Safran/Containers/Loadings/Radiation.html#Radiation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Modules.Safran.Containers.Loadings.Radiation.Radiation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="Mordicus.Core.Containers.Loadings.LoadingBase.html#Mordicus.Core.Containers.Loadings.LoadingBase.LoadingBase" title="Mordicus.Core.Containers.Loadings.LoadingBase.LoadingBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">LoadingBase</span></code></a></p>
+<p>Class containing a Loading of type radiation boundary condition for thermal
+problems.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="Mordicus.Modules.Safran.Containers.Loadings.Radiation.Radiation.TextTimes">
+<span class="sig-name descname"><span class="pre">TextTimes</span></span><a class="headerlink" href="#Mordicus.Modules.Safran.Containers.Loadings.Radiation.Radiation.TextTimes" title="Permalink to this definition">¶</a></dt>
+<dd><p>time values on which external temperature values are provided</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>np.ndarray or list of floats</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="Mordicus.Modules.Safran.Containers.Loadings.Radiation.Radiation.TextValues">
+<span class="sig-name descname"><span class="pre">TextValues</span></span><a class="headerlink" href="#Mordicus.Modules.Safran.Containers.Loadings.Radiation.Radiation.TextValues" title="Permalink to this definition">¶</a></dt>
+<dd><p>external temperature values at the corresponding time values</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>np.ndarray or list of floats</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="Mordicus.Modules.Safran.Containers.Loadings.Radiation.Radiation.StefanBoltzmannConstant">
+<span class="sig-name descname"><span class="pre">StefanBoltzmannConstant</span></span><a class="headerlink" href="#Mordicus.Modules.Safran.Containers.Loadings.Radiation.Radiation.StefanBoltzmannConstant" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stefan-Boltzmann constant used for the boundary condition computation</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="Mordicus.Modules.Safran.Containers.Loadings.Radiation.Radiation.reducedPhiT">
+<span class="sig-name descname"><span class="pre">reducedPhiT</span></span><a class="headerlink" href="#Mordicus.Modules.Safran.Containers.Loadings.Radiation.Radiation.reducedPhiT" title="Permalink to this definition">¶</a></dt>
+<dd><p>of size (numberOfModes,) containing the precomputed vector
+“red” for deriving the convection heat flux reduced external forces
+contribution is the form: stefanBoltzmannConstant*(Text**4)*red</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>numpy.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Modules.Safran.Containers.Loadings.Radiation.Radiation.ComputeContributionToReducedExternalForces">
+<span class="sig-name descname"><span class="pre">ComputeContributionToReducedExternalForces</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Modules/Safran/Containers/Loadings/Radiation.html#Radiation.ComputeContributionToReducedExternalForces"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Modules.Safran.Containers.Loadings.Radiation.Radiation.ComputeContributionToReducedExternalForces" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes and returns the reduced external forces contribution of the loading</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>time</strong> (<em>float</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>of size (numberOfModes,)</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Modules.Safran.Containers.Loadings.Radiation.Radiation.GetTextAtTime">
+<span class="sig-name descname"><span class="pre">GetTextAtTime</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../_modules/Mordicus/Modules/Safran/Containers/Loadings/Radiation.html#Radiation.GetTextAtTime"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Modules.Safran.Containers.Loadings.Radiation.Radiation.GetTextAtTime" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes and return Text at time, using PieceWiseLinearInterpolation</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>time</strong> (<em>float</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Text at time</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Modules.Safran.Containers.Loadings.Radiation.Radiation.ReduceLoading">
+<span class="sig-name descname"><span class="pre">ReduceLoading</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">problemData</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reducedOrderBases</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">operatorCompressionData</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Modules/Safran/Containers/Loadings/Radiation.html#Radiation.ReduceLoading"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Modules.Safran.Containers.Loadings.Radiation.Radiation.ReduceLoading" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes and sets the reduced representation of the loading</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mesh</strong> (<em>BasicTools.Containers.UnstructuredMesh</em>) – mesh of the high-fidelity model</p></li>
+<li><p><strong>problemData</strong> (<a class="reference internal" href="Mordicus.Core.Containers.ProblemData.html#Mordicus.Core.Containers.ProblemData.ProblemData" title="Mordicus.Core.Containers.ProblemData.ProblemData"><em>ProblemData</em></a>) – problemData containing the loading</p></li>
+<li><p><strong>reducedOrderBases</strong> (<em>dict</em><em>(</em><em>str: np.ndarray</em><em>)</em>) – dictionary with solutionNames (str) as keys and reducedOrderBases
+(np.ndarray of size (numberOfModes, numberOfDOFs)) as values</p></li>
+<li><p><strong>operatorCompressionData</strong> (<em>dict</em><em>(</em><em>str: custom_data_structure</em><em>)</em>) – not used in this loading
+dictionary with solutionNames (str) as keys and data structure
+generated by the operator compression step as values</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Modules.Safran.Containers.Loadings.Radiation.Radiation.SetStefanBoltzmannConstant">
+<span class="sig-name descname"><span class="pre">SetStefanBoltzmannConstant</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stefanBoltzmannConstant</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Modules/Safran/Containers/Loadings/Radiation.html#Radiation.SetStefanBoltzmannConstant"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Modules.Safran.Containers.Loadings.Radiation.Radiation.SetStefanBoltzmannConstant" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets stefanBoltzmannConstant</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>stefanBoltzmannConstant</strong> (<em>float</em>) – Stefan-Boltzmann constant used for the boundary condition computation</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Modules.Safran.Containers.Loadings.Radiation.Radiation.SetText">
+<span class="sig-name descname"><span class="pre">SetText</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Text</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Modules/Safran/Containers/Loadings/Radiation.html#Radiation.SetText"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Modules.Safran.Containers.Loadings.Radiation.Radiation.SetText" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets TextTimes and TextValues</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>Text</strong> (<em>dict</em>) – dictionary with time steps (float) as keys and the values of the
+external temperature values (float)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="Mordicus.Modules.Safran.Containers.Loadings.PressureBC.html"
+                          title="previous chapter">Mordicus.Modules.Safran.Containers.Loadings.PressureBC module</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="Mordicus.Modules.Safran.Containers.Loadings.Temperature.html"
+                          title="next chapter">Mordicus.Modules.Safran.Containers.Loadings.Temperature module</a></p>
+  </div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/_source/Mordicus.Modules.Safran.Containers.Loadings.Radiation.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="Mordicus.Modules.Safran.Containers.Loadings.Temperature.html" title="Mordicus.Modules.Safran.Containers.Loadings.Temperature module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="Mordicus.Modules.Safran.Containers.Loadings.PressureBC.html" title="Mordicus.Modules.Safran.Containers.Loadings.PressureBC module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Mordicus 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="Mordicus.html" >Mordicus package</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="Mordicus.Modules.html" >Mordicus.Modules package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="Mordicus.Modules.Safran.html" >Mordicus.Modules.Safran package</a> &#187;</li>
+          <li class="nav-item nav-item-4"><a href="Mordicus.Modules.Safran.Containers.html" >Mordicus.Modules.Safran.Containers package</a> &#187;</li>
+          <li class="nav-item nav-item-5"><a href="Mordicus.Modules.Safran.Containers.Loadings.html" >Mordicus.Modules.Safran.Containers.Loadings package</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Mordicus.Modules.Safran.Containers.Loadings.Radiation module</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright Mordicus Consortium.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.0.2.
+    </div>
+  </body>
+</html>

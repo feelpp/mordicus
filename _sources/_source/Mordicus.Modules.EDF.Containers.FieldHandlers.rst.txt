@@ -1,0 +1,15 @@
+Mordicus.Modules.EDF.Containers.FieldHandlers package
+=====================================================
+
+.. automodule:: Mordicus.Modules.EDF.Containers.FieldHandlers
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   Mordicus.Modules.EDF.Containers.FieldHandlers.MEDFieldHandler

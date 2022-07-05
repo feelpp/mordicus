@@ -1,0 +1,17 @@
+Mordicus.Modules.Cemosis package
+================================
+
+.. automodule:: Mordicus.Modules.Cemosis
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   Mordicus.Modules.Cemosis.Containers
+   Mordicus.Modules.Cemosis.DataCompressors
+   Mordicus.Modules.Cemosis.IO

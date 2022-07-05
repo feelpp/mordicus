@@ -1,0 +1,256 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Mordicus.Modules.Safran.Containers.InitialConditions.InitialCondition module &#8212; Mordicus 0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/classic.css" />
+    
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../_static/doctools.js"></script>
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Mordicus.Modules.Safran.Containers.Loadings package" href="Mordicus.Modules.Safran.Containers.Loadings.html" />
+    <link rel="prev" title="Mordicus.Modules.Safran.Containers.InitialConditions package" href="Mordicus.Modules.Safran.Containers.InitialConditions.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="Mordicus.Modules.Safran.Containers.Loadings.html" title="Mordicus.Modules.Safran.Containers.Loadings package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="Mordicus.Modules.Safran.Containers.InitialConditions.html" title="Mordicus.Modules.Safran.Containers.InitialConditions package"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Mordicus 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="Mordicus.html" >Mordicus package</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="Mordicus.Modules.html" >Mordicus.Modules package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="Mordicus.Modules.Safran.html" >Mordicus.Modules.Safran package</a> &#187;</li>
+          <li class="nav-item nav-item-4"><a href="Mordicus.Modules.Safran.Containers.html" >Mordicus.Modules.Safran.Containers package</a> &#187;</li>
+          <li class="nav-item nav-item-5"><a href="Mordicus.Modules.Safran.Containers.InitialConditions.html" accesskey="U">Mordicus.Modules.Safran.Containers.InitialConditions package</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Mordicus.Modules.Safran.Containers.InitialConditions.InitialCondition module</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="module-Mordicus.Modules.Safran.Containers.InitialConditions.InitialCondition">
+<span id="mordicus-modules-safran-containers-initialconditions-initialcondition-module"></span><h1>Mordicus.Modules.Safran.Containers.InitialConditions.InitialCondition module<a class="headerlink" href="#module-Mordicus.Modules.Safran.Containers.InitialConditions.InitialCondition" title="Permalink to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="Mordicus.Modules.Safran.Containers.InitialConditions.InitialCondition.InitialCondition">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">Mordicus.Modules.Safran.Containers.InitialConditions.InitialCondition.</span></span><span class="sig-name descname"><span class="pre">InitialCondition</span></span><a class="reference internal" href="../_modules/Mordicus/Modules/Safran/Containers/InitialConditions/InitialCondition.html#InitialCondition"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Modules.Safran.Containers.InitialConditions.InitialCondition.InitialCondition" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="Mordicus.Core.Containers.InitialConditions.InitialConditionBase.html#Mordicus.Core.Containers.InitialConditions.InitialConditionBase.InitialConditionBase" title="Mordicus.Core.Containers.InitialConditions.InitialConditionBase.InitialConditionBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">InitialConditionBase</span></code></a></p>
+<p>Class modeling an initial condition</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="Mordicus.Modules.Safran.Containers.InitialConditions.InitialCondition.InitialCondition.dataType">
+<span class="sig-name descname"><span class="pre">dataType</span></span><a class="headerlink" href="#Mordicus.Modules.Safran.Containers.InitialConditions.InitialCondition.InitialCondition.dataType" title="Permalink to this definition">¶</a></dt>
+<dd><p>dictionary with solutionName (str) as keys and the type of initial
+condition (str: “scalar” or “vector”)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="Mordicus.Modules.Safran.Containers.InitialConditions.InitialCondition.InitialCondition.initialSnapshot">
+<span class="sig-name descname"><span class="pre">initialSnapshot</span></span><a class="headerlink" href="#Mordicus.Modules.Safran.Containers.InitialConditions.InitialCondition.InitialCondition.initialSnapshot" title="Permalink to this definition">¶</a></dt>
+<dd><p>dictionary with solutionName (str) as keys and the values of the initial
+condition (float or np.ndarray of floats of size (numberOfDofs,))</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="Mordicus.Modules.Safran.Containers.InitialConditions.InitialCondition.InitialCondition.reducedInitialSnapshot">
+<span class="sig-name descname"><span class="pre">reducedInitialSnapshot</span></span><a class="headerlink" href="#Mordicus.Modules.Safran.Containers.InitialConditions.InitialCondition.InitialCondition.reducedInitialSnapshot" title="Permalink to this definition">¶</a></dt>
+<dd><p>dictionary with solutionName (str) as keys and the values of the reduced
+initial snapshot (np.ndarray of floats of size (numberOfModes,))</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Modules.Safran.Containers.InitialConditions.InitialCondition.InitialCondition.GetDataType">
+<span class="sig-name descname"><span class="pre">GetDataType</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solutionName</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Modules/Safran/Containers/InitialConditions/InitialCondition.html#InitialCondition.GetDataType"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Modules.Safran.Containers.InitialConditions.InitialCondition.InitialCondition.GetDataType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the type of initial condition for a given solutionName</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>type of initial condition (scalar” or “vector”)</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Modules.Safran.Containers.InitialConditions.InitialCondition.InitialCondition.GetReducedInitialSnapshot">
+<span class="sig-name descname"><span class="pre">GetReducedInitialSnapshot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solutionName</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Modules/Safran/Containers/InitialConditions/InitialCondition.html#InitialCondition.GetReducedInitialSnapshot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Modules.Safran.Containers.InitialConditions.InitialCondition.InitialCondition.GetReducedInitialSnapshot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the reduced initial snapshot</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>solutionName</strong> (<em>str</em>) – name of the corresponding solution</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>values of the reduced initial snapshot</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray of floats of size (numberOfModes,)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Modules.Safran.Containers.InitialConditions.InitialCondition.InitialCondition.ReduceInitialSnapshot">
+<span class="sig-name descname"><span class="pre">ReduceInitialSnapshot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reducedOrderBases</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">snapshotCorrelationOperator</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Modules/Safran/Containers/InitialConditions/InitialCondition.html#InitialCondition.ReduceInitialSnapshot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Modules.Safran.Containers.InitialConditions.InitialCondition.InitialCondition.ReduceInitialSnapshot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes and sets the reduced initial snapshot</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>reducedOrderBases</strong> (<em>dict</em><em>(</em><em>str: np.ndarray</em><em>)</em>) – dictionary with solutionNames (str) as keys and reducedOrderBases
+(np.ndarray of size (numberOfModes, numberOfDOFs)) as values</p></li>
+<li><p><strong>snapshotCorrelationOperator</strong> (<em>scipy.sparse.csr</em><em>, </em><em>optional</em>) – correlation operator between the snapshots</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Modules.Safran.Containers.InitialConditions.InitialCondition.InitialCondition.SetDataType">
+<span class="sig-name descname"><span class="pre">SetDataType</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solutionName</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataTy</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Modules/Safran/Containers/InitialConditions/InitialCondition.html#InitialCondition.SetDataType"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Modules.Safran.Containers.InitialConditions.InitialCondition.InitialCondition.SetDataType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the type of initial condition</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>solutionName</strong> (<em>str</em>) – name of the corresponding solution</p></li>
+<li><p><strong>dataTy</strong> (<em>str</em>) – type of initial condition (scalar” or “vector”)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Modules.Safran.Containers.InitialConditions.InitialCondition.InitialCondition.SetInitialSnapshot">
+<span class="sig-name descname"><span class="pre">SetInitialSnapshot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solutionName</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initialSnapshot</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Modules/Safran/Containers/InitialConditions/InitialCondition.html#InitialCondition.SetInitialSnapshot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Modules.Safran.Containers.InitialConditions.InitialCondition.InitialCondition.SetInitialSnapshot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the initial condition</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>solutionName</strong> (<em>str</em>) – name of the corresponding solution</p></li>
+<li><p><strong>initialSnapshot</strong> (<em>float</em><em> or </em><em>np.ndarray of floats of size</em><em> (</em><em>numberOfDofs</em><em>,</em><em>)</em>) – values of the initial condition</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Modules.Safran.Containers.InitialConditions.InitialCondition.InitialCondition.SetReducedInitialSnapshot">
+<span class="sig-name descname"><span class="pre">SetReducedInitialSnapshot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solutionName</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reducedInitialSnapshot</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Modules/Safran/Containers/InitialConditions/InitialCondition.html#InitialCondition.SetReducedInitialSnapshot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Modules.Safran.Containers.InitialConditions.InitialCondition.InitialCondition.SetReducedInitialSnapshot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the reduced initial snapshot</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>solutionName</strong> (<em>str</em>) – name of the corresponding solution</p></li>
+<li><p><strong>reducedInitialSnapshot</strong> (<em>np.ndarray of floats of size</em><em> (</em><em>numberOfModes</em><em>,</em><em>)</em>) – values of the reduced initial snapshot</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="Mordicus.Modules.Safran.Containers.InitialConditions.html"
+                          title="previous chapter">Mordicus.Modules.Safran.Containers.InitialConditions package</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="Mordicus.Modules.Safran.Containers.Loadings.html"
+                          title="next chapter">Mordicus.Modules.Safran.Containers.Loadings package</a></p>
+  </div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/_source/Mordicus.Modules.Safran.Containers.InitialConditions.InitialCondition.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="Mordicus.Modules.Safran.Containers.Loadings.html" title="Mordicus.Modules.Safran.Containers.Loadings package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="Mordicus.Modules.Safran.Containers.InitialConditions.html" title="Mordicus.Modules.Safran.Containers.InitialConditions package"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Mordicus 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="Mordicus.html" >Mordicus package</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="Mordicus.Modules.html" >Mordicus.Modules package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="Mordicus.Modules.Safran.html" >Mordicus.Modules.Safran package</a> &#187;</li>
+          <li class="nav-item nav-item-4"><a href="Mordicus.Modules.Safran.Containers.html" >Mordicus.Modules.Safran.Containers package</a> &#187;</li>
+          <li class="nav-item nav-item-5"><a href="Mordicus.Modules.Safran.Containers.InitialConditions.html" >Mordicus.Modules.Safran.Containers.InitialConditions package</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Mordicus.Modules.Safran.Containers.InitialConditions.InitialCondition module</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright Mordicus Consortium.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.0.2.
+    </div>
+  </body>
+</html>

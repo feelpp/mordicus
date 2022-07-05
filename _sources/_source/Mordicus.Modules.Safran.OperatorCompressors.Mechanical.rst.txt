@@ -1,0 +1,7 @@
+Mordicus.Modules.Safran.OperatorCompressors.Mechanical module
+=============================================================
+
+.. automodule:: Mordicus.Modules.Safran.OperatorCompressors.Mechanical
+   :members:
+   :undoc-members:
+   :show-inheritance:

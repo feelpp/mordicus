@@ -1,0 +1,7 @@
+Mordicus.Modules.Scilab\_ESI\_Group.Containers.Meshes.SciMesh module
+====================================================================
+
+.. automodule:: Mordicus.Modules.Scilab_ESI_Group.Containers.Meshes.SciMesh
+   :members:
+   :undoc-members:
+   :show-inheritance:

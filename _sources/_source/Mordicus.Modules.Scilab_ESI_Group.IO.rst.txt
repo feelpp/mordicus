@@ -1,0 +1,15 @@
+Mordicus.Modules.Scilab\_ESI\_Group.IO package
+==============================================
+
+.. automodule:: Mordicus.Modules.Scilab_ESI_Group.IO
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   Mordicus.Modules.Scilab_ESI_Group.IO.SciMeshReader

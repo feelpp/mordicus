@@ -1,0 +1,15 @@
+Mordicus.Modules.Cemosis.DataCompressors package
+================================================
+
+.. automodule:: Mordicus.Modules.Cemosis.DataCompressors
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   Mordicus.Modules.Cemosis.DataCompressors.EIMGreedy

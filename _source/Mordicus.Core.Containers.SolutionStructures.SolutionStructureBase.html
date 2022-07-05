@@ -1,0 +1,205 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Mordicus.Core.Containers.SolutionStructures.SolutionStructureBase module &#8212; Mordicus 0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/classic.css" />
+    
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../_static/doctools.js"></script>
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Mordicus.Core.Containers.CollectionProblemData module" href="Mordicus.Core.Containers.CollectionProblemData.html" />
+    <link rel="prev" title="Mordicus.Core.Containers.SolutionStructures package" href="Mordicus.Core.Containers.SolutionStructures.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="Mordicus.Core.Containers.CollectionProblemData.html" title="Mordicus.Core.Containers.CollectionProblemData module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="Mordicus.Core.Containers.SolutionStructures.html" title="Mordicus.Core.Containers.SolutionStructures package"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Mordicus 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="Mordicus.html" >Mordicus package</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="Mordicus.Core.html" >Mordicus.Core package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="Mordicus.Core.Containers.html" >Mordicus.Core.Containers package</a> &#187;</li>
+          <li class="nav-item nav-item-4"><a href="Mordicus.Core.Containers.SolutionStructures.html" accesskey="U">Mordicus.Core.Containers.SolutionStructures package</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Mordicus.Core.Containers.SolutionStructures.SolutionStructureBase module</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="module-Mordicus.Core.Containers.SolutionStructures.SolutionStructureBase">
+<span id="mordicus-core-containers-solutionstructures-solutionstructurebase-module"></span><h1>Mordicus.Core.Containers.SolutionStructures.SolutionStructureBase module<a class="headerlink" href="#module-Mordicus.Core.Containers.SolutionStructures.SolutionStructureBase" title="Permalink to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.SolutionStructures.SolutionStructureBase.SolutionStructureBase">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">Mordicus.Core.Containers.SolutionStructures.SolutionStructureBase.</span></span><span class="sig-name descname"><span class="pre">SolutionStructureBase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">discr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/SolutionStructures/SolutionStructureBase.html#SolutionStructureBase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.SolutionStructures.SolutionStructureBase.SolutionStructureBase" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class containing a SolutionStructureBase, with an internal storage hidden to all its children classes</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.SolutionStructures.SolutionStructureBase.SolutionStructureBase.__storage">
+<span class="sig-name descname"><span class="pre">__storage</span></span><a class="headerlink" href="#Mordicus.Core.Containers.SolutionStructures.SolutionStructureBase.SolutionStructureBase.__storage" title="Permalink to this definition">¶</a></dt>
+<dd><p>contextualization element to interpret the vector as a field</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>typeToDefine</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.SolutionStructures.SolutionStructureBase.SolutionStructureBase.mesh">
+<span class="sig-name descname"><span class="pre">mesh</span></span><a class="headerlink" href="#Mordicus.Core.Containers.SolutionStructures.SolutionStructureBase.SolutionStructureBase.mesh" title="Permalink to this definition">¶</a></dt>
+<dd><p>reference mesh for the definition solution is defined</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="Mordicus.Core.Containers.Meshes.MeshBase.html#Mordicus.Core.Containers.Meshes.MeshBase.MeshBase" title="Mordicus.Core.Containers.Meshes.MeshBase.MeshBase">MeshBase</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.SolutionStructures.SolutionStructureBase.SolutionStructureBase.discr">
+<span class="sig-name descname"><span class="pre">discr</span></span><a class="headerlink" href="#Mordicus.Core.Containers.SolutionStructures.SolutionStructureBase.SolutionStructureBase.discr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Discretization. One of ‘node’, ‘gauss’, ‘cell’</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.SolutionStructures.SolutionStructureBase.SolutionStructureBase.GetInternalStorage">
+<span class="sig-name descname"><span class="pre">GetInternalStorage</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/SolutionStructures/SolutionStructureBase.html#SolutionStructureBase.GetInternalStorage"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.SolutionStructures.SolutionStructureBase.SolutionStructureBase.GetInternalStorage" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>internal storage</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>typeToDefine</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.SolutionStructures.SolutionStructureBase.SolutionStructureBase.GetNumberOfComponents">
+<span class="sig-name descname"><span class="pre">GetNumberOfComponents</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/SolutionStructures/SolutionStructureBase.html#SolutionStructureBase.GetNumberOfComponents"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.SolutionStructures.SolutionStructureBase.SolutionStructureBase.GetNumberOfComponents" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns number of components of the solution</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.SolutionStructures.SolutionStructureBase.SolutionStructureBase.GetNumberOfNodes">
+<span class="sig-name descname"><span class="pre">GetNumberOfNodes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/SolutionStructures/SolutionStructureBase.html#SolutionStructureBase.GetNumberOfNodes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.SolutionStructures.SolutionStructureBase.SolutionStructureBase.GetNumberOfNodes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns number of points in the support of the solution</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.SolutionStructures.SolutionStructureBase.SolutionStructureBase.SetInternalStorage">
+<span class="sig-name descname"><span class="pre">SetInternalStorage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">_SolutionStructureBase__storage</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/SolutionStructures/SolutionStructureBase.html#SolutionStructureBase.SetInternalStorage"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.SolutionStructures.SolutionStructureBase.SolutionStructureBase.SetInternalStorage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the internal storage</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>__storage</strong> (<em>typeToDefine</em>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.SolutionStructures.SolutionStructureBase.SolutionStructureBase.accept">
+<span class="sig-name descname"><span class="pre">accept</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">visitor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quantity</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/SolutionStructures/SolutionStructureBase.html#SolutionStructureBase.accept"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.SolutionStructures.SolutionStructureBase.SolutionStructureBase.accept" title="Permalink to this definition">¶</a></dt>
+<dd><p>Accepts visitor</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="Mordicus.Core.Containers.SolutionStructures.html"
+                          title="previous chapter">Mordicus.Core.Containers.SolutionStructures package</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="Mordicus.Core.Containers.CollectionProblemData.html"
+                          title="next chapter">Mordicus.Core.Containers.CollectionProblemData module</a></p>
+  </div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/_source/Mordicus.Core.Containers.SolutionStructures.SolutionStructureBase.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="Mordicus.Core.Containers.CollectionProblemData.html" title="Mordicus.Core.Containers.CollectionProblemData module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="Mordicus.Core.Containers.SolutionStructures.html" title="Mordicus.Core.Containers.SolutionStructures package"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Mordicus 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="Mordicus.html" >Mordicus package</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="Mordicus.Core.html" >Mordicus.Core package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="Mordicus.Core.Containers.html" >Mordicus.Core.Containers package</a> &#187;</li>
+          <li class="nav-item nav-item-4"><a href="Mordicus.Core.Containers.SolutionStructures.html" >Mordicus.Core.Containers.SolutionStructures package</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Mordicus.Core.Containers.SolutionStructures.SolutionStructureBase module</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright Mordicus Consortium.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.0.2.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,258 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mordicus.Core.IO.SolutionReaderBase &#8212; Mordicus 0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/classic.css" />
+    
+    <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+    <script src="../../../../_static/jquery.js"></script>
+    <script src="../../../../_static/underscore.js"></script>
+    <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../../../_static/doctools.js"></script>
+    
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">Mordicus 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../../Mordicus.html" accesskey="U">Mordicus</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Mordicus.Core.IO.SolutionReaderBase</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for Mordicus.Core.IO.SolutionReaderBase</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+
+
+<div class="viewcode-block" id="SolutionReaderBase"><a class="viewcode-back" href="../../../../_source/Mordicus.Core.IO.SolutionReaderBase.html#Mordicus.Core.IO.SolutionReaderBase.SolutionReaderBase">[docs]</a><span class="k">class</span> <span class="nc">SolutionReaderBase</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class containing the SolutionReaderBase associated to a HF solution file</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+
+<div class="viewcode-block" id="SolutionReaderBase.ReadSnapshotComponent"><a class="viewcode-back" href="../../../../_source/Mordicus.Core.IO.SolutionReaderBase.html#Mordicus.Core.IO.SolutionReaderBase.SolutionReaderBase.ReadSnapshotComponent">[docs]</a>    <span class="k">def</span> <span class="nf">ReadSnapshotComponent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fieldName</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">primality</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Reads a snapshots from the solutions of name &quot;fieldName&quot;, at time &quot;time&quot; and of primality &quot;primality&quot;, from the HF computation</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        fieldName : str</span>
+<span class="sd">            name of the solution from which the snapshot is read</span>
+<span class="sd">        time : float</span>
+<span class="sd">            time at which the snapshot is read</span>
+<span class="sd">        primality : bool</span>
+<span class="sd">            primality of the solution from which the snapshot is read</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        np.ndarray</span>
+<span class="sd">            of size (numberOfDofs,)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Not implemented in ReaderBase&quot;</span><span class="p">)</span>  <span class="c1"># pragma: no cover</span></div>
+
+
+<div class="viewcode-block" id="SolutionReaderBase.ReadSnapshotComponentTimeSequence"><a class="viewcode-back" href="../../../../_source/Mordicus.Core.IO.SolutionReaderBase.html#Mordicus.Core.IO.SolutionReaderBase.SolutionReaderBase.ReadSnapshotComponentTimeSequence">[docs]</a>    <span class="k">def</span> <span class="nf">ReadSnapshotComponentTimeSequence</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fieldName</span><span class="p">,</span> <span class="n">timeSequence</span><span class="p">,</span> <span class="n">primality</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Reads a snapshots from the solutions of name &quot;fieldName&quot;, at time sequence &quot;timeSequence&quot; and of primality &quot;primality&quot;, from the HF computation</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        fieldName : str</span>
+<span class="sd">            name of the solution from which the snapshot is read</span>
+<span class="sd">        timeSequence : np.ndarray</span>
+<span class="sd">            of size (numberOfSnapshots,)</span>
+<span class="sd">        primality : bool</span>
+<span class="sd">            primality of the solution from which the snapshot is read</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        np.ndarray</span>
+<span class="sd">            of size (numberOfSnapshots,numberOfDofs)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Not implemented in ReaderBase&quot;</span><span class="p">)</span>  <span class="c1"># pragma: no cover</span></div>
+
+
+<div class="viewcode-block" id="SolutionReaderBase.ReadTimeSequenceFromSolutionFile"><a class="viewcode-back" href="../../../../_source/Mordicus.Core.IO.SolutionReaderBase.html#Mordicus.Core.IO.SolutionReaderBase.SolutionReaderBase.ReadTimeSequenceFromSolutionFile">[docs]</a>    <span class="k">def</span> <span class="nf">ReadTimeSequenceFromSolutionFile</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Reads the time sequence from the solution file of the HF computation (may be different from the ones defined in the input data file if the solver chose to solve at additional time steps)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        np.ndarray</span>
+<span class="sd">            of size (numberOfSnapshots,)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Not implemented in ReaderBase&quot;</span><span class="p">)</span>  <span class="c1"># pragma: no cover</span></div>
+
+
+<div class="viewcode-block" id="SolutionReaderBase.WriteReducedOrderBasis"><a class="viewcode-back" href="../../../../_source/Mordicus.Core.IO.SolutionReaderBase.html#Mordicus.Core.IO.SolutionReaderBase.SolutionReaderBase.WriteReducedOrderBasis">[docs]</a>    <span class="k">def</span> <span class="nf">WriteReducedOrderBasis</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fileName</span><span class="p">,</span> <span class="n">solutionStructure</span><span class="p">,</span> <span class="n">reducedOrderBasis</span><span class="p">,</span> <span class="n">fieldName</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Converts Mordicus reduced order basis into the format for writing fields</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        fileName : str</span>
+<span class="sd">            file to write reduced basis to</span>
+<span class="sd">        fieldStructure : SolutionStructureBase</span>
+<span class="sd">            field structure giving the context to interpret the vector in terms of field values on the mesh</span>
+<span class="sd">        reducedOrderBasis : nparray(numberOfModes, numberOfDofs)</span>
+<span class="sd">            numpy array of the modes</span>
+<span class="sd">        fieldName : str</span>
+<span class="sd">            name of field associated with the basis (e.g. &quot;U&quot;, &quot;sigma&quot;)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Not implemented in ReaderBase&quot;</span><span class="p">)</span>  <span class="c1"># pragma: no cover</span></div>
+
+<div class="viewcode-block" id="SolutionReaderBase.ReadReducedOrderBasis"><a class="viewcode-back" href="../../../../_source/Mordicus.Core.IO.SolutionReaderBase.html#Mordicus.Core.IO.SolutionReaderBase.SolutionReaderBase.ReadReducedOrderBasis">[docs]</a>    <span class="k">def</span> <span class="nf">ReadReducedOrderBasis</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fileName</span><span class="p">,</span> <span class="n">solutionStructure</span><span class="p">,</span> <span class="n">fieldName</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Converts the format into Mordicus reduced order basis for reading fields</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        fileName : str</span>
+<span class="sd">            file to read reduced basis from</span>
+<span class="sd">        fieldStructure : SolutionStructureBase</span>
+<span class="sd">            field structure giving the context to interpret the vector in terms of field values on the mesh</span>
+<span class="sd">        fieldName : str</span>
+<span class="sd">            name of field associated with the basis (e.g. &quot;U&quot;, &quot;sigma&quot;)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        reducedOrderBasis : nparray(numberOfModes, numberOfDofs)</span>
+<span class="sd">            numpy array of the modes</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Not implemented in ReaderBase&quot;</span><span class="p">)</span>  <span class="c1"># pragma: no cover</span></div>
+
+<div class="viewcode-block" id="SolutionReaderBase.WriteSparseFieldOfEmpiricalWeights"><a class="viewcode-back" href="../../../../_source/Mordicus.Core.IO.SolutionReaderBase.html#Mordicus.Core.IO.SolutionReaderBase.SolutionReaderBase.WriteSparseFieldOfEmpiricalWeights">[docs]</a>    <span class="k">def</span> <span class="nf">WriteSparseFieldOfEmpiricalWeights</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fileName</span><span class="p">,</span> <span class="n">fieldStructure</span><span class="p">,</span> <span class="n">np_coor_gauss</span><span class="p">,</span> <span class="n">empirical_weights</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Writes found empirical_weights to a Gauss field</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        fileName : str</span>
+<span class="sd">            file to write field of empirical weights to</span>
+<span class="sd">        fieldStructure : MEDAsterSolutionStructure</span>
+<span class="sd">            field structure giving the context to interpret the vector in terms of field values on the mesh</span>
+<span class="sd">        np_coor_gauss</span>
+<span class="sd">            numpy array of empirical Gauss points coordinates</span>
+<span class="sd">        empirical_weights</span>
+<span class="sd">            numpy array of empirical weights</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Not implemented in ReaderBase&quot;</span><span class="p">)</span>  <span class="c1"># pragma: no cover</span></div>
+
+
+<div class="viewcode-block" id="SolutionReaderBase.WriteSolution"><a class="viewcode-back" href="../../../../_source/Mordicus.Core.IO.SolutionReaderBase.html#Mordicus.Core.IO.SolutionReaderBase.SolutionReaderBase.WriteSolution">[docs]</a>    <span class="k">def</span> <span class="nf">WriteSolution</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fileName</span><span class="p">,</span> <span class="n">fieldStructure</span><span class="p">,</span> <span class="n">solution</span><span class="p">,</span> <span class="n">fieldName</span><span class="p">,</span> <span class="n">nameInFile</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">append</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Convert a Mordicus snapshot into a field, relying on SolutionStructure to build relations</span>
+<span class="sd">        between the vector of values and the mesh.</span>
+
+<span class="sd">        Arguments</span>
+<span class="sd">        ---------</span>
+<span class="sd">        fileName : str</span>
+<span class="sd">            MED file to write solution to</span>
+<span class="sd">        fieldStructure : MEDAsterSolutionStructure</span>
+<span class="sd">            field structure giving the context to interpret the vector in terms of field values on the mesh</span>
+<span class="sd">        solution : Solution</span>
+<span class="sd">            solution to write</span>
+<span class="sd">        fieldName : str</span>
+<span class="sd">            identifier of the physical quantity for the field</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Not implemented in ReaderBase&quot;</span><span class="p">)</span>  <span class="c1"># pragma: no cover</span></div>
+
+
+<div class="viewcode-block" id="SolutionReaderBase.WriteNumbering"><a class="viewcode-back" href="../../../../_source/Mordicus.Core.IO.SolutionReaderBase.html#Mordicus.Core.IO.SolutionReaderBase.SolutionReaderBase.WriteNumbering">[docs]</a>    <span class="k">def</span> <span class="nf">WriteNumbering</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fileName</span><span class="p">,</span> <span class="n">fieldStructure</span><span class="p">,</span> <span class="n">fieldName</span><span class="p">,</span> <span class="n">nameInFile</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Write an identity application on the input, gets the permutation application on the output.</span>
+<span class="sd">        This method is used to convert operators from a FEM code to the numbering system associated</span>
+<span class="sd">            with the format of the results (for instance be able to get a consistent numbering between</span>
+<span class="sd">            a mass matrix computed with Code_Aster and the results written to MED format)</span>
+
+<span class="sd">        Arguments</span>
+<span class="sd">        ---------</span>
+<span class="sd">        fileName : str</span>
+<span class="sd">            MED file to write permutation to</span>
+<span class="sd">        fieldStructure : SolutionStructureBase</span>
+<span class="sd">            field structure for which the numbering system has to be converted</span>
+<span class="sd">        fieldName : str</span>
+<span class="sd">            identifier of the physical quantity for the field</span>
+<span class="sd">        nameInFile : str</span>
+<span class="sd">            to customize field name in output MED file *fileName*</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Not implemented in ReaderBase&quot;</span><span class="p">)</span>  <span class="c1"># pragma: no cover</span></div>
+
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="s2">&quot;I am a SolutionReaderBase, try instanciating a particular reader instead&quot;</span>
+        <span class="k">return</span> <span class="n">res</span></div>
+
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span><span class="c1"># pragma: no cover</span>
+
+    <span class="kn">from</span> <span class="nn">Mordicus</span> <span class="kn">import</span> <span class="n">RunTestFile</span>
+    <span class="n">RunTestFile</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span>
+
+
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">Mordicus 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../../Mordicus.html" >Mordicus</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Mordicus.Core.IO.SolutionReaderBase</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright Mordicus Consortium.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.0.2.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,203 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mordicus.Core.BasicAlgorithms.ScikitLearnRegressor &#8212; Mordicus 0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/classic.css" />
+    
+    <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+    <script src="../../../../_static/jquery.js"></script>
+    <script src="../../../../_static/underscore.js"></script>
+    <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../../../_static/doctools.js"></script>
+    
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">Mordicus 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../../Mordicus.html" accesskey="U">Mordicus</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Mordicus.Core.BasicAlgorithms.ScikitLearnRegressor</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for Mordicus.Core.BasicAlgorithms.ScikitLearnRegressor</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+
+
+<div class="viewcode-block" id="GridSearchCVRegression"><a class="viewcode-back" href="../../../../_source/Mordicus.Core.BasicAlgorithms.ScikitLearnRegressor.html#Mordicus.Core.BasicAlgorithms.ScikitLearnRegressor.GridSearchCVRegression">[docs]</a><span class="k">def</span> <span class="nf">GridSearchCVRegression</span><span class="p">(</span><span class="n">regressor</span><span class="p">,</span> <span class="n">paramGrid</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Optimizes a scikit learn regressor using gridSearchCV, using training data and target values</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    regressor : objects satisfying the scikit-learn regressors API</span>
+<span class="sd">        input regressor to be fitted and optimized</span>
+<span class="sd">    paramGrid : float</span>
+<span class="sd">        the truncation tolerence, determining the number of keps eigenvalues</span>
+<span class="sd">    X : np.ndarray</span>
+<span class="sd">        training data</span>
+<span class="sd">    y : np.ndarray</span>
+<span class="sd">        target values</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    sklearn.model_selection._search.GridSearchCV</span>
+<span class="sd">        trained and optimized scikit learn regressor</span>
+<span class="sd">    sklearn.preprocessing._data.StandardScaler</span>
+<span class="sd">        scaler trained on input data</span>
+<span class="sd">    sklearn.preprocessing._data.StandardScaler</span>
+<span class="sd">        scaler trained on output data</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="kn">from</span> <span class="nn">sklearn</span> <span class="kn">import</span> <span class="n">preprocessing</span>
+
+    <span class="n">scalerX</span> <span class="o">=</span> <span class="n">preprocessing</span><span class="o">.</span><span class="n">StandardScaler</span><span class="p">()</span><span class="c1">#MinMaxScaler()</span>
+    <span class="n">scalery</span> <span class="o">=</span> <span class="n">preprocessing</span><span class="o">.</span><span class="n">StandardScaler</span><span class="p">()</span><span class="c1">#MinMaxScaler()</span>
+
+    <span class="n">scalerX</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+    <span class="n">scalery</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+
+    <span class="n">X</span> <span class="o">=</span> <span class="n">scalerX</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">scalery</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+
+    <span class="n">verbose</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">cv</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="mi">4</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">cv</span> <span class="o">&gt;</span><span class="mi">1</span><span class="p">:</span>
+
+        <span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">GridSearchCV</span>
+        <span class="c1">#model = GridSearchCV(estimator = regressor, param_grid = paramGrid, scoring = &#39;neg_mean_squared_error&#39;, cv = 4, verbose = verbose, n_jobs=-1)</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">GridSearchCV</span><span class="p">(</span><span class="n">estimator</span> <span class="o">=</span> <span class="n">regressor</span><span class="p">,</span> <span class="n">param_grid</span> <span class="o">=</span> <span class="n">paramGrid</span><span class="p">,</span> <span class="n">cv</span> <span class="o">=</span> <span class="n">cv</span><span class="p">,</span> <span class="n">verbose</span> <span class="o">=</span> <span class="n">verbose</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span><span class="c1"># pragma: no cover</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">regressor</span>
+
+    <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">model</span><span class="p">,</span> <span class="n">scalerX</span><span class="p">,</span> <span class="n">scalery</span></div>
+
+
+
+
+
+<div class="viewcode-block" id="ComputeRegressionApproximation"><a class="viewcode-back" href="../../../../_source/Mordicus.Core.BasicAlgorithms.ScikitLearnRegressor.html#Mordicus.Core.BasicAlgorithms.ScikitLearnRegressor.ComputeRegressionApproximation">[docs]</a><span class="k">def</span> <span class="nf">ComputeRegressionApproximation</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">scalerX</span><span class="p">,</span> <span class="n">scalery</span><span class="p">,</span> <span class="n">XTest</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the prediction of the Regressor,taking into account prelearned scalers for input and output</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    model : sklearn.model_selection._search.GridSearchCV</span>
+<span class="sd">        trained and optimized scikit learn regressor</span>
+<span class="sd">    scalerX : sklearn.preprocessing._data.StandardScaler</span>
+<span class="sd">        scaler trained on input data</span>
+<span class="sd">    scalery : sklearn.preprocessing._data.StandardScaler</span>
+<span class="sd">        scaler trained on output data</span>
+<span class="sd">    XTest : np.ndarray</span>
+<span class="sd">        testing data</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    np.ndarray</span>
+<span class="sd">        kept eigenvalues, of size (numberOfEigenvalues)</span>
+<span class="sd">    np.ndarray</span>
+<span class="sd">        kept eigenvectors, of size (numberOfEigenvalues, numberOfSnapshots)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">XTest</span> <span class="o">=</span> <span class="n">scalerX</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">XTest</span><span class="p">)</span>
+    <span class="n">yTest</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">XTest</span><span class="p">)</span>
+    <span class="n">yTest</span> <span class="o">=</span> <span class="n">scalery</span><span class="o">.</span><span class="n">inverse_transform</span><span class="p">(</span><span class="n">yTest</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">yTest</span></div>
+
+
+<span class="kn">from</span> <span class="nn">sklearn.gaussian_process</span> <span class="kn">import</span> <span class="n">GaussianProcessRegressor</span>
+<span class="kn">from</span> <span class="nn">sklearn.utils.optimize</span> <span class="kn">import</span> <span class="n">_check_optimize_result</span>
+<span class="kn">import</span> <span class="nn">scipy</span>
+
+<div class="viewcode-block" id="MyGPR"><a class="viewcode-back" href="../../../../_source/Mordicus.Core.BasicAlgorithms.ScikitLearnRegressor.html#Mordicus.Core.BasicAlgorithms.ScikitLearnRegressor.MyGPR">[docs]</a><span class="k">class</span> <span class="nc">MyGPR</span><span class="p">(</span><span class="n">GaussianProcessRegressor</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Customization of scikit-learn&#39;s GaussianProcessRegressor</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kernel</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">kernel</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_constrained_optimization</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj_func</span><span class="p">,</span> <span class="n">initial_theta</span><span class="p">,</span> <span class="n">bounds</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimizer</span> <span class="o">==</span> <span class="s2">&quot;fmin_l_bfgs_b&quot;</span><span class="p">:</span>
+            <span class="n">opt_res</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">optimize</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="n">obj_func</span><span class="p">,</span> <span class="n">initial_theta</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;L-BFGS-B&quot;</span><span class="p">,</span> <span class="n">jac</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">bounds</span><span class="o">=</span><span class="n">bounds</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;maxiter&#39;</span><span class="p">:</span><span class="nb">int</span><span class="p">(</span><span class="mf">1.e9</span><span class="p">),</span> <span class="s1">&#39;gtol&#39;</span><span class="p">:</span> <span class="mf">1.e-5</span><span class="p">})</span>
+            <span class="n">_check_optimize_result</span><span class="p">(</span><span class="s2">&quot;lbfgs&quot;</span><span class="p">,</span> <span class="n">opt_res</span><span class="p">)</span>
+            <span class="n">theta_opt</span><span class="p">,</span> <span class="n">func_min</span> <span class="o">=</span> <span class="n">opt_res</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">opt_res</span><span class="o">.</span><span class="n">fun</span>
+        <span class="k">elif</span> <span class="n">callable</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">optimizer</span><span class="p">):</span><span class="c1"># pragma: no cover</span>
+            <span class="n">theta_opt</span><span class="p">,</span> <span class="n">func_min</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimizer</span><span class="p">(</span><span class="n">obj_func</span><span class="p">,</span> <span class="n">initial_theta</span><span class="p">,</span> <span class="n">bounds</span><span class="o">=</span><span class="n">bounds</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span><span class="c1"># pragma: no cover</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unknown optimizer </span><span class="si">%s</span><span class="s2">.&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimizer</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">theta_opt</span><span class="p">,</span> <span class="n">func_min</span></div>
+
+
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span><span class="c1"># pragma: no cover</span>
+
+    <span class="kn">from</span> <span class="nn">Mordicus</span> <span class="kn">import</span> <span class="n">RunTestFile</span>
+    <span class="n">RunTestFile</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span>
+
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">Mordicus 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../../Mordicus.html" >Mordicus</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Mordicus.Core.BasicAlgorithms.ScikitLearnRegressor</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright Mordicus Consortium.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.0.2.
+    </div>
+  </body>
+</html>

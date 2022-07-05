@@ -1,0 +1,219 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Mordicus.Core.Containers.Visitor module &#8212; Mordicus 0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/classic.css" />
+    
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../_static/doctools.js"></script>
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Mordicus.Core.DataCompressors package" href="Mordicus.Core.DataCompressors.html" />
+    <link rel="prev" title="Mordicus.Core.Containers.Solution module" href="Mordicus.Core.Containers.Solution.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="Mordicus.Core.DataCompressors.html" title="Mordicus.Core.DataCompressors package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="Mordicus.Core.Containers.Solution.html" title="Mordicus.Core.Containers.Solution module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Mordicus 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="Mordicus.html" >Mordicus package</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="Mordicus.Core.html" >Mordicus.Core package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="Mordicus.Core.Containers.html" accesskey="U">Mordicus.Core.Containers package</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Mordicus.Core.Containers.Visitor module</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="module-Mordicus.Core.Containers.Visitor">
+<span id="mordicus-core-containers-visitor-module"></span><h1>Mordicus.Core.Containers.Visitor module<a class="headerlink" href="#module-Mordicus.Core.Containers.Visitor" title="Permalink to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.Visitor.ExportToJSONVisitor">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">Mordicus.Core.Containers.Visitor.</span></span><span class="sig-name descname"><span class="pre">ExportToJSONVisitor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">folder</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solutionReader</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reconstruct</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/Visitor.html#ExportToJSONVisitor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.Visitor.ExportToJSONVisitor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Abstract visitor</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.Visitor.ExportToJSONVisitor.visitCPD">
+<span class="sig-name descname"><span class="pre">visitCPD</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cpd</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/Visitor.html#ExportToJSONVisitor.visitCPD"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.Visitor.ExportToJSONVisitor.visitCPD" title="Permalink to this definition">¶</a></dt>
+<dd><p>Visit Collection Problem Data Structure</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.Visitor.ExportToJSONVisitor.visitDataSet">
+<span class="sig-name descname"><span class="pre">visitDataSet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cpd</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/Visitor.html#ExportToJSONVisitor.visitDataSet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.Visitor.ExportToJSONVisitor.visitDataSet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Visit Dataset</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.Visitor.ExportToJSONVisitor.visitProblemData">
+<span class="sig-name descname"><span class="pre">visitProblemData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problemData</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/Visitor.html#ExportToJSONVisitor.visitProblemData"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.Visitor.ExportToJSONVisitor.visitProblemData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Visit problemData</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.Visitor.ExportToJSONVisitor.visitQuantityDefinitionDict">
+<span class="sig-name descname"><span class="pre">visitQuantityDefinitionDict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">defdict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/Visitor.html#ExportToJSONVisitor.visitQuantityDefinitionDict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.Visitor.ExportToJSONVisitor.visitQuantityDefinitionDict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Visit quantity definition dictionary</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.Visitor.ExportToJSONVisitor.visitSolution">
+<span class="sig-name descname"><span class="pre">visitSolution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solution</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/Visitor.html#ExportToJSONVisitor.visitSolution"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.Visitor.ExportToJSONVisitor.visitSolution" title="Permalink to this definition">¶</a></dt>
+<dd><p>Visit solution</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.Visitor.ExportToJSONVisitor.visitSolutionStructure">
+<span class="sig-name descname"><span class="pre">visitSolutionStructure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quantity</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/Visitor.html#ExportToJSONVisitor.visitSolutionStructure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.Visitor.ExportToJSONVisitor.visitSolutionStructure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Visit Solution Structure</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.Visitor.ExportToJSONVisitor.visitSolver">
+<span class="sig-name descname"><span class="pre">visitSolver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solver</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/Visitor.html#ExportToJSONVisitor.visitSolver"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.Visitor.ExportToJSONVisitor.visitSolver" title="Permalink to this definition">¶</a></dt>
+<dd><p>Visit Solver</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.Visitor.ExportToJSONVisitor.visitVariabilityDefinitionDict">
+<span class="sig-name descname"><span class="pre">visitVariabilityDefinitionDict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">defdict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/Visitor.html#ExportToJSONVisitor.visitVariabilityDefinitionDict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.Visitor.ExportToJSONVisitor.visitVariabilityDefinitionDict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Visit variability definition dictionary</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.Visitor.ImportFromJSONVisitor">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">Mordicus.Core.Containers.Visitor.</span></span><span class="sig-name descname"><span class="pre">ImportFromJSONVisitor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">folder</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'reducedModel.json'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solutionReader</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reconstruct</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/Visitor.html#ImportFromJSONVisitor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.Visitor.ImportFromJSONVisitor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Abstract visitor</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.Visitor.ImportFromJSONVisitor.visitCPD">
+<span class="sig-name descname"><span class="pre">visitCPD</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cpd</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/Visitor.html#ImportFromJSONVisitor.visitCPD"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.Visitor.ImportFromJSONVisitor.visitCPD" title="Permalink to this definition">¶</a></dt>
+<dd><p>Visit Collection Problem Data</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.Visitor.ImportFromJSONVisitor.visitQuantityDefinitionDict">
+<span class="sig-name descname"><span class="pre">visitQuantityDefinitionDict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">defdict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/Visitor.html#ImportFromJSONVisitor.visitQuantityDefinitionDict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.Visitor.ImportFromJSONVisitor.visitQuantityDefinitionDict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Visit quantity definition dictionary</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.Visitor.ImportFromJSONVisitor.visitVariabilityDefinitionDict">
+<span class="sig-name descname"><span class="pre">visitVariabilityDefinitionDict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">defdict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/Visitor.html#ImportFromJSONVisitor.visitVariabilityDefinitionDict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.Visitor.ImportFromJSONVisitor.visitVariabilityDefinitionDict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Visit variability definition dictionary</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.Visitor.checkValidity">
+<span class="sig-prename descclassname"><span class="pre">Mordicus.Core.Containers.Visitor.</span></span><span class="sig-name descname"><span class="pre">checkValidity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">json_path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/Visitor.html#checkValidity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.Visitor.checkValidity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks validity of JSON file</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.Visitor.exportToJSON">
+<span class="sig-prename descclassname"><span class="pre">Mordicus.Core.Containers.Visitor.</span></span><span class="sig-name descname"><span class="pre">exportToJSON</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">folder</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cpd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solutionReader</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reconstruct</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/Visitor.html#exportToJSON"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.Visitor.exportToJSON" title="Permalink to this definition">¶</a></dt>
+<dd><p>Export study to a folder with directing JSON file</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.Visitor.importFromJSON">
+<span class="sig-prename descclassname"><span class="pre">Mordicus.Core.Containers.Visitor.</span></span><span class="sig-name descname"><span class="pre">importFromJSON</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">folder</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'reducedModel.json'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solutionReader</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reconstruct</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/Visitor.html#importFromJSON"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.Visitor.importFromJSON" title="Permalink to this definition">¶</a></dt>
+<dd><p>Import study from a json</p>
+</dd></dl>
+
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="Mordicus.Core.Containers.Solution.html"
+                          title="previous chapter">Mordicus.Core.Containers.Solution module</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="Mordicus.Core.DataCompressors.html"
+                          title="next chapter">Mordicus.Core.DataCompressors package</a></p>
+  </div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/_source/Mordicus.Core.Containers.Visitor.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="Mordicus.Core.DataCompressors.html" title="Mordicus.Core.DataCompressors package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="Mordicus.Core.Containers.Solution.html" title="Mordicus.Core.Containers.Solution module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Mordicus 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="Mordicus.html" >Mordicus package</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="Mordicus.Core.html" >Mordicus.Core package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="Mordicus.Core.Containers.html" >Mordicus.Core.Containers package</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Mordicus.Core.Containers.Visitor module</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright Mordicus Consortium.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.0.2.
+    </div>
+  </body>
+</html>

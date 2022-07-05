@@ -1,0 +1,7 @@
+Mordicus.Modules.Safran.FE.FETools module
+=========================================
+
+.. automodule:: Mordicus.Modules.Safran.FE.FETools
+   :members:
+   :undoc-members:
+   :show-inheritance:

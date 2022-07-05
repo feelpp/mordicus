@@ -1,0 +1,7 @@
+Mordicus.Core.DataCompressors.SnapshotPOD module
+================================================
+
+.. automodule:: Mordicus.Core.DataCompressors.SnapshotPOD
+   :members:
+   :undoc-members:
+   :show-inheritance:

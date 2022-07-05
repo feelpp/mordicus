@@ -1,0 +1,15 @@
+Mordicus.Modules.sorbonne package
+=================================
+
+.. automodule:: Mordicus.Modules.sorbonne
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   Mordicus.Modules.sorbonne.IO

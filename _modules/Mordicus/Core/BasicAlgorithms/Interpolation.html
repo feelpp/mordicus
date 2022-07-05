@@ -1,0 +1,234 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mordicus.Core.BasicAlgorithms.Interpolation &#8212; Mordicus 0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/classic.css" />
+    
+    <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+    <script src="../../../../_static/jquery.js"></script>
+    <script src="../../../../_static/underscore.js"></script>
+    <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../../../_static/doctools.js"></script>
+    
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">Mordicus 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../../Mordicus.html" accesskey="U">Mordicus</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Mordicus.Core.BasicAlgorithms.Interpolation</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for Mordicus.Core.BasicAlgorithms.Interpolation</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">mpi4py</span> <span class="kn">import</span> <span class="n">MPI</span>
+<span class="k">if</span> <span class="n">MPI</span><span class="o">.</span><span class="n">COMM_WORLD</span><span class="o">.</span><span class="n">Get_size</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span> <span class="c1"># pragma: no cover</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;OMP_NUM_THREADS&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;1&quot;</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;OPENBLAS_NUM_THREADS&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;1&quot;</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;MKL_NUM_THREADS&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;1&quot;</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;VECLIB_MAXIMUM_THREADS&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;1&quot;</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;NUMEXPR_NUM_THREADS&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;1&quot;</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">bisect</span>
+
+
+
+
+<div class="viewcode-block" id="BinarySearch"><a class="viewcode-back" href="../../../../_source/Mordicus.Core.BasicAlgorithms.Interpolation.html#Mordicus.Core.BasicAlgorithms.Interpolation.BinarySearch">[docs]</a><span class="k">def</span> <span class="nf">BinarySearch</span><span class="p">(</span><span class="n">orderedList</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Inspects the sorted list &quot;ordered_list&quot; and returns:</span>
+<span class="sd">        - 0 if item &lt;= orderedList[0]</span>
+<span class="sd">        - the rank of the largest element smaller or equal than item otherwise</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ordered_list: list or one-dimensional np.ndarray</span>
+<span class="sd">        the data sorted in increasing order from which the previous rank is\</span>
+<span class="sd">        searched</span>
+<span class="sd">    item : float or int</span>
+<span class="sd">        the item for which the previous rank is searched</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    int</span>
+<span class="sd">        0 or the rank of the largest element smaller or equal than item in\</span>
+<span class="sd">        &quot;orderedList&quot;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="n">bisect</span><span class="o">.</span><span class="n">bisect_right</span><span class="p">(</span><span class="n">orderedList</span><span class="p">,</span> <span class="n">item</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="BinarySearchVectorized"><a class="viewcode-back" href="../../../../_source/Mordicus.Core.BasicAlgorithms.Interpolation.html#Mordicus.Core.BasicAlgorithms.Interpolation.BinarySearchVectorized">[docs]</a><span class="k">def</span> <span class="nf">BinarySearchVectorized</span><span class="p">(</span><span class="n">orderedList</span><span class="p">,</span> <span class="n">items</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    BinarySearch for more than one call (items is now a list or one-dimensional np.ndarray)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">fromiter</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">item</span><span class="p">:</span> <span class="n">BinarySearch</span><span class="p">(</span><span class="n">orderedList</span><span class="p">,</span> <span class="n">item</span><span class="p">),</span> <span class="n">items</span><span class="p">),</span> <span class="n">dtype</span> <span class="o">=</span> <span class="nb">int</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="PieceWiseLinearInterpolation"><a class="viewcode-back" href="../../../../_source/Mordicus.Core.BasicAlgorithms.Interpolation.html#Mordicus.Core.BasicAlgorithms.Interpolation.PieceWiseLinearInterpolation">[docs]</a><span class="k">def</span> <span class="nf">PieceWiseLinearInterpolation</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">itemIndices</span><span class="p">,</span> <span class="n">vectors</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes a item interpolation for temporal vectors defined either by</span>
+<span class="sd">    itemIndices  and vectors at these indices</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    item : float</span>
+<span class="sd">        the input item at which the interpolation is required</span>
+<span class="sd">    itemIndices : np.ndarray</span>
+<span class="sd">        the items where the available data is defined, of size</span>
+<span class="sd">        (numberOfTimeIndices)</span>
+<span class="sd">    vectors : np.ndarray or dict</span>
+<span class="sd">        the available data, of size (numberOfVectors, numberOfDofs)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    np.ndarray</span>
+<span class="sd">        interpolated vector, of size (numberOfDofs)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">item</span> <span class="o">&lt;=</span> <span class="n">itemIndices</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">vectors</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">item</span> <span class="o">&gt;=</span> <span class="n">itemIndices</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">vectors</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+
+    <span class="n">prev</span> <span class="o">=</span> <span class="n">BinarySearch</span><span class="p">(</span><span class="n">itemIndices</span><span class="p">,</span> <span class="n">item</span><span class="p">)</span>
+    <span class="n">coef</span> <span class="o">=</span> <span class="p">(</span><span class="n">item</span> <span class="o">-</span> <span class="n">itemIndices</span><span class="p">[</span><span class="n">prev</span><span class="p">])</span> <span class="o">/</span> <span class="p">(</span><span class="n">itemIndices</span><span class="p">[</span><span class="n">prev</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">itemIndices</span><span class="p">[</span><span class="n">prev</span><span class="p">])</span>
+
+    <span class="k">return</span> <span class="p">(</span>
+            <span class="n">coef</span> <span class="o">*</span> <span class="n">vectors</span><span class="p">[</span><span class="n">prev</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+            <span class="o">+</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">coef</span><span class="p">)</span> <span class="o">*</span> <span class="n">vectors</span><span class="p">[</span><span class="n">prev</span><span class="p">]</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="PieceWiseLinearInterpolationWithMap"><a class="viewcode-back" href="../../../../_source/Mordicus.Core.BasicAlgorithms.Interpolation.html#Mordicus.Core.BasicAlgorithms.Interpolation.PieceWiseLinearInterpolationWithMap">[docs]</a><span class="k">def</span> <span class="nf">PieceWiseLinearInterpolationWithMap</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">itemIndices</span><span class="p">,</span> <span class="n">vectors</span><span class="p">,</span> <span class="n">vectorsMap</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes a item interpolation for temporal vectors defined either by</span>
+<span class="sd">    itemIndices, some tags at these item indices (vectorsMap), and vectors at those tags.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    item : float</span>
+<span class="sd">        the input item at which the interpolation is required</span>
+<span class="sd">    itemIndices : np.ndarray</span>
+<span class="sd">        the items where the available data is defined, of size</span>
+<span class="sd">        (numberOfTimeIndices)</span>
+<span class="sd">    vectors : np.ndarray or dict</span>
+<span class="sd">        the available data, of size (numberOfVectors, numberOfDofs)</span>
+<span class="sd">    vectorsMap : list</span>
+<span class="sd">        list containing the mapping from the numberOfTimeIndices items indices to the numberOfVectors vectors, of size (numberOfTimeIndices,). Default is None, in which case numberOfVectors = numberOfTimeIndices.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    np.ndarray</span>
+<span class="sd">        interpolated vector, of size (numberOfDofs)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+
+    <span class="k">if</span> <span class="n">item</span> <span class="o">&lt;=</span> <span class="n">itemIndices</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">vectors</span><span class="p">[</span><span class="n">vectorsMap</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+    <span class="k">if</span> <span class="n">item</span> <span class="o">&gt;=</span> <span class="n">itemIndices</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">vectors</span><span class="p">[</span><span class="n">vectorsMap</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span>
+
+
+    <span class="n">prev</span> <span class="o">=</span> <span class="n">BinarySearch</span><span class="p">(</span><span class="n">itemIndices</span><span class="p">,</span> <span class="n">item</span><span class="p">)</span>
+
+    <span class="n">coef</span> <span class="o">=</span> <span class="p">(</span><span class="n">item</span> <span class="o">-</span> <span class="n">itemIndices</span><span class="p">[</span><span class="n">prev</span><span class="p">])</span> <span class="o">/</span> <span class="p">(</span><span class="n">itemIndices</span><span class="p">[</span><span class="n">prev</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">itemIndices</span><span class="p">[</span><span class="n">prev</span><span class="p">])</span>
+
+    <span class="k">return</span> <span class="p">(</span>
+            <span class="n">coef</span> <span class="o">*</span> <span class="n">vectors</span><span class="p">[</span><span class="n">vectorsMap</span><span class="p">[</span><span class="n">prev</span><span class="o">+</span><span class="mi">1</span><span class="p">]]</span>
+            <span class="o">+</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">coef</span><span class="p">)</span> <span class="o">*</span> <span class="n">vectors</span><span class="p">[</span><span class="n">vectorsMap</span><span class="p">[</span><span class="n">prev</span><span class="p">]]</span>
+        <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="PieceWiseLinearInterpolationVectorized"><a class="viewcode-back" href="../../../../_source/Mordicus.Core.BasicAlgorithms.Interpolation.html#Mordicus.Core.BasicAlgorithms.Interpolation.PieceWiseLinearInterpolationVectorized">[docs]</a><span class="k">def</span> <span class="nf">PieceWiseLinearInterpolationVectorized</span><span class="p">(</span><span class="n">items</span><span class="p">,</span> <span class="n">itemIndices</span><span class="p">,</span> <span class="n">vectors</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    PieceWiseLinearInterpolation for more than one call (items is now a list or one-dimensional np.ndarray)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">PieceWiseLinearInterpolation</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">itemIndices</span><span class="p">,</span> <span class="n">vectors</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">items</span><span class="p">]</span></div>
+    <span class="c1">#return np.fromiter(map(lambda item: PieceWiseLinearInterpolation(item, itemIndices, vectors), items), dtype = type(vectors[0]))</span>
+
+
+
+<div class="viewcode-block" id="PieceWiseLinearInterpolationVectorizedWithMap"><a class="viewcode-back" href="../../../../_source/Mordicus.Core.BasicAlgorithms.Interpolation.html#Mordicus.Core.BasicAlgorithms.Interpolation.PieceWiseLinearInterpolationVectorizedWithMap">[docs]</a><span class="k">def</span> <span class="nf">PieceWiseLinearInterpolationVectorizedWithMap</span><span class="p">(</span><span class="n">items</span><span class="p">,</span> <span class="n">itemIndices</span><span class="p">,</span> <span class="n">vectors</span><span class="p">,</span> <span class="n">vectorsMap</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    PieceWiseLinearInterpolation for more than one call (items is now a list or one-dimensional np.ndarray)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">PieceWiseLinearInterpolationWithMap</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">itemIndices</span><span class="p">,</span> <span class="n">vectors</span><span class="p">,</span> <span class="n">vectorsMap</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">items</span><span class="p">]</span></div>
+    <span class="c1">#return np.fromiter(map(lambda item: PieceWiseLinearInterpolationWithMap(item, itemIndices, vectors, vectorsMap), items), dtype = np.float)</span>
+
+
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span><span class="c1"># pragma: no cover</span>
+
+    <span class="kn">from</span> <span class="nn">Mordicus</span> <span class="kn">import</span> <span class="n">RunTestFile</span>
+    <span class="n">RunTestFile</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span>
+
+
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">Mordicus 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../../Mordicus.html" >Mordicus</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Mordicus.Core.BasicAlgorithms.Interpolation</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright Mordicus Consortium.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.0.2.
+    </div>
+  </body>
+</html>

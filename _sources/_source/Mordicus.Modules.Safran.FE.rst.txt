@@ -1,0 +1,15 @@
+Mordicus.Modules.Safran.FE package
+==================================
+
+.. automodule:: Mordicus.Modules.Safran.FE
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   Mordicus.Modules.Safran.FE.FETools

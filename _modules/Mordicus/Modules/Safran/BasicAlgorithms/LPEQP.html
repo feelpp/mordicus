@@ -1,0 +1,237 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mordicus.Modules.Safran.BasicAlgorithms.LPEQP &#8212; Mordicus 0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/classic.css" />
+    
+    <script data-url_root="../../../../../" id="documentation_options" src="../../../../../_static/documentation_options.js"></script>
+    <script src="../../../../../_static/jquery.js"></script>
+    <script src="../../../../../_static/underscore.js"></script>
+    <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../../../../_static/doctools.js"></script>
+    
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../../index.html">Mordicus 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../../../Mordicus.html" accesskey="U">Mordicus</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Mordicus.Modules.Safran.BasicAlgorithms.LPEQP</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for Mordicus.Modules.Safran.BasicAlgorithms.LPEQP</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">mpi4py</span> <span class="kn">import</span> <span class="n">MPI</span>
+<span class="k">if</span> <span class="n">MPI</span><span class="o">.</span><span class="n">COMM_WORLD</span><span class="o">.</span><span class="n">Get_size</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span> <span class="c1"># pragma: no cover</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;OMP_NUM_THREADS&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;1&quot;</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;OPENBLAS_NUM_THREADS&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;1&quot;</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;MKL_NUM_THREADS&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;1&quot;</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;VECLIB_MAXIMUM_THREADS&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;1&quot;</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;NUMEXPR_NUM_THREADS&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;1&quot;</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+
+
+
+<div class="viewcode-block" id="LPEQP"><a class="viewcode-back" href="../../../../../_source/Mordicus.Modules.Safran.BasicAlgorithms.LPEQP.html#Mordicus.Modules.Safran.BasicAlgorithms.LPEQP.LPEQP">[docs]</a><span class="k">def</span> <span class="nf">LPEQP</span><span class="p">(</span><span class="n">integrationWeights</span><span class="p">,</span> <span class="n">integrands</span><span class="p">,</span> <span class="n">integrals</span><span class="p">,</span> <span class="n">normIntegrals</span><span class="p">,</span> <span class="n">tolerance</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Linear Programming Empirical Quadrature Procedure [1].</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    integrationWeights : np.ndarray</span>
+<span class="sd">        of size (numberOfIntegrationPoints,), dtype = float.</span>
+<span class="sd">        Weights of the truth quadrature</span>
+<span class="sd">    integrands : np.ndarray</span>
+<span class="sd">        of size (numberOfIntegrands,numberOfIntegrationPoints), dtype = float.</span>
+<span class="sd">        Functions we look to integrated accurately with fewer integration</span>
+<span class="sd">        points. Usually, the integrands are already reduced, and</span>
+<span class="sd">        numberOfIntegrands is the product of the number of reduced integrand</span>
+<span class="sd">        modes and the number of modes of the ReducedOrderBasis</span>
+<span class="sd">    integrals : np.ndarray</span>
+<span class="sd">        of size (numberOfIntegrands,), dtype = float.</span>
+<span class="sd">        High-fidelity integral computed using the truth integration scheme</span>
+<span class="sd">    normIntegrals : float</span>
+<span class="sd">        np.linalg.norm(integrals), already computed in mordicus use</span>
+<span class="sd">    tolerance : float</span>
+<span class="sd">        upper bound for the accuracy of the reduced integration scheme on the</span>
+<span class="sd">        provided integrands</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    np.ndarray of size (numberOfReducedIntegrationPoints,), dtype = int</span>
+<span class="sd">        indices of the kepts integration points (reducedIntegrationPoints)</span>
+<span class="sd">    np.ndarray of size (numberOfReducedIntegrationPoints,), dtype = float</span>
+<span class="sd">        weights associated to the kepts integration points</span>
+<span class="sd">        (reducedIntegrationWeights)</span>
+
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+<span class="sd">        [1] M. Yano and A. T. Patera. An LP empirical quadrature procedure for</span>
+<span class="sd">        reduced basis treatment of parametrized nonlinear PDEs, 2017.</span>
+<span class="sd">        URL: https://www.researchgate.net/publication/323633428_An_LP_empirical</span>
+<span class="sd">        _quadrature_procedure_for_reduced_basis_treatment_of_parametrized_nonli</span>
+<span class="sd">        near_PDEs.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># optimization options</span>
+    <span class="n">optimStatus</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">optimStatus</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Optimization proceeding nominally&quot;</span>
+    <span class="n">optimStatus</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Iteration limit reached&quot;</span>
+    <span class="n">optimStatus</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Problem appears to be infeasible&quot;</span>
+    <span class="n">optimStatus</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Problem appears to be unbounded&quot;</span>
+    <span class="n">optimStatus</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Numerical difficulties encountered&quot;</span>
+
+    <span class="c1">#method = &#39;revised simplex&#39;</span>
+    <span class="n">method</span> <span class="o">=</span> <span class="s1">&#39;interior-point&#39;</span>
+
+    <span class="n">options</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">options</span><span class="p">[</span><span class="s1">&#39;interior-point&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>\
+    <span class="s1">&#39;maxiter&#39;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span> <span class="s1">&#39;tol&#39;</span><span class="p">:</span> <span class="mf">1e-06</span><span class="p">,</span> <span class="s1">&#39;disp&#39;</span><span class="p">:</span>\
+    <span class="kc">False</span><span class="p">,</span> <span class="s1">&#39;alpha0&#39;</span><span class="p">:</span> <span class="mf">0.99995</span><span class="p">,</span> <span class="s1">&#39;beta&#39;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span> <span class="s1">&#39;sparse&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>\
+    <span class="s1">&#39;lstsq&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s1">&#39;sym_pos&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s1">&#39;cholesky&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s1">&#39;pc&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>\
+    <span class="s1">&#39;ip&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s1">&#39;permc_spec&#39;</span><span class="p">:</span> <span class="s1">&#39;MMD_AT_PLUS_A&#39;</span><span class="p">,</span> <span class="s1">&#39;presolve&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span>
+
+    <span class="n">options</span><span class="p">[</span><span class="s1">&#39;revised simplex&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>\
+    <span class="s1">&#39;maxiter&#39;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span> <span class="s1">&#39;tol&#39;</span><span class="p">:</span> <span class="mf">1e-06</span><span class="p">,</span> <span class="s1">&#39;disp&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">}</span>
+
+
+    <span class="c1"># problem definition</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">integrationWeights</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">A_ub</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="n">integrands</span><span class="p">,</span> <span class="o">-</span><span class="n">integrands</span><span class="p">))</span>
+
+    <span class="n">b_ub</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">tolerance</span><span class="o">*</span><span class="n">normIntegrals</span> <span class="o">+</span> <span class="n">integrals</span><span class="p">,</span>\
+                      <span class="n">tolerance</span><span class="o">*</span><span class="n">normIntegrals</span> <span class="o">-</span> <span class="n">integrals</span><span class="p">))</span>
+
+
+    <span class="c1"># optimization call</span>
+    <span class="n">optimRes</span> <span class="o">=</span> <span class="n">CallOptimizer</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">A_ub</span><span class="p">,</span> <span class="n">b_ub</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">options</span><span class="p">[</span><span class="n">method</span><span class="p">])</span>
+
+
+    <span class="c1"># provide result if optimization successful</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">optimRes</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Optimization status =&quot;</span><span class="p">,</span> <span class="n">optimStatus</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">optimRes</span><span class="p">[</span><span class="s1">&#39;status&#39;</span><span class="p">],</span> <span class="s2">&quot;key not known&quot;</span><span class="p">))</span>
+
+
+    <span class="k">if</span> <span class="n">optimRes</span><span class="p">[</span><span class="s1">&#39;status&#39;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="c1"># return the solution only if the sparsity is at least 15%</span>
+
+        <span class="n">totalWeights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+        <span class="n">indices</span> <span class="o">=</span> <span class="n">x</span><span class="o">&gt;</span><span class="mf">1.e-7</span><span class="o">*</span><span class="n">totalWeights</span>
+
+        <span class="n">reducedIntegrationPoints</span><span class="p">,</span> <span class="n">reducedIntegrationWeights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">indices</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="n">indices</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">reducedIntegrationPoints</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">0.15</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">integrationWeights</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="mi">100</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">reducedIntegrationPoints</span><span class="p">)</span><span class="o">/</span><span class="nb">len</span><span class="p">(</span><span class="n">integrationWeights</span><span class="p">))</span><span class="o">+</span><span class="s2">&quot;</span><span class="si">% o</span><span class="s2">f nonzero integration weights&quot;</span><span class="p">)</span>
+            <span class="k">return</span>  <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([]),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span>  <span class="n">reducedIntegrationPoints</span><span class="p">,</span> <span class="n">reducedIntegrationWeights</span>
+
+
+    <span class="k">else</span><span class="p">:</span><span class="c1"># pragma: no cover</span>
+        <span class="c1"># return an empty solution</span>
+
+        <span class="k">return</span>  <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([]),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span></div>
+
+
+
+<div class="viewcode-block" id="CallOptimizer"><a class="viewcode-back" href="../../../../../_source/Mordicus.Modules.Safran.BasicAlgorithms.LPEQP.html#Mordicus.Modules.Safran.BasicAlgorithms.LPEQP.CallOptimizer">[docs]</a><span class="k">def</span> <span class="nf">CallOptimizer</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">A_ub</span><span class="p">,</span> <span class="n">b_ub</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">options</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Exemple of scipy optimizer wrapper (here linprog)</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    c : 1-D array</span>
+<span class="sd">        The coefficients of the linear objective function to be minimized.</span>
+<span class="sd">    A_ub : 2-D array</span>
+<span class="sd">        The inequality constraint matrix. Each row of ``A_ub`` specifies the</span>
+<span class="sd">        coefficients of a linear inequality constraint on ``x``.</span>
+<span class="sd">    b_ub : 1-D array</span>
+<span class="sd">        The inequality constraint vector. Each element represents an</span>
+<span class="sd">        upper bound on the corresponding value of ``A_ub @ x``.</span>
+<span class="sd">    method : str, optional</span>
+<span class="sd">        The algorithm used to solve the standard form problem.</span>
+<span class="sd">    options : dict, optional</span>
+<span class="sd">        A dictionary of solver options.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    res : OptimizeResult</span>
+<span class="sd">        see the class `scipy.optimize.OptimizeResult`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="kn">import</span> <span class="n">linprog</span> <span class="k">as</span> <span class="n">lp</span>
+
+    <span class="k">return</span> <span class="n">lp</span><span class="p">(</span><span class="n">c</span> <span class="o">=</span> <span class="n">c</span><span class="p">,</span> <span class="n">A_ub</span> <span class="o">=</span> <span class="n">A_ub</span><span class="p">,</span> <span class="n">b_ub</span> <span class="o">=</span> <span class="n">b_ub</span><span class="p">,</span> <span class="n">method</span> <span class="o">=</span> <span class="n">method</span><span class="p">,</span>\
+              <span class="n">options</span> <span class="o">=</span> <span class="n">options</span><span class="p">)</span></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span><span class="c1"># pragma: no cover</span>
+
+    <span class="kn">from</span> <span class="nn">Mordicus</span> <span class="kn">import</span> <span class="n">RunTestFile</span>
+    <span class="n">RunTestFile</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../../index.html">Mordicus 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../../../Mordicus.html" >Mordicus</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Mordicus.Modules.Safran.BasicAlgorithms.LPEQP</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright Mordicus Consortium.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.0.2.
+    </div>
+  </body>
+</html>

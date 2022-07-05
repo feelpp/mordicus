@@ -1,0 +1,266 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mordicus.Modules.Safran.Containers.Loadings.ConvectionHeatFlux &#8212; Mordicus 0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../../../_static/classic.css" />
+    
+    <script data-url_root="../../../../../../" id="documentation_options" src="../../../../../../_static/documentation_options.js"></script>
+    <script src="../../../../../../_static/jquery.js"></script>
+    <script src="../../../../../../_static/underscore.js"></script>
+    <script src="../../../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../../../../../_static/doctools.js"></script>
+    
+    <link rel="index" title="Index" href="../../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../../../index.html">Mordicus 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../../../../Mordicus.html" accesskey="U">Mordicus</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Mordicus.Modules.Safran.Containers.Loadings.ConvectionHeatFlux</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for Mordicus.Modules.Safran.Containers.Loadings.ConvectionHeatFlux</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">mpi4py</span> <span class="kn">import</span> <span class="n">MPI</span>
+<span class="k">if</span> <span class="n">MPI</span><span class="o">.</span><span class="n">COMM_WORLD</span><span class="o">.</span><span class="n">Get_size</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span> <span class="c1"># pragma: no cover</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;OMP_NUM_THREADS&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;1&quot;</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;OPENBLAS_NUM_THREADS&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;1&quot;</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;MKL_NUM_THREADS&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;1&quot;</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;VECLIB_MAXIMUM_THREADS&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;1&quot;</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;NUMEXPR_NUM_THREADS&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;1&quot;</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">Mordicus.Core.Containers.Loadings.LoadingBase</span> <span class="kn">import</span> <span class="n">LoadingBase</span>
+<span class="kn">from</span> <span class="nn">Mordicus.Core.BasicAlgorithms</span> <span class="kn">import</span> <span class="n">Interpolation</span> <span class="k">as</span> <span class="n">TI</span>
+
+
+<div class="viewcode-block" id="ConvectionHeatFlux"><a class="viewcode-back" href="../../../../../../_source/Mordicus.Modules.Safran.Containers.Loadings.ConvectionHeatFlux.html#Mordicus.Modules.Safran.Containers.Loadings.ConvectionHeatFlux.ConvectionHeatFlux">[docs]</a><span class="k">class</span> <span class="nc">ConvectionHeatFlux</span><span class="p">(</span><span class="n">LoadingBase</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class containing a Loading of type convection heat flux boundary condition</span>
+<span class="sd">    for thermal problems.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    hTimes : np.ndarray or list of floats</span>
+<span class="sd">        time values on which heat transfert coefficient values are provided</span>
+<span class="sd">    hValues : np.ndarray or list of floats</span>
+<span class="sd">        heat transfert coefficient values at the corresponding time values</span>
+<span class="sd">    TextTimes : np.ndarray or list of floats</span>
+<span class="sd">        time values on which external temperature values are provided</span>
+<span class="sd">    TextValues : np.ndarray or list of floats</span>
+<span class="sd">        external temperature values at the corresponding time values</span>
+
+<span class="sd">    reducedPhiT : numpy.ndarray</span>
+<span class="sd">        of size (numberOfModes,) containing the precomputed vector</span>
+<span class="sd">        &quot;red&quot; for deriving the convection heat flux reduced external forces</span>
+<span class="sd">        contribution is the form: h*Text*red</span>
+<span class="sd">    reducedPhiTPhiT : numpy.ndarray</span>
+<span class="sd">        of size (numberOfModes, numberOfModes) containing the precomputed matrix</span>
+<span class="sd">        &quot;mat&quot; for deriving the reduced global tangent matrix contribution</span>
+<span class="sd">        is the form: h*mat</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">solutionName</span><span class="p">,</span> <span class="nb">set</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">set</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">solutionName</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">solutionName</span> <span class="o">==</span> <span class="s2">&quot;T&quot;</span><span class="p">,</span> <span class="s2">&quot;ConvectionHeatFlux loading can only be applied on T solution types&quot;</span>
+
+        <span class="nb">super</span><span class="p">(</span><span class="n">ConvectionHeatFlux</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;T&quot;</span><span class="p">,</span> <span class="nb">set</span><span class="p">,</span> <span class="s2">&quot;convection_heat_flux&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">hTimes</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hValues</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">TextTimes</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">TextValues</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">reducedPhiT</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reducedPhiTPhiT</span> <span class="o">=</span> <span class="kc">None</span>
+
+
+<div class="viewcode-block" id="ConvectionHeatFlux.SetH"><a class="viewcode-back" href="../../../../../../_source/Mordicus.Modules.Safran.Containers.Loadings.ConvectionHeatFlux.html#Mordicus.Modules.Safran.Containers.Loadings.ConvectionHeatFlux.ConvectionHeatFlux.SetH">[docs]</a>    <span class="k">def</span> <span class="nf">SetH</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">h</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets hTimes and hValues</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        h : dict</span>
+<span class="sd">            dictionary with time steps (float) as keys and the values of the</span>
+<span class="sd">            heat transfert coefficient (float)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># assert type of h</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span>
+            <span class="p">[</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">))</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">h</span><span class="o">.</span><span class="n">keys</span><span class="p">())])</span>
+        <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">([</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">))</span>
+                <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">h</span><span class="o">.</span><span class="n">values</span><span class="p">())])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">hTimes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">h</span><span class="o">.</span><span class="n">keys</span><span class="p">()),</span> <span class="n">dtype</span> <span class="o">=</span> <span class="nb">float</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hValues</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">h</span><span class="o">.</span><span class="n">values</span><span class="p">()),</span> <span class="n">dtype</span> <span class="o">=</span> <span class="nb">float</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ConvectionHeatFlux.SetText"><a class="viewcode-back" href="../../../../../../_source/Mordicus.Modules.Safran.Containers.Loadings.ConvectionHeatFlux.html#Mordicus.Modules.Safran.Containers.Loadings.ConvectionHeatFlux.ConvectionHeatFlux.SetText">[docs]</a>    <span class="k">def</span> <span class="nf">SetText</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Text</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets TextTimes and TextValues</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        Text : dict</span>
+<span class="sd">            dictionary with time steps (float) as keys and the values of the</span>
+<span class="sd">            external temperature values (float)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># assert type of Text</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">Text</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span>
+            <span class="p">[</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">))</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">Text</span><span class="o">.</span><span class="n">keys</span><span class="p">())])</span>
+        <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">([</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">))</span>
+                <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">Text</span><span class="o">.</span><span class="n">values</span><span class="p">())])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">TextTimes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">Text</span><span class="o">.</span><span class="n">keys</span><span class="p">()),</span> <span class="n">dtype</span> <span class="o">=</span> <span class="nb">float</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">TextValues</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">Text</span><span class="o">.</span><span class="n">values</span><span class="p">()),</span> <span class="n">dtype</span> <span class="o">=</span> <span class="nb">float</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ConvectionHeatFlux.GetCoefficientsAtTime"><a class="viewcode-back" href="../../../../../../_source/Mordicus.Modules.Safran.Containers.Loadings.ConvectionHeatFlux.html#Mordicus.Modules.Safran.Containers.Loadings.ConvectionHeatFlux.ConvectionHeatFlux.GetCoefficientsAtTime">[docs]</a>    <span class="k">def</span> <span class="nf">GetCoefficientsAtTime</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span><span class="o">-&gt;</span> <span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes and return h and Text at time, using</span>
+<span class="sd">        PieceWiseLinearInterpolation</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        time : float</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">            h at time</span>
+<span class="sd">        float</span>
+<span class="sd">            Text at time</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="n">TI</span><span class="o">.</span><span class="n">PieceWiseLinearInterpolation</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hTimes</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hValues</span><span class="p">)</span>
+        <span class="n">Text</span> <span class="o">=</span> <span class="n">TI</span><span class="o">.</span><span class="n">PieceWiseLinearInterpolation</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">TextTimes</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">TextValues</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">h</span><span class="p">,</span> <span class="n">Text</span></div>
+
+
+<div class="viewcode-block" id="ConvectionHeatFlux.ReduceLoading"><a class="viewcode-back" href="../../../../../../_source/Mordicus.Modules.Safran.Containers.Loadings.ConvectionHeatFlux.html#Mordicus.Modules.Safran.Containers.Loadings.ConvectionHeatFlux.ConvectionHeatFlux.ReduceLoading">[docs]</a>    <span class="k">def</span> <span class="nf">ReduceLoading</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mesh</span><span class="p">,</span> <span class="n">problemData</span><span class="p">,</span> <span class="n">reducedOrderBases</span><span class="p">,</span> <span class="n">operatorCompressionData</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes and sets the reduced representation of the loading</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        mesh : BasicTools.Containers.UnstructuredMesh</span>
+<span class="sd">            mesh of the high-fidelity model</span>
+<span class="sd">        problemData : ProblemData</span>
+<span class="sd">            problemData containing the loading</span>
+<span class="sd">        reducedOrderBases : dict(str: np.ndarray)</span>
+<span class="sd">            dictionary with solutionNames (str) as keys and reducedOrderBases</span>
+<span class="sd">            (np.ndarray of size (numberOfModes, numberOfDOFs)) as values</span>
+<span class="sd">        operatorCompressionData : dict(str: custom_data_structure)</span>
+<span class="sd">            not used in this loading</span>
+<span class="sd">            dictionary with solutionNames (str) as keys and data structure</span>
+<span class="sd">            generated by the operator compression step as values</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span> <span class="nn">Mordicus.Modules.Safran.FE</span> <span class="kn">import</span> <span class="n">FETools</span> <span class="k">as</span> <span class="n">FT</span>
+
+        <span class="n">integrationWeights</span><span class="p">,</span> <span class="n">phiAtIntegPoint</span> <span class="o">=</span> <span class="n">FT</span><span class="o">.</span><span class="n">ComputePhiAtIntegPoint</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">GetSet</span><span class="p">()],</span> <span class="n">relativeDimension</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="n">reducedPhiTAtIntegPoints</span> <span class="o">=</span> <span class="n">phiAtIntegPoint</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">reducedOrderBases</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">solutionName</span><span class="p">]</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">reducedPhiTPhiT</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s1">&#39;tk,tl,t-&gt;kl&#39;</span><span class="p">,</span> <span class="n">reducedPhiTAtIntegPoints</span><span class="p">,</span> <span class="n">reducedPhiTAtIntegPoints</span><span class="p">,</span> <span class="n">integrationWeights</span><span class="p">,</span> <span class="n">optimize</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">reducedPhiT</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s1">&#39;tk,t-&gt;k&#39;</span><span class="p">,</span> <span class="n">reducedPhiTAtIntegPoints</span><span class="p">,</span> <span class="n">integrationWeights</span><span class="p">,</span> <span class="n">optimize</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ConvectionHeatFlux.ComputeContributionToReducedExternalForces"><a class="viewcode-back" href="../../../../../../_source/Mordicus.Modules.Safran.Containers.Loadings.ConvectionHeatFlux.html#Mordicus.Modules.Safran.Containers.Loadings.ConvectionHeatFlux.ConvectionHeatFlux.ComputeContributionToReducedExternalForces">[docs]</a>    <span class="k">def</span> <span class="nf">ComputeContributionToReducedExternalForces</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes and returns the reduced external forces contribution of the</span>
+<span class="sd">        loading</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        time : float</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        np.ndarray</span>
+<span class="sd">            of size (numberOfModes,)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># assert type of time</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">))</span>
+
+        <span class="n">h</span><span class="p">,</span> <span class="n">Text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetCoefficientsAtTime</span><span class="p">(</span><span class="n">time</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">h</span><span class="o">*</span><span class="n">Text</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">reducedPhiT</span></div>
+
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="s2">&quot;ConvectionHeatFlux Loading with set &quot;</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">GetSet</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">res</span></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span><span class="c1"># pragma: no cover</span>
+
+    <span class="kn">from</span> <span class="nn">Mordicus</span> <span class="kn">import</span> <span class="n">RunTestFile</span>
+    <span class="n">RunTestFile</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span>
+
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../../../index.html">Mordicus 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../../../../Mordicus.html" >Mordicus</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Mordicus.Modules.Safran.Containers.Loadings.ConvectionHeatFlux</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright Mordicus Consortium.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.0.2.
+    </div>
+  </body>
+</html>

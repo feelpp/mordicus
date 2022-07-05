@@ -1,0 +1,7 @@
+Mordicus.Modules.Safran.Containers.Loadings.Dirichlet module
+============================================================
+
+.. automodule:: Mordicus.Modules.Safran.Containers.Loadings.Dirichlet
+   :members:
+   :undoc-members:
+   :show-inheritance:

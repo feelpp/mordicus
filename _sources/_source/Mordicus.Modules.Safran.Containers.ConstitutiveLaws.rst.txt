@@ -1,0 +1,18 @@
+Mordicus.Modules.Safran.Containers.ConstitutiveLaws package
+===========================================================
+
+.. automodule:: Mordicus.Modules.Safran.Containers.ConstitutiveLaws
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   Mordicus.Modules.Safran.Containers.ConstitutiveLaws.MecaUniformLinearElasticity
+   Mordicus.Modules.Safran.Containers.ConstitutiveLaws.MfrontConstitutiveLaw
+   Mordicus.Modules.Safran.Containers.ConstitutiveLaws.ThermalConstitutiveLaw
+   Mordicus.Modules.Safran.Containers.ConstitutiveLaws.ZmatConstitutiveLaw

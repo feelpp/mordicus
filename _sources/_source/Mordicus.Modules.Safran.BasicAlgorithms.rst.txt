@@ -1,0 +1,18 @@
+Mordicus.Modules.Safran.BasicAlgorithms package
+===============================================
+
+.. automodule:: Mordicus.Modules.Safran.BasicAlgorithms
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   Mordicus.Modules.Safran.BasicAlgorithms.EIM
+   Mordicus.Modules.Safran.BasicAlgorithms.GappyPOD
+   Mordicus.Modules.Safran.BasicAlgorithms.LPEQP
+   Mordicus.Modules.Safran.BasicAlgorithms.NNOMPA

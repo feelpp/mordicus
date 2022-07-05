@@ -1,0 +1,189 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mordicus.Modules.Mines.Containers.ZsetMesh &#8212; Mordicus 0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/classic.css" />
+    
+    <script data-url_root="../../../../../" id="documentation_options" src="../../../../../_static/documentation_options.js"></script>
+    <script src="../../../../../_static/jquery.js"></script>
+    <script src="../../../../../_static/underscore.js"></script>
+    <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../../../../_static/doctools.js"></script>
+    
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../../index.html">Mordicus 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../../../Mordicus.html" accesskey="U">Mordicus</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Mordicus.Modules.Mines.Containers.ZsetMesh</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for Mordicus.Modules.Mines.Containers.ZsetMesh</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="kn">from</span> <span class="nn">Mordicus.Core.Containers.Meshes.MeshBase</span> <span class="kn">import</span> <span class="n">MeshBase</span>
+
+
+<span class="n">dict_elt</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="c1">#2D linear</span>
+<span class="n">dict_elt</span><span class="p">[</span><span class="s2">&quot;c2d3r&quot;</span><span class="p">]</span>   <span class="o">=</span> <span class="mi">1</span>
+<span class="n">dict_elt</span><span class="p">[</span><span class="s2">&quot;cax3r&quot;</span><span class="p">]</span>   <span class="o">=</span> <span class="mi">1</span>
+<span class="n">dict_elt</span><span class="p">[</span><span class="s2">&quot;c2d3&quot;</span><span class="p">]</span>    <span class="o">=</span> <span class="mi">3</span>
+<span class="n">dict_elt</span><span class="p">[</span><span class="s2">&quot;cax3&quot;</span><span class="p">]</span>    <span class="o">=</span> <span class="mi">3</span>
+<span class="n">dict_elt</span><span class="p">[</span><span class="s2">&quot;c2d4r&quot;</span><span class="p">]</span>   <span class="o">=</span> <span class="mi">1</span>
+<span class="n">dict_elt</span><span class="p">[</span><span class="s2">&quot;cax4r&quot;</span><span class="p">]</span>   <span class="o">=</span> <span class="mi">1</span>
+<span class="n">dict_elt</span><span class="p">[</span><span class="s2">&quot;c2d4&quot;</span><span class="p">]</span>    <span class="o">=</span> <span class="mi">4</span>
+<span class="n">dict_elt</span><span class="p">[</span><span class="s2">&quot;cax4&quot;</span><span class="p">]</span>    <span class="o">=</span> <span class="mi">4</span>
+<span class="c1">#2D quadratic</span>
+<span class="n">dict_elt</span><span class="p">[</span><span class="s2">&quot;c2d6r&quot;</span><span class="p">]</span>   <span class="o">=</span> <span class="mi">3</span>
+<span class="n">dict_elt</span><span class="p">[</span><span class="s2">&quot;cax6r&quot;</span><span class="p">]</span>   <span class="o">=</span> <span class="mi">3</span>
+<span class="n">dict_elt</span><span class="p">[</span><span class="s2">&quot;c2d6&quot;</span><span class="p">]</span>    <span class="o">=</span> <span class="mi">6</span>
+<span class="n">dict_elt</span><span class="p">[</span><span class="s2">&quot;cax6&quot;</span><span class="p">]</span>    <span class="o">=</span> <span class="mi">6</span>
+<span class="n">dict_elt</span><span class="p">[</span><span class="s2">&quot;c2d8r&quot;</span><span class="p">]</span>   <span class="o">=</span> <span class="mi">4</span>
+<span class="n">dict_elt</span><span class="p">[</span><span class="s2">&quot;cax8r&quot;</span><span class="p">]</span>   <span class="o">=</span> <span class="mi">4</span>
+<span class="n">dict_elt</span><span class="p">[</span><span class="s2">&quot;c2d8&quot;</span><span class="p">]</span>    <span class="o">=</span> <span class="mi">9</span>
+<span class="n">dict_elt</span><span class="p">[</span><span class="s2">&quot;cax8&quot;</span><span class="p">]</span>    <span class="o">=</span> <span class="mi">9</span>
+<span class="c1">#3D linear</span>
+<span class="n">dict_elt</span><span class="p">[</span><span class="s2">&quot;c3d6r&quot;</span><span class="p">]</span>   <span class="o">=</span> <span class="mi">2</span>
+<span class="n">dict_elt</span><span class="p">[</span><span class="s2">&quot;c3d6&quot;</span><span class="p">]</span>    <span class="o">=</span> <span class="mi">6</span>
+<span class="n">dict_elt</span><span class="p">[</span><span class="s2">&quot;c3d8r&quot;</span><span class="p">]</span>   <span class="o">=</span> <span class="mi">1</span>
+<span class="n">dict_elt</span><span class="p">[</span><span class="s2">&quot;c3d8&quot;</span><span class="p">]</span>    <span class="o">=</span> <span class="mi">8</span>
+<span class="n">dict_elt</span><span class="p">[</span><span class="s2">&quot;c3d4&quot;</span><span class="p">]</span>    <span class="o">=</span> <span class="mi">1</span>
+<span class="c1">#3D quadratic</span>
+<span class="n">dict_elt</span><span class="p">[</span><span class="s2">&quot;c3d15r&quot;</span><span class="p">]</span>  <span class="o">=</span> <span class="mi">6</span>
+<span class="n">dict_elt</span><span class="p">[</span><span class="s2">&quot;c3d15_9&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">9</span>
+<span class="n">dict_elt</span><span class="p">[</span><span class="s2">&quot;c3d15&quot;</span><span class="p">]</span>   <span class="o">=</span> <span class="mi">18</span>
+<span class="n">dict_elt</span><span class="p">[</span><span class="s2">&quot;c3d20r&quot;</span><span class="p">]</span>  <span class="o">=</span> <span class="mi">8</span>
+<span class="n">dict_elt</span><span class="p">[</span><span class="s2">&quot;c3d20&quot;</span><span class="p">]</span>   <span class="o">=</span> <span class="mi">27</span>
+<span class="n">dict_elt</span><span class="p">[</span><span class="s2">&quot;c3d10r&quot;</span><span class="p">]</span>  <span class="o">=</span> <span class="mi">1</span>
+<span class="n">dict_elt</span><span class="p">[</span><span class="s2">&quot;c3d10_4&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">4</span>
+<span class="n">dict_elt</span><span class="p">[</span><span class="s2">&quot;c3d10&quot;</span><span class="p">]</span>   <span class="o">=</span> <span class="mi">5</span>
+
+
+
+<div class="viewcode-block" id="ZsetMesh"><a class="viewcode-back" href="../../../../../_source/Mordicus.Modules.Mines.Containers.ZsetMesh.html#Mordicus.Modules.Mines.Containers.ZsetMesh.ZsetMesh">[docs]</a><span class="k">class</span> <span class="nc">ZsetMesh</span><span class="p">(</span><span class="n">MeshBase</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">storage</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">ZsetMesh</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">SetInternalStorage</span><span class="p">(</span> <span class="n">storage</span> <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__buildInverseTables</span><span class="p">()</span>
+
+<div class="viewcode-block" id="ZsetMesh.GetNodes"><a class="viewcode-back" href="../../../../../_source/Mordicus.Modules.Mines.Containers.ZsetMesh.html#Mordicus.Modules.Mines.Containers.ZsetMesh.ZsetMesh.GetNodes">[docs]</a>    <span class="k">def</span> <span class="nf">GetNodes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetInternalStorage</span><span class="p">()[</span><span class="s2">&quot;nodes&quot;</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="ZsetMesh.GetElement"><a class="viewcode-back" href="../../../../../_source/Mordicus.Modules.Mines.Containers.ZsetMesh.html#Mordicus.Modules.Mines.Containers.ZsetMesh.ZsetMesh.GetElement">[docs]</a>    <span class="k">def</span> <span class="nf">GetElement</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">e_rk</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetInternalStorage</span><span class="p">()[</span><span class="s2">&quot;elements&quot;</span><span class="p">][</span><span class="n">e_rk</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="ZsetMesh.AllElementsIterator"><a class="viewcode-back" href="../../../../../_source/Mordicus.Modules.Mines.Containers.ZsetMesh.html#Mordicus.Modules.Mines.Containers.ZsetMesh.ZsetMesh.AllElementsIterator">[docs]</a>    <span class="k">def</span> <span class="nf">AllElementsIterator</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetInternalStorage</span><span class="p">()[</span><span class="s2">&quot;elements&quot;</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="ZsetMesh.GetElemAttach"><a class="viewcode-back" href="../../../../../_source/Mordicus.Modules.Mines.Containers.ZsetMesh.html#Mordicus.Modules.Mines.Containers.ZsetMesh.ZsetMesh.GetElemAttach">[docs]</a>    <span class="k">def</span> <span class="nf">GetElemAttach</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_rk</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;[summary]</span>
+<span class="sd">        </span>
+<span class="sd">        Arguments:</span>
+<span class="sd">            node_rk {int} -- [description]</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            list -- [description]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetInternalStorage</span><span class="p">()[</span><span class="s2">&quot;node2elem&quot;</span><span class="p">][</span><span class="n">node_rk</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="ZsetMesh.GetElemContaining"><a class="viewcode-back" href="../../../../../_source/Mordicus.Modules.Mines.Containers.ZsetMesh.html#Mordicus.Modules.Mines.Containers.ZsetMesh.ZsetMesh.GetElemContaining">[docs]</a>    <span class="k">def</span> <span class="nf">GetElemContaining</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ip_rk</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;[summary]</span>
+<span class="sd">        </span>
+<span class="sd">        Arguments:</span>
+<span class="sd">            ip_rk {int} -- [description]</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            int -- [description]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetInternalStorage</span><span class="p">()[</span><span class="s2">&quot;ip2elem&quot;</span><span class="p">][</span><span class="n">ip_rk</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="ZsetMesh.GetNumberOfIntegrationPoint"><a class="viewcode-back" href="../../../../../_source/Mordicus.Modules.Mines.Containers.ZsetMesh.html#Mordicus.Modules.Mines.Containers.ZsetMesh.ZsetMesh.GetNumberOfIntegrationPoint">[docs]</a>    <span class="k">def</span> <span class="nf">GetNumberOfIntegrationPoint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetInternalStorage</span><span class="p">()[</span><span class="s2">&quot;element_types&quot;</span><span class="p">]:</span>
+            <span class="n">ret</span> <span class="o">+=</span> <span class="n">dict_elt</span><span class="p">[</span><span class="n">e</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">ret</span> </div>
+
+    <span class="k">def</span> <span class="nf">__buildInverseTables</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Node to elem connectivity </span>
+        <span class="n">node2elem</span> <span class="o">=</span> <span class="p">[</span> <span class="p">[]</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">GetNumberOfNodes</span><span class="p">())</span> <span class="p">]</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">elem</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">AllElementsIterator</span><span class="p">()):</span>
+            <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">elem</span><span class="p">:</span>
+                <span class="n">node2elem</span><span class="p">[</span><span class="n">node</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">i</span> <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">GetInternalStorage</span><span class="p">()[</span><span class="s2">&quot;node2elem&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">node2elem</span>
+        <span class="c1"># IP to elem connectivity</span>
+        <span class="n">ip2elem</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">GetNumberOfIntegrationPoint</span><span class="p">()</span>
+        <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">e_type</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">GetInternalStorage</span><span class="p">()[</span><span class="s2">&quot;element_types&quot;</span><span class="p">]):</span>
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">dict_elt</span><span class="p">[</span><span class="n">e_type</span><span class="p">]):</span>
+                <span class="n">ip2elem</span><span class="p">[</span><span class="n">count</span><span class="p">]</span> <span class="o">=</span> <span class="n">i</span>
+                <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">GetInternalStorage</span><span class="p">()[</span><span class="s2">&quot;ip2elem&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ip2elem</span></div>
+
+
+    
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../../index.html">Mordicus 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../../../Mordicus.html" >Mordicus</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Mordicus.Modules.Mines.Containers.ZsetMesh</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright Mordicus Consortium.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.0.2.
+    </div>
+  </body>
+</html>

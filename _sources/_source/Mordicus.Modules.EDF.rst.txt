@@ -1,0 +1,17 @@
+Mordicus.Modules.EDF package
+============================
+
+.. automodule:: Mordicus.Modules.EDF
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   Mordicus.Modules.EDF.Containers
+   Mordicus.Modules.EDF.DataCompressors
+   Mordicus.Modules.EDF.IO

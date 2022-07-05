@@ -1,0 +1,7 @@
+Mordicus.Core.Containers.Solution module
+========================================
+
+.. automodule:: Mordicus.Core.Containers.Solution
+   :members:
+   :undoc-members:
+   :show-inheritance:

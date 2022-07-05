@@ -1,0 +1,7 @@
+Mordicus.Modules.Safran.Containers.ConstitutiveLaws.MfrontConstitutiveLaw module
+================================================================================
+
+.. automodule:: Mordicus.Modules.Safran.Containers.ConstitutiveLaws.MfrontConstitutiveLaw
+   :members:
+   :undoc-members:
+   :show-inheritance:

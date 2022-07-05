@@ -1,0 +1,7 @@
+Mordicus.Modules.Safran.OperatorCompressors.ReducedQuadratureProcedure module
+=============================================================================
+
+.. automodule:: Mordicus.Modules.Safran.OperatorCompressors.ReducedQuadratureProcedure
+   :members:
+   :undoc-members:
+   :show-inheritance:

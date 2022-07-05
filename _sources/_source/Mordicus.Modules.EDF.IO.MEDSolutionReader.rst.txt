@@ -1,0 +1,7 @@
+Mordicus.Modules.EDF.IO.MEDSolutionReader module
+================================================
+
+.. automodule:: Mordicus.Modules.EDF.IO.MEDSolutionReader
+   :members:
+   :undoc-members:
+   :show-inheritance:

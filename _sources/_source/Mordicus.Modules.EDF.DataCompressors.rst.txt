@@ -1,0 +1,15 @@
+Mordicus.Modules.EDF.DataCompressors package
+============================================
+
+.. automodule:: Mordicus.Modules.EDF.DataCompressors
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   Mordicus.Modules.EDF.DataCompressors.IncrementalSnapshotPOD

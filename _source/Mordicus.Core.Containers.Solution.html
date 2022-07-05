@@ -1,0 +1,599 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Mordicus.Core.Containers.Solution module &#8212; Mordicus 0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/classic.css" />
+    
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../_static/doctools.js"></script>
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Mordicus.Core.Containers.Visitor module" href="Mordicus.Core.Containers.Visitor.html" />
+    <link rel="prev" title="Mordicus.Core.Containers.ProblemData module" href="Mordicus.Core.Containers.ProblemData.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="Mordicus.Core.Containers.Visitor.html" title="Mordicus.Core.Containers.Visitor module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="Mordicus.Core.Containers.ProblemData.html" title="Mordicus.Core.Containers.ProblemData module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Mordicus 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="Mordicus.html" >Mordicus package</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="Mordicus.Core.html" >Mordicus.Core package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="Mordicus.Core.Containers.html" accesskey="U">Mordicus.Core.Containers package</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Mordicus.Core.Containers.Solution module</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="module-Mordicus.Core.Containers.Solution">
+<span id="mordicus-core-containers-solution-module"></span><h1>Mordicus.Core.Containers.Solution module<a class="headerlink" href="#module-Mordicus.Core.Containers.Solution" title="Permalink to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.Solution.Solution">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">Mordicus.Core.Containers.Solution.</span></span><span class="sig-name descname"><span class="pre">Solution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solutionName</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nbeOfComponents</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">numberOfNodes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">primality</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/Solution.html#Solution"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.Solution.Solution" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class containing a solution</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.Solution.Solution.solutionName">
+<span class="sig-name descname"><span class="pre">solutionName</span></span><a class="headerlink" href="#Mordicus.Core.Containers.Solution.Solution.solutionName" title="Permalink to this definition">¶</a></dt>
+<dd><p>name of the solution field (e.g. “U”, “T”)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.Solution.Solution.nbeOfComponents">
+<span class="sig-name descname"><span class="pre">nbeOfComponents</span></span><a class="headerlink" href="#Mordicus.Core.Containers.Solution.Solution.nbeOfComponents" title="Permalink to this definition">¶</a></dt>
+<dd><p>number of components of the solution (e.g. 3 for “U” in 3D, or 1 for “T”)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.Solution.Solution.numberOfNodes">
+<span class="sig-name descname"><span class="pre">numberOfNodes</span></span><a class="headerlink" href="#Mordicus.Core.Containers.Solution.Solution.numberOfNodes" title="Permalink to this definition">¶</a></dt>
+<dd><p>number of nodes for the geometrical support of the solution</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.Solution.Solution.numberOfDOFs">
+<span class="sig-name descname"><span class="pre">numberOfDOFs</span></span><a class="headerlink" href="#Mordicus.Core.Containers.Solution.Solution.numberOfDOFs" title="Permalink to this definition">¶</a></dt>
+<dd><p>number of degrees of freedom = numberOfNodes * nbeOfComponents</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.Solution.Solution.primality">
+<span class="sig-name descname"><span class="pre">primality</span></span><a class="headerlink" href="#Mordicus.Core.Containers.Solution.Solution.primality" title="Permalink to this definition">¶</a></dt>
+<dd><p>True for a primal solution and False for a dual solution</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.Solution.Solution.snapshots">
+<span class="sig-name descname"><span class="pre">snapshots</span></span><a class="headerlink" href="#Mordicus.Core.Containers.Solution.Solution.snapshots" title="Permalink to this definition">¶</a></dt>
+<dd><p>dictionary with time indices as keys and a np.ndarray of size (numberOfDOFs,) containing the solution data</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.Solution.Solution.compressedSnapshots">
+<span class="sig-name descname"><span class="pre">compressedSnapshots</span></span><a class="headerlink" href="#Mordicus.Core.Containers.Solution.Solution.compressedSnapshots" title="Permalink to this definition">¶</a></dt>
+<dd><p>dictionary with time indices as keys and a np.ndarray of size (numberOfModes,) containing the coefficients of the reduced solution</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.Solution.Solution.AddCompressedSnapshots">
+<span class="sig-name descname"><span class="pre">AddCompressedSnapshots</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">compressedSnapshot</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/Solution.html#Solution.AddCompressedSnapshots"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.Solution.Solution.AddCompressedSnapshots" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a compressed snapshot at time time</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>compressedSnapshot</strong> (<em>np.ndarray</em>) – of size (numberOfModes,)</p></li>
+<li><p><strong>time</strong> (<em>float</em>) – time of the compressed snapshot</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.Solution.Solution.AddSnapshot">
+<span class="sig-name descname"><span class="pre">AddSnapshot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">snapshot</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/Solution.html#Solution.AddSnapshot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.Solution.Solution.AddSnapshot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a snapshot at time time</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>snapshot</strong> (<em>np.ndarray</em>) – of size (numberOfDOFs,)</p></li>
+<li><p><strong>time</strong> (<em>float</em>) – time of the snapshot</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.Solution.Solution.CompressSnapshots">
+<span class="sig-name descname"><span class="pre">CompressSnapshots</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">snapshotCorrelationOperator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reducedOrderBasis</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/Solution.html#Solution.CompressSnapshots"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.Solution.Solution.CompressSnapshots" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compress snapshots using the correlation operator between the snapshots defined by the matrix snapshotCorrelationOperator and reducedOrderBasis</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>snapshotCorrelationOperator</strong> (<em>scipy.sparse.csr</em>) – correlation operator between the snapshots</p></li>
+<li><p><strong>reducedOrderBasis</strong> (<em>np.ndarray</em>) – of size (numberOfModes, numberOfDOFs)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.Solution.Solution.ConvertCompressedSnapshotReducedOrderBasis">
+<span class="sig-name descname"><span class="pre">ConvertCompressedSnapshotReducedOrderBasis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">projectedReducedOrderBasis</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/Solution.html#Solution.ConvertCompressedSnapshotReducedOrderBasis"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.Solution.Solution.ConvertCompressedSnapshotReducedOrderBasis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts the reducedSnapshot from the current reducedOrderBasis to a newReducedOrderBasis using a projectedReducedOrderBasis between the current one and a new one</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>projectedReducedOrderBasis</strong> (<em>np.ndarray</em>) – of size (newNumberOfModes, numberOfModes)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.Solution.Solution.ConvertCompressedSnapshotReducedOrderBasisAtTime">
+<span class="sig-name descname"><span class="pre">ConvertCompressedSnapshotReducedOrderBasisAtTime</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">projectedReducedOrderBasis</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/Solution.html#Solution.ConvertCompressedSnapshotReducedOrderBasisAtTime"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.Solution.Solution.ConvertCompressedSnapshotReducedOrderBasisAtTime" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts the reducedSnapshot at time from the current reducedOrderBasis to a newReducedOrderBasis using a projectedReducedOrderBasis between the current one and a new one</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>projectedReducedOrderBasis</strong> (<em>np.ndarray</em>) – of size (newNumberOfModes, numberOfModes)</p></li>
+<li><p><strong>time</strong> (<em>float</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.Solution.Solution.GetCompressedSnapshot">
+<span class="sig-name descname"><span class="pre">GetCompressedSnapshot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/Solution.html#Solution.GetCompressedSnapshot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.Solution.Solution.GetCompressedSnapshot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the compressed snapshot at time time</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>time</strong> (<em>float</em>) – time at which the compressed snapshot is retrieved</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>compressed snapshot</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.Solution.Solution.GetCompressedSnapshots">
+<span class="sig-name descname"><span class="pre">GetCompressedSnapshots</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/Solution.html#Solution.GetCompressedSnapshots"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.Solution.Solution.GetCompressedSnapshots" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the complete compressedSnapshots dictionary</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>the compressed representation of the solution</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.Solution.Solution.GetCompressedSnapshotsAtTime">
+<span class="sig-name descname"><span class="pre">GetCompressedSnapshotsAtTime</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/Solution.html#Solution.GetCompressedSnapshotsAtTime"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.Solution.Solution.GetCompressedSnapshotsAtTime" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>time</strong> (<em>float</em>) – time at which the compressed snapshot is retrieved</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>compressedSnapshot value at time, of size (numberOfModes), using PieceWiseLinearInterpolation</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.Solution.Solution.GetCompressedSnapshotsAtTimes">
+<span class="sig-name descname"><span class="pre">GetCompressedSnapshotsAtTimes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">times</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/Solution.html#Solution.GetCompressedSnapshotsAtTimes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.Solution.Solution.GetCompressedSnapshotsAtTimes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the compressed snapshot at a specitiy time (with time interpolation if needed)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>times</strong> (<em>list</em><em> or </em><em>1D ndarray of floats</em>) – times at which the compressed snapshot are retrieved</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>compressedSnapshots values at times, of size (numberOfModes), using PieceWiseLinearInterpolationVectorized</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.Solution.Solution.GetCompressedSnapshotsList">
+<span class="sig-name descname"><span class="pre">GetCompressedSnapshotsList</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/Solution.html#Solution.GetCompressedSnapshotsList"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.Solution.Solution.GetCompressedSnapshotsList" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the compressed snapshots in the form of a list</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>list containing the snapshots of the solution</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.Solution.Solution.GetNbeOfComponents">
+<span class="sig-name descname"><span class="pre">GetNbeOfComponents</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/Solution.html#Solution.GetNbeOfComponents"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.Solution.Solution.GetNbeOfComponents" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the number of components of the solution</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>the number of components of the solution</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.Solution.Solution.GetNumberOfDofs">
+<span class="sig-name descname"><span class="pre">GetNumberOfDofs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/Solution.html#Solution.GetNumberOfDofs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.Solution.Solution.GetNumberOfDofs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the number of degrees of freedom of the solution</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>the number of degrees of freedom of the solution</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.Solution.Solution.GetNumberOfNodes">
+<span class="sig-name descname"><span class="pre">GetNumberOfNodes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/Solution.html#Solution.GetNumberOfNodes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.Solution.Solution.GetNumberOfNodes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the number of nodes of the solution</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>the number of degrees of nodes of the solution</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.Solution.Solution.GetNumberOfSnapshots">
+<span class="sig-name descname"><span class="pre">GetNumberOfSnapshots</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/Solution.html#Solution.GetNumberOfSnapshots"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.Solution.Solution.GetNumberOfSnapshots" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the number of snapshots</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>the number of snapshots (= time indices) of the solution</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.Solution.Solution.GetPrimality">
+<span class="sig-name descname"><span class="pre">GetPrimality</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/Solution.html#Solution.GetPrimality"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.Solution.Solution.GetPrimality" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the primality of the solution</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>the primality of the solution</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.Solution.Solution.GetSnapshot">
+<span class="sig-name descname"><span class="pre">GetSnapshot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/Solution.html#Solution.GetSnapshot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.Solution.Solution.GetSnapshot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the snapshot at time time</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>time</strong> (<em>float</em>) – time at which the snapshot is retrieved</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>snapshot</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.Solution.Solution.GetSnapshotAtTime">
+<span class="sig-name descname"><span class="pre">GetSnapshotAtTime</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/Solution.html#Solution.GetSnapshotAtTime"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.Solution.Solution.GetSnapshotAtTime" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the snapshots at a specitiy time (with time interpolation if needed)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>time</strong> (<em>float</em>) – time at which the snapshot is retrieved</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>snapshot at time, of size (numberOfDOFs), using PieceWiseLinearInterpolation</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.Solution.Solution.GetSnapshots">
+<span class="sig-name descname"><span class="pre">GetSnapshots</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/Solution.html#Solution.GetSnapshots"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.Solution.Solution.GetSnapshots" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the complete snapshots dictionary</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>the snapshots dictionary of the solution</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.Solution.Solution.GetSnapshotsList">
+<span class="sig-name descname"><span class="pre">GetSnapshotsList</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/Solution.html#Solution.GetSnapshotsList"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.Solution.Solution.GetSnapshotsList" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the snapshots in the form of a list</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>list containing the snapshots of the solution</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.Solution.Solution.GetSolutionName">
+<span class="sig-name descname"><span class="pre">GetSolutionName</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/Solution.html#Solution.GetSolutionName"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.Solution.Solution.GetSolutionName" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the name of the solution</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>the name of the solution field</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.Solution.Solution.GetTimeSequenceFromCompressedSnapshots">
+<span class="sig-name descname"><span class="pre">GetTimeSequenceFromCompressedSnapshots</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/Solution.html#Solution.GetTimeSequenceFromCompressedSnapshots"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.Solution.Solution.GetTimeSequenceFromCompressedSnapshots" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the time sequence from the compressedSnapshots dictionary</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>list containing the time indices of the compressed snapshots</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.Solution.Solution.GetTimeSequenceFromSnapshots">
+<span class="sig-name descname"><span class="pre">GetTimeSequenceFromSnapshots</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/Solution.html#Solution.GetTimeSequenceFromSnapshots"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.Solution.Solution.GetTimeSequenceFromSnapshots" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the time sequence from the snapshots dictionary</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>list containing the time indices of the snapshots</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.Solution.Solution.RemoveSnapshot">
+<span class="sig-name descname"><span class="pre">RemoveSnapshot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/Solution.html#Solution.RemoveSnapshot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.Solution.Solution.RemoveSnapshot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes the snapshot at time time</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>time</strong> (<em>float</em>) – time of the snapshot</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.Solution.Solution.RemoveSnapshots">
+<span class="sig-name descname"><span class="pre">RemoveSnapshots</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timeSequence</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/Solution.html#Solution.RemoveSnapshots"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.Solution.Solution.RemoveSnapshots" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes the snapshot at times timeSequence</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>time</strong> (<em>list</em><em> or </em><em>1d-np.ndarray of floats</em>) – times of the snapshot</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.Solution.Solution.SetCompressedSnapshots">
+<span class="sig-name descname"><span class="pre">SetCompressedSnapshots</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">compressedSnapshots</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/Solution.html#Solution.SetCompressedSnapshots"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.Solution.Solution.SetCompressedSnapshots" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the compressed representation of the solution</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>compressedSnapshots</strong> (<em>dict</em>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.Solution.Solution.SetSnapshots">
+<span class="sig-name descname"><span class="pre">SetSnapshots</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">snapshots</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/Solution.html#Solution.SetSnapshots"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.Solution.Solution.SetSnapshots" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the snapshots of the solution</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>snapshots</strong> (<em>dict</em>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.Solution.Solution.UncompressSnapshotAtTime">
+<span class="sig-name descname"><span class="pre">UncompressSnapshotAtTime</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reducedOrderBasis</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/Solution.html#Solution.UncompressSnapshotAtTime"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.Solution.Solution.UncompressSnapshotAtTime" title="Permalink to this definition">¶</a></dt>
+<dd><p>Uncompress snapshot at time using reducedOrderBasis</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>reducedOrderBasis</strong> (<em>np.ndarray</em>) – of size (numberOfModes, numberOfDOFs)</p></li>
+<li><p><strong>time</strong> (<em>float</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.Solution.Solution.UncompressSnapshots">
+<span class="sig-name descname"><span class="pre">UncompressSnapshots</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reducedOrderBasis</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/Solution.html#Solution.UncompressSnapshots"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.Solution.Solution.UncompressSnapshots" title="Permalink to this definition">¶</a></dt>
+<dd><p>Uncompress snapshots using reducedOrderBasis</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>reducedOrderBasis</strong> (<em>np.ndarray</em>) – of size (numberOfModes, numberOfDOFs)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.Solution.Solution.accept">
+<span class="sig-name descname"><span class="pre">accept</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">visitor</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/Solution.html#Solution.accept"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.Solution.Solution.accept" title="Permalink to this definition">¶</a></dt>
+<dd><p>Accept visitor</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="Mordicus.Core.Containers.ProblemData.html"
+                          title="previous chapter">Mordicus.Core.Containers.ProblemData module</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="Mordicus.Core.Containers.Visitor.html"
+                          title="next chapter">Mordicus.Core.Containers.Visitor module</a></p>
+  </div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/_source/Mordicus.Core.Containers.Solution.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="Mordicus.Core.Containers.Visitor.html" title="Mordicus.Core.Containers.Visitor module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="Mordicus.Core.Containers.ProblemData.html" title="Mordicus.Core.Containers.ProblemData module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Mordicus 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="Mordicus.html" >Mordicus package</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="Mordicus.Core.html" >Mordicus.Core package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="Mordicus.Core.Containers.html" >Mordicus.Core.Containers package</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Mordicus.Core.Containers.Solution module</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright Mordicus Consortium.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.0.2.
+    </div>
+  </body>
+</html>

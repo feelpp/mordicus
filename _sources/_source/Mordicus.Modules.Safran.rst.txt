@@ -1,0 +1,21 @@
+Mordicus.Modules.Safran package
+===============================
+
+.. automodule:: Mordicus.Modules.Safran
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   Mordicus.Modules.Safran.BasicAlgorithms
+   Mordicus.Modules.Safran.Containers
+   Mordicus.Modules.Safran.DataCompressors
+   Mordicus.Modules.Safran.External
+   Mordicus.Modules.Safran.FE
+   Mordicus.Modules.Safran.IO
+   Mordicus.Modules.Safran.OperatorCompressors

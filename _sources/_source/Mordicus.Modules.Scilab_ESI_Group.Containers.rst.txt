@@ -1,0 +1,15 @@
+Mordicus.Modules.Scilab\_ESI\_Group.Containers package
+======================================================
+
+.. automodule:: Mordicus.Modules.Scilab_ESI_Group.Containers
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   Mordicus.Modules.Scilab_ESI_Group.Containers.Meshes

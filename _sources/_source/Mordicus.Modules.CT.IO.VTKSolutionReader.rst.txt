@@ -1,0 +1,7 @@
+Mordicus.Modules.CT.IO.VTKSolutionReader module
+===============================================
+
+.. automodule:: Mordicus.Modules.CT.IO.VTKSolutionReader
+   :members:
+   :undoc-members:
+   :show-inheritance:

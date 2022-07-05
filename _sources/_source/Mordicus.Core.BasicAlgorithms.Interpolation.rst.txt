@@ -1,0 +1,7 @@
+Mordicus.Core.BasicAlgorithms.Interpolation module
+==================================================
+
+.. automodule:: Mordicus.Core.BasicAlgorithms.Interpolation
+   :members:
+   :undoc-members:
+   :show-inheritance:

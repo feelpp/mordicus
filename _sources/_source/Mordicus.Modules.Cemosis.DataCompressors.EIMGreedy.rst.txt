@@ -1,0 +1,7 @@
+Mordicus.Modules.Cemosis.DataCompressors.EIMGreedy module
+=========================================================
+
+.. automodule:: Mordicus.Modules.Cemosis.DataCompressors.EIMGreedy
+   :members:
+   :undoc-members:
+   :show-inheritance:

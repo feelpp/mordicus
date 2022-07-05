@@ -1,0 +1,17 @@
+Mordicus.Modules.CT package
+===========================
+
+.. automodule:: Mordicus.Modules.CT
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   Mordicus.Modules.CT.IO
+   Mordicus.Modules.CT.OperatorCompressors
+   Mordicus.Modules.CT.ROM

@@ -1,0 +1,7 @@
+Mordicus.Modules.Safran.DataCompressors.FusedSnapshotPOD module
+===============================================================
+
+.. automodule:: Mordicus.Modules.Safran.DataCompressors.FusedSnapshotPOD
+   :members:
+   :undoc-members:
+   :show-inheritance:

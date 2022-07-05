@@ -1,0 +1,943 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Mordicus.Core.Containers.CollectionProblemData module &#8212; Mordicus 0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/classic.css" />
+    
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../_static/doctools.js"></script>
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Mordicus.Core.Containers.ProblemData module" href="Mordicus.Core.Containers.ProblemData.html" />
+    <link rel="prev" title="Mordicus.Core.Containers.SolutionStructures.SolutionStructureBase module" href="Mordicus.Core.Containers.SolutionStructures.SolutionStructureBase.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="Mordicus.Core.Containers.ProblemData.html" title="Mordicus.Core.Containers.ProblemData module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="Mordicus.Core.Containers.SolutionStructures.SolutionStructureBase.html" title="Mordicus.Core.Containers.SolutionStructures.SolutionStructureBase module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Mordicus 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="Mordicus.html" >Mordicus package</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="Mordicus.Core.html" >Mordicus.Core package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="Mordicus.Core.Containers.html" accesskey="U">Mordicus.Core.Containers package</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Mordicus.Core.Containers.CollectionProblemData module</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="module-Mordicus.Core.Containers.CollectionProblemData">
+<span id="mordicus-core-containers-collectionproblemdata-module"></span><h1>Mordicus.Core.Containers.CollectionProblemData module<a class="headerlink" href="#module-Mordicus.Core.Containers.CollectionProblemData" title="Permalink to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">Mordicus.Core.Containers.CollectionProblemData.</span></span><span class="sig-name descname"><span class="pre">CollectionProblemData</span></span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/CollectionProblemData.html#CollectionProblemData"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class containing a set of collection of problemData</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.problemDatas">
+<span class="sig-name descname"><span class="pre">problemDatas</span></span><a class="headerlink" href="#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.problemDatas" title="Permalink to this definition">¶</a></dt>
+<dd><p>dictionary with problem tags (str) as keys and problemDatas (ProblemData) as values</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>dict(str: ProblemData)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.reducedOrderBases">
+<span class="sig-name descname"><span class="pre">reducedOrderBases</span></span><a class="headerlink" href="#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.reducedOrderBases" title="Permalink to this definition">¶</a></dt>
+<dd><p>dictionary with solutionNames (str) as keys and reducedOrderBases (np.ndarray of size (numberOfModes, numberOfDOFs)) as values</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>dict(str: np.ndarray)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.solutionStructures">
+<span class="sig-name descname"><span class="pre">solutionStructures</span></span><a class="headerlink" href="#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.solutionStructures" title="Permalink to this definition">¶</a></dt>
+<dd><p>dictionary with solutionNames (str) as keys and SolutionStructure  as values</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>dict(str: SolutionStructure)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.variabilityDefinition">
+<span class="sig-name descname"><span class="pre">variabilityDefinition</span></span><a class="headerlink" href="#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.variabilityDefinition" title="Permalink to this definition">¶</a></dt>
+<dd><p>defines the problem variability, dictionary with variability names (typically, names of parameters) as keys</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>dict(str: dict)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.variabilitySupport">
+<span class="sig-name descname"><span class="pre">variabilitySupport</span></span><a class="headerlink" href="#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.variabilitySupport" title="Permalink to this definition">¶</a></dt>
+<dd><p>defines the allowed values for parameters (definition domain), dictionary with the parameter sampling as values</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>dict(str or tuple: ndarray)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.quantityDefinition">
+<span class="sig-name descname"><span class="pre">quantityDefinition</span></span><a class="headerlink" href="#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.quantityDefinition" title="Permalink to this definition">¶</a></dt>
+<dd><p>defines a new quantity for results, dictionary with solutionNames (str) as keys and a couple for strings (solution description, unit) as values</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>dict(str: (str,str))</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.templateDataset">
+<span class="sig-name descname"><span class="pre">templateDataset</span></span><a class="headerlink" href="#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.templateDataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>dataset to solve the HF problem for a new set of parameter values, contains a input_instruction_file with keywords to replace</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="Mordicus.Core.IO.SolverDataset.html#Mordicus.Core.IO.SolverDataset.SolverDataset" title="Mordicus.Core.IO.SolverDataset.SolverDataset">SolverDataset</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.reducedTemplateDataset">
+<span class="sig-name descname"><span class="pre">reducedTemplateDataset</span></span><a class="headerlink" href="#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.reducedTemplateDataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>dataset to solve the reduced problem for a new set of parameter values, contains a input_instruction_file with keywords to replace</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="Mordicus.Core.IO.SolverDataset.html#Mordicus.Core.IO.SolverDataset.SolverDataset" title="Mordicus.Core.IO.SolverDataset.SolverDataset">SolverDataset</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.specificDatasets">
+<span class="sig-name descname"><span class="pre">specificDatasets</span></span><a class="headerlink" href="#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.specificDatasets" title="Permalink to this definition">¶</a></dt>
+<dd><p>dictonary with the name of the operation as key and corresponding SolverDataset as value</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>dict(str: SolverDataset)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.dataCompressionData">
+<span class="sig-name descname"><span class="pre">dataCompressionData</span></span><a class="headerlink" href="#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.dataCompressionData" title="Permalink to this definition">¶</a></dt>
+<dd><p>dictionary with solutionNames (str) as keys and data structure generated by the data compression step as values</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>dict(str: custom_data_structure)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.operatorCompressionData">
+<span class="sig-name descname"><span class="pre">operatorCompressionData</span></span><a class="headerlink" href="#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.operatorCompressionData" title="Permalink to this definition">¶</a></dt>
+<dd><p>dictionary with solutionNames (str) as keys and data structure generated by the operator compression step as values</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>dict(str: custom_data_structure)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.AddProblemData">
+<span class="sig-name descname"><span class="pre">AddProblemData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problemData</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/CollectionProblemData.html#CollectionProblemData.AddProblemData"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.AddProblemData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a problemData to the structure</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>problemData</strong> (<a class="reference internal" href="Mordicus.Core.Containers.ProblemData.html#Mordicus.Core.Containers.ProblemData.ProblemData" title="Mordicus.Core.Containers.ProblemData.ProblemData"><em>ProblemData</em></a>) – to add to the problemDatas dictionary</p></li>
+<li><p><strong>kwargs</strong> – same type as the axes of variability, gives the point in parameter space at which to add data</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.AddReducedOrderBasis">
+<span class="sig-name descname"><span class="pre">AddReducedOrderBasis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solutionName</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reducedOrderBasis</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/CollectionProblemData.html#CollectionProblemData.AddReducedOrderBasis"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.AddReducedOrderBasis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a reducedOrderBasis corresponding to solution solutionName</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>solutionName</strong> (<em>str</em>) – name of the solution for which reducedOrderBasis is a reduced order basis</p></li>
+<li><p><strong>reducedOrderBasis</strong> (<em>np.ndarray</em>) – of size (numberOfModes, numberOfDOFs)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.AddVariabilityAxis">
+<span class="sig-name descname"><span class="pre">AddVariabilityAxis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">varname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vartype</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/CollectionProblemData.html#CollectionProblemData.AddVariabilityAxis"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.AddVariabilityAxis" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>Sets the axes of variability: names to be served as keys</dt><dd><p>to collect ProblemData instances and documenting properties</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>varname</strong> (<em>str</em>) – name of the axis, to be served as keys</p></li>
+<li><p><strong>vartype</strong> (<em>type</em>) – type of the expected values for this axis</p></li>
+<li><p><strong>quantity</strong> (<em>tuple</em>) – (optional) describes the physical quantity of the parameter. For now a tuple (full name, unit)</p></li>
+<li><p><strong>description</strong> (<em>str</em>) – (optional) describes the role of the axis of variability</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.CompressSolutions">
+<span class="sig-name descname"><span class="pre">CompressSolutions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solutionName</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">snapshotCorrelationOperator</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/CollectionProblemData.html#CollectionProblemData.CompressSolutions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.CompressSolutions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compress solutions of name “solutionName” from all ProblemDatas in collectionProblemData, and update to corresponding solution.compressedSnapshots.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>solutionName</strong> (<em>str</em>) – name of the solutions to compress</p></li>
+<li><p><strong>snapshotCorrelationOperator</strong> (<em>scipy.sparse.csr</em><em>, </em><em>optional</em>) – correlation operator between the snapshots</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.CompressedSnapshotsIterator">
+<span class="sig-name descname"><span class="pre">CompressedSnapshotsIterator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solutionName</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skipFirst</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/CollectionProblemData.html#CollectionProblemData.CompressedSnapshotsIterator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.CompressedSnapshotsIterator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constructs an iterator over compressedSnapshots of solutions of name “solutionName” in all problemDatas.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>solutionName</strong> (<em>str</em>) – name of the solutions on which we want to iterate over compressedSnapshots</p></li>
+<li><p><strong>skipFirst</strong> (<em>bool</em>) – (optional) True for skipping first time step of each ProblemData</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>an iterator over compressedSnapshots of solutions of name “solutionName” in all problemDatas</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>iterator</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.ComputeAPosterioriError">
+<span class="sig-name descname"><span class="pre">ComputeAPosterioriError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/CollectionProblemData.html#CollectionProblemData.ComputeAPosterioriError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.ComputeAPosterioriError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the residual of equilibrium</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>field</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.ComputeReducedOrderBasisProjection">
+<span class="sig-name descname"><span class="pre">ComputeReducedOrderBasisProjection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solutionName</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">newReducedOrderBasis</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">snapshotCorrelationOperator</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/CollectionProblemData.html#CollectionProblemData.ComputeReducedOrderBasisProjection"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.ComputeReducedOrderBasisProjection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the projection of reducedOrderBasis[solutionName] on newReducedOrderBases</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>solutionName</strong> (<em>str</em>) – name of the solutions to compress</p></li>
+<li><p><strong>newReducedOrderBasis</strong> (<em>np.ndarray</em>) – of size (newNumberOfModes, numberOfDOFs)</p></li>
+<li><p><strong>snapshotCorrelationOperator</strong> (<em>scipy.sparse.csr</em><em>, </em><em>optional</em>) – correlation operator between the snapshots</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>of size (newNumberOfModes, numberOfModes)</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.ConvertCompressedSnapshotReducedOrderBasis">
+<span class="sig-name descname"><span class="pre">ConvertCompressedSnapshotReducedOrderBasis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solutionName</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">projectedReducedOrderBasis</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/CollectionProblemData.html#CollectionProblemData.ConvertCompressedSnapshotReducedOrderBasis"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.ConvertCompressedSnapshotReducedOrderBasis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts the reducedSnapshot from the current reducedOrderBasis to a newReducedOrderBasis using a projectedReducedOrderBasis between the current one and a new one</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>solutionName</strong> (<em>str</em>) – name of the solution whose compressedSnapshot is to convert</p></li>
+<li><p><strong>projectedReducedOrderBasis</strong> (<em>np.ndarray</em>) – of size (newNumberOfModes, numberOfModes)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.DefineQuantity">
+<span class="sig-name descname"><span class="pre">DefineQuantity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">full_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/CollectionProblemData.html#CollectionProblemData.DefineQuantity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.DefineQuantity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Define a new quantity for results</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>key</strong> (<em>str</em>) – Key to be served in ProblemData to retrieve the result</p></li>
+<li><p><strong>full_name</strong> (<em>str</em>) – Full name of the quantity, e.g. “velocity”</p></li>
+<li><p><strong>unit</strong> (<em>str</em>) – Measuring unit, e.g. “meter”</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.DefineVariabilityAxes">
+<span class="sig-name descname"><span class="pre">DefineVariabilityAxes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">names</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">types</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quantities</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">descriptions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/CollectionProblemData.html#CollectionProblemData.DefineVariabilityAxes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.DefineVariabilityAxes" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>Sets the axes of variability: names to be served as keys</dt><dd><p>to collect ProblemData instances and documenting properties</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>names</strong> (<em>tuple</em>) – names of axes, to be served as keys</p></li>
+<li><p><strong>types</strong> (<em>type</em>) – type of the expected values for this axis</p></li>
+<li><p><strong>quantities</strong> (<em>iterable</em>) – (optional) describes the physical quantity of the parameter. For now an iterable of tuples (full name, unit)</p></li>
+<li><p><strong>descriptions</strong> (<em>iterable</em>) – (optional) describes the role of the axis of variability</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.DefineVariabilitySupport">
+<span class="sig-name descname"><span class="pre">DefineVariabilitySupport</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parameters</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ndarrays</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/CollectionProblemData.html#CollectionProblemData.DefineVariabilitySupport"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.DefineVariabilitySupport" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>parameters</strong> (<em>iterable</em>) – iterable over the identifiers (str or tuple(str)) of parameters</p></li>
+<li><p><strong>ndarrays</strong> (<em>iterable</em>) – iterable over the discrete support for each identifier</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Parameters may have a tuple of parameters as a component, when the discrete
+support along these two or more parameters is not cartesian.</p>
+<p>Then, the corresponding ndarray has shape (numberOfPoints, numerOfParametersInTuple)</p>
+<p>The whole discrete support is generated as a cartesian product of discrete supports.</p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.GenerateVariabilitySupport">
+<span class="sig-name descname"><span class="pre">GenerateVariabilitySupport</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/CollectionProblemData.html#CollectionProblemData.GenerateVariabilitySupport"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.GenerateVariabilitySupport" title="Permalink to this definition">¶</a></dt>
+<dd><p>Realizes the catersian product to generate full grid for variability support</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>ndarray of shape(totalNumberOfPoints, numberOfParameters) with the coordinates of points</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>ndarray</p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>On the last axis, parameters values are those of the parameters
+in the order they were declared in defineVariabilitySupport</p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.GetCompressedSnapshots">
+<span class="sig-name descname"><span class="pre">GetCompressedSnapshots</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solutionName</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skipFirst</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/CollectionProblemData.html#CollectionProblemData.GetCompressedSnapshots"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.GetCompressedSnapshots" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns compressed snapshots of solution solutionName from all problemDatas, in a numpy array</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>solutionName</strong> (<em>str</em>) – name of the solutions on which we want to iterate over compressedSnapshots</p></li>
+<li><p><strong>skipFirst</strong> (<em>bool</em>) – (optional) True for skipping first time step of each ProblemData</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>of size (nbSnapshots, numberOfModes)</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.GetCompressedSnapshotsAtTimes">
+<span class="sig-name descname"><span class="pre">GetCompressedSnapshotsAtTimes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solutionName</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeSequence</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/CollectionProblemData.html#CollectionProblemData.GetCompressedSnapshotsAtTimes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.GetCompressedSnapshotsAtTimes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns compressed snapshots of solution solutionName from all problemDatas and for a given time sequence, in a numpy array</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>solutionName</strong> (<em>str</em>) – name of the solutions on which we want to iterate over compressedSnapshots</p></li>
+<li><p><strong>timeSequence</strong> (<em>list</em><em> or </em><em>numpy array</em>) – time steps for snapshot retrieving (doing time interpolation if needed)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>of size (nbSnapshots, numberOfModes)</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.GetDataCompressionData">
+<span class="sig-name descname"><span class="pre">GetDataCompressionData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/CollectionProblemData.html#CollectionProblemData.GetDataCompressionData"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.GetDataCompressionData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a precomputed dataCompressionData for key</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>key</strong> (<em>str</em>) – key for which dataCompressionData corresponds</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dataCompressionData type</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.GetGlobalNumberOfSnapshots">
+<span class="sig-name descname"><span class="pre">GetGlobalNumberOfSnapshots</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solutionName</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skipFirst</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/CollectionProblemData.html#CollectionProblemData.GetGlobalNumberOfSnapshots"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.GetGlobalNumberOfSnapshots" title="Permalink to this definition">¶</a></dt>
+<dd><p>Iterates over problemDatas to return the complete number of snpashots for solutions of name “solutionName”</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>solutionName</strong> (<em>str</em>) – name of the solutions for which we want to compute the total number of snapshots</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>number of snpashots for solutions of name “solutionName”</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.GetLoadingsOfType">
+<span class="sig-name descname"><span class="pre">GetLoadingsOfType</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">type</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/CollectionProblemData.html#CollectionProblemData.GetLoadingsOfType"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.GetLoadingsOfType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of loadings of a given type</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>type</strong> (<em>str</em>) – type of loadings (eg. pressure) as defined in the LoadingBase structure</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>of Loadings</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.GetNumberOfProblemDatas">
+<span class="sig-name descname"><span class="pre">GetNumberOfProblemDatas</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/CollectionProblemData.html#CollectionProblemData.GetNumberOfProblemDatas"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.GetNumberOfProblemDatas" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the number of problemDatas</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>the number of problemDatas</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.GetNumberOfVariabilityAxes">
+<span class="sig-name descname"><span class="pre">GetNumberOfVariabilityAxes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/CollectionProblemData.html#CollectionProblemData.GetNumberOfVariabilityAxes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.GetNumberOfVariabilityAxes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the number of variability axes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>number of variability axes</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.GetOperatorCompressionData">
+<span class="sig-name descname"><span class="pre">GetOperatorCompressionData</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/CollectionProblemData.html#CollectionProblemData.GetOperatorCompressionData"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.GetOperatorCompressionData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the operatorCompressionData</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>custom data structure</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>operatorCompressionData</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.GetParameterDimension">
+<span class="sig-name descname"><span class="pre">GetParameterDimension</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/CollectionProblemData.html#CollectionProblemData.GetParameterDimension"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.GetParameterDimension" title="Permalink to this definition">¶</a></dt>
+<dd><p>Asserts that the parameters of all problemDatas have the same parameterDimension
+and returns this size</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>parameterDimension of problemDatas</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.GetProblemData">
+<span class="sig-name descname"><span class="pre">GetProblemData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/CollectionProblemData.html#CollectionProblemData.GetProblemData"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.GetProblemData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a specific problemData</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>kwargs</strong> – same type as the axes of variability, gives the point in parameter space at which to add data</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>retrieved problemData</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="Mordicus.Core.Containers.ProblemData.html#Mordicus.Core.Containers.ProblemData.ProblemData" title="Mordicus.Core.Containers.ProblemData.ProblemData">ProblemData</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.GetProblemDatas">
+<span class="sig-name descname"><span class="pre">GetProblemDatas</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/CollectionProblemData.html#CollectionProblemData.GetProblemDatas"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.GetProblemDatas" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the complete problemDatas dictionary</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>problemDatas of the collectionProblemData</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.GetProblemSampling">
+<span class="sig-name descname"><span class="pre">GetProblemSampling</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/CollectionProblemData.html#CollectionProblemData.GetProblemSampling"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.GetProblemSampling" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the tags of problemDatas</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>list of tuples containing the computed parameter points of the available problemDatas</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.GetReducedOrderBases">
+<span class="sig-name descname"><span class="pre">GetReducedOrderBases</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/CollectionProblemData.html#CollectionProblemData.GetReducedOrderBases"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.GetReducedOrderBases" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the dictionary of precomputed reducedOrderBases</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>reducedOrderBases</strong> – dictionary with solutionNames (str) as keys and reducedOrderBases (np.ndarray of size (numberOfModes, numberOfDOFs)) as values</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.GetReducedOrderBasis">
+<span class="sig-name descname"><span class="pre">GetReducedOrderBasis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solutionName</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/CollectionProblemData.html#CollectionProblemData.GetReducedOrderBasis"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.GetReducedOrderBasis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a precomputed reducedOrderBases for solution solutionName</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>solutionName</strong> (<em>str</em>) – name of the solution for which the reducedOrderBases is retrieved</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>of size (numberOfModes, numberOfDOFs)</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.GetReducedOrderBasisNumberOfModes">
+<span class="sig-name descname"><span class="pre">GetReducedOrderBasisNumberOfModes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solutionName</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/CollectionProblemData.html#CollectionProblemData.GetReducedOrderBasisNumberOfModes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.GetReducedOrderBasisNumberOfModes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the number of modes of a precomputed reducedOrderBases for solution solutionName</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>solutionName</strong> (<em>str</em>) – name of the solution for which the reducedOrderBases is retrieved</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>numberOfModes</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.GetSnapshots">
+<span class="sig-name descname"><span class="pre">GetSnapshots</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solutionName</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skipFirst</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/CollectionProblemData.html#CollectionProblemData.GetSnapshots"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.GetSnapshots" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns snapshots in a numpy array</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>solutionName</strong> (<em>str</em>) – name of the solutions on which we want to iterate over snapshots</p></li>
+<li><p><strong>skipFirst</strong> (<em>bool</em>) – (optional) True for skipping first time step of each ProblemData</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>of size (nbSnapshots, numberOfDofs)</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.GetSnapshotsAtTimes">
+<span class="sig-name descname"><span class="pre">GetSnapshotsAtTimes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solutionName</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeSequence</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/CollectionProblemData.html#CollectionProblemData.GetSnapshotsAtTimes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.GetSnapshotsAtTimes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns snapshots of solution solutionName from all problemDatas and for a given time sequence, in a numpy array</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>solutionName</strong> (<em>str</em>) – name of the solutions on which we want to iterate over compressedSnapshots</p></li>
+<li><p><strong>timeSequence</strong> (<em>list</em><em> or </em><em>numpy array</em>) – time steps for snapshot retrieving (doing time interpolation if needed)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>of size (nbSnapshots, numberOfDofs)</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.GetSolutionStructure">
+<span class="sig-name descname"><span class="pre">GetSolutionStructure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solutionName</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/CollectionProblemData.html#CollectionProblemData.GetSolutionStructure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.GetSolutionStructure" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>solutionName</strong> (<em>str</em>) – identifier of the physical quantity, e.g. “U”, “sigma”</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>solution structure for the demanded solution</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="Mordicus.Core.Containers.SolutionStructures.SolutionStructureBase.html#Mordicus.Core.Containers.SolutionStructures.SolutionStructureBase.SolutionStructureBase" title="Mordicus.Core.Containers.SolutionStructures.SolutionStructureBase.SolutionStructureBase">SolutionStructureBase</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.GetSolutionTimeSteps">
+<span class="sig-name descname"><span class="pre">GetSolutionTimeSteps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solutionName</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skipFirst</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/CollectionProblemData.html#CollectionProblemData.GetSolutionTimeSteps"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.GetSolutionTimeSteps" title="Permalink to this definition">¶</a></dt>
+<dd><p>GetTimeSteps</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>solutionName</strong> (<em>str</em>) – name of the solutions for which we want to compute the total number of snapshots</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.GetSolutionsNumberOfComponents">
+<span class="sig-name descname"><span class="pre">GetSolutionsNumberOfComponents</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solutionName</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/CollectionProblemData.html#CollectionProblemData.GetSolutionsNumberOfComponents"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.GetSolutionsNumberOfComponents" title="Permalink to this definition">¶</a></dt>
+<dd><p>Asserts that the solutions of name “solutionName” in all problemDatas have same nbeOfComponents
+and return this size</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>solutionName</strong> (<em>str</em>) – name of the solutions for which we want to return the nbeOfComponents</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>nbeOfComponents of solutions of name “solutionName”</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.GetSolutionsNumberOfDofs">
+<span class="sig-name descname"><span class="pre">GetSolutionsNumberOfDofs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solutionName</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/CollectionProblemData.html#CollectionProblemData.GetSolutionsNumberOfDofs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.GetSolutionsNumberOfDofs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Asserts that the solutions of name “solutionName” in all problemDatas have same nbeOfDofs
+and return this size</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>solutionName</strong> (<em>str</em>) – name of the solutions for which we want to return the nbeOfDofs</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>nbeOfDofs of solutions of name “solutionName”</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.GetSolutionsNumberOfNodes">
+<span class="sig-name descname"><span class="pre">GetSolutionsNumberOfNodes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solutionName</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/CollectionProblemData.html#CollectionProblemData.GetSolutionsNumberOfNodes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.GetSolutionsNumberOfNodes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Asserts that the solutions of name “solutionName” in all problemDatas have same nbeOfNodes
+and return this size</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>solutionName</strong> (<em>str</em>) – name of the solutions for which we want to return the nbeOfNodes</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>nbeOfNodes of solutions of name “solutionName”</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.SetDataCompressionData">
+<span class="sig-name descname"><span class="pre">SetDataCompressionData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataCompressionData</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/CollectionProblemData.html#CollectionProblemData.SetDataCompressionData"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.SetDataCompressionData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a dataCompressionData corresponding to key</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>key</strong> (<em>any type</em>) – key for which dataCompressionData corresponds</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.SetOperatorCompressionData">
+<span class="sig-name descname"><span class="pre">SetOperatorCompressionData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">operatorCompressionData</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/CollectionProblemData.html#CollectionProblemData.SetOperatorCompressionData"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.SetOperatorCompressionData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the operatorCompressionData</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>operatorCompressionData</strong> (<em>custom data structure</em>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.SetReducedTemplateDataset">
+<span class="sig-name descname"><span class="pre">SetReducedTemplateDataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reducedTemplateDataset</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/CollectionProblemData.html#CollectionProblemData.SetReducedTemplateDataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.SetReducedTemplateDataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Template dataset to compute reduced solution</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>reducedTemplateDataset</strong> (<em>Dataset</em>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.SetSolutionStructure">
+<span class="sig-name descname"><span class="pre">SetSolutionStructure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solutionName</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solutionStructure</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/CollectionProblemData.html#CollectionProblemData.SetSolutionStructure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.SetSolutionStructure" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>solutionName</strong> (<em>str</em>) – identifier of the physical quantity, e.g. “U”, “sigma”</p></li>
+<li><p><strong>solutionStructure</strong> (<a class="reference internal" href="Mordicus.Core.Containers.SolutionStructures.SolutionStructureBase.html#Mordicus.Core.Containers.SolutionStructures.SolutionStructureBase.SolutionStructureBase" title="Mordicus.Core.Containers.SolutionStructures.SolutionStructureBase.SolutionStructureBase"><em>SolutionStructureBase</em></a>) – solution structure for the demanded solution</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.SetTemplateDataset">
+<span class="sig-name descname"><span class="pre">SetTemplateDataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">templateDataset</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/CollectionProblemData.html#CollectionProblemData.SetTemplateDataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.SetTemplateDataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Template dataset to compute high-fidelity solution</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>templateDataset</strong> (<em>Dataset</em>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.SnapshotsIterator">
+<span class="sig-name descname"><span class="pre">SnapshotsIterator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solutionName</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skipFirst</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/CollectionProblemData.html#CollectionProblemData.SnapshotsIterator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.SnapshotsIterator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constructs an iterator over snapshots of solutions of name “solutionName” in all problemDatas.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>solutionName</strong> (<em>str</em>) – name of the solutions on which we want to iterate over snapshots</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>an iterator over snapshots of solutions of name “solutionName” in all problemDatas</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>iterator</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.Solve">
+<span class="sig-name descname"><span class="pre">Solve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/CollectionProblemData.html#CollectionProblemData.Solve"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.Solve" title="Permalink to this definition">¶</a></dt>
+<dd><p>New high-fidelity model evaluation</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>kwargs</strong> (<em>(</em><em>parameter_name=value</em><em>) </em><em>name of the variability as key and value stays value.</em>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.SolveReduced">
+<span class="sig-name descname"><span class="pre">SolveReduced</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/CollectionProblemData.html#CollectionProblemData.SolveReduced"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.SolveReduced" title="Permalink to this definition">¶</a></dt>
+<dd><p>New high-fidelity model evaluation</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>kwargs</strong> (<em>(</em><em>parameter_name=value</em><em>) </em><em>name of the variability as key and value stays value.</em>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.accept">
+<span class="sig-name descname"><span class="pre">accept</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">visitor</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/CollectionProblemData.html#CollectionProblemData.accept"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.accept" title="Permalink to this definition">¶</a></dt>
+<dd><p>Visitor design pattern</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.CollectionProblemData.NoAxisDuplicateDict">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">Mordicus.Core.Containers.CollectionProblemData.</span></span><span class="sig-name descname"><span class="pre">NoAxisDuplicateDict</span></span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/CollectionProblemData.html#NoAxisDuplicateDict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.CollectionProblemData.NoAxisDuplicateDict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
+<p>A dict imposing that (‘a’, ‘b’) is invalid key if ‘a’ is a existing key</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.CollectionProblemData.QuantityDefinitionDict">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">Mordicus.Core.Containers.CollectionProblemData.</span></span><span class="sig-name descname"><span class="pre">QuantityDefinitionDict</span></span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/CollectionProblemData.html#QuantityDefinitionDict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.CollectionProblemData.QuantityDefinitionDict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
+<p>Override OrderedDict to implement visitor design pattern</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.CollectionProblemData.QuantityDefinitionDict.accept">
+<span class="sig-name descname"><span class="pre">accept</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">visitor</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/CollectionProblemData.html#QuantityDefinitionDict.accept"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.CollectionProblemData.QuantityDefinitionDict.accept" title="Permalink to this definition">¶</a></dt>
+<dd><p>Accept visitor</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.CollectionProblemData.VariabilityDefinitionDict">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">Mordicus.Core.Containers.CollectionProblemData.</span></span><span class="sig-name descname"><span class="pre">VariabilityDefinitionDict</span></span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/CollectionProblemData.html#VariabilityDefinitionDict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.CollectionProblemData.VariabilityDefinitionDict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
+<p>Override OrderedDict to implement visitor design pattern</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="Mordicus.Core.Containers.CollectionProblemData.VariabilityDefinitionDict.accept">
+<span class="sig-name descname"><span class="pre">accept</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">visitor</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/Containers/CollectionProblemData.html#VariabilityDefinitionDict.accept"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.Containers.CollectionProblemData.VariabilityDefinitionDict.accept" title="Permalink to this definition">¶</a></dt>
+<dd><p>Accept visitor</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="Mordicus.Core.Containers.SolutionStructures.SolutionStructureBase.html"
+                          title="previous chapter">Mordicus.Core.Containers.SolutionStructures.SolutionStructureBase module</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="Mordicus.Core.Containers.ProblemData.html"
+                          title="next chapter">Mordicus.Core.Containers.ProblemData module</a></p>
+  </div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/_source/Mordicus.Core.Containers.CollectionProblemData.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="Mordicus.Core.Containers.ProblemData.html" title="Mordicus.Core.Containers.ProblemData module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="Mordicus.Core.Containers.SolutionStructures.SolutionStructureBase.html" title="Mordicus.Core.Containers.SolutionStructures.SolutionStructureBase module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Mordicus 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="Mordicus.html" >Mordicus package</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="Mordicus.Core.html" >Mordicus.Core package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="Mordicus.Core.Containers.html" >Mordicus.Core.Containers package</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Mordicus.Core.Containers.CollectionProblemData module</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright Mordicus Consortium.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.0.2.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,15 @@
+Mordicus.Modules.Cemosis.Containers package
+===========================================
+
+.. automodule:: Mordicus.Modules.Cemosis.Containers
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   Mordicus.Modules.Cemosis.Containers.Meshes

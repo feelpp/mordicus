@@ -1,0 +1,7 @@
+Mordicus.Core.Containers.ResolutionData.ResolutionDataBase module
+=================================================================
+
+.. automodule:: Mordicus.Core.Containers.ResolutionData.ResolutionDataBase
+   :members:
+   :undoc-members:
+   :show-inheritance:

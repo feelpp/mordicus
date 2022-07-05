@@ -1,0 +1,212 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Mordicus.Core.BasicAlgorithms.Interpolation module &#8212; Mordicus 0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/classic.css" />
+    
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../_static/doctools.js"></script>
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Mordicus.Core.BasicAlgorithms.SVD module" href="Mordicus.Core.BasicAlgorithms.SVD.html" />
+    <link rel="prev" title="Mordicus.Core.BasicAlgorithms package" href="Mordicus.Core.BasicAlgorithms.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="Mordicus.Core.BasicAlgorithms.SVD.html" title="Mordicus.Core.BasicAlgorithms.SVD module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="Mordicus.Core.BasicAlgorithms.html" title="Mordicus.Core.BasicAlgorithms package"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Mordicus 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="Mordicus.html" >Mordicus package</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="Mordicus.Core.html" >Mordicus.Core package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="Mordicus.Core.BasicAlgorithms.html" accesskey="U">Mordicus.Core.BasicAlgorithms package</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Mordicus.Core.BasicAlgorithms.Interpolation module</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="module-Mordicus.Core.BasicAlgorithms.Interpolation">
+<span id="mordicus-core-basicalgorithms-interpolation-module"></span><h1>Mordicus.Core.BasicAlgorithms.Interpolation module<a class="headerlink" href="#module-Mordicus.Core.BasicAlgorithms.Interpolation" title="Permalink to this heading">¶</a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="Mordicus.Core.BasicAlgorithms.Interpolation.BinarySearch">
+<span class="sig-prename descclassname"><span class="pre">Mordicus.Core.BasicAlgorithms.Interpolation.</span></span><span class="sig-name descname"><span class="pre">BinarySearch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">orderedList</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">item</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/BasicAlgorithms/Interpolation.html#BinarySearch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.BasicAlgorithms.Interpolation.BinarySearch" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>Inspects the sorted list “ordered_list” and returns:</dt><dd><ul class="simple">
+<li><p>0 if item &lt;= orderedList[0]</p></li>
+<li><p>the rank of the largest element smaller or equal than item otherwise</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ordered_list</strong> (<em>list</em><em> or </em><em>one-dimensional np.ndarray</em>) – the data sorted in increasing order from which the previous rank is        searched</p></li>
+<li><p><strong>item</strong> (<em>float</em><em> or </em><em>int</em>) – the item for which the previous rank is searched</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>0 or the rank of the largest element smaller or equal than item in        “orderedList”</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="Mordicus.Core.BasicAlgorithms.Interpolation.BinarySearchVectorized">
+<span class="sig-prename descclassname"><span class="pre">Mordicus.Core.BasicAlgorithms.Interpolation.</span></span><span class="sig-name descname"><span class="pre">BinarySearchVectorized</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">orderedList</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">items</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/BasicAlgorithms/Interpolation.html#BinarySearchVectorized"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.BasicAlgorithms.Interpolation.BinarySearchVectorized" title="Permalink to this definition">¶</a></dt>
+<dd><p>BinarySearch for more than one call (items is now a list or one-dimensional np.ndarray)</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="Mordicus.Core.BasicAlgorithms.Interpolation.PieceWiseLinearInterpolation">
+<span class="sig-prename descclassname"><span class="pre">Mordicus.Core.BasicAlgorithms.Interpolation.</span></span><span class="sig-name descname"><span class="pre">PieceWiseLinearInterpolation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">item</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">itemIndices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vectors</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/BasicAlgorithms/Interpolation.html#PieceWiseLinearInterpolation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.BasicAlgorithms.Interpolation.PieceWiseLinearInterpolation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes a item interpolation for temporal vectors defined either by
+itemIndices  and vectors at these indices</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>item</strong> (<em>float</em>) – the input item at which the interpolation is required</p></li>
+<li><p><strong>itemIndices</strong> (<em>np.ndarray</em>) – the items where the available data is defined, of size
+(numberOfTimeIndices)</p></li>
+<li><p><strong>vectors</strong> (<em>np.ndarray</em><em> or </em><em>dict</em>) – the available data, of size (numberOfVectors, numberOfDofs)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>interpolated vector, of size (numberOfDofs)</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="Mordicus.Core.BasicAlgorithms.Interpolation.PieceWiseLinearInterpolationVectorized">
+<span class="sig-prename descclassname"><span class="pre">Mordicus.Core.BasicAlgorithms.Interpolation.</span></span><span class="sig-name descname"><span class="pre">PieceWiseLinearInterpolationVectorized</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">items</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">itemIndices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vectors</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/BasicAlgorithms/Interpolation.html#PieceWiseLinearInterpolationVectorized"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.BasicAlgorithms.Interpolation.PieceWiseLinearInterpolationVectorized" title="Permalink to this definition">¶</a></dt>
+<dd><p>PieceWiseLinearInterpolation for more than one call (items is now a list or one-dimensional np.ndarray)</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="Mordicus.Core.BasicAlgorithms.Interpolation.PieceWiseLinearInterpolationVectorizedWithMap">
+<span class="sig-prename descclassname"><span class="pre">Mordicus.Core.BasicAlgorithms.Interpolation.</span></span><span class="sig-name descname"><span class="pre">PieceWiseLinearInterpolationVectorizedWithMap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">items</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">itemIndices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vectors</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vectorsMap</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/BasicAlgorithms/Interpolation.html#PieceWiseLinearInterpolationVectorizedWithMap"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.BasicAlgorithms.Interpolation.PieceWiseLinearInterpolationVectorizedWithMap" title="Permalink to this definition">¶</a></dt>
+<dd><p>PieceWiseLinearInterpolation for more than one call (items is now a list or one-dimensional np.ndarray)</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="Mordicus.Core.BasicAlgorithms.Interpolation.PieceWiseLinearInterpolationWithMap">
+<span class="sig-prename descclassname"><span class="pre">Mordicus.Core.BasicAlgorithms.Interpolation.</span></span><span class="sig-name descname"><span class="pre">PieceWiseLinearInterpolationWithMap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">item</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">itemIndices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vectors</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vectorsMap</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/Mordicus/Core/BasicAlgorithms/Interpolation.html#PieceWiseLinearInterpolationWithMap"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Mordicus.Core.BasicAlgorithms.Interpolation.PieceWiseLinearInterpolationWithMap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes a item interpolation for temporal vectors defined either by
+itemIndices, some tags at these item indices (vectorsMap), and vectors at those tags.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>item</strong> (<em>float</em>) – the input item at which the interpolation is required</p></li>
+<li><p><strong>itemIndices</strong> (<em>np.ndarray</em>) – the items where the available data is defined, of size
+(numberOfTimeIndices)</p></li>
+<li><p><strong>vectors</strong> (<em>np.ndarray</em><em> or </em><em>dict</em>) – the available data, of size (numberOfVectors, numberOfDofs)</p></li>
+<li><p><strong>vectorsMap</strong> (<em>list</em>) – list containing the mapping from the numberOfTimeIndices items indices to the numberOfVectors vectors, of size (numberOfTimeIndices,). Default is None, in which case numberOfVectors = numberOfTimeIndices.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>interpolated vector, of size (numberOfDofs)</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="Mordicus.Core.BasicAlgorithms.html"
+                          title="previous chapter">Mordicus.Core.BasicAlgorithms package</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="Mordicus.Core.BasicAlgorithms.SVD.html"
+                          title="next chapter">Mordicus.Core.BasicAlgorithms.SVD module</a></p>
+  </div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/_source/Mordicus.Core.BasicAlgorithms.Interpolation.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="Mordicus.Core.BasicAlgorithms.SVD.html" title="Mordicus.Core.BasicAlgorithms.SVD module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="Mordicus.Core.BasicAlgorithms.html" title="Mordicus.Core.BasicAlgorithms package"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Mordicus 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="Mordicus.html" >Mordicus package</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="Mordicus.Core.html" >Mordicus.Core package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="Mordicus.Core.BasicAlgorithms.html" >Mordicus.Core.BasicAlgorithms package</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Mordicus.Core.BasicAlgorithms.Interpolation module</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright Mordicus Consortium.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.0.2.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,1133 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mordicus.Core.Containers.CollectionProblemData &#8212; Mordicus 0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/classic.css" />
+    
+    <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+    <script src="../../../../_static/jquery.js"></script>
+    <script src="../../../../_static/underscore.js"></script>
+    <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../../../_static/doctools.js"></script>
+    
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">Mordicus 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../../Mordicus.html" accesskey="U">Mordicus</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Mordicus.Core.Containers.CollectionProblemData</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for Mordicus.Core.Containers.CollectionProblemData</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">mpi4py</span> <span class="kn">import</span> <span class="n">MPI</span>
+<span class="k">if</span> <span class="n">MPI</span><span class="o">.</span><span class="n">COMM_WORLD</span><span class="o">.</span><span class="n">Get_size</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span> <span class="c1"># pragma: no cover</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;OMP_NUM_THREADS&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;1&quot;</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;OPENBLAS_NUM_THREADS&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;1&quot;</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;MKL_NUM_THREADS&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;1&quot;</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;VECLIB_MAXIMUM_THREADS&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;1&quot;</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;NUMEXPR_NUM_THREADS&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;1&quot;</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">import</span> <span class="nn">os.path</span> <span class="k">as</span> <span class="nn">osp</span>
+
+<span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">sparse</span>
+<span class="kn">from</span> <span class="nn">Mordicus.Core.Containers</span> <span class="kn">import</span> <span class="n">ProblemData</span>
+<span class="kn">from</span> <span class="nn">mpi4py</span> <span class="kn">import</span> <span class="n">MPI</span>
+
+
+<div class="viewcode-block" id="NoAxisDuplicateDict"><a class="viewcode-back" href="../../../../_source/Mordicus.Core.Containers.CollectionProblemData.html#Mordicus.Core.Containers.CollectionProblemData.NoAxisDuplicateDict">[docs]</a><span class="k">class</span> <span class="nc">NoAxisDuplicateDict</span><span class="p">(</span><span class="nb">dict</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A dict imposing that (&#39;a&#39;, &#39;b&#39;) is invalid key if &#39;a&#39; is a existing key</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set self[key] to value</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># make an iterable from &#39;key&#39;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">)):</span>
+            <span class="n">it</span> <span class="o">=</span> <span class="p">[</span><span class="n">key</span><span class="p">]</span>
+        <span class="c1"># test compatibility</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">ke</span> <span class="ow">in</span> <span class="n">it</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">itk</span> <span class="o">=</span> <span class="nb">iter</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="nb">any</span><span class="p">([</span><span class="n">ke</span> <span class="o">==</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">itk</span><span class="p">]):</span><span class="c1">#pragma: no cover</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Parameter </span><span class="si">{0}</span><span class="s2"> is already handled with key </span><span class="si">{1}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ke</span><span class="p">,</span> <span class="n">k</span><span class="p">))</span>
+                <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span><span class="c1">#pragma: no cover</span>
+                    <span class="k">if</span> <span class="n">ke</span> <span class="o">==</span> <span class="n">k</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Parameter </span><span class="si">{0}</span><span class="s2"> is already handled with key </span><span class="si">{1}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ke</span><span class="p">,</span> <span class="n">k</span><span class="p">))</span>
+        <span class="k">return</span> <span class="nb">dict</span><span class="o">.</span><span class="fm">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="QuantityDefinitionDict"><a class="viewcode-back" href="../../../../_source/Mordicus.Core.Containers.CollectionProblemData.html#Mordicus.Core.Containers.CollectionProblemData.QuantityDefinitionDict">[docs]</a><span class="k">class</span> <span class="nc">QuantityDefinitionDict</span><span class="p">(</span><span class="nb">dict</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Override OrderedDict to implement visitor design pattern&quot;&quot;&quot;</span>
+    
+<div class="viewcode-block" id="QuantityDefinitionDict.accept"><a class="viewcode-back" href="../../../../_source/Mordicus.Core.Containers.CollectionProblemData.html#Mordicus.Core.Containers.CollectionProblemData.QuantityDefinitionDict.accept">[docs]</a>    <span class="k">def</span> <span class="nf">accept</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">visitor</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Accept visitor</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">visitor</span><span class="o">.</span><span class="n">visitQuantityDefinitionDict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div></div>
+
+<div class="viewcode-block" id="VariabilityDefinitionDict"><a class="viewcode-back" href="../../../../_source/Mordicus.Core.Containers.CollectionProblemData.html#Mordicus.Core.Containers.CollectionProblemData.VariabilityDefinitionDict">[docs]</a><span class="k">class</span> <span class="nc">VariabilityDefinitionDict</span><span class="p">(</span><span class="nb">dict</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Override OrderedDict to implement visitor design pattern&quot;&quot;&quot;</span>
+    
+<div class="viewcode-block" id="VariabilityDefinitionDict.accept"><a class="viewcode-back" href="../../../../_source/Mordicus.Core.Containers.CollectionProblemData.html#Mordicus.Core.Containers.CollectionProblemData.VariabilityDefinitionDict.accept">[docs]</a>    <span class="k">def</span> <span class="nf">accept</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">visitor</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Accept visitor</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">visitor</span><span class="o">.</span><span class="n">visitVariabilityDefinitionDict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div></div>
+
+<div class="viewcode-block" id="CollectionProblemData"><a class="viewcode-back" href="../../../../_source/Mordicus.Core.Containers.CollectionProblemData.html#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData">[docs]</a><span class="k">class</span> <span class="nc">CollectionProblemData</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class containing a set of collection of problemData</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    problemDatas : dict(str: ProblemData)</span>
+<span class="sd">        dictionary with problem tags (str) as keys and problemDatas (ProblemData) as values</span>
+<span class="sd">    reducedOrderBases : dict(str: np.ndarray)</span>
+<span class="sd">        dictionary with solutionNames (str) as keys and reducedOrderBases (np.ndarray of size (numberOfModes, numberOfDOFs)) as values</span>
+<span class="sd">    solutionStructures : dict(str: SolutionStructure)</span>
+<span class="sd">        dictionary with solutionNames (str) as keys and SolutionStructure  as values</span>
+<span class="sd">    variabilityDefinition : dict(str: dict)</span>
+<span class="sd">        defines the problem variability, dictionary with variability names (typically, names of parameters) as keys</span>
+<span class="sd">    variabilitySupport : dict(str or tuple: ndarray)</span>
+<span class="sd">        defines the allowed values for parameters (definition domain), dictionary with the parameter sampling as values</span>
+<span class="sd">    quantityDefinition : dict(str: (str,str))</span>
+<span class="sd">        defines a new quantity for results, dictionary with solutionNames (str) as keys and a couple for strings (solution description, unit) as values</span>
+<span class="sd">    templateDataset : SolverDataset</span>
+<span class="sd">        dataset to solve the HF problem for a new set of parameter values, contains a input_instruction_file with keywords to replace</span>
+<span class="sd">    reducedTemplateDataset : SolverDataset</span>
+<span class="sd">        dataset to solve the reduced problem for a new set of parameter values, contains a input_instruction_file with keywords to replace</span>
+<span class="sd">    specificDatasets : dict(str: SolverDataset)</span>
+<span class="sd">        dictonary with the name of the operation as key and corresponding SolverDataset as value</span>
+<span class="sd">    dataCompressionData : dict(str: custom_data_structure)</span>
+<span class="sd">        dictionary with solutionNames (str) as keys and data structure generated by the data compression step as values</span>
+<span class="sd">    operatorCompressionData : dict(str: custom_data_structure)</span>
+<span class="sd">        dictionary with solutionNames (str) as keys and data structure generated by the operator compression step as values</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">problemDatas</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reducedOrderBases</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">solutionStructures</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">variabilityDefinition</span> <span class="o">=</span> <span class="n">VariabilityDefinitionDict</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">variabilitySupport</span> <span class="o">=</span> <span class="n">NoAxisDuplicateDict</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">quantityDefinition</span> <span class="o">=</span> <span class="n">QuantityDefinitionDict</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">templateDataset</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reducedTemplateDataset</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">specificDatasets</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataCompressionData</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">operatorCompressionData</span> <span class="o">=</span> <span class="p">{}</span>
+
+
+<div class="viewcode-block" id="CollectionProblemData.AddReducedOrderBasis"><a class="viewcode-back" href="../../../../_source/Mordicus.Core.Containers.CollectionProblemData.html#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.AddReducedOrderBasis">[docs]</a>    <span class="k">def</span> <span class="nf">AddReducedOrderBasis</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">solutionName</span><span class="p">,</span> <span class="n">reducedOrderBasis</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds a reducedOrderBasis corresponding to solution solutionName</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        solutionName : str</span>
+<span class="sd">            name of the solution for which reducedOrderBasis is a reduced order basis</span>
+<span class="sd">        reducedOrderBasis : np.ndarray</span>
+<span class="sd">            of size (numberOfModes, numberOfDOFs)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">solutionName</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s2">&quot;solutionName must be of type string&quot;</span>
+        <span class="k">assert</span> <span class="p">(</span>
+            <span class="nb">isinstance</span><span class="p">(</span><span class="n">reducedOrderBasis</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">reducedOrderBasis</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span>
+        <span class="p">),</span> <span class="s2">&quot;reducedOrderBasis must be a 2D np.ndarray&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_CheckSolutionName</span><span class="p">(</span><span class="n">solutionName</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reducedOrderBases</span><span class="p">[</span><span class="n">solutionName</span><span class="p">]</span> <span class="o">=</span> <span class="n">reducedOrderBasis</span></div>
+
+
+<div class="viewcode-block" id="CollectionProblemData.GetReducedOrderBasis"><a class="viewcode-back" href="../../../../_source/Mordicus.Core.Containers.CollectionProblemData.html#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.GetReducedOrderBasis">[docs]</a>    <span class="k">def</span> <span class="nf">GetReducedOrderBasis</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">solutionName</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get a precomputed reducedOrderBases for solution solutionName</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        solutionName : str</span>
+<span class="sd">            name of the solution for which the reducedOrderBases is retrieved</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        np.ndarray</span>
+<span class="sd">            of size (numberOfModes, numberOfDOFs)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">solutionName</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s2">&quot;name must be of type string&quot;</span>
+
+        <span class="k">if</span> <span class="n">solutionName</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">reducedOrderBases</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span> <span class="c1"># pragma: no cover</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">reducedOrderBases</span><span class="p">[</span><span class="n">solutionName</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="CollectionProblemData.GetReducedOrderBases"><a class="viewcode-back" href="../../../../_source/Mordicus.Core.Containers.CollectionProblemData.html#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.GetReducedOrderBases">[docs]</a>    <span class="k">def</span> <span class="nf">GetReducedOrderBases</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the dictionary of precomputed reducedOrderBases</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        reducedOrderBases : dict</span>
+<span class="sd">            dictionary with solutionNames (str) as keys and reducedOrderBases (np.ndarray of size (numberOfModes, numberOfDOFs)) as values</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">reducedOrderBases</span></div>
+
+
+<div class="viewcode-block" id="CollectionProblemData.GetReducedOrderBasisNumberOfModes"><a class="viewcode-back" href="../../../../_source/Mordicus.Core.Containers.CollectionProblemData.html#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.GetReducedOrderBasisNumberOfModes">[docs]</a>    <span class="k">def</span> <span class="nf">GetReducedOrderBasisNumberOfModes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">solutionName</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the number of modes of a precomputed reducedOrderBases for solution solutionName</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        solutionName : str</span>
+<span class="sd">            name of the solution for which the reducedOrderBases is retrieved</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        int :</span>
+<span class="sd">            numberOfModes</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">solutionName</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s2">&quot;name must be of type string&quot;</span>
+        <span class="k">if</span> <span class="n">solutionName</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">reducedOrderBases</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="s2">&quot;You must compute a reducedOrderBasis for solution named &quot;</span>
+                <span class="o">+</span> <span class="n">solutionName</span>
+                <span class="o">+</span> <span class="s2">&quot; before trying to retrieve it&quot;</span>
+            <span class="p">)</span>  <span class="c1"># pragma: no cover</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetReducedOrderBasis</span><span class="p">(</span><span class="n">solutionName</span><span class="p">)</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="CollectionProblemData.DefineVariabilityAxes"><a class="viewcode-back" href="../../../../_source/Mordicus.Core.Containers.CollectionProblemData.html#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.DefineVariabilityAxes">[docs]</a>    <span class="k">def</span> <span class="nf">DefineVariabilityAxes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">names</span><span class="p">,</span> <span class="n">types</span><span class="p">,</span> <span class="n">quantities</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">descriptions</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the axes of variability: names to be served as keys</span>
+<span class="sd">           to collect ProblemData instances and documenting properties</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        names : tuple</span>
+<span class="sd">           names of axes, to be served as keys</span>
+<span class="sd">        types : type</span>
+<span class="sd">           type of the expected values for this axis</span>
+<span class="sd">        quantities : iterable</span>
+<span class="sd">           (optional) describes the physical quantity of the parameter. For now an iterable of tuples (full name, unit)</span>
+<span class="sd">        descriptions : iterable</span>
+<span class="sd">           (optional) describes the role of the axis of variability</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">qlist</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">names</span><span class="p">)</span> <span class="k">if</span> <span class="n">quantities</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">list</span><span class="p">(</span><span class="n">quantities</span><span class="p">)</span>
+        <span class="n">dlist</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">names</span><span class="p">)</span> <span class="k">if</span> <span class="n">descriptions</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">list</span><span class="p">(</span><span class="n">descriptions</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="n">l</span><span class="o">==</span><span class="nb">len</span><span class="p">(</span><span class="n">names</span><span class="p">)</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">types</span><span class="p">)),</span> <span class="nb">len</span><span class="p">(</span><span class="n">qlist</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">dlist</span><span class="p">))):</span>
+            <span class="k">raise</span> <span class="ne">IndexError</span><span class="p">(</span><span class="s2">&quot;Not all arguments to DefineVariabilityAxes have the same size&quot;</span><span class="p">)</span> <span class="c1"># pragma: no cover</span>
+        <span class="k">for</span> <span class="n">varname</span><span class="p">,</span> <span class="n">vartype</span><span class="p">,</span> <span class="n">quantity</span><span class="p">,</span> <span class="n">description</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">names</span><span class="p">,</span> <span class="n">types</span><span class="p">,</span> <span class="n">qlist</span><span class="p">,</span> <span class="n">dlist</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">AddVariabilityAxis</span><span class="p">(</span><span class="n">varname</span><span class="p">,</span> <span class="n">vartype</span><span class="p">,</span> <span class="n">quantity</span><span class="o">=</span><span class="n">quantity</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="n">description</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CollectionProblemData.AddVariabilityAxis"><a class="viewcode-back" href="../../../../_source/Mordicus.Core.Containers.CollectionProblemData.html#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.AddVariabilityAxis">[docs]</a>    <span class="k">def</span> <span class="nf">AddVariabilityAxis</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">varname</span><span class="p">,</span> <span class="n">vartype</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the axes of variability: names to be served as keys</span>
+<span class="sd">           to collect ProblemData instances and documenting properties</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        varname : str</span>
+<span class="sd">           name of the axis, to be served as keys</span>
+<span class="sd">        vartype : type</span>
+<span class="sd">           type of the expected values for this axis</span>
+<span class="sd">        quantity : tuple</span>
+<span class="sd">           (optional) describes the physical quantity of the parameter. For now a tuple (full name, unit)</span>
+<span class="sd">        description : str</span>
+<span class="sd">           (optional) describes the role of the axis of variability</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">varname</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">variabilityDefinition</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;Variability axis </span><span class="si">{}</span><span class="s2"> already exists in your CollectionProblemData&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">varname</span><span class="p">))</span>  <span class="c1"># pragma: no cover</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">variabilityDefinition</span><span class="p">[</span><span class="n">varname</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="n">vartype</span><span class="p">}</span>
+        <span class="k">for</span> <span class="n">opt</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;quantity&#39;</span><span class="p">,</span> <span class="s1">&#39;description&#39;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">opt</span> <span class="ow">in</span> <span class="n">kwargs</span> <span class="ow">and</span> <span class="n">kwargs</span><span class="p">[</span><span class="n">opt</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">variabilityDefinition</span><span class="p">[</span><span class="n">varname</span><span class="p">][</span><span class="n">opt</span><span class="p">]</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="n">opt</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="CollectionProblemData.DefineQuantity"><a class="viewcode-back" href="../../../../_source/Mordicus.Core.Containers.CollectionProblemData.html#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.DefineQuantity">[docs]</a>    <span class="k">def</span> <span class="nf">DefineQuantity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">full_name</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Define a new quantity for results</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        key : str</span>
+<span class="sd">           Key to be served in ProblemData to retrieve the result</span>
+<span class="sd">        full_name : str</span>
+<span class="sd">           Full name of the quantity, e.g. &quot;velocity&quot;</span>
+<span class="sd">        unit : str</span>
+<span class="sd">           Measuring unit, e.g. &quot;meter&quot;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Quantity identifier should be a str&quot;</span><span class="p">)</span>  <span class="c1"># pragma: no cover</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">quantityDefinition</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">full_name</span><span class="p">,</span> <span class="n">unit</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CollectionProblemData.GetNumberOfVariabilityAxes"><a class="viewcode-back" href="../../../../_source/Mordicus.Core.Containers.CollectionProblemData.html#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.GetNumberOfVariabilityAxes">[docs]</a>    <span class="k">def</span> <span class="nf">GetNumberOfVariabilityAxes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the number of variability axes.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        int</span>
+<span class="sd">            number of variability axes</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">variabilityDefinition</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_CheckPointInParameterSpace</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Checks keys and values provided as parameter point.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            if the number of components provided is wrong</span>
+<span class="sd">        KeyError</span>
+<span class="sd">            if some keyword argument does not match any known axis of variability</span>
+<span class="sd">        TypeError</span>
+<span class="sd">            if some value has the wrong type</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetNumberOfVariabilityAxes</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Provided point in parameter space has </span><span class="si">{0}</span><span class="s2"> components, </span><span class="si">{1}</span><span class="s2"> expected&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">kwargs</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetNumberOfVariabilityAxes</span><span class="p">()))</span>  <span class="c1"># pragma: no cover</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">variabilityDefinition</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> is not a defined axis of variability&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">k</span><span class="p">))</span>  <span class="c1"># pragma: no cover</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">variabilityDefinition</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="s1">&#39;type&#39;</span><span class="p">]):</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Provided value </span><span class="si">{0}</span><span class="s2"> has type </span><span class="si">{1}</span><span class="s2">, expected </span><span class="si">{2}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">v</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">variabilityDefinition</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="s1">&#39;type&#39;</span><span class="p">]))</span>  <span class="c1"># pragma: no cover</span>
+
+
+    <span class="k">def</span> <span class="nf">_CheckSolutionName</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">solutionName</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Checks that solutionName has been defined as a quantity identifier before.</span>
+
+<span class="sd">        Argument</span>
+<span class="sd">        --------</span>
+<span class="sd">        solutionName:</span>
+<span class="sd">            candidate identifier</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError:</span>
+<span class="sd">           if not</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">solutionName</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">quantityDefinition</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Solution name </span><span class="si">{}</span><span class="s2"> was not defined as a quantity before&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">solutionName</span><span class="p">))</span>  <span class="c1"># pragma: no cover</span>
+
+
+<div class="viewcode-block" id="CollectionProblemData.SetDataCompressionData"><a class="viewcode-back" href="../../../../_source/Mordicus.Core.Containers.CollectionProblemData.html#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.SetDataCompressionData">[docs]</a>    <span class="k">def</span> <span class="nf">SetDataCompressionData</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">dataCompressionData</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds a dataCompressionData corresponding to key</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        key : any type</span>
+<span class="sd">            key for which dataCompressionData corresponds</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataCompressionData</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">dataCompressionData</span></div>
+
+
+<div class="viewcode-block" id="CollectionProblemData.GetDataCompressionData"><a class="viewcode-back" href="../../../../_source/Mordicus.Core.Containers.CollectionProblemData.html#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.GetDataCompressionData">[docs]</a>    <span class="k">def</span> <span class="nf">GetDataCompressionData</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get a precomputed dataCompressionData for key</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        key : str</span>
+<span class="sd">            key for which dataCompressionData corresponds</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dataCompressionData type</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataCompressionData</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span> <span class="c1"># pragma: no cover</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataCompressionData</span><span class="p">[</span><span class="n">key</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="CollectionProblemData.SetOperatorCompressionData"><a class="viewcode-back" href="../../../../_source/Mordicus.Core.Containers.CollectionProblemData.html#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.SetOperatorCompressionData">[docs]</a>    <span class="k">def</span> <span class="nf">SetOperatorCompressionData</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">operatorCompressionData</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the operatorCompressionData</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        operatorCompressionData : custom data structure</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">operatorCompressionData</span> <span class="o">=</span> <span class="n">operatorCompressionData</span></div>
+
+
+<div class="viewcode-block" id="CollectionProblemData.GetOperatorCompressionData"><a class="viewcode-back" href="../../../../_source/Mordicus.Core.Containers.CollectionProblemData.html#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.GetOperatorCompressionData">[docs]</a>    <span class="k">def</span> <span class="nf">GetOperatorCompressionData</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the operatorCompressionData</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        operatorCompressionData</span>
+<span class="sd">            custom data structure</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">operatorCompressionData</span></div>
+
+
+<div class="viewcode-block" id="CollectionProblemData.AddProblemData"><a class="viewcode-back" href="../../../../_source/Mordicus.Core.Containers.CollectionProblemData.html#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.AddProblemData">[docs]</a>    <span class="k">def</span> <span class="nf">AddProblemData</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">problemData</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds a problemData to the structure</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        problemData : ProblemData</span>
+<span class="sd">            to add to the problemDatas dictionary</span>
+<span class="sd">        kwargs :</span>
+<span class="sd">            same type as the axes of variability, gives the point in parameter space at which to add data</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># check keys are all parameters</span>
+
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span>
+            <span class="n">problemData</span><span class="p">,</span> <span class="n">ProblemData</span><span class="o">.</span><span class="n">ProblemData</span>
+        <span class="p">),</span> <span class="s2">&quot;wrong type for problemData&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_CheckPointInParameterSpace</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">values</span><span class="p">())</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">problemDatas</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Warning: problemData at key &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span><span class="o">+</span><span class="s2">&quot; already existing, overwriting it anyway&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">problemDatas</span><span class="p">[</span><span class="nb">tuple</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">values</span><span class="p">())]</span> <span class="o">=</span> <span class="n">problemData</span>
+        <span class="k">return</span></div>
+
+
+<div class="viewcode-block" id="CollectionProblemData.GetProblemData"><a class="viewcode-back" href="../../../../_source/Mordicus.Core.Containers.CollectionProblemData.html#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.GetProblemData">[docs]</a>    <span class="k">def</span> <span class="nf">GetProblemData</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a specific problemData</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        kwargs :</span>
+<span class="sd">            same type as the axes of variability, gives the point in parameter space at which to add data</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        ProblemData</span>
+<span class="sd">            retrieved problemData</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_CheckPointInParameterSpace</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">problemDatas</span><span class="p">[</span><span class="nb">tuple</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">values</span><span class="p">())]</span></div>
+
+
+<div class="viewcode-block" id="CollectionProblemData.GetNumberOfProblemDatas"><a class="viewcode-back" href="../../../../_source/Mordicus.Core.Containers.CollectionProblemData.html#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.GetNumberOfProblemDatas">[docs]</a>    <span class="k">def</span> <span class="nf">GetNumberOfProblemDatas</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the number of problemDatas</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        int</span>
+<span class="sd">            the number of problemDatas</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">problemDatas</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span></div>
+
+
+<div class="viewcode-block" id="CollectionProblemData.GetParameterDimension"><a class="viewcode-back" href="../../../../_source/Mordicus.Core.Containers.CollectionProblemData.html#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.GetParameterDimension">[docs]</a>    <span class="k">def</span> <span class="nf">GetParameterDimension</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Asserts that the parameters of all problemDatas have the same parameterDimension</span>
+<span class="sd">        and returns this size</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        int</span>
+<span class="sd">            parameterDimension of problemDatas</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">listParameterDimension</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">problemData</span><span class="o">.</span><span class="n">GetParameterDimension</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">problemData</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetProblemDatas</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="p">]</span>
+        <span class="k">assert</span> <span class="n">listParameterDimension</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">listParameterDimension</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span>
+            <span class="n">listParameterDimension</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">listParameterDimension</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="CollectionProblemData.GetProblemDatas"><a class="viewcode-back" href="../../../../_source/Mordicus.Core.Containers.CollectionProblemData.html#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.GetProblemDatas">[docs]</a>    <span class="k">def</span> <span class="nf">GetProblemDatas</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the complete problemDatas dictionary</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict</span>
+<span class="sd">            problemDatas of the collectionProblemData</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">problemDatas</span></div>
+
+
+<div class="viewcode-block" id="CollectionProblemData.GetProblemSampling"><a class="viewcode-back" href="../../../../_source/Mordicus.Core.Containers.CollectionProblemData.html#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.GetProblemSampling">[docs]</a>    <span class="k">def</span> <span class="nf">GetProblemSampling</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the tags of problemDatas</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list</span>
+<span class="sd">            list of tuples containing the computed parameter points of the available problemDatas</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">GetProblemDatas</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span></div>
+
+
+<div class="viewcode-block" id="CollectionProblemData.GetLoadingsOfType"><a class="viewcode-back" href="../../../../_source/Mordicus.Core.Containers.CollectionProblemData.html#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.GetLoadingsOfType">[docs]</a>    <span class="k">def</span> <span class="nf">GetLoadingsOfType</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a list of loadings of a given type</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        type : str</span>
+<span class="sd">            type of loadings (eg. pressure) as defined in the LoadingBase structure</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list</span>
+<span class="sd">            of Loadings</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">li</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">problemData</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetProblemDatas</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">li</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">problemData</span><span class="o">.</span><span class="n">GetLoadingsOfType</span><span class="p">(</span><span class="nb">type</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">li</span></div>
+
+
+<div class="viewcode-block" id="CollectionProblemData.GetSolutionsNumberOfComponents"><a class="viewcode-back" href="../../../../_source/Mordicus.Core.Containers.CollectionProblemData.html#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.GetSolutionsNumberOfComponents">[docs]</a>    <span class="k">def</span> <span class="nf">GetSolutionsNumberOfComponents</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">solutionName</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Asserts that the solutions of name &quot;solutionName&quot; in all problemDatas have same nbeOfComponents</span>
+<span class="sd">        and return this size</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        solutionName : str</span>
+<span class="sd">            name of the solutions for which we want to return the nbeOfComponents</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        int</span>
+<span class="sd">            nbeOfComponents of solutions of name &quot;solutionName&quot;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">nbeOfComponents</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">problemData</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetProblemDatas</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">nbeOfComponents</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">problemData</span><span class="o">.</span><span class="n">GetSolution</span><span class="p">(</span><span class="n">solutionName</span><span class="p">)</span><span class="o">.</span><span class="n">GetNbeOfComponents</span><span class="p">())</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span><span class="c1"># pragma: no cover</span>
+                <span class="k">continue</span>
+        <span class="k">assert</span> <span class="n">nbeOfComponents</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">nbeOfComponents</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">nbeOfComponents</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">nbeOfComponents</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="CollectionProblemData.GetSolutionsNumberOfDofs"><a class="viewcode-back" href="../../../../_source/Mordicus.Core.Containers.CollectionProblemData.html#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.GetSolutionsNumberOfDofs">[docs]</a>    <span class="k">def</span> <span class="nf">GetSolutionsNumberOfDofs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">solutionName</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Asserts that the solutions of name &quot;solutionName&quot; in all problemDatas have same nbeOfDofs</span>
+<span class="sd">        and return this size</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        solutionName : str</span>
+<span class="sd">            name of the solutions for which we want to return the nbeOfDofs</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        int</span>
+<span class="sd">            nbeOfDofs of solutions of name &quot;solutionName&quot;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">nbeOfDofs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">problemData</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetProblemDatas</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">nbeOfDofs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">problemData</span><span class="o">.</span><span class="n">GetSolution</span><span class="p">(</span><span class="n">solutionName</span><span class="p">)</span><span class="o">.</span><span class="n">GetNumberOfDofs</span><span class="p">())</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span><span class="c1"># pragma: no cover</span>
+                <span class="k">continue</span>
+        <span class="k">assert</span> <span class="n">nbeOfDofs</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">nbeOfDofs</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">nbeOfDofs</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">nbeOfDofs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="CollectionProblemData.GetSolutionsNumberOfNodes"><a class="viewcode-back" href="../../../../_source/Mordicus.Core.Containers.CollectionProblemData.html#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.GetSolutionsNumberOfNodes">[docs]</a>    <span class="k">def</span> <span class="nf">GetSolutionsNumberOfNodes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">solutionName</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Asserts that the solutions of name &quot;solutionName&quot; in all problemDatas have same nbeOfNodes</span>
+<span class="sd">        and return this size</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        solutionName : str</span>
+<span class="sd">            name of the solutions for which we want to return the nbeOfNodes</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        int</span>
+<span class="sd">            nbeOfNodes of solutions of name &quot;solutionName&quot;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">nbeOfNodes</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">problemData</span><span class="o">.</span><span class="n">solutions</span><span class="p">[</span><span class="n">solutionName</span><span class="p">]</span><span class="o">.</span><span class="n">GetNumberOfNodes</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">problemData</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetProblemDatas</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="p">]</span>
+        <span class="k">assert</span> <span class="n">nbeOfNodes</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">nbeOfNodes</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">nbeOfNodes</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">nbeOfNodes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="CollectionProblemData.SnapshotsIterator"><a class="viewcode-back" href="../../../../_source/Mordicus.Core.Containers.CollectionProblemData.html#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.SnapshotsIterator">[docs]</a>    <span class="k">def</span> <span class="nf">SnapshotsIterator</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">solutionName</span><span class="p">,</span> <span class="n">skipFirst</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Constructs an iterator over snapshots of solutions of name &quot;solutionName&quot; in all problemDatas.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        solutionName : str</span>
+<span class="sd">            name of the solutions on which we want to iterate over snapshots</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        iterator</span>
+<span class="sd">            an iterator over snapshots of solutions of name &quot;solutionName&quot; in all problemDatas</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">this</span> <span class="o">=</span> <span class="bp">self</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_CheckSolutionName</span><span class="p">(</span><span class="n">solutionName</span><span class="p">)</span>
+        <span class="k">class</span> <span class="nc">iterator</span><span class="p">:</span>
+            <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">solutionName</span><span class="p">,</span> <span class="n">skipFirst</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">solutionName</span> <span class="o">=</span> <span class="n">solutionName</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">problemDatas</span> <span class="o">=</span> <span class="n">this</span><span class="o">.</span><span class="n">problemDatas</span>
+                <span class="k">if</span> <span class="n">skipFirst</span> <span class="o">==</span> <span class="kc">False</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">startIndex</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">startIndex</span> <span class="o">=</span> <span class="mi">1</span>
+
+            <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">problemData</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">problemDatas</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">localIterator</span> <span class="o">=</span> <span class="n">problemData</span><span class="o">.</span><span class="n">GetSolution</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">solutionName</span><span class="p">)</span><span class="o">.</span><span class="n">GetSnapshotsList</span><span class="p">()[</span><span class="bp">self</span><span class="o">.</span><span class="n">startIndex</span><span class="p">:]</span>
+                        <span class="k">for</span> <span class="n">snapshot</span> <span class="ow">in</span> <span class="n">localIterator</span><span class="p">:</span>
+                            <span class="k">yield</span> <span class="n">snapshot</span>
+                    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span><span class="c1"># pragma: no cover</span>
+                        <span class="k">continue</span>
+
+        <span class="n">res</span> <span class="o">=</span> <span class="n">iterator</span><span class="p">(</span><span class="n">solutionName</span><span class="p">,</span> <span class="n">skipFirst</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">res</span></div>
+
+
+<div class="viewcode-block" id="CollectionProblemData.GetSnapshots"><a class="viewcode-back" href="../../../../_source/Mordicus.Core.Containers.CollectionProblemData.html#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.GetSnapshots">[docs]</a>    <span class="k">def</span> <span class="nf">GetSnapshots</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">solutionName</span><span class="p">,</span> <span class="n">skipFirst</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns snapshots in a numpy array</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        solutionName : str</span>
+<span class="sd">            name of the solutions on which we want to iterate over snapshots</span>
+<span class="sd">        skipFirst : bool</span>
+<span class="sd">            (optional) True for skipping first time step of each ProblemData</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        np.ndarray</span>
+<span class="sd">            of size (nbSnapshots, numberOfDofs)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_CheckSolutionName</span><span class="p">(</span><span class="n">solutionName</span><span class="p">)</span>
+        <span class="n">nbSnapshots</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetGlobalNumberOfSnapshots</span><span class="p">(</span><span class="n">solutionName</span><span class="p">,</span> <span class="n">skipFirst</span><span class="p">)</span>
+        <span class="n">numberOfDofs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetSolutionsNumberOfDofs</span><span class="p">(</span><span class="n">solutionName</span><span class="p">)</span>
+
+        <span class="n">snapshots</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">nbSnapshots</span><span class="p">,</span> <span class="n">numberOfDofs</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">SnapshotsIterator</span><span class="p">(</span><span class="n">solutionName</span><span class="p">,</span> <span class="n">skipFirst</span><span class="p">)):</span>
+            <span class="n">snapshots</span><span class="p">[</span><span class="n">i</span><span class="p">,:]</span> <span class="o">=</span> <span class="n">s</span>
+
+        <span class="k">return</span> <span class="n">snapshots</span></div>
+
+
+
+<div class="viewcode-block" id="CollectionProblemData.GetSnapshotsAtTimes"><a class="viewcode-back" href="../../../../_source/Mordicus.Core.Containers.CollectionProblemData.html#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.GetSnapshotsAtTimes">[docs]</a>    <span class="k">def</span> <span class="nf">GetSnapshotsAtTimes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">solutionName</span><span class="p">,</span> <span class="n">timeSequence</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns snapshots of solution solutionName from all problemDatas and for a given time sequence, in a numpy array</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        solutionName : str</span>
+<span class="sd">            name of the solutions on which we want to iterate over compressedSnapshots</span>
+<span class="sd">        timeSequence : list or numpy array</span>
+<span class="sd">            time steps for snapshot retrieving (doing time interpolation if needed)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        np.ndarray</span>
+<span class="sd">            of size (nbSnapshots, numberOfDofs)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_CheckSolutionName</span><span class="p">(</span><span class="n">solutionName</span><span class="p">)</span>
+        <span class="n">nbTimeSteps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">timeSequence</span><span class="p">)</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">nbProblemDatas</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetNumberOfProblemDatas</span><span class="p">()</span>
+        <span class="n">numberOfDofs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetSolutionsNumberOfDofs</span><span class="p">(</span><span class="n">solutionName</span><span class="p">)</span>
+
+        <span class="n">snapshots</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">nbTimeSteps</span><span class="o">*</span><span class="n">nbProblemDatas</span><span class="p">,</span> <span class="n">numberOfDofs</span><span class="p">))</span>
+        <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">problemData</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">problemDatas</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="n">solution</span> <span class="o">=</span> <span class="n">problemData</span><span class="o">.</span><span class="n">GetSolution</span><span class="p">(</span><span class="n">solutionName</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">timeSequence</span><span class="p">:</span>
+                <span class="n">snapshots</span><span class="p">[</span><span class="n">count</span><span class="p">,:]</span> <span class="o">=</span> <span class="n">solution</span><span class="o">.</span><span class="n">GetSnapshotAtTime</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+                <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="k">return</span> <span class="n">snapshots</span></div>
+
+
+
+<div class="viewcode-block" id="CollectionProblemData.CompressedSnapshotsIterator"><a class="viewcode-back" href="../../../../_source/Mordicus.Core.Containers.CollectionProblemData.html#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.CompressedSnapshotsIterator">[docs]</a>    <span class="k">def</span> <span class="nf">CompressedSnapshotsIterator</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">solutionName</span><span class="p">,</span> <span class="n">skipFirst</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Constructs an iterator over compressedSnapshots of solutions of name &quot;solutionName&quot; in all problemDatas.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        solutionName : str</span>
+<span class="sd">            name of the solutions on which we want to iterate over compressedSnapshots</span>
+<span class="sd">        skipFirst : bool</span>
+<span class="sd">            (optional) True for skipping first time step of each ProblemData</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        iterator</span>
+<span class="sd">            an iterator over compressedSnapshots of solutions of name &quot;solutionName&quot; in all problemDatas</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">this</span> <span class="o">=</span> <span class="bp">self</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_CheckSolutionName</span><span class="p">(</span><span class="n">solutionName</span><span class="p">)</span>
+        <span class="k">class</span> <span class="nc">iterator</span><span class="p">:</span>
+            <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">solutionName</span><span class="p">,</span> <span class="n">skipFirst</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">solutionName</span> <span class="o">=</span> <span class="n">solutionName</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">problemDatas</span> <span class="o">=</span> <span class="n">this</span><span class="o">.</span><span class="n">problemDatas</span>
+                <span class="k">if</span> <span class="n">skipFirst</span> <span class="o">==</span> <span class="kc">False</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">startIndex</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">startIndex</span> <span class="o">=</span> <span class="mi">1</span>
+
+            <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">problemData</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">problemDatas</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+                    <span class="n">localIterator</span>  <span class="o">=</span> <span class="n">problemData</span><span class="o">.</span><span class="n">GetSolution</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">solutionName</span><span class="p">)</span><span class="o">.</span><span class="n">GetCompressedSnapshotsList</span><span class="p">()[</span><span class="bp">self</span><span class="o">.</span><span class="n">startIndex</span> <span class="p">:]</span>
+                    <span class="k">for</span> <span class="n">snapshot</span> <span class="ow">in</span> <span class="n">localIterator</span><span class="p">:</span>
+                        <span class="k">yield</span> <span class="n">snapshot</span>
+
+        <span class="n">res</span> <span class="o">=</span> <span class="n">iterator</span><span class="p">(</span><span class="n">solutionName</span><span class="p">,</span> <span class="n">skipFirst</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">res</span></div>
+
+
+<div class="viewcode-block" id="CollectionProblemData.GetCompressedSnapshots"><a class="viewcode-back" href="../../../../_source/Mordicus.Core.Containers.CollectionProblemData.html#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.GetCompressedSnapshots">[docs]</a>    <span class="k">def</span> <span class="nf">GetCompressedSnapshots</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">solutionName</span><span class="p">,</span> <span class="n">skipFirst</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns compressed snapshots of solution solutionName from all problemDatas, in a numpy array</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        solutionName : str</span>
+<span class="sd">            name of the solutions on which we want to iterate over compressedSnapshots</span>
+<span class="sd">        skipFirst : bool</span>
+<span class="sd">            (optional) True for skipping first time step of each ProblemData</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        np.ndarray</span>
+<span class="sd">            of size (nbSnapshots, numberOfModes)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_CheckSolutionName</span><span class="p">(</span><span class="n">solutionName</span><span class="p">)</span>
+        <span class="n">nbSnapshots</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetGlobalNumberOfSnapshots</span><span class="p">(</span><span class="n">solutionName</span><span class="p">,</span> <span class="n">skipFirst</span><span class="p">)</span>
+        <span class="n">numberOfModes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetReducedOrderBasisNumberOfModes</span><span class="p">(</span><span class="n">solutionName</span><span class="p">)</span>
+
+        <span class="n">compressedSnapshots</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">nbSnapshots</span><span class="p">,</span> <span class="n">numberOfModes</span><span class="p">))</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">CompressedSnapshotsIterator</span><span class="p">(</span><span class="n">solutionName</span><span class="p">,</span> <span class="n">skipFirst</span><span class="p">)):</span>
+            <span class="n">compressedSnapshots</span><span class="p">[</span><span class="n">i</span><span class="p">,:]</span> <span class="o">=</span> <span class="n">s</span>
+
+        <span class="k">return</span> <span class="n">compressedSnapshots</span></div>
+
+
+<div class="viewcode-block" id="CollectionProblemData.GetCompressedSnapshotsAtTimes"><a class="viewcode-back" href="../../../../_source/Mordicus.Core.Containers.CollectionProblemData.html#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.GetCompressedSnapshotsAtTimes">[docs]</a>    <span class="k">def</span> <span class="nf">GetCompressedSnapshotsAtTimes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">solutionName</span><span class="p">,</span> <span class="n">timeSequence</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns compressed snapshots of solution solutionName from all problemDatas and for a given time sequence, in a numpy array</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        solutionName : str</span>
+<span class="sd">            name of the solutions on which we want to iterate over compressedSnapshots</span>
+<span class="sd">        timeSequence : list or numpy array</span>
+<span class="sd">            time steps for snapshot retrieving (doing time interpolation if needed)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        np.ndarray</span>
+<span class="sd">            of size (nbSnapshots, numberOfModes)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_CheckSolutionName</span><span class="p">(</span><span class="n">solutionName</span><span class="p">)</span>
+        <span class="n">nbTimeSteps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">timeSequence</span><span class="p">)</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">nbProblemDatas</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetNumberOfProblemDatas</span><span class="p">()</span>
+        <span class="n">numberOfModes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetReducedOrderBasisNumberOfModes</span><span class="p">(</span><span class="n">solutionName</span><span class="p">)</span>
+
+        <span class="n">compressedSnapshots</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">nbTimeSteps</span><span class="o">*</span><span class="n">nbProblemDatas</span><span class="p">,</span> <span class="n">numberOfModes</span><span class="p">))</span>
+        <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">problemData</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">problemDatas</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="n">solution</span> <span class="o">=</span> <span class="n">problemData</span><span class="o">.</span><span class="n">GetSolution</span><span class="p">(</span><span class="n">solutionName</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">timeSequence</span><span class="p">:</span>
+                <span class="n">compressedSnapshots</span><span class="p">[</span><span class="n">count</span><span class="p">,:]</span> <span class="o">=</span> <span class="n">solution</span><span class="o">.</span><span class="n">GetCompressedSnapshotsAtTime</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+                <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="k">return</span> <span class="n">compressedSnapshots</span></div>
+
+
+<div class="viewcode-block" id="CollectionProblemData.GetGlobalNumberOfSnapshots"><a class="viewcode-back" href="../../../../_source/Mordicus.Core.Containers.CollectionProblemData.html#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.GetGlobalNumberOfSnapshots">[docs]</a>    <span class="k">def</span> <span class="nf">GetGlobalNumberOfSnapshots</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">solutionName</span><span class="p">,</span> <span class="n">skipFirst</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Iterates over problemDatas to return the complete number of snpashots for solutions of name &quot;solutionName&quot;</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        solutionName : str</span>
+<span class="sd">            name of the solutions for which we want to compute the total number of snapshots</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        int</span>
+<span class="sd">            number of snpashots for solutions of name &quot;solutionName&quot;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">skipFirst</span> <span class="o">==</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="n">offset</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">offset</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+
+        <span class="n">number</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">problemData</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">problemDatas</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">number</span> <span class="o">+=</span> <span class="n">problemData</span><span class="o">.</span><span class="n">GetSolution</span><span class="p">(</span><span class="n">solutionName</span><span class="p">)</span><span class="o">.</span><span class="n">GetNumberOfSnapshots</span><span class="p">()</span> <span class="o">+</span> <span class="n">offset</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span><span class="c1"># pragma: no cover</span>
+                <span class="k">continue</span>
+        <span class="k">return</span> <span class="n">number</span></div>
+
+
+<div class="viewcode-block" id="CollectionProblemData.GetSolutionTimeSteps"><a class="viewcode-back" href="../../../../_source/Mordicus.Core.Containers.CollectionProblemData.html#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.GetSolutionTimeSteps">[docs]</a>    <span class="k">def</span> <span class="nf">GetSolutionTimeSteps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">solutionName</span><span class="p">,</span> <span class="n">skipFirst</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        GetTimeSteps</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        solutionName : str</span>
+<span class="sd">            name of the solutions for which we want to compute the total number of snapshots</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">skipFirst</span> <span class="o">==</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="n">startIndex</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">startIndex</span> <span class="o">=</span> <span class="mi">1</span>
+
+        <span class="n">solutionTimeSteps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">problemData</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">problemDatas</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">solutionTimeSteps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">solutionTimeSteps</span><span class="p">,</span> <span class="n">problemData</span><span class="o">.</span><span class="n">GetSolution</span><span class="p">(</span><span class="n">solutionName</span><span class="p">)</span><span class="o">.</span><span class="n">GetTimeSequenceFromSnapshots</span><span class="p">()[</span><span class="n">startIndex</span><span class="p">:],</span> <span class="mi">0</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">solutionTimeSteps</span></div>
+
+
+<div class="viewcode-block" id="CollectionProblemData.CompressSolutions"><a class="viewcode-back" href="../../../../_source/Mordicus.Core.Containers.CollectionProblemData.html#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.CompressSolutions">[docs]</a>    <span class="k">def</span> <span class="nf">CompressSolutions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">solutionName</span><span class="p">,</span> <span class="n">snapshotCorrelationOperator</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compress solutions of name &quot;solutionName&quot; from all ProblemDatas in collectionProblemData, and update to corresponding solution.compressedSnapshots.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        solutionName : str</span>
+<span class="sd">            name of the solutions to compress</span>
+<span class="sd">        snapshotCorrelationOperator : scipy.sparse.csr, optional</span>
+<span class="sd">            correlation operator between the snapshots</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">solutionName</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">snapshotCorrelationOperator</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">snapshotCorrelationOperator</span> <span class="o">=</span> <span class="n">sparse</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">GetSolutionsNumberOfDofs</span><span class="p">(</span><span class="n">solutionName</span><span class="p">))</span>
+
+        <span class="n">reducedOrderBasis</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetReducedOrderBasis</span><span class="p">(</span><span class="n">solutionName</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">problemData</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetProblemDatas</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">problemData</span><span class="o">.</span><span class="n">CompressSolution</span><span class="p">(</span><span class="n">solutionName</span><span class="p">,</span> <span class="n">reducedOrderBasis</span><span class="p">,</span> <span class="n">snapshotCorrelationOperator</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CollectionProblemData.ConvertCompressedSnapshotReducedOrderBasis"><a class="viewcode-back" href="../../../../_source/Mordicus.Core.Containers.CollectionProblemData.html#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.ConvertCompressedSnapshotReducedOrderBasis">[docs]</a>    <span class="k">def</span> <span class="nf">ConvertCompressedSnapshotReducedOrderBasis</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">solutionName</span><span class="p">,</span> <span class="n">projectedReducedOrderBasis</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Converts the reducedSnapshot from the current reducedOrderBasis to a newReducedOrderBasis using a projectedReducedOrderBasis between the current one and a new one</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        solutionName : str</span>
+<span class="sd">            name of the solution whose compressedSnapshot is to convert</span>
+<span class="sd">        projectedReducedOrderBasis : np.ndarray</span>
+<span class="sd">            of size (newNumberOfModes, numberOfModes)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">problemData</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetProblemDatas</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">problemData</span><span class="o">.</span><span class="n">ConvertCompressedSnapshotReducedOrderBasis</span><span class="p">(</span><span class="n">solutionName</span><span class="p">,</span> <span class="n">projectedReducedOrderBasis</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CollectionProblemData.ComputeReducedOrderBasisProjection"><a class="viewcode-back" href="../../../../_source/Mordicus.Core.Containers.CollectionProblemData.html#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.ComputeReducedOrderBasisProjection">[docs]</a>    <span class="k">def</span> <span class="nf">ComputeReducedOrderBasisProjection</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">solutionName</span><span class="p">,</span> <span class="n">newReducedOrderBasis</span><span class="p">,</span> <span class="n">snapshotCorrelationOperator</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes the projection of reducedOrderBasis[solutionName] on newReducedOrderBases</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        solutionName : str</span>
+<span class="sd">            name of the solutions to compress</span>
+<span class="sd">        newReducedOrderBasis : np.ndarray</span>
+<span class="sd">            of size (newNumberOfModes, numberOfDOFs)</span>
+<span class="sd">        snapshotCorrelationOperator : scipy.sparse.csr, optional</span>
+<span class="sd">            correlation operator between the snapshots</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        np.ndarray</span>
+<span class="sd">            of size (newNumberOfModes, numberOfModes)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">solutionName</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">snapshotCorrelationOperator</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">snapshotCorrelationOperator</span> <span class="o">=</span> <span class="n">sparse</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">GetSolutionsNumberOfDofs</span><span class="p">(</span><span class="n">solutionName</span><span class="p">))</span>
+
+        <span class="n">reducedOrderBasis</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetReducedOrderBasis</span><span class="p">(</span><span class="n">solutionName</span><span class="p">)</span>
+
+        <span class="n">numberOfModes</span> <span class="o">=</span> <span class="n">reducedOrderBasis</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">newNumberOfModes</span> <span class="o">=</span> <span class="n">newReducedOrderBasis</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="n">localProjectedReducedOrderBasis</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">newReducedOrderBasis</span><span class="p">,</span> <span class="n">snapshotCorrelationOperator</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">reducedOrderBasis</span><span class="o">.</span><span class="n">T</span><span class="p">))</span>
+
+        <span class="n">globalProjectedReducedOrderBasis</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">newNumberOfModes</span><span class="p">,</span> <span class="n">numberOfModes</span><span class="p">))</span>
+        <span class="n">MPI</span><span class="o">.</span><span class="n">COMM_WORLD</span><span class="o">.</span><span class="n">Allreduce</span><span class="p">([</span><span class="n">localProjectedReducedOrderBasis</span><span class="p">,</span> <span class="n">MPI</span><span class="o">.</span><span class="n">DOUBLE</span><span class="p">],</span> <span class="p">[</span><span class="n">globalProjectedReducedOrderBasis</span><span class="p">,</span> <span class="n">MPI</span><span class="o">.</span><span class="n">DOUBLE</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="n">globalProjectedReducedOrderBasis</span></div>
+
+
+<div class="viewcode-block" id="CollectionProblemData.SetTemplateDataset"><a class="viewcode-back" href="../../../../_source/Mordicus.Core.Containers.CollectionProblemData.html#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.SetTemplateDataset">[docs]</a>    <span class="k">def</span> <span class="nf">SetTemplateDataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">templateDataset</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Template dataset to compute high-fidelity solution</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        templateDataset : Dataset</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">templateDataset</span> <span class="o">=</span> <span class="n">templateDataset</span></div>
+
+
+<div class="viewcode-block" id="CollectionProblemData.SetReducedTemplateDataset"><a class="viewcode-back" href="../../../../_source/Mordicus.Core.Containers.CollectionProblemData.html#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.SetReducedTemplateDataset">[docs]</a>    <span class="k">def</span> <span class="nf">SetReducedTemplateDataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reducedTemplateDataset</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Template dataset to compute reduced solution</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        reducedTemplateDataset : Dataset</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reducedTemplateDataset</span> <span class="o">=</span> <span class="n">reducedTemplateDataset</span></div>
+
+
+<div class="viewcode-block" id="CollectionProblemData.Solve"><a class="viewcode-back" href="../../../../_source/Mordicus.Core.Containers.CollectionProblemData.html#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.Solve">[docs]</a>    <span class="k">def</span> <span class="nf">Solve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        New high-fidelity model evaluation</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        kwargs: (parameter_name=value) name of the variability as key and value stays value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">extract</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;extract&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">primalities</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;primalities&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">solutionReaderType</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;solutionReaderType&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+        <span class="n">dataset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">templateDataset</span><span class="o">.</span><span class="n">Instantiate</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="c1"># populate information for the structure</span>
+        <span class="k">return</span> <span class="n">dataset</span><span class="o">.</span><span class="n">Run</span><span class="p">(</span><span class="n">extract</span><span class="o">=</span><span class="n">extract</span><span class="p">,</span>
+                           <span class="n">solutionStructures</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">solutionStructures</span><span class="p">,</span>
+                           <span class="n">primalities</span><span class="o">=</span><span class="n">primalities</span><span class="p">,</span>
+                           <span class="n">solutionReaderType</span><span class="o">=</span><span class="n">solutionReaderType</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CollectionProblemData.SolveReduced"><a class="viewcode-back" href="../../../../_source/Mordicus.Core.Containers.CollectionProblemData.html#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.SolveReduced">[docs]</a>    <span class="k">def</span> <span class="nf">SolveReduced</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        New high-fidelity model evaluation</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">         kwargs: (parameter_name=value) name of the variability as key and value stays value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">extract</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;extract&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">primalities</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;primalities&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">solutionReaderType</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;solutionReaderType&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+        <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;reduced&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">dataset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reducedTemplateDataset</span><span class="o">.</span><span class="n">Instantiate</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="c1"># populate information for the structure</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">Run</span><span class="p">(</span><span class="n">extract</span><span class="o">=</span><span class="n">extract</span><span class="p">,</span>
+                           <span class="n">solutionStructures</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">solutionStructures</span><span class="p">,</span>
+                           <span class="n">primalities</span><span class="o">=</span><span class="n">primalities</span><span class="p">,</span>
+                           <span class="n">solutionReaderType</span><span class="o">=</span><span class="n">solutionReaderType</span><span class="p">),</span>
+                <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">inputData</span><span class="p">[</span><span class="s2">&quot;inputRootFolder&quot;</span><span class="p">],</span> <span class="n">dataset</span><span class="o">.</span><span class="n">inputData</span><span class="p">[</span><span class="s2">&quot;inputResultPath&quot;</span><span class="p">])</span>
+                            <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CollectionProblemData.ComputeAPosterioriError"><a class="viewcode-back" href="../../../../_source/Mordicus.Core.Containers.CollectionProblemData.html#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.ComputeAPosterioriError">[docs]</a>    <span class="k">def</span> <span class="nf">ComputeAPosterioriError</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes the residual of equilibrium</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        field</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">dataset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">specificDatasets</span><span class="p">[</span><span class="s2">&quot;computeAPosterioriError&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">dataset</span><span class="o">.</span><span class="n">Run</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CollectionProblemData.GetSolutionStructure"><a class="viewcode-back" href="../../../../_source/Mordicus.Core.Containers.CollectionProblemData.html#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.GetSolutionStructure">[docs]</a>    <span class="k">def</span> <span class="nf">GetSolutionStructure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">solutionName</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        solutionName : str</span>
+<span class="sd">           identifier of the physical quantity, e.g. &quot;U&quot;, &quot;sigma&quot;</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        SolutionStructureBase</span>
+<span class="sd">            solution structure for the demanded solution</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">solutionStructures</span><span class="p">[</span><span class="n">solutionName</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="CollectionProblemData.SetSolutionStructure"><a class="viewcode-back" href="../../../../_source/Mordicus.Core.Containers.CollectionProblemData.html#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.SetSolutionStructure">[docs]</a>    <span class="k">def</span> <span class="nf">SetSolutionStructure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">solutionName</span><span class="p">,</span> <span class="n">solutionStructure</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        solutionName : str</span>
+<span class="sd">           identifier of the physical quantity, e.g. &quot;U&quot;, &quot;sigma&quot;</span>
+<span class="sd">        solutionStructure : SolutionStructureBase</span>
+<span class="sd">            solution structure for the demanded solution</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">solutionStructures</span><span class="p">[</span><span class="n">solutionName</span><span class="p">]</span> <span class="o">=</span> <span class="n">solutionStructure</span></div>
+
+
+<div class="viewcode-block" id="CollectionProblemData.DefineVariabilitySupport"><a class="viewcode-back" href="../../../../_source/Mordicus.Core.Containers.CollectionProblemData.html#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.DefineVariabilitySupport">[docs]</a>    <span class="k">def</span> <span class="nf">DefineVariabilitySupport</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="n">ndarrays</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        parameters : iterable</span>
+<span class="sd">            iterable over the identifiers (str or tuple(str)) of parameters</span>
+<span class="sd">        ndarrays : iterable</span>
+<span class="sd">            iterable over the discrete support for each identifier</span>
+
+<span class="sd">        Note</span>
+<span class="sd">        ----</span>
+<span class="sd">            Parameters may have a tuple of parameters as a component, when the discrete</span>
+<span class="sd">            support along these two or more parameters is not cartesian.</span>
+
+<span class="sd">            Then, the corresponding ndarray has shape (numberOfPoints, numerOfParametersInTuple)</span>
+
+<span class="sd">            The whole discrete support is generated as a cartesian product of discrete supports.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">parameters</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">ndarrays</span><span class="p">):</span><span class="c1">#pragma: no cover</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Arguments &#39;parameters&#39; and &#39;ndarrays&#39; of defineVariabilitySupport should be of the same length.&quot;</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="n">ndarrays</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">variabilitySupport</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span></div>
+
+
+<div class="viewcode-block" id="CollectionProblemData.GenerateVariabilitySupport"><a class="viewcode-back" href="../../../../_source/Mordicus.Core.Containers.CollectionProblemData.html#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.GenerateVariabilitySupport">[docs]</a>    <span class="k">def</span> <span class="nf">GenerateVariabilitySupport</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Realizes the catersian product to generate full grid for variability support</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        ndarray</span>
+<span class="sd">            ndarray of shape(totalNumberOfPoints, numberOfParameters) with the coordinates of points</span>
+
+<span class="sd">        Note</span>
+<span class="sd">        ----</span>
+<span class="sd">            On the last axis, parameters values are those of the parameters</span>
+<span class="sd">            in the order they were declared in defineVariabilitySupport</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ndarrays</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">variabilitySupport</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+        <span class="n">meshgrid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="o">*</span><span class="n">ndarrays</span><span class="p">,</span> <span class="n">indexing</span><span class="o">=</span><span class="s1">&#39;ij&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">meshgrid</span><span class="p">))</span></div>
+    
+<div class="viewcode-block" id="CollectionProblemData.accept"><a class="viewcode-back" href="../../../../_source/Mordicus.Core.Containers.CollectionProblemData.html#Mordicus.Core.Containers.CollectionProblemData.CollectionProblemData.accept">[docs]</a>    <span class="k">def</span> <span class="nf">accept</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">visitor</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Visitor design pattern</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">visitor</span><span class="o">.</span><span class="n">visitCPD</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="s2">&quot;CollectionProblemData</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="n">res</span> <span class="o">+=</span> <span class="s2">&quot;number of problemDatas: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">GetNumberOfProblemDatas</span><span class="p">())</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="n">res</span> <span class="o">+=</span> <span class="s2">&quot;problemDatas: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">GetProblemSampling</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">res</span></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span><span class="c1"># pragma: no cover</span>
+
+    <span class="kn">from</span> <span class="nn">Mordicus</span> <span class="kn">import</span> <span class="n">RunTestFile</span>
+    <span class="n">RunTestFile</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span>
+
+
+
+
+
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">Mordicus 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../../Mordicus.html" >Mordicus</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Mordicus.Core.Containers.CollectionProblemData</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright Mordicus Consortium.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.0.2.
+    </div>
+  </body>
+</html>

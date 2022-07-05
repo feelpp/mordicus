@@ -1,0 +1,20 @@
+Mordicus.Modules.Safran.IO package
+==================================
+
+.. automodule:: Mordicus.Modules.Safran.IO
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   Mordicus.Modules.Safran.IO.PXDMFWriter
+   Mordicus.Modules.Safran.IO.XDMFWriter
+   Mordicus.Modules.Safran.IO.ZsetInputReader
+   Mordicus.Modules.Safran.IO.ZsetMeshReader
+   Mordicus.Modules.Safran.IO.ZsetSolutionReader
+   Mordicus.Modules.Safran.IO.ZsetSolutionWriter

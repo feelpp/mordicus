@@ -1,0 +1,7 @@
+Mordicus.Modules.EDF.Containers.FieldHandlers.MEDFieldHandler module
+====================================================================
+
+.. automodule:: Mordicus.Modules.EDF.Containers.FieldHandlers.MEDFieldHandler
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -1,0 +1,7 @@
+Mordicus.Modules.Safran.IO.ZsetSolutionReader module
+====================================================
+
+.. automodule:: Mordicus.Modules.Safran.IO.ZsetSolutionReader
+   :members:
+   :undoc-members:
+   :show-inheritance:

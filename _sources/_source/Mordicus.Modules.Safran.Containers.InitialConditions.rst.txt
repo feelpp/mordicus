@@ -1,0 +1,15 @@
+Mordicus.Modules.Safran.Containers.InitialConditions package
+============================================================
+
+.. automodule:: Mordicus.Modules.Safran.Containers.InitialConditions
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   Mordicus.Modules.Safran.Containers.InitialConditions.InitialCondition

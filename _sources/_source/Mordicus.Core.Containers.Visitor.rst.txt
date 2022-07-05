@@ -1,0 +1,7 @@
+Mordicus.Core.Containers.Visitor module
+=======================================
+
+.. automodule:: Mordicus.Core.Containers.Visitor
+   :members:
+   :undoc-members:
+   :show-inheritance:

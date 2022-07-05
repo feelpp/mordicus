@@ -1,0 +1,18 @@
+Mordicus.Modules.Safran.Containers package
+==========================================
+
+.. automodule:: Mordicus.Modules.Safran.Containers
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   Mordicus.Modules.Safran.Containers.ConstitutiveLaws
+   Mordicus.Modules.Safran.Containers.InitialConditions
+   Mordicus.Modules.Safran.Containers.Loadings
+   Mordicus.Modules.Safran.Containers.Meshes

@@ -1,0 +1,7 @@
+Mordicus.Core.Containers.ProblemData module
+===========================================
+
+.. automodule:: Mordicus.Core.Containers.ProblemData
+   :members:
+   :undoc-members:
+   :show-inheritance:

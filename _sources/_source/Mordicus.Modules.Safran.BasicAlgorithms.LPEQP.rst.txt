@@ -1,0 +1,7 @@
+Mordicus.Modules.Safran.BasicAlgorithms.LPEQP module
+====================================================
+
+.. automodule:: Mordicus.Modules.Safran.BasicAlgorithms.LPEQP
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -1,0 +1,7 @@
+Mordicus.Core.Helpers.FolderHandler module
+==========================================
+
+.. automodule:: Mordicus.Core.Helpers.FolderHandler
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -1,0 +1,7 @@
+Mordicus.Modules.Mines.IO.ZsetReader module
+===========================================
+
+.. automodule:: Mordicus.Modules.Mines.IO.ZsetReader
+   :members:
+   :undoc-members:
+   :show-inheritance:
