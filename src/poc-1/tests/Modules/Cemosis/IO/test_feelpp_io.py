@@ -8,17 +8,15 @@ try:
     from Mordicus.Modules.Cemosis.IO import FeelppMeshReader as FMR
     import feelpp
     import spdlog as log
-except ImportError:
-    pass
 
-
-
-cases = [
+    cases = [
             ('TestsData/Feelpp/rectangle1',feelpp.create_rectangle,2,1,77),
             ('TestsData/Feelpp/rectangle2',feelpp.create_rectangle,2,2,277),
             ('TestsData/Feelpp/box1',feelpp.create_box, 3,1,245),
             ('TestsData/Feelpp/box2', feelpp.create_box, 3, 2, 1407),
         ]
+except ImportError:
+    pass
 
 
 @pytest.mark.parametrize("dir,case_generator,dim,order,ndofs", cases)

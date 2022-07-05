@@ -1,8 +1,8 @@
-from Mordicus.Modules.Cemosis.Containers.Meshes import FeelppUnstructuredMesh as FM
 import pytest
 import sys
 
 try:
+    from Mordicus.Modules.Cemosis.Containers.Meshes import FeelppUnstructuredMesh as FM
     import feelpp
 except:
     pass
