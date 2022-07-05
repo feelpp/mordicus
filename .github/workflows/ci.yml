@@ -6,9 +6,15 @@ on:
       - 'cemosis'
     tags:
       - 'v*'
+    paths-ignore:
+      - 'docs/**'
+      - '.github/workflows/docs.yml'
   pull_request:
     branches:
       - 'cemosis'
+    paths-ignore:
+      - 'docs/**'
+      - '.github/workflows/docs.yml'
 
 jobs:
 #docs:
