@@ -68,13 +68,13 @@ poc-1:
     - export PYTHONPATH=$PWD/src/poc-1/src:$PYTHONPATH
   script:
     - echo 'Starting NonRegression tests on Core...'
-    - cd ./src/poc-1/tests && pytest --ignore Modules/Safran
+    - cd ./src/poc-1/tests && pytest --ignore Modules/Safran && cd -
     - echo '... NonRegression tests on Core ended'
     - mkdir -p pages/coverageReportCore
     - echo 'Starting coverage report on Core...'
     - cd src/poc-1/tests/Core && pytest --cov=../../src/Mordicus/Core --cov-report=html:../../../../pages/coverageReportCore && cd -
     - echo '... coverage report on Core ended'
-    - cd pages/coverageReportCore && grep pc_cov index.html
+    - cd pages/coverageReportCore && grep pc_cov index.html && cd -
   coverage: '/pc_cov">([0-9]+\.?[0-9]+?%)/'
   artifacts:
     name: "CoverageCore"
@@ -118,8 +118,9 @@ feelpp:
   stage: test
   image: ghcr.io/feelpp/feelpp-dev:focal
   before_script:
-    - sudo apt-get update 
-    - sudo apt-get -y install python3-pip
+    - sudo su
+    - apt-get update 
+    - apt-get -y install python3-pip
 #    - pip install --upgrade pip
     - pip install -r ./src/poc-1/requirements.txt
     - export PYTHONPATH=$PWD/src/poc-1/src:$PYTHONPATH
