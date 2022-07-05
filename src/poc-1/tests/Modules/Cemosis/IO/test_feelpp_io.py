@@ -16,6 +16,9 @@ try:
             ('TestsData/Feelpp/box2', feelpp.create_box, 3, 2, 1407),
         ]
 except ImportError:
+    cases=[
+            ('TestsData/Feelpp/rectangle1',toto,2,1,77)
+        ]
     pass
 
 
