@@ -89,7 +89,7 @@ cpp-linux:
     - apt-get -y install apt-transport-https ca-certificates gnupg software-properties-common wget
     - add-apt-repository  'deb http://deb.debian.org/debian bullseye-backports main'
     - apt-get update
-    - apt-get install -y python3-dev g++ cmake pybind11-dev
+    - apt-get install -y python3-dev g++ clang cmake pybind11-dev
     - apt-get -y install -t bullseye-backports  cmake
   script:
     - cmake --preset install

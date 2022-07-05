@@ -2,11 +2,12 @@ import sys,os
 import pytest
 from Mordicus import GetTestDataPath
 from os import path as osp
-import spdlog as log
+
 try:
     from Mordicus.Modules.Cemosis.IO import FeelppSolutionReader as FSR
     from Mordicus.Modules.Cemosis.IO import FeelppMeshReader as FMR
     import feelpp
+    import spdlog as log
 except ImportError:
     pass
 
