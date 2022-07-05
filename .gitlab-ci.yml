@@ -128,7 +128,7 @@ feelpp:
     - cmake --preset install
     - cmake --build --preset install
     - ctest --preset install
-    - cd src/poc-1/tests && pytest --ignore Modules/Safran
+    - cd src/poc-1/tests && $HOME/.local/bin/pytest --ignore Modules/Safran
 
 # feelpp-docker:
 #   stage: test

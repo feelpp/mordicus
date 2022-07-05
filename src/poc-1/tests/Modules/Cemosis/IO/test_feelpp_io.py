@@ -3,11 +3,15 @@ import pytest
 from Mordicus import GetTestDataPath
 from os import path as osp
 
+def toto():
+    return ""
+
 try:
-    from Mordicus.Modules.Cemosis.IO import FeelppSolutionReader as FSR
-    from Mordicus.Modules.Cemosis.IO import FeelppMeshReader as FMR
     import feelpp
     import spdlog as log
+    from Mordicus.Modules.Cemosis.IO import FeelppSolutionReader as FSR
+    from Mordicus.Modules.Cemosis.IO import FeelppMeshReader as FMR
+
 
     cases = [
             ('TestsData/Feelpp/rectangle1',feelpp.create_rectangle,2,1,77),
