@@ -7,11 +7,8 @@ setuptools
 pip==20.2
 pylint
 black
-pytest
-pytest-cov
 sphinx
 numpy
-scikit-learn
 scipy
 openturns
 sympy
