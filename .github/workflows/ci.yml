@@ -41,12 +41,13 @@ jobs:
         pip install -r ./src/poc-1/requirements.txt
     - name: Add PYTHONPATH
       run: |
-        echo "PYTHONPATH=src/poc-1/src/:$HOME/.local/lib/python3.8/site-packages/" >> $GITHUB_ENV
+        echo "PYTHONPATH=$GITHUB_WORKSPACE/src/poc-1/src/:$HOME/.local/lib/python3.8/site-packages/" >> $GITHUB_ENV
         ls -lrt src/poc-1/src
         echo $GITHUB_WORKSPACE
         ls $GITHUB_WORKSPACE/src/poc-1/src
     - name: Run PyTest
-      run: $HOME/.local/bin/pytest 
+      run: $HOME/.local/bin/pytest
+      working-directory: src/poc-1/tests
     - name: Upload 
       uses: actions/upload-artifact@v2
       with:
