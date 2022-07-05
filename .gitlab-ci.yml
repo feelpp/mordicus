@@ -118,9 +118,8 @@ feelpp:
   stage: test
   image: ghcr.io/feelpp/feelpp-dev:focal
   before_script:
-    - sudo su
-    - apt-get update 
-    - apt-get -y install python3-pip
+    - sudo apt-get update 
+    - sudo apt-get -y install python3-pip
 #    - pip install --upgrade pip
     - pip install -r ./src/poc-1/requirements.txt
     - export PYTHONPATH=$PWD/src/poc-1/src:$PYTHONPATH

@@ -58,7 +58,6 @@
         },
         {
             "name": "mingw",
-            "inherits": "default",
             "displayName": "mingw build",
             "description": "mingw build",
             "generator": "Unix Makefiles",

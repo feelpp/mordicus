@@ -3,15 +3,17 @@ import pytest
 from Mordicus import GetTestDataPath
 from os import path as osp
 
-def toto():
+def dummy():
     return ""
 
+cases=[
+        ('TestsData/Feelpp/rectangle1',dummy,2,1,77)
+    ]
 try:
     import feelpp
     import spdlog as log
     from Mordicus.Modules.Cemosis.IO import FeelppSolutionReader as FSR
     from Mordicus.Modules.Cemosis.IO import FeelppMeshReader as FMR
-
 
     cases = [
             ('TestsData/Feelpp/rectangle1',feelpp.create_rectangle,2,1,77),
@@ -20,9 +22,6 @@ try:
             ('TestsData/Feelpp/box2', feelpp.create_box, 3, 2, 1407),
         ]
 except ImportError:
-    cases=[
-            ('TestsData/Feelpp/rectangle1',toto,2,1,77)
-        ]
     pass
 
 
