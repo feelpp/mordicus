@@ -15,4 +15,5 @@ sympy
 lxml
 jschon>=0.8.5
 spdlog
+gmsh
 # -e git+https://gitlab.com/drti/basic-tools.git#egg=basictools
