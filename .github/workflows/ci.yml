@@ -12,6 +12,9 @@ on:
   pull_request:
     branches:
       - 'cemosis'
+    paths-ignore:
+      - 'docs/**'
+      - '.github/workflows/docs.yml'
 
 jobs:
 #docs:
