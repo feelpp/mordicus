@@ -1,14 +1,15 @@
 import numpy as np
 
 
+has_BasicTools = True
 
-
-
-from BasicTools.IO import GeoReader as GR
-
+try:
+  from BasicTools.IO import GeoReader as GR
+except:
+  has_BasicTools=False
 
 def run():
-
+    
     mesh = GR.ReadGeo('cube.geo')
 
     nNodes = mesh.GetNumberOfNodes()
