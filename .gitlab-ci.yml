@@ -66,18 +66,14 @@ poc-1:
     - pip install --upgrade pip
     - pip install -r ./src/poc-1/requirements.txt
     - export PYTHONPATH=$PWD/src/poc-1/src:$PYTHONPATH
-    - export PYTHONPATH=$PWD/../basic-tools/src:$PYTHONPATH
   script:
     - echo 'Starting NonRegression tests on Core...'
-    - pytest src/poc-1/examples/Core
+    - cd tests && pytest --ignore Modules/Safran
     - echo '... NonRegression tests on Core ended'
     - mkdir -p pages/coverageReportCore
     - echo 'Starting coverage report on Core...'
     - cd src/poc-1/tests/Core && pytest --cov=../../src/Mordicus/Core --cov-report=html:../../../../pages/coverageReportCore && cd -
     - echo '... coverage report on Core ended'
-    - echo 'Starting Phimeca tests...'
-    - pytest src/poc-1/tests/Modules/Phimeca
-    - echo '... Phimeca tests ended'
     - cd pages/coverageReportCore && grep pc_cov index.html
   coverage: '/pc_cov">([0-9]+\.?[0-9]+?%)/'
   artifacts:
@@ -109,7 +105,7 @@ cpp-mingw:
 
 feelpp:
   stage: test
-  image: feelpp/feelpp-mor:focal
+  image: feelpp/feelpp-dev:focal
   before_script:
     - apt install python3-pip
 #    - pip install --upgrade pip
@@ -121,18 +117,18 @@ feelpp:
     - make install -j4
     - ctest -j4 --output-on-failure --timeout 100
 
-feelpp-docker:
-  stage: test
-  image: feelpp/feelpp-mor:buster
-  before_script:
-    - pip3 install -r ./src/poc-1/requirements.txt
-    - export PYTHONPATH=$PWD/src/poc-1/src:$PYTHONPATH
-    - export PYTHONPATH=$PWD/../basic-tools/src:$PYTHONPATH
-    - export PATH=$HOME/.local/bin:$PATH
-  script:
-    - echo 'Starting Feel++ MOR tests...'
-    - mpirun -np 1 python3 src/poc-1/examples/Modules/Cemosis/test_feelpp_mor.py 
-    - mpirun -np 2 python3 src/poc-1/examples/Modules/Cemosis/test_feelpp_mor.py 
+# feelpp-docker:
+#   stage: test
+#   image: feelpp/feelpp-mor:buster
+#   before_script:
+#     - pip3 install -r ./src/poc-1/requirements.txt
+#     - export PYTHONPATH=$PWD/src/poc-1/src:$PYTHONPATH
+#     - export PYTHONPATH=$PWD/../basic-tools/src:$PYTHONPATH
+#     - export PATH=$HOME/.local/bin:$PATH
+#   script:
+#     - echo 'Starting Feel++ MOR tests...'
+#     - mpirun -np 1 python3 src/poc-1/examples/Modules/Cemosis/test_feelpp_mor.py 
+#     - mpirun -np 2 python3 src/poc-1/examples/Modules/Cemosis/test_feelpp_mor.py 
 
 
 pages:
