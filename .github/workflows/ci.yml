@@ -40,7 +40,11 @@ jobs:
         pip install --upgrade pip
         pip install -r ./src/poc-1/requirements.txt
     - name: Add PYTHONPATH
-      run: echo "PYTHONPATH=src:$HOME/.local" >> $GITHUB_ENV
+      run: |
+        echo "PYTHONPATH=src/poc-1/src/:$HOME/.local" >> $GITHUB_ENV
+        ls -lrt src/poc-1/src
+        echo $GITHUB_WORKSPACE
+        ls $GITHUB_WORKSPACE/src/poc-1/src
     - name: Run PyTest
       run: pytest-3 
     - name: Upload 
