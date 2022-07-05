@@ -3,8 +3,11 @@ import sys
 
 import py
 import pytest
-import feelpp
-import spdlog 
+try:
+    import feelpp
+    import spdlog 
+except:
+    pass
 
 log = getLogger(__name__)
 MPI_ARGS = ("mpirun", "-n")
