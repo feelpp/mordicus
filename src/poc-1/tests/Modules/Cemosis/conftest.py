@@ -4,6 +4,7 @@ import sys
 import py
 import pytest
 import feelpp
+import spdlog 
 
 log = getLogger(__name__)
 MPI_ARGS = ("mpirun", "-n")
@@ -18,18 +19,31 @@ def has_mpi4py():
     except ImportError:
         return False
 
+@pytest.fixture
+def has_feelpp():
+    try:
+        import feelpp
+        return True
+    except ImportError:
+        return False
 
 class InitFeelpp:
-    def __init__(self,config):
+    def __init__(self):
         try:
-            print('xxx call init_feelpp')
             sys.argv = ['test_feelpp']
-            self.e = feelpp.Environment(sys.argv,config=config)
-            print('proc:', feelpp.Environment.isMasterRank())
+            self.env = feelpp.Environment(
+                sys.argv, config=feelpp.globalRepository("pyfeelpp-mordicus-tests"))
+            self.logger=spdlog.ConsoleLogger("test_feelpp.log")
         except Exception:
             return
 
 
-@pytest.fixture(scope="session", autouse=True)
-def init_feelpp():
-    return InitFeelpp(feelpp.globalRepository("pyfeelpp-mordicus-tests"))
+@pytest.fixture(scope="session")
+def feelpp_environment():
+    print("Setup Feel++")
+    yield None if not has_feelpp else InitFeelpp()
+    print("\nTeardown Feel++")
+    try:
+        print("")
+    except:
+        pass

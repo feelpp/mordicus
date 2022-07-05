@@ -23,8 +23,9 @@ from Mordicus import GetTestDataPath
 
 from Mordicus.Core.Containers.Visitor import (importFromJSON, exportToJSON, checkValidity)
 
-def test():
-
+def test_visitor(): 
+    """test visitor for json deserialisation
+    """    
     solution = Solution.Solution("U", 2, 10, True)
 
     solution.AddSnapshot(np.ones(20), 0.0)

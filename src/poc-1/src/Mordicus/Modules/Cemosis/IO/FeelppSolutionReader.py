@@ -22,6 +22,16 @@ class FeelppSolutionReader(SolutionReaderBase):
         return up.getArray() # should use this to avoid copy but currently crash
 
     def WriteSolution(self, fileName, solution, fieldStructure=None, fieldName="", nameInFile=None, append=False):
+        """write solution to disk
+
+        Args:
+            fileName (_type_): name of the file
+            solution (_type_): field to be saved
+            fieldStructure (_type_, optional): _description_. Defaults to None.
+            fieldName (str, optional): name of the field. Defaults to "".
+            nameInFile (_type_, optional): _description_. Defaults to None.
+            append (bool, optional): _description_. Defaults to False.
+        """        
         b = feelpp.Backend(feelpp.Environment.worldCommPtr())
         v = b.newVector(self.Xh.mapPtr())
         assert(solution.shape[0] == v.size())
@@ -29,7 +39,7 @@ class FeelppSolutionReader(SolutionReaderBase):
             v.set(i, solution[i])
         u = self.Xh.elementFromVec(v,0)
         path, name = osp.split(fileName)
-        self.e.addP1c(name, u)
+        #self.e.addP1c(name, u)
         u.save(path, name)
 
     def WriteReducedOrderBasis(self, fileName, solutionStructure, reducedOrderBasis, fieldName):
@@ -37,7 +47,7 @@ class FeelppSolutionReader(SolutionReaderBase):
         for i in range(reducedOrderBasis[fieldName].shape[0]):
             filepath = f"{fileName}_{i}.h5"
             self.WriteSolution(filepath, reducedOrderBasis[fieldName][i])
-        self.e.save()
+        #self.e.save()
 
     def ReadReducedOrderBasis(self, fileName, solutionStructure, fieldName):
         i = 0

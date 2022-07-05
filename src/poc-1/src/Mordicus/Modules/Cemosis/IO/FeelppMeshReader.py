@@ -38,7 +38,16 @@ class FeelppMeshReader(MeshReaderBase):
         hsize of the mesh (for geo)
     """
 
-    def __init__(self, meshFileName, dim=2, gorder=1, realdim=2, h=0.1):
+    def __init__(self, meshFileName, dim, gorder=1, realdim=None, h=0.1):
+        """Feel++ Mesh Reader
+
+        Args:
+            meshFileName (_type_): mesh file name
+            dim (int): topological dimension of the mesh. (1,2 or 3)
+            gorder (int, optional): order of the mesh. Defaults to 1.
+            realdim (int, optional): real dimension of the mesg. Defaults to dim.
+            h (float, optional): mesh size. Defaults to 0.1.
+        """        
         assert isinstance(meshFileName, str)
         assert feelpp.Environment.initialized
 
@@ -46,7 +55,7 @@ class FeelppMeshReader(MeshReaderBase):
         self.meshFileName = meshFileName
         self.dim = dim
         self.gorder = gorder
-        self.realdim = realdim
+        self.realdim = dim if realdim is None else realdim
         self.h = h
 
     def ReadMesh(self):
