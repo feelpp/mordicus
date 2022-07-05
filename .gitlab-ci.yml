@@ -104,8 +104,9 @@ cpp-mingw:
     - ctest -j4 --output-on-failure --timeout 100
 
 feelpp:
+  allow_failure: true
   stage: test
-  image: feelpp/feelpp-dev:focal
+  image: ghcr.io/feelpp/feelpp-dev:focal
   before_script:
     - apt install python3-pip
 #    - pip install --upgrade pip
@@ -116,6 +117,7 @@ feelpp:
     - cmake -DCMAKE_CXX_FLAGS="-Wall -Wextra -Werror -D_GLIBCXX_ASSERTIONS" -DCMAKE_INSTALL_PREFIX=~/.local -DMORDICUS_ENABLE_CEMOSIS=ON src/cpp
     - make install -j4
     - ctest -j4 --output-on-failure --timeout 100
+    - cd src/poc-1/tests && pytest --ignore Modules/Safran
 
 # feelpp-docker:
 #   stage: test
