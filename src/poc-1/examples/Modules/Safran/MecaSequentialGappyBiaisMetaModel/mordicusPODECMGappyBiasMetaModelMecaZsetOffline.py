@@ -1,3 +1,10 @@
+# -*- coding: utf-8 -*-
+#
+# This file is subject to the terms and conditions defined in
+# file 'LICENSE.txt', which is part of this source code package.
+#
+#
+
 from Mordicus.Modules.Safran.IO import ZsetMeshReader as ZMR
 from Mordicus.Modules.Safran.IO import ZsetSolutionReader as ZSR
 from Mordicus.Core.Containers import ProblemData as PD
@@ -128,7 +135,7 @@ def test():
     ##################################################
 
 
-    operatorCompressionData = collectionProblemData.GetOperatorCompressionData()
+    operatorCompressionData = collectionProblemData.GetOperatorCompressionData("U")
     reducedOrderBases = collectionProblemData.GetReducedOrderBases()
 
 
@@ -166,8 +173,9 @@ def test():
 
     import time
     start = time.time()
-    onlineCompressedSolution, onlineCompressionData = Mechanical.ComputeOnline(onlineProblemData, timeSequence, operatorCompressionData, 1.e-6)
+    Mechanical.ComputeOnline(onlineProblemData, timeSequence, operatorCompressionData, 1.e-6)
     print(">>>> DURATION ONLINE =", time.time() - start)
+    onlineData = onlineProblemData.GetOnlineData("U")
 
 
 
@@ -175,9 +183,9 @@ def test():
     onlineDualQuantityAtReducedIntegrationPoints = {}
     for i, name in enumerate(dualNames):
         print(">>>>>>>> name", name)
-        onlineDualQuantityAtReducedIntegrationPoints[name] = Mechanical.GetOnlineDualQuantityAtReducedIntegrationPoints(name, onlineCompressionData, timeSequence)
+        onlineDualQuantityAtReducedIntegrationPoints[name] = Mechanical.GetOnlineDualQuantityAtReducedIntegrationPoints(name, onlineData, timeSequence)
 
-    reducedIntegrationPoints = operatorCompressionData["reducedIntegrationPoints"]
+    reducedIntegrationPoints = operatorCompressionData.GetReducedIntegrationPoints()
 
     from Mordicus.Core.BasicAlgorithms import ScikitLearnRegressor as SLR
     from sklearn.gaussian_process.kernels import WhiteKernel, ConstantKernel, Matern
@@ -191,7 +199,7 @@ def test():
 
     dualReconstructionData = Mechanical.LearnDualReconstruction(collectionProblemData, dualNames, reducedIntegrationPoints, methodDualReconstruction = "MetaModel", timeSequenceForDualReconstruction = timeSequence, snapshotsAtReducedIntegrationPoints = onlineDualQuantityAtReducedIntegrationPoints, regressor = regressor, paramGrid = paramGrid)
 
-    operatorCompressionData["dualReconstructionData"] = dualReconstructionData
+    operatorCompressionData.SetDualReconstructionData(dualReconstructionData)
 
 
     SIO.SaveState("collectionProblemData", collectionProblemData)

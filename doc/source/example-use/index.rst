@@ -1,5 +1,7 @@
 .. master file
 
+.. _high_level_use_case:
+
 High-level use cases
 ====================
 
@@ -25,7 +27,7 @@ Pistes pour de futurs exemples d'utilisation:
     * optimisation de forme d'un aimant à haut champs (Cemosis)
 
     * Optimiser la consommation énergétique par un gestionnaire de bâtiment (Cemosis)
-      
+
     * Voir en temps réel l’impact du design d’un aimant (Cemosis)
 
     * Réduction d'un modèle aérothermique 3D avec assimilation de données (Cemosis)

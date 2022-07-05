@@ -1,12 +1,21 @@
 # -*- coding: utf-8 -*-
+#
+# This file is subject to the terms and conditions defined in
+# file 'LICENSE.txt', which is part of this source code package.
+#
+#
+
 
 __name__ = "Mordicus"
 __copyright_holder__ = "Mordicus Consortium"
-__copyright_years__ = "2018-2020"
+__copyright_years__ = "2018-2022"
 __copyright__ = f"{__copyright_years__}, {__copyright_holder__}"
 __license__ = "proprietary - TBD"
 __version__ = "0.1"
-
+__description__ = "Mordicus code developped by the FUI MOR_DICUS consortium"
+__long_description__ ="The principal objective of the MOR_DICUS project is the develop generic model order reduction software modules for efficient computation (accelerated, real-time), design and fast and reliable analysis for industrial systems, taking into account complex modeling parameters."
+__url__ = "https://gitlab.pam-retd.fr/mordicus/mordicus"
+__contact__ = ""
 
 
 

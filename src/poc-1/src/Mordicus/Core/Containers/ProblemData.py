@@ -1,4 +1,10 @@
 # -*- coding: utf-8 -*-
+#
+# This file is subject to the terms and conditions defined in
+# file 'LICENSE.txt', which is part of this source code package.
+#
+#
+
 import os
 from mpi4py import MPI
 if MPI.COMM_WORLD.Get_size() > 1: # pragma: no cover
@@ -33,6 +39,10 @@ class ProblemData(object):
         dictionary with identifier (str) as keys and constitutive law (ConstitutiveLawBase) as values
     parameters : dict
         dictionary with time indices as keys and a np.ndarray of size (parameterDimension,) containing the parameters
+    onlineData : dict(str: custom_data_structure)
+        dictionary with solutionNames (str) as keys and data structure used in the online stage as values.
+        In simple methods, onlineData can directly be an operatorCompressionData generated during the offline stage
+        and need in the online stage to compute the reduced problem
     """
 
     def __init__(self, problemName):
@@ -44,6 +54,7 @@ class ProblemData(object):
         self.loadings = {}
         self.constitutiveLaws = {}
         self.parameters = {}
+        self.onlineData = {}
 
 
     def SetDataFolder(self, dataFolder):
@@ -147,6 +158,36 @@ class ProblemData(object):
                 )  # pragma: no cover
 
             self.constitutiveLaws[law.GetIdentifier()] = law
+
+
+    def AddOnlineData(self, onlineData):
+        """
+        Adds an onlineData to onlineData
+
+        Parameters
+        ----------
+        onlineData : OnlineDataBase
+            data structure used in the online stage
+        """
+
+        self.onlineData[onlineData.GetSolutionName()] = onlineData
+
+
+    def GetOnlineData(self, solutionName):
+        """
+        Returns the onlineData  of name solutionName
+
+        Parameters
+        ----------
+        solutionName : str
+            name of the onlineData  to retrieve
+
+        Returns
+        -------
+        OnlineDataBase
+        """
+        assert solutionName in self.onlineData, "onlineData for solutionName "+solutionName+" has not been initialized"
+        return self.onlineData[solutionName]
 
 
     def SetInitialCondition(self, initialCondition):

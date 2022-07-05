@@ -1,4 +1,10 @@
 # -*- coding: utf-8 -*-
+#
+# This file is subject to the terms and conditions defined in
+# file 'LICENSE.txt', which is part of this source code package.
+#
+#
+
 
 from Mordicus.Core.Containers.Meshes.MeshBase import MeshBase
 
@@ -26,10 +32,28 @@ class BasicToolsUnstructuredMesh(MeshBase):
 
         self.SetInternalStorage(mesh)
 
+
     def GetNodes(self):
+        """
+        Returns the nodes of the mesh
+
+        Returns
+        -------
+        np.ndarray
+            of size (numberOfNodes,dimensionality)
+        """
         return self.GetInternalStorage().nodes
 
+
     def AllElementsIterator(self):
+        """
+        Constructs an iterator over the elements of the mesh
+
+        Returns
+        -------
+        iterator
+            an iterator over the elements of the mesh
+        """
         class iterator:
             def __init__(self, elements):
                 self.elements = elements
@@ -41,6 +65,7 @@ class BasicToolsUnstructuredMesh(MeshBase):
 
         res = iterator(self.GetInternalStorage().elements)
         return res
+
 
     def __str__(self):
         res = str(self.GetInternalStorage())

@@ -1,3 +1,10 @@
+# -*- coding: utf-8 -*-
+#
+# This file is subject to the terms and conditions defined in
+# file 'LICENSE.txt', which is part of this source code package.
+#
+#
+
 from Mordicus.Modules.Safran.IO import ZsetInputReader as ZIR
 from Mordicus.Modules.Safran.IO import ZsetMeshReader as ZMR
 from Mordicus.Modules.Safran.IO import ZsetSolutionReader as ZSR
@@ -26,10 +33,9 @@ def test():
 
     collectionProblemData = SIO.LoadState("collectionProblemData")
 
-    operatorCompressionData = collectionProblemData.GetOperatorCompressionData()
+    operatorCompressionDataMechanical = collectionProblemData.GetOperatorCompressionData("U")
     snapshotCorrelationOperator = SIO.LoadState("snapshotCorrelationOperator")
 
-    operatorCompressionData = collectionProblemData.GetOperatorCompressionData()
     reducedOrderBases = collectionProblemData.GetReducedOrderBases()
 
     ##################################################
@@ -55,9 +61,9 @@ def test():
     loadingList = inputReader.ConstructLoadingsList()
     onlineProblemData.AddLoading(loadingList)
     for loading in onlineProblemData.GetLoadingsForSolution("U"):
-        loading.ReduceLoading(mesh, onlineProblemData, reducedOrderBases, operatorCompressionData)
+        loading.ReduceLoading(mesh, onlineProblemData, reducedOrderBases, operatorCompressionDataMechanical)
         #if loading.GetType() == 'centrifugal':
-        #    loading.HyperReduceLoading(mesh, onlineProblemData, reducedOrderBases, operatorCompressionData)
+        #    loading.HyperReduceLoading(mesh, onlineProblemData, reducedOrderBases, operatorCompressionDataMechanical)
 
 
     initialCondition = inputReader.ConstructInitialCondition()
@@ -68,7 +74,9 @@ def test():
 
     import time
     start = time.time()
-    onlineCompressedSolution, onlineCompressionData = Meca.ComputeOnline(onlineProblemData, timeSequence, operatorCompressionData, 1.e-8)
+    onlineCompressedSolution = Meca.ComputeOnline(onlineProblemData, timeSequence, operatorCompressionDataMechanical, 1.e-8)
+    onlineData = onlineProblemData.GetOnlineData("U")
+
     print(">>>> DURATION ONLINE =", time.time() - start)
 
 
@@ -81,7 +89,7 @@ def test():
     for name in dualNames:
         solutionsDual = S.Solution(name, 1, numberOfIntegrationPoints, primality = False)
 
-        onlineDualCompressedSolution, errorGappy = Meca.ReconstructDualQuantity(name, operatorCompressionData, onlineCompressionData, timeSequence = list(onlineCompressedSolution.keys()))
+        onlineDualCompressedSolution, errorGappy = Meca.ReconstructDualQuantity(name, operatorCompressionDataMechanical, onlineData, timeSequence = list(onlineCompressedSolution.keys()))
 
         solutionsDual.SetCompressedSnapshots(onlineDualCompressedSolution)
 
@@ -94,6 +102,7 @@ def test():
 
 
     onlineEvrcumCompressedSolution = onlineProblemData.GetSolution("evrcum").GetCompressedSnapshots()
+    onlineEto23CompressedSolution = onlineProblemData.GetSolution("eto23").GetCompressedSnapshots()
 
 
     ## Compute Error
@@ -105,10 +114,13 @@ def test():
     outputTimeSequence = solutionReader.ReadTimeSequenceFromSolutionFile()
 
     solutionEvrcumExact  = S.Solution("evrcum", 1, numberOfIntegrationPoints, primality = False)
+    solutionEto23Exact  = S.Solution("eto23", 1, numberOfIntegrationPoints, primality = False)
     solutionUExact = S.Solution("U", nbeOfComponentsPrimal, numberOfNodes, primality = True)
     for t in outputTimeSequence:
         evrcum = solutionReader.ReadSnapshotComponent("evrcum", t, primality=False)
         solutionEvrcumExact.AddSnapshot(evrcum, t)
+        eto23 = solutionReader.ReadSnapshotComponent("eto23", t, primality=False)
+        solutionEto23Exact.AddSnapshot(eto23, t)
         U = solutionReader.ReadSnapshot("U", t, nbeOfComponentsPrimal, primality=True)
         solutionUExact.AddSnapshot(U, t)
 
@@ -116,12 +128,19 @@ def test():
     solutionEvrcumApprox.SetCompressedSnapshots(onlineEvrcumCompressedSolution)
     solutionEvrcumApprox.UncompressSnapshots(reducedOrderBases["evrcum"])
 
+
+    solutionEto23Approx = S.Solution("eto23", 1, numberOfIntegrationPoints, primality = False)
+    solutionEto23Approx.SetCompressedSnapshots(onlineEto23CompressedSolution)
+    solutionEto23Approx.UncompressSnapshots(reducedOrderBases["eto23"])
+
+
     solutionUApprox = S.Solution("U", nbeOfComponentsPrimal, numberOfNodes, primality = True)
     solutionUApprox.SetCompressedSnapshots(onlineCompressedSolution)
     solutionUApprox.UncompressSnapshots(reducedOrderBases["U"])
 
     ROMErrorsU = []
     ROMErrorsEvrcum = []
+    ROMErrorsEto23 = []
     for t in outputTimeSequence:
         exactSolution = solutionEvrcumExact.GetSnapshotAtTime(t)
         approxSolution = solutionEvrcumApprox.GetSnapshotAtTime(t)
@@ -131,6 +150,15 @@ def test():
         else:
             relError = np.linalg.norm(approxSolution-exactSolution)
         ROMErrorsEvrcum.append(relError)
+
+        exactSolution = solutionEto23Exact.GetSnapshotAtTime(t)
+        approxSolution = solutionEto23Approx.GetSnapshotAtTime(t)
+        norml2ExactSolution = np.linalg.norm(exactSolution)
+        if norml2ExactSolution > 1.e-3:
+            relError = np.linalg.norm(approxSolution-exactSolution)/norml2ExactSolution
+        else:
+            relError = np.linalg.norm(approxSolution-exactSolution)
+        ROMErrorsEto23.append(relError)
 
         exactSolution = solutionUExact.GetSnapshotAtTime(t)
         approxSolution = solutionUApprox.GetSnapshotAtTime(t)
@@ -143,6 +171,7 @@ def test():
 
     print("ROMErrors U =", ROMErrorsU)
     print("ROMErrors Evrcum =", ROMErrorsEvrcum)
+    print("ROMErrors Eto23 =", ROMErrorsEto23)
 
     PW.WriteCompressedSolution(mesh, onlineCompressedSolution, reducedOrderBases["U"], "U")
     PW.WriteReducedOrderBasis(mesh, reducedOrderBases["U"], "ROB_U")
@@ -163,6 +192,7 @@ def test():
 
     assert np.max(ROMErrorsU) < 1.e-4, "!!! Regression detected !!! ROMErrors have become too large"
     assert np.max(ROMErrorsEvrcum) < 1.e-4, "!!! Regression detected !!! ROMErrors have become too large"
+    assert np.max(ROMErrorsEto23) < 1.e-4, "!!! Regression detected !!! ROMErrors have become too large"
 
 
 

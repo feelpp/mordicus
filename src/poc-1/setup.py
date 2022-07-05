@@ -1,10 +1,19 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-__author__='MORDICUS FUI Project'
-__version__='0.1.0'
 
-name = 'Mordicus'
+
+from Mordicus import __name__ as Mordicus__name__
+from Mordicus import __copyright__ as Mordicus__copyright__
+from Mordicus import __copyright_holder__ as Mordicus__copyright_holder__
+from Mordicus import __license__ as Mordicus__license__
+from Mordicus import __version__ as Mordicus__version__
+from Mordicus import __description__ as Mordicus__description__
+from Mordicus import __long_description__ as Mordicus__long_description__
+from Mordicus import __url__ as Mordicus__url__
+from Mordicus import __contact__ as Mordicus__contact__
+
+
 contact=""
 
 
@@ -13,7 +22,7 @@ try:
     from setuptools import setup, find_packages
 except ImportError:
     from distutils.core import setup
-    import re, os
+    import re
     def find_packages(path='.'):
         ret = []
         for root, dirs, files in os.walk(path):
@@ -35,9 +44,9 @@ if HAVE_SPHINX:
     cmdclass = {'build_sphinx': BuildDoc}
     command_options={
         'build_sphinx': {
-            'project': ('setup.py', "mordicus"),
-            'version': ('setup.py', "0.1"),
-            'release': ('setup.py', "0.1.0"),
+            'project': ('setup.py', Mordicus__name__),
+            'version': ('setup.py', Mordicus__version__),
+            'release': ('setup.py', Mordicus__version__),
             'source_dir': ('setup.py', 'doc')}}
 else:
     cmdclass = {}
@@ -62,16 +71,14 @@ with open( os.path.join(here, "requirements.txt")) as fid:
 extras_require = {'test':['pytest',]}
 
 setup(
-    name=name,
-    version=__version__,
-    author_email=contact,
-    description="",
-    long_description="",
-    license="",
-    url="",
-    classifiers=[
-        'Development Status :: 1 - Beta',
-    ],
+    name=Mordicus__name__,
+    version=Mordicus__version__,
+    author_email=Mordicus__contact__,
+    description=Mordicus__description__,
+    long_description=Mordicus__long_description__,
+    license=Mordicus__license__,
+    url=Mordicus__url__,
+    classifiers=[],
     install_requires=requirements,
     extras_require=extras_require,
     packages=find_packages("src"),

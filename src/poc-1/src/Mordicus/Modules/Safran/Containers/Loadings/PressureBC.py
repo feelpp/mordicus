@@ -1,4 +1,10 @@
 # -*- coding: utf-8 -*-
+#
+# This file is subject to the terms and conditions defined in
+# file 'LICENSE.txt', which is part of this source code package.
+#
+#
+
 import os
 from mpi4py import MPI
 if MPI.COMM_WORLD.Get_size() > 1: # pragma: no cover
@@ -139,6 +145,7 @@ class PressureBC(LoadingBase):
         Parameters
         ----------
         time : float
+            time at which the contribution to the reduced external forces vector are computed
 
         Returns
         -------
@@ -219,6 +226,7 @@ class PressureBC(LoadingBase):
         Parameters
         ----------
         time : float
+            time at which the contribution to the reduced external forces vector are computed
 
         Returns
         -------

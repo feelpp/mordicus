@@ -1,4 +1,10 @@
 # -*- coding: utf-8 -*-
+#
+# This file is subject to the terms and conditions defined in
+# file 'LICENSE.txt', which is part of this source code package.
+#
+#
+
 import os
 import numpy as np
 from Mordicus.Modules.Safran.Containers.Meshes import BasicToolsUnstructuredMesh as BTUM
@@ -31,7 +37,7 @@ def test():
     PW.WriteReducedOrderBasis(mesh, modes, "PXDMFWriter3")
 
 
-    #comparaison deactivated: the order of data in file dependends on the folder from which the script is run...
+    #comparison deactivated: the order of data in file dependends on the folder from which the script is run...
     """
     assert filecmp.cmp('PXDMFWriter1.pxdmf', 'ref/PXDMFWriter1.pxdmf', shallow=False) == True
     assert filecmp.cmp('PXDMFWriter10.bin',  'ref/PXDMFWriter10.bin', shallow=False) == True

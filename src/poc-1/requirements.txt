@@ -3,7 +3,18 @@ pytest-order>=1.0.1
 pytest-cov>=2.8
 scikit-learn>=0.22
 mpi4py
+setuptools
+pip==20.2
+pylint
+black
+pytest
+pytest-cov
+sphinx
+numpy
+scikit-learn
+scipy
 openturns
 sympy
 lxml
 jschon>=0.8.5
+-e git+https://gitlab.com/drti/basic-tools.git#egg=basictools

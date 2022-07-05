@@ -1,4 +1,10 @@
 # -*- coding: utf-8 -*-
+#
+# This file is subject to the terms and conditions defined in
+# file 'LICENSE.txt', which is part of this source code package.
+#
+#
+
 
 from Mordicus.Modules.Safran.Containers.ConstitutiveLaws import MfrontConstitutiveLaw as MCL
 from Mordicus import GetTestDataPath
@@ -15,9 +21,17 @@ def test():
 
     constitutiveLaw = MCL.MfrontConstitutiveLaw("ALLELEMENT")
 
-    #uncomment for testing (mfront must be compiled on corresponding architecture)
 
-    """ngauss = 1
+    assert constitutiveLaw.GetSet() == 'ALLELEMENT'
+    assert constitutiveLaw.GetType() == 'mechanical'
+    assert constitutiveLaw.GetIdentifier() == ('mechanical', 'ALLELEMENT')
+    constitutiveLaw.SetOneConstitutiveLawVariable('test', 'test')
+    assert constitutiveLaw.GetOneConstitutiveLawVariable('test') == 'test'
+    constitutiveLaw.SetDensity(1.)
+    assert constitutiveLaw.GetDensity() == 1.
+
+
+    ngauss = 1
 
     temperature = 293.15 + np.zeros(ngauss)
     dtemp       = np.zeros(ngauss)
@@ -34,7 +48,9 @@ def test():
 
     folder = GetTestDataPath()+'Zset'+os.sep+'MecaSequentialSimpleMises'+os.sep
 
-    if os.path.isfile(folder+'src/libBehaviour.so') == False:
+
+    #uncomment for testing (mfront must be compiled on corresponding architecture)
+    """if os.path.isfile(folder+'src/libBehaviour.so') == False:
         import subprocess
         os.chdir(folder)
         subprocess.call("./compileMfrontLaw.sh")
@@ -50,19 +66,10 @@ def test():
 
     constitutiveLaw.UpdateInternalState()
 
-
-    assert constitutiveLaw.GetSet() == 'ALLELEMENT'
-    assert constitutiveLaw.GetType() == 'mechanical'
-    assert constitutiveLaw.GetIdentifier() == ('mechanical', 'ALLELEMENT')
-
     constitutiveLawVariables = constitutiveLaw.GetConstitutiveLawVariables()
     assert constitutiveLawVariables['var'] == ['eto11', 'eto22', 'eto33', 'eto12', 'eto23', 'eto31',\
             'sig11', 'sig22', 'sig33', 'sig12', 'sig23', 'sig31', 'eel11', 'eel22', 'eel33', 'eel12', 'eel23', 'eel31', 'epcum']
-    constitutiveLaw.SetConstitutiveLawVariables(constitutiveLawVariables)
-    constitutiveLaw.SetOneConstitutiveLawVariable('test', 'test')
-    assert constitutiveLaw.GetOneConstitutiveLawVariable('test') == 'test'
-    constitutiveLaw.SetDensity(1.)
-    assert constitutiveLaw.GetDensity() == 1."""
+    constitutiveLaw.SetConstitutiveLawVariables(constitutiveLawVariables)"""
 
     print(constitutiveLaw)
 

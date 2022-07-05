@@ -1,4 +1,10 @@
 # -*- coding: utf-8 -*-
+#
+# This file is subject to the terms and conditions defined in
+# file 'LICENSE.txt', which is part of this source code package.
+#
+#
+
 
 from Mordicus.Core.Helpers import FolderHandler as FH
 from Mordicus.Modules.Safran.IO import ZsetInputReader as ZIR

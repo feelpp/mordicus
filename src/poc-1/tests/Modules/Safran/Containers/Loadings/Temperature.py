@@ -1,9 +1,16 @@
 # -*- coding: utf-8 -*-
+#
+# This file is subject to the terms and conditions defined in
+# file 'LICENSE.txt', which is part of this source code package.
+#
+#
+
 
 import numpy as np
 from Mordicus.Modules.Safran.Containers.Loadings import Temperature as T
 from BasicTools.Containers.UnstructuredMeshCreationTools import CreateCube
 from Mordicus.Modules.Safran.Containers.Meshes import BasicToolsUnstructuredMesh as BTUM
+from Mordicus.Modules.Safran.Containers.OperatorCompressionData import OperatorCompressionDataMechanical as OCDM
 
 
 
@@ -32,9 +39,11 @@ def test():
 
 
     mesh = BTUM.BasicToolsUnstructuredMesh(CreateCube(dimensions=[2, 3, 2], spacing=[2.0, 2.0, 2.0], ofTetras=True))
-    operatorCompressionData = {"reducedIntegrationPoints":[1, 6, 9]}
 
-    loading.ReduceLoading(mesh = mesh, operatorCompressionData = operatorCompressionData)
+    operatorCompressionData = OCDM.OperatorCompressionDataMechanical("U")
+    operatorCompressionData.SetReducedIntegrationPoints(np.array([1, 6, 9]))
+
+    loading.ReduceLoading(mesh, operatorCompressionData = operatorCompressionData)
 
     np.testing.assert_almost_equal(loading.phiAtReducedIntegPoint.todense(),np.array([
      [0.25, 0.,   0.25, 0.25, 0.  , 0. ,  0. ,  0. ,  0. ,  0.25, 0.  , 0.  ],

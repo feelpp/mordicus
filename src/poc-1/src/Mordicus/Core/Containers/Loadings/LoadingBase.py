@@ -1,4 +1,10 @@
 # -*- coding: utf-8 -*-
+#
+# This file is subject to the terms and conditions defined in
+# file 'LICENSE.txt', which is part of this source code package.
+#
+#
+
 
 
 class LoadingBase(object):
@@ -16,6 +22,7 @@ class LoadingBase(object):
     """
 
     def __init__(self, solutionName, set, type):
+        assert isinstance(solutionName, str)
         assert isinstance(set, str)
         assert isinstance(type, str)
 

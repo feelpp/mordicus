@@ -1,24 +1,66 @@
+=================
+Mordicus software
+=================
 
 
-Welcome to Mordicus' documentation!
-===================================
 
-Download the latest version of the requirements file here :download:`pdf <pages/doc/latex/Datamodel.pdf>`
+The software 'Mordicus' has been developped by the consortium of the FUI project MOR_DICUS.
 
-Contents:
 
 .. toctree::
-   :maxdepth: 4
+   :maxdepth: 2
+   :caption: Installation and testing
+
+   install
+
+
+.. toctree::
+   :maxdepth: 3
+   :caption: Autodoc
 
    _source/Mordicus
-   
 
-.. literalinclude:: ../README.md
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Tutoriels
+
+   tutoriels
+
+..
+    .. toctree::
+       :maxdepth: 2
+       :caption: Example use cases
+
+       example-use/index
+
+
+    .. toctree::
+       :maxdepth: 2
+       :caption: Features description
+
+       features-description/index
+
+
+    .. toctree::
+       :maxdepth: 2
+       :caption: Datamodel
+
+       datamodel/index
+
+
+    .. toctree::
+       :maxdepth: 2
+       :caption: Architecture
+
+       architecture/index
+
+
 
 
 Indices and tables
-==================
-
+------------------
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
+

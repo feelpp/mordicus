@@ -1,4 +1,10 @@
 # -*- coding: utf-8 -*-
+#
+# This file is subject to the terms and conditions defined in
+# file 'LICENSE.txt', which is part of this source code package.
+#
+#
+
 import os
 from mpi4py import MPI
 if MPI.COMM_WORLD.Get_size() > 1: # pragma: no cover
@@ -55,9 +61,13 @@ class Dirichlet(LoadingBase):
         self.function = function
 
 
-    def GetAssembledReducedFieldAtTime(self):
+    def GetAssembledReducedFieldAtTime(self, time):
         """
         Returns assembledBC
+
+        Parameters
+        ----------
+        time : float
 
         Returns
         -------
@@ -142,7 +152,7 @@ class Dirichlet(LoadingBase):
         # assert type of time
         assert isinstance(time, (float, np.float64))
 
-        return self.tgv*self.GetAssembledReducedFieldAtTime()
+        return self.tgv*self.GetAssembledReducedFieldAtTime(time)
 
 
     def __getstate__(self):

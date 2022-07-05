@@ -1,4 +1,10 @@
 # -*- coding: utf-8 -*-
+#
+# This file is subject to the terms and conditions defined in
+# file 'LICENSE.txt', which is part of this source code package.
+#
+#
+
 
 from Mordicus.Core.IO.ExternalSolvingProcedure import ExternalSolvingProcedure
 from Mordicus import GetTestDataPath

@@ -1,4 +1,10 @@
 # -*- coding: utf-8 -*-
+#
+# This file is subject to the terms and conditions defined in
+# file 'LICENSE.txt', which is part of this source code package.
+#
+#
+
 import numpy as np
 import os
 from Mordicus.Modules.Safran.OperatorCompressors import Mechanical as Meca
@@ -44,6 +50,11 @@ def test():
     nbeOfComponentsDual = 6
 
 
+    print("PreCompressOperator...")
+    operatorPreCompressionData = Meca.PreCompressOperator(mesh)
+    print("...done")
+
+
     outputTimeSequence = solutionReader.ReadTimeSequenceFromSolutionFile()
 
 
@@ -81,13 +92,8 @@ def test():
 
     SP.CompressData(collectionProblemData, "evrcum", 1.e-6, compressSolutions = True)
 
-    print("PreCompressOperator...")
-    operatorPreCompressionData = Meca.PreCompressOperator(mesh)
-    print("...done")
-
     Meca.CompressOperator(collectionProblemData, operatorPreCompressionData, mesh, 1.e-5, listNameDualVarOutput = ["evrcum"], listNameDualVarGappyIndicesforECM = ["evrcum"], toleranceCompressSnapshotsForRedQuad = 1.e-5)
     Meca.CompressOperator(collectionProblemData, operatorPreCompressionData, mesh, 1.e-5, listNameDualVarOutput = ["evrcum"], listNameDualVarGappyIndicesforECM = ["evrcum"])
-
 
 
     print("CompressOperator done")
@@ -101,13 +107,12 @@ def test():
     #################################################################
 
     #collectionProblemData = SIO.LoadState("collectionProblemData")
-    operatorCompressionData = collectionProblemData.GetOperatorCompressionData()
+    operatorCompressionData = collectionProblemData.GetOperatorCompressionData("U")
 
     #snapshotCorrelationOperator = SIO.LoadState("snapshotCorrelationOperator")
     #operatorPreCompressionData = SIO.LoadState("operatorPreCompressionData")
 
     reducedOrderBases = collectionProblemData.GetReducedOrderBases()
-
 
     folder = GetTestDataPath() + "Zset/MecaSequential/"
 
@@ -135,10 +140,11 @@ def test():
 
     initialCondition.ReduceInitialSnapshot(reducedOrderBases, snapshotCorrelationOperator)
 
-    onlineCompressedSolution, onlineCompressionData = Meca.ComputeOnline(onlineProblemData, timeSequence, operatorCompressionData, 1.e-6)
 
+    onlineCompressedSolution = Meca.ComputeOnline(onlineProblemData, timeSequence, operatorCompressionData, 1.e-6)
+    onlineData = onlineProblemData.GetOnlineData("U")
 
-    onlineEvrcumCompressedSolution, gappyError = Meca.ReconstructDualQuantity('evrcum', operatorCompressionData, onlineCompressionData, timeSequence = list(onlineCompressedSolution.keys())[1:])
+    onlineEvrcumCompressedSolution, gappyError = Meca.ReconstructDualQuantity('evrcum', operatorCompressionData, onlineData, timeSequence = list(onlineCompressedSolution.keys())[1:])
 
 
     solutionEvrcumExact  = Solution.Solution("evrcum", 1, numberOfIntegrationPoints, primality = False)
@@ -179,26 +185,29 @@ def test():
         ROMErrorsU.append(relError)
 
 
-    assert np.max(ROMErrorsU) < 1.e-5, "!!! Regression detected !!! ROMErrors have become too large"
-    assert np.max(ROMErrorsEvrcum) < 1.e-5, "!!! Regression detected !!! ROMErrors have become too large"
+    assert np.max(ROMErrorsU) < 1.e-4, "!!! Regression detected !!! ROMErrors have become too large : np.max(ROMErrorsU) = " + str(np.max(ROMErrorsU))
+    assert np.max(ROMErrorsEvrcum) < 1.e-4, "!!! Regression detected !!! ROMErrors have become too large : np.max(ROMErrorsEvrcum) = " + str(np.max(ROMErrorsEvrcum))
 
 
     ##############
     # test LearnDualReconstruction
 
     onlineDualQuantityAtReducedIntegrationPoints = {}
-    onlineDualQuantityAtReducedIntegrationPoints["evrcum"] = Meca.GetOnlineDualQuantityAtReducedIntegrationPoints("evrcum", onlineCompressionData, timeSequence)
+    onlineDualQuantityAtReducedIntegrationPoints["evrcum"] = Meca.GetOnlineDualQuantityAtReducedIntegrationPoints("evrcum", onlineData, timeSequence)
 
-    reducedIntegrationPoints = operatorCompressionData["reducedIntegrationPoints"]
+    reducedIntegrationPoints = operatorCompressionData.GetReducedIntegrationPoints()
     Meca.LearnDualReconstruction(collectionProblemData, ["evrcum"], reducedIntegrationPoints, methodDualReconstruction= "MetaModel", timeSequenceForDualReconstruction = timeSequence, snapshotsAtReducedIntegrationPoints = onlineDualQuantityAtReducedIntegrationPoints)
     Meca.LearnDualReconstruction(collectionProblemData, ["evrcum"], reducedIntegrationPoints, methodDualReconstruction= "MetaModel", timeSequenceForDualReconstruction = timeSequence, snapshotsAtReducedIntegrationPoints = None)
     dualReconstructionData = Meca.LearnDualReconstruction(collectionProblemData, ["evrcum"], reducedIntegrationPoints, methodDualReconstruction= "MetaModel", timeSequenceForDualReconstruction = None, snapshotsAtReducedIntegrationPoints = None)
 
     ##############
 
-    operatorCompressionData["dualReconstructionData"] = dualReconstructionData
-    onlineEvrcumCompressedSolution, gappyError = Meca.ReconstructDualQuantity('evrcum', operatorCompressionData, onlineCompressionData, timeSequence = list(onlineCompressedSolution.keys())[1:])
+    operatorCompressionData.SetDualReconstructionData(dualReconstructionData)
 
+    onlineEvrcumCompressedSolution, gappyError = Meca.ReconstructDualQuantity('evrcum', operatorCompressionData, onlineData, timeSequence = list(onlineCompressedSolution.keys())[1:])
+
+
+    print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Elastic case")
 
     from Mordicus.Modules.Safran.Containers.ConstitutiveLaws import MecaUniformLinearElasticity as MULE
 
@@ -218,7 +227,8 @@ def test():
 
     elasConsitutiveLaw = inputReader.ConstructOneConstitutiveLaw("elas", 'ALLELEMENT')
     onlineProblemData.AddConstitutiveLaw(elasConsitutiveLaw)
-    onlineCompressedSolution = Meca.ComputeOnline(onlineProblemData, timeSequence, operatorCompressionData, 1.e-6, callback = callback)
+    onlineData = onlineProblemData.GetOnlineData("U")
+    onlineCompressedSolution = Meca.ComputeOnline(onlineProblemData, timeSequence, operatorCompressionData, 1.e-6, onlineData = onlineData, callback = callback)
 
     os.system("rm -rf collectionProblemData.pkl")
     os.system("rm -rf snapshotCorrelationOperator.pkl")

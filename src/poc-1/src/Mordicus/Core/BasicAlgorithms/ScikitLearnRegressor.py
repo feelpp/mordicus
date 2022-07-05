@@ -1,4 +1,10 @@
 # -*- coding: utf-8 -*-
+#
+# This file is subject to the terms and conditions defined in
+# file 'LICENSE.txt', which is part of this source code package.
+#
+#
+
 
 
 def GridSearchCVRegression(regressor, paramGrid, X, y):
@@ -7,10 +13,11 @@ def GridSearchCVRegression(regressor, paramGrid, X, y):
 
     Parameters
     ----------
-    regressor : objects satisfying the scikit-learn regressors API
+    regressor : object satisfying the scikit-learn regressors API
         input regressor to be fitted and optimized
-    paramGrid : float
-        the truncation tolerence, determining the number of keps eigenvalues
+    paramGrid : dict
+        of lists (of floats) containing hyperparameter values of the considered
+        regressor
     X : np.ndarray
         training data
     y : np.ndarray

@@ -1,3 +1,10 @@
+# -*- coding: utf-8 -*-
+#
+# This file is subject to the terms and conditions defined in
+# file 'LICENSE.txt', which is part of this source code package.
+#
+#
+
 from Mordicus.Modules.Safran.IO import ZsetMeshReader as ZMR
 from Mordicus.Modules.Safran.IO import ZsetSolutionReader as ZSR
 from Mordicus.Core.Containers import ProblemData as PD
@@ -31,7 +38,6 @@ def test():
     print("Mesh defined in " + meshFileName + " has been read")
 
 
-
     numberOfNodes = mesh.GetNumberOfNodes()
     numberOfIntegrationPoints = FT.ComputeNumberOfIntegrationPoints(mesh)
     nbeOfComponentsPrimal = 3
@@ -58,8 +64,7 @@ def test():
             solutionsDual[i].AddSnapshot(solutionReader.ReadSnapshotComponent(name, time, primality=False), time)
 
 
-
-    problemData = PD.ProblemData(folder)
+    problemData = PD.ProblemData("MecaSequential")
     problemData.AddSolution(solutionU)
     problemData.AddSolution(solutionSigma)
 
@@ -108,9 +113,8 @@ def test():
 
     print("compressionErrors =", compressionErrors)
 
-    Mechanical.CompressOperator(collectionProblemData, operatorPreCompressionData, \
-                                mesh, 1.e-5, listNameDualVarOutput = dualNames, \
-                                listNameDualVarGappyIndicesforECM = ["evrcum"])
+
+    Mechanical.CompressOperator(collectionProblemData, operatorPreCompressionData, mesh, 1.e-5, listNameDualVarOutput = dualNames, listNameDualVarGappyIndicesforECM = ["evrcum"])
 
 
     print("CompressOperator done")

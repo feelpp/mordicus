@@ -1,4 +1,10 @@
 # -*- coding: utf-8 -*-
+#
+# This file is subject to the terms and conditions defined in
+# file 'LICENSE.txt', which is part of this source code package.
+#
+#
+
 import os
 from mpi4py import MPI
 if MPI.COMM_WORLD.Get_size() > 1: # pragma: no cover
@@ -150,7 +156,7 @@ class TestMecaConstitutiveLaw(ConstitutiveLawBase):
         nbIntPoints = stran.shape[0]
 
         ddsdde = np.tile(self.constitutiveLawVariables['ddsdde'],(nbIntPoints, 1, 1))
-        stress = np.einsum('klm,kl->km', ddsdde, stran, optimize = True)
+        stress = np.einsum('klm,kl->km', ddsdde, stran + dstran, optimize = True)
 
         return ddsdde, stress, statev
 

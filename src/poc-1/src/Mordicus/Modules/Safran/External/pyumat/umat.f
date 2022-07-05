@@ -35,55 +35,55 @@ c     print *,'sig:',stress(1),stress(2),stress(3),stress(4)
       end                                                                                                                           
                                                                                                                                     
 c---------------------------------------------------------------------------- 
-      subroutine vumat(
-     1   nblock, ndir, nshr, nstatev, nfieldv, nprops, lanneal,
-     1   stepTime , totalTime , dt, cmname, coordMp , charLength ,
-     1   props, density,
-     1   strainInc , relSpinInc  ,
-     1   tempOld , stretchOld , defgradOld , fieldOld ,
-     1   stressOld , stateOld , enerInternOld  , enerInelasOld  ,
-     1   tempNew , stretchNew , defgradNew , fieldNew ,
-     1   stressNew , stateNew , enerInternNew  , enerInelasNew  )
-
+c      subroutine vumat(
+c     1   nblock, ndir, nshr, nstatev, nfieldv, nprops, lanneal,
+c     1   stepTime , totalTime , dt, cmname, coordMp , charLength ,
+c     1   props, density,
+c     1   strainInc , relSpinInc  ,
+c     1   tempOld , stretchOld , defgradOld , fieldOld ,
+c     1   stressOld , stateOld , enerInternOld  , enerInelasOld  ,
+c     1   tempNew , stretchNew , defgradNew , fieldNew ,
+c     1   stressNew , stateNew , enerInternNew  , enerInelasNew  )
 c
-c     Single precision version ONLY ! 
+cc
+cc     Single precision version ONLY ! 
+cc
+c      implicit real (a-h,o-z)
+c      parameter (j_sys_Dimension = 1)
+c      parameter ( m_vec_Length = 136 )
+c      parameter(i_ipm_sta = -6)
+c      character*5 m_ipm_Error
+c      parameter(m_ipm_Error='Error')
+c      parameter(m_ipm_Aborted=20)
 c
-      implicit real (a-h,o-z)
-      parameter (j_sys_Dimension = 1)
-      parameter ( m_vec_Length = 136 )
-      parameter(i_ipm_sta = -6)
-      character*5 m_ipm_Error
-      parameter(m_ipm_Error='Error')
-      parameter(m_ipm_Aborted=20)
-
-      dimension coordMp (nblock,*), charLength (nblock), props(nprops),
-     1   density(nblock), strainInc (nblock,ndir+nshr),
-     2   relSpinInc  (nblock,nshr), tempOld (nblock),
-     3   stretchOld (nblock,ndir+nshr),
-     4   defgradOld (nblock,ndir+nshr+nshr),
-     5   fieldOld (nblock,nfieldv), stressOld (nblock,ndir+nshr),
-     6   stateOld (nblock,nstatev), enerInternOld  (nblock),
-     7   enerInelasOld  (nblock), tempNew (nblock),
-     8   stretchNew (nblock,ndir+nshr),
-     9   defgradNew (nblock,ndir+nshr+nshr),
-     1   fieldNew (nblock,nfieldv),
-     1   stressNew (nblock,ndir+nshr), stateNew (nblock,nstatev),
-     2   enerInternNew  (nblock), enerInelasNew  (nblock)
-
-         character*8 cmname
-
-
-      call zmatexp(nblock,ndir,nshr,nstatev,nfieldv,nprops,lanneal,
-     1  stepTime , totalTime , dt, cmname, coordMp , charLength ,                                                                   
-     2  props, density,
-     3  strainInc , relSpinInc  ,
-     4  tempOld , stretchOld , defgradOld , fieldOld ,
-     5  stressOld , stateOld , enerInternOld  , enerInelasOld  ,
-     6  tempNew , stretchNew , defgradNew , fieldNew ,
-     7  stressNew , stateNew , enerInternNew  , enerInelasNew)
-                                                                                                                                    
-      return                                                                                                                        
-      end                                                                                                                           
+c      dimension coordMp (nblock,*), charLength (nblock), props(nprops),
+c     1   density(nblock), strainInc (nblock,ndir+nshr),
+c     2   relSpinInc  (nblock,nshr), tempOld (nblock),
+c     3   stretchOld (nblock,ndir+nshr),
+c     4   defgradOld (nblock,ndir+nshr+nshr),
+c     5   fieldOld (nblock,nfieldv), stressOld (nblock,ndir+nshr),
+c     6   stateOld (nblock,nstatev), enerInternOld  (nblock),
+c     7   enerInelasOld  (nblock), tempNew (nblock),
+c     8   stretchNew (nblock,ndir+nshr),
+c     9   defgradNew (nblock,ndir+nshr+nshr),
+c     1   fieldNew (nblock,nfieldv),
+c     1   stressNew (nblock,ndir+nshr), stateNew (nblock,nstatev),
+c     2   enerInternNew  (nblock), enerInelasNew  (nblock)
+c
+c         character*8 cmname
+c
+c
+c      call zmatexp(nblock,ndir,nshr,nstatev,nfieldv,nprops,lanneal,
+c     1  stepTime , totalTime , dt, cmname, coordMp , charLength ,                                                                   
+c     2  props, density,
+c     3  strainInc , relSpinInc  ,
+c     4  tempOld , stretchOld , defgradOld , fieldOld ,
+c     5  stressOld , stateOld , enerInternOld  , enerInelasOld  ,
+c     6  tempNew , stretchNew , defgradNew , fieldNew ,
+c     7  stressNew , stateNew , enerInternNew  , enerInelasNew)
+c                                                                                                                                    
+c      return                                                                                                                        
+c      end                                                                                                                           
 c----------------------------------------------------------------------------
       subroutine uexternaldb(
      1   lop, lrestart, time, dtime, kstep,kinc)

@@ -1,3 +1,10 @@
+# -*- coding: utf-8 -*-
+#
+# This file is subject to the terms and conditions defined in
+# file 'LICENSE.txt', which is part of this source code package.
+#
+#
+
 from Mordicus.Modules.Safran.IO import ZsetMeshReader as ZMR
 from Mordicus.Modules.Safran.IO import ZsetSolutionReader as ZSR
 from Mordicus.Core.Containers import ProblemData as PD
@@ -25,10 +32,8 @@ def test():
 
     collectionProblemData = CPD.CollectionProblemData()
 
-    collectionProblemData = CPD.CollectionProblemData()
-    collectionProblemData.AddVariabilityAxis('config',
-                                                str,
-                                                description="dummy variability")
+    collectionProblemData.AddVariabilityAxis('Text', float, quantities=('temperature', 'K'), description="this is Text")
+    collectionProblemData.AddVariabilityAxis('Tint', float, quantities=('temperature', 'K'), description="this is Tint")
 
 
     collectionProblemData.DefineQuantity(solutionName, "Temperature", "Celsius")
@@ -61,7 +66,9 @@ def test():
             problemData.AddParameter(np.array(parameters[i] + [t]), t)
 
         #collectionProblemData.AddProblemData(problemData, Text=parameters[i][0], Tint=parameters[i][1])
-        collectionProblemData.AddProblemData(problemData, config=folder)
+        #collectionProblemData.AddProblemData(problemData, config=folder)
+
+        collectionProblemData.AddProblemData(problemData, Text=parameters[i][0], Tint=parameters[i][1])
 
 
     print("Solutions have been read")
@@ -91,11 +98,7 @@ def test():
     paramGrids = {}
     paramGrids["TP"] = {'kernel__k1__k1__constant_value':[0.1, 1.], 'kernel__k1__k2__length_scale': [1., 3., 10.], 'kernel__k2__noise_level': [1., 2.]}
 
-    operatorCompressionInputData = (regressors, paramGrids)
-
-    Regression.CompressOperator(
-        collectionProblemData, [solutionName], operatorCompressionInputData
-    )
+    Regression.CompressOperator(collectionProblemData, regressors, paramGrids)
 
     SIO.SaveState("collectionProblemData", collectionProblemData)
 

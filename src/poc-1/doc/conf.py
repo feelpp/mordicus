@@ -14,14 +14,14 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-import sys, os
 
-
+import os, sys
 from Mordicus import __name__ as Mordicus__name__
 from Mordicus import __copyright__ as Mordicus__copyright__
 from Mordicus import __copyright_holder__ as Mordicus__copyright_holder__
 from Mordicus import __license__ as Mordicus__license__
 from Mordicus import __version__ as Mordicus__version__
+
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -41,18 +41,20 @@ sys.path.insert(0,os.path.abspath('../src/Mordicus'))
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-        'sphinx.ext.autodoc',
-        'sphinx.ext.autosummary',
-        'sphinx.ext.napoleon',
-        'sphinx.ext.viewcode']
+    'sphinx.ext.autodoc',
+    'sphinx.ext.napoleon',
+    'sphinx.ext.viewcode',
+    'sphinx.ext.autosummary',
+]
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path = []
+templates_path = ['_templates']
+#templates_path = []
+
+# generate autosummary even if no references
+autosummary_generate = False
 
 # The suffix(es) of source filenames.
-# You can specify multiple suffix as a list of string:
-#
-# source_suffix = ['.rst', '.md']
 source_suffix = '.rst'
 
 # The master toctree document.
@@ -60,7 +62,10 @@ master_doc = 'index'
 
 # General information about the project.
 project = Mordicus__name__
-copyright = Mordicus__copyright_holder__
+copyright = Mordicus__copyright__
+copyright_holder = Mordicus__copyright_holder__
+license = Mordicus__license__
+
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -83,6 +88,10 @@ language = None
 # This patterns also effect to html_static_path and html_extra_path
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
+nitpicky = True
+nitpick_ignore = [('', "Pygments lexer name 'ipython' is not known")]
+numfig = True
+
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = 'sphinx'
 
@@ -95,7 +104,9 @@ todo_include_todos = False
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'default'
+#html_theme = 'default'
+html_theme = 'sphinx_rtd_theme'
+html_title = 'Mordicus'
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
@@ -106,7 +117,16 @@ html_theme = 'default'
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = []
+html_static_path = ['_static']
+html_css_files = ['custom.css']
+
+html_logo = "_static/logo.png"
+html_theme_options = {
+    'logo_only': False,
+    'display_version': True,
+}
+
+
 
 # Custom sidebar templates, must be a dictionary that maps document names
 # to template names.
@@ -159,7 +179,6 @@ man_pages = [
      [Mordicus__copyright_holder__], 1)
 ]
 
-
 # -- Options for Texinfo output -------------------------------------------
 
 # Grouping the document tree into Texinfo files. List of tuples
@@ -171,25 +190,49 @@ texinfo_documents = [
      'Engineering'),
 ]
 
-# -- Options for napoleon extension
-autosummary_generate = []
+# If true, the current module name will be prepended to all description
+# unit titles (such as .. function::).
+add_module_names = False
 
-# -- Options for napoleon extension
-pass
+html_show_sourcelink = False
+
+#html_domain_indices = False
+#html_use_index = False
+
+##html_split_index = False
+
+
+
+#html_context = {
+#    'current_version': version,
+#    'versions': (
+#        (version, 'https://gitlab.pam-retd.fr/mordicus/mordicus'),
+#    )
+#}
+
 
 def run_apidoc(_):
     import sphinx.ext.apidoc
-    import os, sys
     #sys.path.append(os.path.join(os.path.dirname(__file__), '../src'))
     cur_dir = os.path.abspath(os.path.dirname(__file__))
     target_dir = os.path.join(cur_dir, '_source')
     module = os.path.join(cur_dir, '../src/Mordicus')
+    template_dir = os.path.join(cur_dir, templates_path[0])
 
-    sphinx.ext.apidoc.main(['-T', '-M', '-e', '-f', '-o', target_dir, module])
-    #main([None, '-T', '-M', '-e', '-f', '-o', target_dir, module])
+    sphinx.ext.apidoc.main(['-T', '-M', '-e', '-f', '-t', template_dir, '-o', target_dir, module])
     #main(['-o', target_dir, module])
+
+
+"""def setup(app):
+     from sphinx.util.texescape import tex_replacements
+     tex_replacements += [(u'?', u'$\\natural$'),
+                          (u'e', u'\=e'),
+                          (u'?', u'\quarternote'),
+                          (u'?', u'$\\uparrow$'),
+                          ]"""
 
 def setup(app):
     app.connect('builder-inited', run_apidoc)
+
 
 

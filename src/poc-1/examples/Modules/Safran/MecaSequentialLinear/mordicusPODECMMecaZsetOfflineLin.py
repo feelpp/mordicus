@@ -1,3 +1,10 @@
+# -*- coding: utf-8 -*-
+#
+# This file is subject to the terms and conditions defined in
+# file 'LICENSE.txt', which is part of this source code package.
+#
+#
+
 from Mordicus.Modules.Safran.IO import ZsetMeshReader as ZMR
 from Mordicus.Modules.Safran.IO import ZsetSolutionReader as ZSR
 from Mordicus.Core.Containers import ProblemData as PD
@@ -54,7 +61,6 @@ def test():
         solutionU.AddSnapshot(U, time)
         sigma = solutionReader.ReadSnapshot("sig", time, nbeOfComponentsDual, primality=False)
         solutionSigma.AddSnapshot(sigma, time)
-
 
 
     problemData = PD.ProblemData(folder)

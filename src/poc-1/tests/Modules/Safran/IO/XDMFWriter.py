@@ -1,4 +1,10 @@
 # -*- coding: utf-8 -*-
+#
+# This file is subject to the terms and conditions defined in
+# file 'LICENSE.txt', which is part of this source code package.
+#
+#
+
 import os
 import numpy as np
 from Mordicus.Modules.Safran.Containers.Meshes import BasicToolsUnstructuredMesh as BTUM
@@ -59,7 +65,7 @@ def test():
 
     XW.WriteReducedOrderBases(mesh, problemData, reducedOrderBases, 'XDMFWriter4')
 
-    #comparaison deactivated: the order of data in file dependends on the folder from which the script is run...
+    #comparison deactivated: the order of data in file dependends on the folder from which the script is run...
     """
     assert filecmp.cmp('XDMFWriter1.xmf', 'ref/XDMFWriter1.xmf', shallow=False) == True
     assert filecmp.cmp('XDMFWriter10.bin',  'ref/XDMFWriter10.bin', shallow=False) == True

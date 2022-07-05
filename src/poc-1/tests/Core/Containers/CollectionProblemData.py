@@ -1,4 +1,10 @@
 # -*- coding: utf-8 -*-
+#
+# This file is subject to the terms and conditions defined in
+# file 'LICENSE.txt', which is part of this source code package.
+#
+#
+
 
 import numpy as np
 import os
@@ -15,6 +21,7 @@ from Mordicus.Core.IO.ExternalSolvingProcedure import ExternalSolvingProcedure
 from Mordicus.Core.IO.SolutionReaderBase import SolutionReaderBase
 
 from Mordicus.Core.Containers.SolutionStructures.SolutionStructureBase import SolutionStructureBase
+from Mordicus.Core.Containers.OperatorCompressionData import OperatorCompressionDataBase as OCDB
 
 from Mordicus.Core.IO import StateIO as SIO
 from Mordicus.Modules.Safran.Containers.Loadings import Temperature as T
@@ -87,10 +94,11 @@ def test():
         pass
 
     assert collectionProblemData.GetReducedOrderBasisNumberOfModes("U") == 2
-    collectionProblemData.SetDataCompressionData("toto", 1.)
+    collectionProblemData.AddDataCompressionData("toto", 1.)
     assert collectionProblemData.GetDataCompressionData("toto") == 1.
-    collectionProblemData.SetOperatorCompressionData({"toto": np.array([1., 2.])})
-    collectionProblemData.GetOperatorCompressionData()
+    operatorCompressionData = OCDB.OperatorCompressionDataBase("titi")
+    collectionProblemData.AddOperatorCompressionData(operatorCompressionData)
+    assert id(collectionProblemData.GetOperatorCompressionData("titi")) == id(operatorCompressionData)
 
     projectedReducedOrderBasis = collectionProblemData.ComputeReducedOrderBasisProjection("U", np.ones((3, 20)))
     np.testing.assert_almost_equal(projectedReducedOrderBasis, 20.*np.ones((3, 2)))

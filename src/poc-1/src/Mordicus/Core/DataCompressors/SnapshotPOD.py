@@ -1,4 +1,10 @@
 # -*- coding: utf-8 -*-
+#
+# This file is subject to the terms and conditions defined in
+# file 'LICENSE.txt', which is part of this source code package.
+#
+#
+
 import os
 from mpi4py import MPI
 if MPI.COMM_WORLD.Get_size() > 1: # pragma: no cover
@@ -17,7 +23,10 @@ def ComputeReducedOrderBasisFromCollectionProblemData(
     collectionProblemData, solutionName, tolerance, snapshotCorrelationOperator = None
 ):
     """
-    Computes a reducedOrderBasis using the SnapshotPOD algorithm, from the snapshots contained in the solutions of name "solutionName" from all problemDatas in collectionProblemData, with tolerance as target accuracy of the data compression
+    Computes a reducedOrderBasis using the SnapshotPOD algorithm, from the
+    snapshots contained in the solutions of name "solutionName" from all
+    problemDatas in collectionProblemData, with tolerance as target accuracy of
+    the data compression
 
     Parameters
     ----------
@@ -27,7 +36,7 @@ def ComputeReducedOrderBasisFromCollectionProblemData(
         name of the solutions from which snapshots are taken
     tolerance : float
         target accuracy of the data compression
-    snapshotCorrelationOperator : scipy.sparse.csr, optional
+    snapshotCorrelationOperator : scipy.sparse.csr_matrix, optional
         correlation operator between the snapshots
 
     Returns
@@ -47,7 +56,11 @@ def ComputeReducedOrderBasisFromCollectionProblemData(
 
 def ComputeReducedOrderBasis(snapshotsIterator, snapshotCorrelationOperator, tolerance):
     """
-    Computes a reducedOrderBasis using the SnapshotPOD algorithm, from the snapshots contained in the iterator  snapshotsIterator, which a correlation operator between the snapshots defined by the matrix snapshotCorrelationOperator, with tolerance as target accuracy of the data compression
+    Computes a reducedOrderBasis using the SnapshotPOD algorithm, from the
+    snapshots contained in the iterator snapshotsIterator, which a correlation
+    operator between the snapshots defined by the matrix
+    snapshotCorrelationOperator, with tolerance as target accuracy of the data
+    compression
 
     Parameters
     ----------

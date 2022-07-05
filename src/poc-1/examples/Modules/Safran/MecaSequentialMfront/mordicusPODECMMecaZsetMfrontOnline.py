@@ -1,3 +1,10 @@
+# -*- coding: utf-8 -*-
+#
+# This file is subject to the terms and conditions defined in
+# file 'LICENSE.txt', which is part of this source code package.
+#
+#
+
 from Mordicus.Modules.Safran.IO import ZsetInputReader as ZIR
 from Mordicus.Modules.Safran.IO import ZsetMeshReader as ZMR
 from Mordicus.Modules.Safran.IO import ZsetSolutionReader as ZSR
@@ -26,10 +33,9 @@ def run():
 
     collectionProblemData = SIO.LoadState("collectionProblemData")
 
-    operatorCompressionData = collectionProblemData.GetOperatorCompressionData()
     snapshotCorrelationOperator = SIO.LoadState("snapshotCorrelationOperator")
 
-    operatorCompressionData = collectionProblemData.GetOperatorCompressionData()
+    operatorCompressionData = collectionProblemData.GetOperatorCompressionData("U")
     reducedOrderBases = collectionProblemData.GetReducedOrderBases()
 
 
@@ -55,7 +61,8 @@ def run():
     MfrontLaw = MCL.MfrontConstitutiveLaw("ALLELEMENT")
     MfrontLaw.SetDensity(1.e-8)
     internalVariables = ['eel11', 'eel22', 'eel33', 'eel12', 'eel23', 'eel31', 'epcum']
-    nRedIntegPoints = len(operatorCompressionData['reducedIntegrationPoints'])
+    nRedIntegPoints = operatorCompressionData.GetNumberOfReducedIntegrationPoints()
+
 
     if os.path.isfile(folder+'src/libBehaviour.so') == False:
         import subprocess
@@ -83,9 +90,9 @@ def run():
 
     import time
     start = time.time()
-    onlineCompressedSolution, onlineCompressionData = Meca.ComputeOnline(onlineProblemData, timeSequence, operatorCompressionData, 1.e-8)
+    onlineCompressedSolution = Meca.ComputeOnline(onlineProblemData, timeSequence, operatorCompressionData, 1.e-8)
     print(">>>> DURATION ONLINE =", time.time() - start)
-
+    onlineData = onlineProblemData.GetOnlineData("U")
 
 
     numberOfIntegrationPoints = FT.ComputeNumberOfIntegrationPoints(mesh)
@@ -96,7 +103,7 @@ def run():
     for name in dualNames:
         solutionsDual = S.Solution(name, 1, numberOfIntegrationPoints, primality = False)
 
-        onlineDualCompressedSolution, errorGappy = Meca.ReconstructDualQuantity(name, operatorCompressionData, onlineCompressionData, timeSequence = list(onlineCompressedSolution.keys()))
+        onlineDualCompressedSolution, errorGappy = Meca.ReconstructDualQuantity(name, operatorCompressionData, onlineData, timeSequence = list(onlineCompressedSolution.keys()))
 
         solutionsDual.SetCompressedSnapshots(onlineDualCompressedSolution)
 
@@ -157,7 +164,7 @@ def run():
     print("ROMErrors U =", ROMErrorsU)
     print("ROMErrors epcum =", ROMErrorsepcum)
 
-    PW.WritePXDMF(mesh, onlineCompressedSolution, reducedOrderBases["U"], "U")
+    PW.WriteCompressedSolution(mesh, onlineCompressedSolution, reducedOrderBases["U"], "U")
     print("The compressed solution has been written in PXDMF Format")
 
     onlineProblemData.AddSolution(solutionUApprox)

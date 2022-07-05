@@ -20,8 +20,8 @@
 
     python minversion  3.6
     Dependencies :
-      - pytest pytest-cov mpi4py appdirs scikit-learn
-      - BasicTools, and its dependencies : numpy scipy scikit-sparse vtk sympy pyamg h5py pyparsing Cython sphinx setuptools
+    - pytest pytest-cov mpi4py appdirs scikit-learn
+    - BasicTools, and its dependencies : numpy scipy scikit-sparse vtk sympy pyamg h5py pyparsing Cython sphinx setuptools
 
     during developement, pylint and black where used
 
@@ -34,7 +34,7 @@
     conda env update
 
 
-    When using a cluster with optimized mpi already installed, do not install mpi4py from conda, but using « pip install mpi4py » (having loaded the optimized mpi beforehand: "which mpicc" should point to something). Deleting the pip cache can help (rm -rf ~/.cache/pip)
+    When using a cluster with optimized mpi already installed, do not install mpi4py from conda, but using « pip install mpi4py » (having loaded the optimized mpi beforehand: "which mpicc" should point to something). Deleting the pip cache can help (rm -rf ~/.cache/pip)
     Check also https://conda-forge.org/docs/user/tipsandtricks.html#using-external-message-passing-interface-mpi-libraries
 
 
