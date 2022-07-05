@@ -2,7 +2,7 @@ from Mordicus.Modules.Cemosis.Containers.Meshes import FeelppUnstructuredMesh as
 import feelpp
 import sys
 
-def test_feelpp_unstructuredmesh(init_feelpp):
+def test_feelpp_unstructuredmesh(feelpp_environment):
 
     m = feelpp.load(feelpp.mesh(dim=2),"",5)
     mesh = FM.FeelppUnstructuredMesh(m)

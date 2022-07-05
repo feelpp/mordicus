@@ -122,4 +122,4 @@ bash "{inputRootFolder}/{inputMainFile}"
 
 
 if __name__ == "__main__":
-    print(test())  # pragma: no cover
+    print(test_visitor())  # pragma: no cover
