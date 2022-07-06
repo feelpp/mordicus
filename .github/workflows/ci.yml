@@ -69,6 +69,41 @@ jobs:
         # Directory containing files to upload
         path: build/install/assets/mordicus-*
 
+  build-docker:
+    runs-on: ubuntu-20.04
+    if: "!contains(github.event.head_commit.message, 'ci skip')"
+    container: ghcr.io/feelpp/feelpp-dev:focal
+    name: Check Build, Install, Run on Docker
+    steps:
+    - uses: actions/checkout@v2
+    - name: Configure Mordicus
+      run: |
+        ls -lrt
+        cmake --version
+        cmake --preset install
+    - name: Build Mordicus
+      run:  cmake --build --preset install
+    - name: Add Python Dependencies
+      run: |
+        pip install --upgrade pip
+        pip install -r ./src/poc-1/requirements.txt
+    - name: Add PYTHONPATH
+      run: |
+        echo "PYTHONPATH=$GITHUB_WORKSPACE/src/poc-1/src/:$HOME/.local/lib/python3.8/site-packages/" >> $GITHUB_ENV
+        ls -lrt src/poc-1/src
+        echo $GITHUB_WORKSPACE
+        ls $GITHUB_WORKSPACE/src/poc-1/src
+    - name: Run PyTest
+      run: $HOME/.local/bin/pytest --ignore Modules/Safran
+      working-directory: src/poc-1/tests
+    - name: Run Mordicus Core Coverage
+      run: |
+        echo '... NonRegression tests on Core ended'
+        mkdir -p pages/coverageReportCore
+        echo 'Starting coverage report on Core...'
+        $HOME/.local/bin/pytest --cov=../../src/Mordicus/Core --cov-report=html:../../../../pages/coverageReportCore && cd -
+      working-directory: src/poc-1/tests/Core
+
   deliver:
     runs-on: ubuntu-20.04
     needs: build
