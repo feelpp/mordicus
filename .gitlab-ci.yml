@@ -129,7 +129,6 @@ feelpp:
     - pip3 install --upgrade pip
     - pip3 install -r ./src/poc-1/requirements.txt
     - export PYTHONPATH=$PWD/src/poc-1/src:$PYTHONPATH
-    - export PYTHONPATH=$PWD/../basic-tools/src:$PYTHONPATH
   script:
     - cmake --preset install
     - cmake --build --preset install
