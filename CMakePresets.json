@@ -63,7 +63,7 @@
             "generator": "Unix Makefiles",
             "binaryDir": "${sourceDir}/build/mingw",
             "cacheVariables": {
-                "CMAKE_INSTALL_PREFIX": "${sourceDir}/install/",
+                "CMAKE_INSTALL_PREFIX": "~/.local/",
                 "CMAKE_CXX_FLAGS":"-Wall -Wextra -D_GLIBCXX_ASSERTIONS",
                 "PYTHON_EXECUTABLE":"/usr/bin/x86_64-w64-mingw32-python39-bin",
                 "PYTHON_INCLUDE_DIR":"/usr/x86_64-w64-mingw32/include/python39",
