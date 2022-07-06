@@ -116,7 +116,7 @@ cpp-mingw:
 feelpp:
   allow_failure: true
   stage: test
-  image: python3.8
+  image: python:3.8
   before_script:
     - apt-get update
     - apt-get -y install apt-transport-https ca-certificates gnupg software-properties-common wget
