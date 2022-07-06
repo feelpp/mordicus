@@ -104,7 +104,7 @@ cpp-mingw:
     - aurman -S mingw-w64-pybind11 --noedit --noconfirm
   script:
     - x86_64-w64-mingw32-cmake --preset mingw
-    - cmake --build --preset mingw all
+    - cmake --build --preset mingw 
     - ctest --preset mingw
 
 #    - CXXFLAGS="-Wall -Wextra -D_GLIBCXX_ASSERTIONS" x86_64-w64-mingw32-cmake -DCMAKE_INSTALL_PREFIX=~/.local -DPYTHON_EXECUTABLE=/usr/bin/x86_64-w64-mingw32-python39-bin -DPYTHON_INCLUDE_DIR=/usr/x86_64-w64-mingw32/include/python39 -DPYTHON_LIBRARY=/usr/x86_64-w64-mingw32/lib/libpython39.dll.a src/cpp
@@ -116,7 +116,7 @@ cpp-mingw:
 feelpp:
   allow_failure: true
   stage: test
-  image: ghcr.io/feelpp/feelpp-dev:focal
+  image: ghcr.io/feelpp/feelpp-dev:bullseye
   before_script:
     - sudo apt-get update 
     - sudo apt-get -y install python3-pip python3-venv gcc python3-dev libopenmpi-dev make python3-lxml

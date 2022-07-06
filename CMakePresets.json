@@ -105,9 +105,8 @@
             "configurePreset": "mingw",
             "inherits": "default",
             "targets": [
-                "all",
-                "install",
-                "package"
+                " t_scimesh",
+                "mordicus_python"
             ]
         }
     ],
