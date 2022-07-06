@@ -121,6 +121,8 @@ feelpp:
     - sudo apt-get update 
     - sudo apt-get -y install python3-pip python3-venv gcc python3-dev libopenmpi-dev make python3-lxml
     - pip3 install --upgrade pip
+    - python3 -m venv venv
+    - source venv/bin/activate
     - pip3 install -r ./src/poc-1/requirements.txt
     - export PYTHONPATH=$PWD/src/poc-1/src:$PYTHONPATH
     - export PYTHONPATH=$PWD/../basic-tools/src:$PYTHONPATH
