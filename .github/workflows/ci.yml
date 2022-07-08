@@ -72,36 +72,49 @@ jobs:
   build-docker:
     runs-on: ubuntu-20.04
     if: "!contains(github.event.head_commit.message, 'ci skip')"
-    container: ghcr.io/feelpp/feelpp-dev:focal
+    container: python:3.9
     name: Check Build, Install, Run on Docker
     steps:
     - uses: actions/checkout@v2
+    - name: Install Mordicus C++
+      run: |
+        apt-get update
+        apt-get -y install apt-transport-https ca-certificates gnupg software-properties-common wget
+        add-apt-repository  'deb [trusted=yes] http://apt.feelpp.org/debian/bullseye bullseye latest' && add-apt-repository  'deb http://deb.debian.org/debian bullseye-backports main'
+        wget -O - http://apt.feelpp.org/apt.gpg | apt-key add - && apt-get update 
+        apt-get -y install python3-pip python3-venv gcc clang python3-dev libopenmpi-dev make libeigen3-dev python3-lxml python3-feelpp 
+        apt-get -y install -t bullseye-backports  cmake
     - name: Configure Mordicus
       run: |
         ls -lrt
         cmake --version
         cmake --preset install
-    - name: Build Mordicus
+        cmake --build --preset install
+        ctest --preset install
+    - name: Build Mordicus C++
       run:  cmake --build --preset install
-    - name: Add Python Dependencies
+
+    - name: Test Mordicus C++
+      run:  ctest --preset install
+    - name: Install Mordicus Python Dependencies
       run: |
         pip install --upgrade pip
         pip install -r ./src/poc-1/requirements.txt
-    - name: Add PYTHONPATH
+    - name: Configure Mordicus Python
       run: |
-        echo "PYTHONPATH=$GITHUB_WORKSPACE/src/poc-1/src/:$HOME/.local/lib/python3.8/site-packages/" >> $GITHUB_ENV
+        echo "PYTHONPATH=$GITHUB_WORKSPACE/src/poc-1/src/:$PYTHONPATH" >> $GITHUB_ENV
         ls -lrt src/poc-1/src
         echo $GITHUB_WORKSPACE
         ls $GITHUB_WORKSPACE/src/poc-1/src
-    - name: Run PyTest
-      run: $HOME/.local/bin/pytest --ignore Modules/Safran
+    - name: Test Mordicus Python
+      run: pytest --ignore Modules/Safran
       working-directory: src/poc-1/tests
     - name: Run Mordicus Core Coverage
       run: |
         echo '... NonRegression tests on Core ended'
         mkdir -p pages/coverageReportCore
         echo 'Starting coverage report on Core...'
-        $HOME/.local/bin/pytest --cov=../../src/Mordicus/Core --cov-report=html:../../../../pages/coverageReportCore && cd -
+        pytest --cov=../../src/Mordicus/Core --cov-report=html:../../../../pages/coverageReportCore && cd -
       working-directory: src/poc-1/tests/Core
 
   deliver:
