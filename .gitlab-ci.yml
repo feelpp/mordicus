@@ -106,8 +106,8 @@ cpp-mingw:
     - mkdir build && cd build
     - CXXFLAGS="-Wall -Wextra -D_GLIBCXX_ASSERTIONS" x86_64-w64-mingw32-cmake -DCMAKE_INSTALL_PREFIX=~/.local -DPYTHON_EXECUTABLE=/usr/bin/x86_64-w64-mingw32-python39-bin -DPYTHON_INCLUDE_DIR=/usr/x86_64-w64-mingw32/include/python39 -DPYTHON_LIBRARY=/usr/x86_64-w64-mingw32/lib/libpython39.dll.a ..
     - make install -j4
-    - cp ~/.local/bin/*.dll lib/test
-    - cp ~/.local/bin/*.dll python/src
+    - cp ~/.local/bin/*.dll src/cpp/lib/test
+    - cp ~/.local/bin/*.dll src/cpp/python/src
     - ctest -j4 --output-on-failure --timeout 100
 
 #    - CXXFLAGS="-Wall -Wextra -D_GLIBCXX_ASSERTIONS" x86_64-w64-mingw32-cmake -DCMAKE_INSTALL_PREFIX=~/.local -DPYTHON_EXECUTABLE=/usr/bin/x86_64-w64-mingw32-python39-bin -DPYTHON_INCLUDE_DIR=/usr/x86_64-w64-mingw32/include/python39 -DPYTHON_LIBRARY=/usr/x86_64-w64-mingw32/lib/libpython39.dll.a src/cpp
