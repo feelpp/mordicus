@@ -9,7 +9,6 @@ import numpy as np
 import pytest
 from Mordicus.Core.BasicAlgorithms import ScikitLearnRegressor as SLR
 
-@pytest.mark.skip(reason="currently fails")
 def test_ScikitLearnRegressor():
 
     from sklearn.gaussian_process.kernels import WhiteKernel, RBF, ConstantKernel

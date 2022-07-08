@@ -12,7 +12,6 @@ from Mordicus.Core.Containers import CollectionProblemData
 from Mordicus.Core.Containers import Solution
 from Mordicus.Core.DataCompressors import SnapshotPOD as SP
 
-@pytest.mark.skip(reason="currently fails")
 def test_operator_compressor():
 
     numberOfNodes = 20
