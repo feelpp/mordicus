@@ -72,7 +72,10 @@ jobs:
   build-docker:
     runs-on: ubuntu-20.04
     if: "!contains(github.event.head_commit.message, 'ci skip')"
-    container: python:3.9
+    container: python:${{ python-version }}
+    strategy:
+      matrix:
+        python-version: ["3.8", "3.9", "3.10"]
     name: Check Build, Install, Run on Docker
     steps:
     - uses: actions/checkout@v2
