@@ -71,7 +71,7 @@ with open( os.path.join(here, "requirements.txt")) as fid:
                 if reqs[1].startswith( "python_version" ):
                     if StrictVersion(reqs[1].split(">")[1])>StrictVersion(python_version):
                         add_req=False
-            pname = reqs[0].split("#egg=")[1]
+            pname = reqs[0].split("#egg=")[1].replace("\"","")
             req_line = "{} @ {}".format( pname, reqs[0][3:] )
             requirements.append( req_line )
         else:
