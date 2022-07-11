@@ -54,6 +54,10 @@ else:
 
 here = os.path.abspath( os.path.dirname(__file__))
 
+from distutils.version import StrictVersion   
+import sys
+python_version=f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}"
+
 requirements = []
 with open( os.path.join(here, "requirements.txt")) as fid:
     content = fid.read().split("\n")
@@ -61,8 +65,14 @@ with open( os.path.join(here, "requirements.txt")) as fid:
         if line.startswith( "#" ) or line.startswith( " " ) or line=="":
             continue
         elif line.startswith( "-e" ):
-            pname = line.split("#egg=")[1]
-            req_line = "{} @ {}".format( pname, line[3:] )
+            reqs=line.split(";")
+            add_req=True
+            if len(reqs)>1:
+                if reqs[1].startswith( "python_version" ):
+                    if StrictVersion(reqs[1].split(">")[1])>StrictVersion(python_version):
+                        add_req=False
+            pname = reqs[0].split("#egg=")[1]
+            req_line = "{} @ {}".format( pname, reqs[0][3:] )
             requirements.append( req_line )
         else:
             requirements.append( line )
