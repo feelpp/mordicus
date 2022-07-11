@@ -44,6 +44,7 @@ jobs:
     - name: Add Python Dependencies
       run: |
         pip install --upgrade pip
+        pip install jschon
         pip install -r ./src/poc-1/requirements.txt
     - name: Add PYTHONPATH
       run: |
@@ -75,7 +76,7 @@ jobs:
     container: python:${{ matrix.python-version }}
     strategy:
       matrix:
-        python-version: ["3.8", "3.9"]
+        python-version: ["3.7", "3.8", "3.9"]
     name: Check Build, Install, Run on Docker
     steps:
     - uses: actions/checkout@v2
