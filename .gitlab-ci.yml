@@ -122,7 +122,7 @@ feelpp:
   image: python:${PYTHON_VERSION}
   parallel: 
     matrix: 
-      - PYTHON_VERSION: ["3.7","3.8","3.9"]
+      - PYTHON_VERSION: ["3.8","3.9"]
   before_script:
     - apt-get update
     - apt-get -y install apt-transport-https ca-certificates gnupg software-properties-common wget
