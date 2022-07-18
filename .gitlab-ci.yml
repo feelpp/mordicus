@@ -103,9 +103,12 @@ cpp-mingw:
   before_script:
     - aurman -S mingw-w64-pybind11 --noedit --noconfirm
   script:
-    - x86_64-w64-mingw32-cmake --preset mingw
-    - cmake --build --preset mingw 
-    - ctest --preset mingw
+    - mkdir build && cd build
+    - CXXFLAGS="-Wall -Wextra -D_GLIBCXX_ASSERTIONS" x86_64-w64-mingw32-cmake -DCMAKE_INSTALL_PREFIX=~/.local -DPYTHON_EXECUTABLE=/usr/bin/x86_64-w64-mingw32-python39-bin -DPYTHON_INCLUDE_DIR=/usr/x86_64-w64-mingw32/include/python39 -DPYTHON_LIBRARY=/usr/x86_64-w64-mingw32/lib/libpython39.dll.a ..
+    - make install -j4
+    - cp ~/.local/bin/*.dll src/cpp/lib/test
+    - cp ~/.local/bin/*.dll src/cpp/python/src
+    - ctest -j4 --output-on-failure --timeout 100
 
 #    - CXXFLAGS="-Wall -Wextra -D_GLIBCXX_ASSERTIONS" x86_64-w64-mingw32-cmake -DCMAKE_INSTALL_PREFIX=~/.local -DPYTHON_EXECUTABLE=/usr/bin/x86_64-w64-mingw32-python39-bin -DPYTHON_INCLUDE_DIR=/usr/x86_64-w64-mingw32/include/python39 -DPYTHON_LIBRARY=/usr/x86_64-w64-mingw32/lib/libpython39.dll.a src/cpp
 #    - make install -j4
@@ -119,7 +122,7 @@ feelpp:
   image: python:${PYTHON_VERSION}
   parallel: 
     matrix: 
-      - PYTHON_VERSION: ["3.9"]
+      - PYTHON_VERSION: ["3.8","3.9"]
   before_script:
     - apt-get update
     - apt-get -y install apt-transport-https ca-certificates gnupg software-properties-common wget
@@ -129,7 +132,7 @@ feelpp:
     - apt-get -y install -t bullseye-backports  cmake
     - pip install --upgrade pip
     - pip install -r ./src/poc-1/requirements.txt
-    - export PYTHONPATH=$PWD/src/poc-1/src:/usr/local/lib/python3.9/site-packages/:$PYTHONPATH
+    - export PYTHONPATH=$PWD/src/poc-1/src:/usr/local/lib/python${PYTHON_VERSION}/site-packages/:$PYTHONPATH
   script:
     - cmake --preset install
     - cmake --build --preset install
