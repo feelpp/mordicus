@@ -17,8 +17,8 @@ def test():
     folder = "computation1/"
     mesh_file_name = folder + "heat.mesh.msh"
     solution_file_name = folder + "temperature"
-
-    mesh_reader = FMR.FeelppMeshReader(mesh_file_name)
+    dim = 2
+    mesh_reader = FMR.FeelppMeshReader(mesh_file_name, dim)
     mesh = mesh_reader.ReadMesh()
 
     Xh = feelpp.functionSpace(mesh.GetInternalStorage(), "Pch", 1)
@@ -42,7 +42,7 @@ def test():
         + str(collectionProblemData.GetProblemSampling())
         + " has been constructed"
     )
-
+    
     reducedOrderBasis = SnapshotPOD.ComputeReducedOrderBasisFromCollectionProblemData(collectionProblemData, "T", 1.e-8)
     collectionProblemData.AddReducedOrderBasis("T", reducedOrderBasis)
     print("A reduced order basis has been computed has been constructed using SnapshotPOD")
