@@ -25,7 +25,8 @@ def test():
 
     meshFileName = folder+"opusheat.geo"
     print(meshFileName)
-    meshReader = FMR.FeelppMeshReader(meshFileName, h=0.001)
+    dim = 2
+    meshReader = FMR.FeelppMeshReader(meshFileName,dim, h=0.001)
     mesh = meshReader.ReadMesh()
     print("Mesh defined in " + meshFileName + " has been read")
     
