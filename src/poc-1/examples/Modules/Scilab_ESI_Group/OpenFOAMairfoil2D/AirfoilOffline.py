@@ -27,8 +27,8 @@ def test():
     ####################################################
     collectionProblemData = CPD.CollectionProblemData()
     # ADD? DOE = SCENARIO1 SCENARIO2 ... SCENARIO10
-    collectionProblemData.addVariabilityAxis('mu1',float,description="my_parameter")
-    collectionProblemData.defineQuantity("P", full_name="pressure", unit="Pa")
+    collectionProblemData.AddVariabilityAxis('mu1',float,description="my_parameter")
+    collectionProblemData.DefineQuantity("P", full_name="pressure", unit="Pa")
 
     nbOfComp = 1
     nbOfNodes = 10906
