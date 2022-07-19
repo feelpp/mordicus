@@ -63,10 +63,10 @@ def test():
     problemData.AddSolution(solutionEvcum)
 
     collectionProblemData = CPD.CollectionProblemData()
-    collectionProblemData.addVariabilityAxis("config", str)
-    collectionProblemData.defineQuantity("U", "displacement", "m")
-    collectionProblemData.defineQuantity("sigma", "Cauchy stress", "Pa")
-    collectionProblemData.defineQuantity("evcum", "Cumulated plastic strain", "none")
+    collectionProblemData.AddVariabilityAxis("config", str)
+    collectionProblemData.DefineQuantity("U", "displacement", "m")
+    collectionProblemData.DefineQuantity("sigma", "Cauchy stress", "Pa")
+    collectionProblemData.DefineQuantity("evcum", "Cumulated plastic strain", "none")
 
 
     collectionProblemData.AddProblemData(problemData, config="case-1")
