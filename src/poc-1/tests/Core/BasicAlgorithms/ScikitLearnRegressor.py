@@ -37,4 +37,4 @@ def test_ScikitLearnRegressor():
 
 
 if __name__ == "__main__":
-    print(test())  # pragma: no cover
+    print(test_ScikitLearnRegressor())  # pragma: no cover
