@@ -16,5 +16,5 @@ lxml
 jschon>=0.8.5
 spdlog
 gmsh
--e git+https://gitlab.com/drti/basic-tools.git@v1.6#egg=basictools 
+# -e git+https://gitlab.com/drti/basic-tools.git@v1.6#egg=basictools 
 #-e git+https://gitlab.com/drti/basic-tools.git@v1.6#egg="basictools"; python_version < '3.10'
