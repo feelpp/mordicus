@@ -3,6 +3,7 @@
 :cpp: C++
 // # :toc: macro
 :toclevels: 2
+:toc: macro
 :stem: latexmath
 :uri-rel-file-base: link:
 :uri-rel-tree-base: link:
@@ -54,6 +55,8 @@ endif::[]
 
 A project by **Safran Tech**, **EDF**, **Mines Paris Tech**, **CADLM**, **CT Ingénierie**, **Transvalor SA**, **Scilab Enterprises**, **Phiméca**, **Cemosis**, **Sorbonnes Universités**.
 
+toc::[]
+
 == Requirements
 
 === Python
@@ -88,6 +91,21 @@ sudo add-apt-repository  'deb http://deb.debian.org/debian bullseye-backports ma
 sudo apt-get -y install -t bullseye-backports  cmake
 ----
 
+
+==== (Optional) {feelpp}
+
+.install on a bullseye machine (see link:https://docs.feelpp.org/user/latest/install/index.html[{feelpp} docs] for other options )
+[source,shell]
+----
+add-apt-repository  'deb [trusted=yes] http://apt.feelpp.org/debian/bullseye bullseye latest'
+wget -O - http://apt.feelpp.org/apt.gpg | apt-key add - && apt-get update 
+apt -y install python3-feelpp 
+----
+
+=== Configure, Compile and Tests
+
+The following procedure is used to build the project:
+
 .Configure, compile and tests the {cpp} and Python codes
 [source,shell]
 ----
@@ -101,14 +119,17 @@ cd src/poc-1/tests && pytest --ignore Modules/Safran <4>
 <3> run ctest with `install` preset
 <4> run pytest 
 
+=== Packaging
 
-==== (Optional) {feelpp}
-
-.install on a bullseye machine (see link:https://docs.feelpp.org/user/latest/install/index.html[{feelpp} docs] for other options )
+.Create a tgz tarball
 [source,shell]
 ----
-add-apt-repository  'deb [trusted=yes] http://apt.feelpp.org/debian/bullseye bullseye latest'
-wget -O - http://apt.feelpp.org/apt.gpg | apt-key add - && apt-get update 
-apt -y install python3-feelpp 
+cmake --build --preset install package_source
 ----
 
+
+.Create a deb package
+[source,shell]
+----
+cmake --build --preset install package
+----
