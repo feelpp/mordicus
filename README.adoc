@@ -49,7 +49,66 @@ image:https://img.shields.io/github/repo-size/feelpp/mordicus?color=009688&style
 image:https://img.shields.io/badge/python-3.8|3.9-blue?&logo=python&logoColor=yellow[]
 endif::[]
 
-Mordicus
-========
+= Mordicus
+
 
 A project by **Safran Tech**, **EDF**, **Mines Paris Tech**, **CADLM**, **CT Ingénierie**, **Transvalor SA**, **Scilab Enterprises**, **Phiméca**, **Cemosis**, **Sorbonnes Universités**.
+
+== Requirements
+
+=== Python
+
+- cmake >= 3.21 (to enable cmake presets)
+- python 3.8 or 3.9
+- pip
+
+[source,sh]
+----
+pip -r src/poc-1/requirements.txt
+export PYTHONPATH=$PWD/src/poc-1/src:$HOME/.local/lib/python3.8/site-packages:$PYTHONPATH
+----
+
+=== {cpp}
+
+- cmake
+- g++ or clang
+- python3.8 or 3.9 python3-dev
+- pybind11
+- [optional] {feelpp}
+- [optional] openturns
+- [optional] basictools
+
+.Install the following packages for Python and {cpp} on Debian/bullseye:
+[source,sh]
+----
+sudo apt-get -y install apt-transport-https ca-certificates gnupg software-properties-common wget
+sudo apt-get install cmake g++ python3-dev python3-pip python3-pybind11
+apt-get -y install python3-pip python3-venv gcc clang python3-dev libopenmpi-dev make libeigen3-dev python3-lxml 
+sudo add-apt-repository  'deb http://deb.debian.org/debian bullseye-backports main'
+sudo apt-get -y install -t bullseye-backports  cmake
+----
+
+.Configure, compile and tests the {cpp} and Python codes
+[source,shell]
+----
+cmake --preset install <1>
+cmake --build --preset install <2>
+ctest --preset install <3>
+cd src/poc-1/tests && pytest --ignore Modules/Safran <4>
+----
+<1> configure cmake with `install` preset
+<2> build the project with `install` preset
+<3> run ctest with `install` preset
+<4> run pytest 
+
+
+==== (Optional) {feelpp}
+
+.install on a bullseye machine (see link:https://docs.feelpp.org/user/latest/install/index.html[{feelpp} docs] for other options )
+[source,shell]
+----
+add-apt-repository  'deb [trusted=yes] http://apt.feelpp.org/debian/bullseye bullseye latest'
+wget -O - http://apt.feelpp.org/apt.gpg | apt-key add - && apt-get update 
+apt -y install python3-feelpp 
+----
+
