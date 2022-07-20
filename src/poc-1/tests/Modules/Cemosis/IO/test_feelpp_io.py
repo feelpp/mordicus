@@ -72,7 +72,7 @@ def test_feelpp_solution_reader(feelpp_environment, dir, case_generator, dim, or
     sr = FSR.FeelppSolutionReader(m, space=Xh)
     s = sr.ReadSnapshotComponent(folder+solution_name+".h5")
     #assert s.shape[0] == ndofs
-
+    
     sr.WriteSolution(folder+"test", s)
     assert(osp.exists(folder+"test.h5"))
     os.remove(folder+"test.h5")
