@@ -11,7 +11,7 @@ ifdef::env-site[]
 :uri-rel-tree-base: {uri-repo}/tree/develop/
 endif::[]
 ifndef::env-github[:icons: font]
-ifdef::env-github[]
+ifdef::env-github,env-gitlab[]
 :status:
 :outfilesuffix: .adoc
 :caution-caption: :fire:
