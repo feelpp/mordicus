@@ -1,0 +1,198 @@
+//NIRB methodes à deux grilles avec pod pour la base
+//FreeFem++ script.edp -m mesh1.msh -snap snapshots.txt 
+//mesh1.msh= maillage fin pour la méthode NIRB
+//snapshots.txt (vecteurs snapshots)
+//Elise Grosjean
+
+
+load "lapack"
+include "getARGV.idp";
+load "iovtk"
+
+int i,j,k;
+
+NewMacro InitList(list)
+{
+	for(int i=0;i<list.n;i++){
+		list(i)=-1;
+	}
+}
+EndMacro
+
+NewMacro GramSchmidt(nev,Th,e1,e2)
+{
+	for(int i=0;i<nev;i++){
+		for(int k=0;k<i;k++){
+			e1[i][]-=int2d(Th)(e1[i]*e1[k]+e2[i]*e2[k])*e1[k][];
+		}
+		real norml2=sqrt(int2d(Th)(square(e1[i])+square(e2[i])));
+		if(norml2<1){
+			e1[i][]/=norml2;
+		}
+	}
+
+}
+EndMacro
+
+NewMacro Norme(usnsh,vsnsh,norm,l2)
+{
+	if(l2==1)
+		norm=sqrt(int2d(Th)(square(usnsh)+square(vsnsh)));
+	else
+		norm=sqrt(int2d(Th)(square(usnsh)+square(vsnsh)+square(dx(usnsh))+square(dy(usnsh)+dx(vsnsh)+dy(vsnsh))));
+}
+EndMacro
+
+
+///********************* LECTURE DES ENTREES *******************///
+
+string mesh1=getARGV("-m","mesh1.msh"); //mesh1.msh 
+string snapshot=getARGV("-snap","err_default.log");
+int ns=10;//Nombre snapshots (automatique)
+int nev=getARGV("-nev",1);
+string tmpbase=getARGV("-tmpbase","default");
+cout<<"NEV "<<nev<<endl;
+//ofstream base("base.txt");
+
+cout<<"file mesh1: "<<mesh1<<endl;
+cout<<"file snapshots: "<<snapshot<<endl;
+
+mesh Th=readmesh(mesh1);
+cout<< " Reading mesh ... " <<endl;
+fespace Ph(Th,P0);
+Ph h = hTriangle;
+cout << "size of mesh 1 = " << h[].max << endl;
+fespace Vh(Th,[P1,P1]);
+cout<<"nombre de DOF "<< Vh.ndof<<endl;
+Vh[int] [usnsh,vsnsh](ns); //ns Vecteurs vitesse [u1,u2]
+
+//verifier qu'on peut rentrer tous les vecteurs avec mat ou autre maniere de concatenation
+NewMacro VERIF(nev,Th,usnsh,vsnsh)
+{
+for(int i=0;i<nev;i++){
+
+    string vtkfile=tmpbase+i+".vtu";
+    int[int] order=[1];
+    savevtk(vtkfile, Th, [usnsh[i], vsnsh[i]],order=order,dataname="u",bin=0);
+    string test=tmpbase+i+".txt";
+    {ofstream file(test);
+	    file<<usnsh[i][];
+    }
+	    
+}
+}
+EndMacro
+
+////OFFLINE////////
+
+///********************* LECTURE DES VITESSES *******************///
+
+ifstream fData(snapshot) ;
+assert(fData.good());
+
+//en nlogn
+Vh [temp,tempv];
+int cpt=0;
+
+
+for(int i=0;i<ns;i++){
+	cout<<"ok"<<i<<endl;
+	fData>>usnsh[i][];
+}
+
+/*while(1)
+{
+	int nn,where=fData.tellg();//position carac ds le fichier
+	fData >> nn;
+//	cout<<cpt<< " " << ns  << "nn"<< nn<<"where"<<where<<endl;
+	if(fData.good() && where >=0)
+	{
+		fData.seekg(where);
+		fData>>temp[];
+		if (cpt==ns){
+		    ns*=2;
+		    usnsh.resize(ns);
+		}
+		usnsh[cpt++][]=temp[];
+	}
+	else break;
+}
+usnsh.resize(cpt); 
+ns=cpt;//number of snapshots*/
+cout<<" Snapshot:  "<<ns<<endl;
+	
+/*for(int i=0;i<ns;i++){
+	plot([usnsh[i],vsnsh[i]],cmm=i,wait=1);
+	}*/
+
+///*************************** GREEDY ALGO *********************///
+
+int nevmax=nev;
+Vh[int] [e1,e2](nevmax);
+//for(int nev=1;nev<nevmax;nev++){
+//	cout<<"nev "<<nev<<endl;
+//	Vh[int] [e1,e2](nev); //base normée
+
+	int[int] indexlist(ns); //pr recuperer l'indice de la fonction dans la base (-1 sinon)
+	int[int] indexlistrev(nev); //pr recuperer l'indice de la fonction dans la base (-1 sinon)
+	InitList(indexlist);
+	InitList(indexlistrev);
+	
+	real testmax=0.;real tmp=0.;int index;real normsn;
+	Vh [tmpvec,tmpv];
+	index=randreal1()*ns-1;
+
+	cout<<"premier index "<<index<<endl;
+
+//initialisation
+	
+	real norm;  Norme(usnsh[index],vsnsh[index],norm,1);//=sqrt(int2d(Th)(square(usnsh[index])+square(vsnsh[index])));
+	e1[0][]=usnsh[index][]/norm;
+	indexlist(index)=0;
+	indexlistrev(0)=index; //inverse de indexlist (sert pr la methode amelioree)
+	//cout<<"ns "<<ns<<endl;
+	for(int i=1;i<nev;i++){
+		tmpvec[]=0.;
+		testmax=0.;
+		tmp=0.;
+		
+		for (int k=0;k<ns;k++){ //max sur les k
+			if(indexlist(k)==-1){//vitesse pas encore dans la base
+				Vh [vec1,vec2];
+				vec1[]=usnsh[k][];
+				Norme(vec1,vec2,normsn,1);//sqrt(int2d(Th)(square(vec1)+square(vec2)));
+				for(int j=0;j<ns;j++){//gram schmidt
+					if(indexlist(j)!=-1){//deja dans la base
+						int l=indexlist(j);
+						vec1[]-=(int2d(Th)(usnsh[k]*e1[l]+vsnsh[k]*e2[l]))*e1[l][];
+					}
+				}
+				real normvec; Norme(vec1,vec2,normvec,1);
+				testmax=normvec/normsn;
+				if(testmax>tmp){ //algo greedy: on maximise
+					tmp=testmax;
+					index=k;
+					tmpvec[]=vec1[];
+				}
+			}
+		}
+		//cout<<"i "<<i<<" "<<index<<endl;
+		e1[i][]=tmpvec[];
+		e1[i][]=e1[i][]/sqrt(int2d(Th)(square(e1[i])+square(e2[i])));
+		indexlist(index)=i;//tjs pr recuperer l'indice ds la base de la fct
+		indexlistrev(i)=index;//tjs pr recuperer l'indice ds la base de la fct
+		//	cout<<"index "<<index<<endl;
+		//plot([e1[i],e2[i]],cmm =i,wait=1);
+	}
+
+GramSchmidt(nev,Th,e1,e2);
+
+//}
+
+//Verification
+
+VERIF(nevmax,Th,e1,e2);
+
+
+
+

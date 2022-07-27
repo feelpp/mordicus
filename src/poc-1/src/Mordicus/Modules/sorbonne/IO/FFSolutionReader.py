@@ -33,7 +33,7 @@ class FFSolutionReader(SolutionReaderBase):
         
         try:
             FNULL=open(os.devnull,'w')
-            ret=subprocess.run(["FreeFem++ " + externalFolder+"/FFtoVTK.edp -mesh "+ self.mesh +" -file "+ FileName +" -fieldName "+self.SolutionName],stdout=FNULL, stderr=subprocess.PIPE,shell=True)
+            ret=subprocess.run(["FreeFem++-nw " + externalFolder+"/FFtoVTK.edp -mesh "+ self.mesh +" -file "+ FileName +" -fieldName "+self.SolutionName],stdout=FNULL, stderr=subprocess.PIPE,shell=True)
                         
             ret.check_returncode()
         except subprocess.CalledProcessError:

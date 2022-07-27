@@ -4,7 +4,7 @@ from Mordicus.Core.IO.MeshReaderBase import MeshReaderBase
 from mpi4py import MPI
 from pathlib import Path
 import os
-import meshio
+#import meshio
 import argparse
 
 

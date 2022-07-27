@@ -1,0 +1,27 @@
+include "getARGV.idp";
+load "iovtk"
+load "lapack"
+load "msh3"
+load "tetgen"
+load "medit"
+
+
+
+string outputDir=getARGV("-outputDir","err.log");
+string meshFile1=getARGV("-m1", "err.msh");
+string meshFile2=getARGV("-m2", "err.msh");
+
+mesh3 Th1=vtkload3(meshFile1);
+mesh3 Th2=vtkload3(meshFile2);//mesh2.vtk");
+
+//plot(Th1,wait=1);
+//plot(Th2,wait=2);
+
+//plot(Th,wait=1);
+
+fespace Mh(Th1,[P1,P1,P1]);
+fespace MhG(Th2,[P1,P1,P1]);
+
+matrix Ih = interpolate(Mh,MhG) ;
+ofstream MatInterp(outputDir+"/interpolI.txt");
+MatInterp<<Ih;
