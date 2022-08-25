@@ -69,7 +69,7 @@ class Solution(object):
         """
         time = float(time)
         if not len(snapshot.shape) == 1 or not snapshot.shape[0] == self.numberOfDOFs:#pragma: no cover
-            raise ValueError("Provided numpy array should be a vector of length {}".format(self.numberOfDOFs))
+            raise ValueError("Provided numpy array should be a vector of length {}".format(self.numberOfDOFs), snapshot.shape)
 
         if time in self.snapshots:
             print(

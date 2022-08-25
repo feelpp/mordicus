@@ -3,6 +3,9 @@
 ## Elise Grosjean
 ## 01/2021
 
+from ast import MatMult
+from email import parser
+from fileinput import filename
 import os
 import os.path as osp
 import glob
@@ -13,118 +16,70 @@ import array
 import warnings
 import feelpp 
 
+import feelpp.mor as mor 
+import feelpp.mor.reducedbasis.reducedbasis as FppRb
+import feelpp.operators as FppOp 
+import SnapshotReducedBasis as SRB 
+from NIRBinitCase import * 
 
 
-from Mordicus.Core.Containers import ProblemData as PD
 from Mordicus.Core.Containers import CollectionProblemData as CPD
-from Mordicus.Core.Containers import Solution as S
-from Mordicus.Core.DataCompressors import SnapshotPOD as SP
 from Mordicus.Core.IO import StateIO as SIO
-
-from Mordicus.Modules.sorbonne.IO import MeshReader as MR
-from Mordicus.Modules.Safran.FE import FETools as FT
-#from BasicTools.FE import FETools as FT2
-from Mordicus.Modules.sorbonne.IO import VTKSolutionReader as VTKSR
-from Mordicus.Modules.sorbonne.IO import FFSolutionReader as FFSR
-from Mordicus.Modules.sorbonne.IO import numpyToVTKWriter as NpVTK
-from Mordicus.Modules.sorbonne.IO import InterpolationOperatorWriter as IOW
-from Mordicus.Modules.sorbonne.MOR import Greedy as GD
-
-
 
 ## Directories
 currentFolder=os.getcwd()
 dataFolder = osp.expanduser("~/feelppdb/nirb/")
 modelFolder = "StationaryNS/" # or "heat"
 
-"""
-# 3D Case
-OfflineResuFolder=osp.join(currentFolder,'3Dcase/3DData/FineSnapshots/') #folder for offline resu
-FineDataFolder=osp.join(currentFolder,'3Dcase/3DData/FineSnapshots/') #folder for fine snapshots
-CoarseDataFolder=osp.join(currentFolder,'3Dcase/3DData/CoarseSnapshots/') #folder for coarse snapshots
-FineMeshFolder=osp.join(currentFolder,'3Dcase/3DData/FineMesh/') #folder for fine mesh (needed with Freefem snapshots)
-CoarseMeshFolder=osp.join(currentFolder,'3Dcase/3DData/CoarseMesh/') #folder for coarse mesh (needed with Freefem)
-
-"""
-# 2D case
-
-# externalFolder=osp.join(currentFolder,'models/StationaryNS/External') #FreeFem scripts
-# OfflineResuFolder=osp.join(dataFolder,modelFolder,'FineSnapshots/') #folder for offline resu
-# FineDataFolder=osp.join(dataFolder,modelFolder,'FineSnapshots/') #folder for fine snapshots
-# CoarseDataFolder=osp.join(dataFolder,modelFolder,'CoarseSnapshots/') #folder for coarse snapshots
-# FineMeshFolder=osp.join(dataFolder,modelFolder,'FineMesh/') #folder for fine mesh (needed with Freefem snapshots)
-# CoarseMeshFolder=osp.join(dataFolder,modelFolder,'CoarseMesh/') #folder for coarse mesh (needed with Freefem)
-
 ## Parameters
 
 dimension=2 #dimension spatial domain
 nbeOfComponentsPrimal = 2 # number of components 
 FieldName="Velocity" #Snapshots fieldname
-Format= "FreeFem" # FreeFem or VTK
-Method="Greedy" #POD or Greedy
+Method="POD" #POD or Greedy
 Rectification=1 #1 with Rectification post-process (Coarse Snapshots required) or 0 without
 
 ## Script Files - Initiate data
 # Create data (mesh1,mesh2,snapshots,uH) for Sorbonne usecase 
 """ 
 --------------------------------------
-              generate snapshots
+        initialize toolbox 
 --------------------------------------
 """
-nbeOfInitSnapshots = 1
+## Current Directories
+currentFolder=os.getcwd()
 
-from NIRBinitCase import initproblem
-print("-----------------------------------")
-print(" STEP I. 0: start init             ")
-print("-----------------------------------")
-modelsFolder = osp.expanduser("~/devel/mordicus/src/poc-1/tests/Modules/Cemosis/DataCompressors/models/")
-fineSnapList, coarseSnapList, CoarseMesh, FineMesh = initproblem(nbeOfInitSnapshots, modelsFolder=modelsFolder)
-print("-----------------------------------")
-print("STEP I.0 (bis): snapshots generated")
-print("-----------------------------------")
+# model directories 
+toolboxesOptions='heat'
 
-"""
-----------------------------------------------------------------------------------------
-----------------------------------------------------------------------------------------
-                                      Definition and initialisation of the problem
-----------------------------------------------------------------------------------------
-----------------------------------------------------------------------------------------
-"""
+modelsFolder = f"{currentFolder}/models/" 
+modelsFolder = f"{modelsFolder}{toolboxesOptions}" 
+cfg_path = f"{modelsFolder}/square/square.cfg" 
+geo_path = f"{modelsFolder}/square/square.geo"
+model_path = f"{modelsFolder}/square/square.json"
 
-#print("number of modes: ",nev)
+# fineness of two grids
+H = 0.1  # CoarseMeshSize 
+h = H**2 # fine mesh size 
 
-time=0.0
-# ----------------------------------------------------------
-# Get number of Snapshots and modes 
-Nsfine = len(fineSnapList)
-Nscoarse = len(coarseSnapList)
+# set the feelpp environment
+config = feelpp.globalRepository(f"nirb/{toolboxesOptions}")
+e=feelpp.Environment(sys.argv, opts = toolboxes_options(toolboxesOptions).add(mor.makeToolboxMorOptions()), config=config)
+e.setConfigFile(cfg_path)
+order =1
 
-nev=1 #default value number of modes
-if len(sys.argv)>1:
-        nev=int(sys.argv[1]) 
+# load model 
+model = loadModel(model_path)
 
-# ----------------------------------------------------------
-# Get coarse snapshots and coarse mesh if rectification processes
-# if Rectification == 1:
-        # coarseSnapListNp = []
-
-        # for s in range(Nscoarse):
-        #         fineSnapListNp.append(FeelppToNp(fineSnapList[s]))
-        #         coarseSnapListNp.append(FeelppToNp(coarseSnapList[s]))
-#         CoarseSnapshotsFile=glob.glob(os.path.join(CoarseDataFolder,"*.txt"))[0]
-#         FFCoarsetoVTKconvert=FFSR.FFSolutionReader(FieldName,CoarseMeshFileName);
-#         FFCoarsetoVTKconvert.FFReadToNp(externalFolder,CoarseSnapshotsFile) #create the snapshots with vtu format
-# ----------------------------------------------------------
-
-assert Nsfine>0, " !! no snapshots provided !! "
-if len(sys.argv)>1:
-        assert nev<=Nsfine, " !! To many number of modes, nev must be less than ns !!"
-if Rectification == 1 and Nscoarse!=Nsfine:
-        warnings.warn( "Not the same number of coarse and fine snapshots ->  not using the rectification post-process! ")
-        Rectification = 0
+tbCoarse = setToolbox(H, geo_path, model, order)
+tbFine = setToolbox(h, geo_path, model,order)
+Dmu = loadParameterSpace(model_path)
 # ----------------------------------------------------------
 # ----------------------------------------------------------
-## MESH READER
+## MESH infos 
+FineMesh = tbFine.mesh()
+CoarseMesh = tbCoarse.mesh()
+
 ## Fine Mesh reader 
 numberOfNodes = FineMesh.numGlobalPoints()
 print("Fine Mesh --> Number of nodes : ", numberOfNodes)
@@ -134,192 +89,96 @@ if Rectification==1 :
         numberOfNodes2 = CoarseMesh.numGlobalPoints() 
         print("Coarse Mesh --> Number of nodes : ", numberOfNodes2)
 
+""" 
+--------------------------------------
+              generate snapshots
+--------------------------------------
+"""
+nbeOfInitSnapshots = 30
+nev =nbeOfInitSnapshots 
+print("-----------------------------------")
+print(" STEP I. 0: start init             ")
+print("-----------------------------------")
 
-# ----------------------------------------------------------
-# # Interpolation on the fine mesh if rectification post-process
-# if Rectification==1:
-#         option="basictools" #ff, basictools
-#         if Format == "FreeFem":
-#                 Folder=str(Path(FineMeshFileName).parents[0])
-#                 stem=str(Path(FineMeshFileName).stem)
-#                 #print(stem[-4:])
-#                 suffix=str(Path(FineMeshFileName).suffix)
-#                 if stem[-4:]!="GMSH":
-#                         FineMeshFileName =  Folder+"/"+stem+"GMSH"+suffix
-#                 Folder=str(Path(CoarseMeshFileName).parents[0])
-#                 stem=str(Path(CoarseMeshFileName).stem)
-#                 suffix=str(Path(CoarseMeshFileName).suffix)
-#                 if stem[-4:]!="GMSH":
-#                         CoarseMeshFileName =  Folder+"/"+stem+"GMSH"+suffix
-#         operator=IOW.InterpolationOperator(FineDataFolder,FineMeshFileName,CoarseMeshFileName,dimension,option=option)
-#         #operator=SIO.LoadState(FineDataFolder+"/Matrices/operator")
-# ----------------------------------------------------------
-## READ SNAPSHOTS
+fineSnapList, coarseSnapList = initproblem(nbeOfInitSnapshots, tbFine, tbCoarse, Dmu)
 
+"""
+----------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------
+                                      Greedy/POD  Offline part
+----------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------
+"""
 
-# print("-----------------------------------")
-# print(" STEP I. 1: reading snapshots      ")
-# print("-----------------------------------")
+print("-----------------------------------")
+print(" STEP I. 2: Generate operator      ")
+print("-----------------------------------")
 
-# collectionProblemData = CPD.CollectionProblemData()
-# collectionProblemData.AddVariabilityAxis('unused',int,description="unused parameter")
-# collectionProblemData.DefineQuantity("U", full_name=FieldName, unit="unused") #fine
-# if Rectification == 1:
-#         collectionProblemData.DefineQuantity("UH", full_name=FieldName, unit="unused") #coarse
+Vh = feelpp.functionSpace(mesh=FineMesh)
+MassMatrix=FppOp.mass(test=Vh,trial=Vh,range=feelpp.elements(FineMesh))
+StiffnessMatrix=FppOp.stiffness(test=Vh,trial=Vh,range=feelpp.elements(FineMesh))
 
-# parameters = range(Nsfine)#for problemdata
+l2ScalarProducMatrix = MassMatrix
+h1ScalarProducMatrix = StiffnessMatrix
 
-# cpt=0 #num snapshot
+print("-----------------------------------")
+print(" STEP I. 2: Creating Reduced Basis ")
+print("-----------------------------------")
+        
+collectionProblemData = CPD.CollectionProblemData()
+collectionProblemData.AddVariabilityAxis('unused',int,description="unused parameter")
+collectionProblemData.DefineQuantity("U", full_name=FieldName, unit="unused") #fine
+if Rectification == 1:
+        collectionProblemData.DefineQuantity("UH", full_name=FieldName, unit="unused") #coarse
 
-# ndof = numberOfNodes*nbeOfComponentsPrimal
-# Fine_snapshot_array = np.zeros(ndof,)
-# ## Reading fine snapshots
-# for snap in fineSnapList :
-#     print(f"Getting fine snapshot ", cpt)
-#     for i in range(ndof):
-#         Fine_snapshot_array[i] = snap.to_petsc().vec().__getitem__(i)
-# #     Fine_snapshot_array= snap.to_petsc().vec().array  # get solution field  
-#     solutionU=S.Solution("U",nbeOfComponentsPrimal,numberOfNodes,True) #Add each snapshot in collectionProblemData 
-#     solutionU.AddSnapshot(Fine_snapshot_array,0) #time=0
-#     problemData = PD.ProblemData(FineDataFolder+str(cpt)) #name of problemData
-#     problemData.AddSolution(solutionU)
-#     collectionProblemData.AddProblemData(problemData,unused=parameters[cpt])
-#     cpt+=1
+cpt=0 #num snapshot
 
-# cpt=0
+if Method=="Greedy":
+        #reducedOrderBasisU=GD.Greedy(collectionProblemData,"U",l2ScalarProducMatrix,h1ScalarProducMatrix,nev) # greedy algorith
+        reducedOrderBasisU = SRB.ComputeReducedOrderBasisWithPOD(fineSnapList,l2ScalarProducMatrix)
+else : #POD 
+        reducedOrderBasisU = SRB.ComputeReducedOrderBasisWithPOD(fineSnapList, l2ScalarProducMatrix)
+        # reducedOrderBasisU = SPOD.ComputeReducedOrderBasisWithPOD(fineSnapList)
 
-# if Rectification == 1:
-#         ndof = numberOfNodes2*nbeOfComponentsPrimal
-#         Coarse_snapshot_array = np.zeros(ndof,)
-#         ## Reading coarse snapshots
-#         for snap in coarseSnapList :
-#                 print(f"Getting coarse snapshot ", cpt)
-#                 for i in range(ndof):
-#                         Coarse_snapshot_array[i] = snap.to_petsc().vec().__getitem__(i)
-#                 # Coarse_snapshot_array= snap.to_petsc().vec().array  # get solution field  
-#                 solutionUH=S.Solution("U",nbeOfComponentsPrimal,numberOfNodes2,True) #Add each snapshot in collectionProblemData
-#                 solutionUH.AddSnapshot(Coarse_snapshot_array,0) #time=0
-#                 problemData = collectionProblemData.GetProblemData(unused=parameters[cpt]) #label of problemData=parameter[cpt]
-#                 problemData.AddSolution(solutionUH)
-#                 collectionProblemData.AddProblemData(problemData,unused=parameters[cpt])
-#                 cpt+=1
-                
-# print("ComputeL2ScalarProducMatrix and ComputeH1ScalarProducMatrix ...")
-# #l2ScalarProducMatrix = SIO.LoadState(FineDataFolder+"/Matrices/snapshotCorrelationOperator") #if already created
-# #h1ScalarProducMatrix = SIO.LoadState(FineDataFolder+"/Matrices/h1ScalarProducMatrix")
-
-# #from scipy import sparse
-# #l2ScalarProducMatrix=sparse.eye(numberOfNodes*nbeOfComponentsPrimal) #works with identity matrix
-
-# l2ScalarProducMatrix = FT.ComputeL2ScalarProducMatrix(FineMesh, nbeOfComponentsPrimal)
-# h1ScalarProducMatrix = FT.ComputeH10ScalarProductMatrix(FineMesh, nbeOfComponentsPrimal)
-
-# # Snapshots norm
-# snapshotUIterator = collectionProblemData.SnapshotsIterator("U")
-# snapshots = []
-# #SnapshotsUNorm=[]
-# for s in snapshotUIterator:
-#     snapshots.append(s)
-#     #norm=np.sqrt(s@l2ScalarProducMatrix@s)
-#     #SnapshotsUNorm.append(norm)
-#     #print("norm",norm)
-
-# if Rectification==1:
-#         snapshotUHIterator = collectionProblemData.SnapshotsIterator("UH")
-
-#         snapshotsH = []
-#         for s in snapshotUHIterator:
-#                 snapshotsH.append(s)
-
-
-
-# """
-# ----------------------------------------------------------------------------------------
-# ----------------------------------------------------------------------------------------
-#                                       Greedy/POD  Offline part
-# ----------------------------------------------------------------------------------------
-# ----------------------------------------------------------------------------------------
-# """
-
-# print("-----------------------------------")
-# print(" STEP I. 2: Creating Reduced Basis ")
-# print("-----------------------------------")
-# if Method=="Greedy":
-#         reducedOrderBasisU=GD.Greedy(collectionProblemData,"U",l2ScalarProducMatrix,h1ScalarProducMatrix,nev) # greedy algorithm
-# else: #POD 
-#         reducedOrderBasisU = SP.ComputeReducedOrderBasisFromCollectionProblemData(collectionProblemData, "U", 1.e-6, l2ScalarProducMatrix)
-
-# print("number of modes: ", nev)
-# ### Add basis to collectionProblemData
-    
-# collectionProblemData.AddReducedOrderBasis("U", reducedOrderBasisU)
+### Add basis to collectionProblemData
+collectionProblemData.AddReducedOrderBasis("U", reducedOrderBasisU)
 # collectionProblemData.CompressSolutions("U", l2ScalarProducMatrix) #Mass matrix
-# nev=collectionProblemData.GetReducedOrderBasisNumberOfModes("U")
+nev=collectionProblemData.GetReducedOrderBasisNumberOfModes("U")
+collectionProblemData.AddOperatorCompressionData("U", l2ScalarProducMatrix) # Mass matrix 
+collectionProblemData.AddDataCompressionData("U", h1ScalarProducMatrix) # Energy matrix 
 
-# collectionProblemData.AddOperatorCompressionData("U", l2ScalarProducMatrix)
-# collectionProblemData.AddDataCompressionData("U", h1ScalarProducMatrix)
+print("number of modes: ", nev)
 
-# ## Ortho basis verification
-# """
-# for i in range(nev):
-#     for j in range(nev):
-#         t=l2ScalarProducMatrix.dot(reducedOrderBasisU[i,:])
-#         norm=t.dot(reducedOrderBasisU[j,:])
-#         normh1=reducedOrderBasisU[i,:]@(h1ScalarProducMatrix@reducedOrderBasisU[j,:])
-#         print(i,j," ",norm)
-#         print(" normh1 ", normh1)
-# """
-        
-# ### PT: Rectification
-# print("----------------------------------------")
-# print(" STEP I. 3. : Rectification PostProcess ")
-# print("----------------------------------------")
-# # determinist process: Matrix R, allows to go from coeff (uH,phi_i) to (uh,Phi_i)
-# if Rectification == 1:
-#         GD.addRectificationTocollectionProblemData(collectionProblemData,"U","UH",l2ScalarProducMatrix,nev) # greedy algorithm
-        
 
-# ### Offline Errors
+print("----------------------------------------")
+print(" STEP I. 3: Save datas for Online phase ")
+print("----------------------------------------")
+
+
+from Mordicus.Modules.Cemosis.IO.StateIO import *
+file = "massMatrix.dat"
+SavePetscArrayBin(file, l2ScalarProducMatrix.mat())
+file = "stiffnessMatrix.dat"
+SavePetscArrayBin(file, h1ScalarProducMatrix.mat())
+file="reducedBasisU"
+SIO.SaveState(file, reducedOrderBasisU)
+
+## Ortho basis verification
+"""
+for i in range(nev):
+    for j in range(nev):
+        t=l2ScalarProducMatrix.dot(reducedOrderBasisU[i,:])
+        norm=t.dot(reducedOrderBasisU[j,:])
+        normh1=reducedOrderBasisU[i,:]@(h1ScalarProducMatrix@reducedOrderBasisU[j,:])
+        print(i,j," ",norm)
+        print(" normh1 ", normh1)
+"""
+
+### Offline Errors
 # print("-----------------------------------")
-# print(" STEP I. 4: Offline  errors        ")
+# print(" STEP I. 4: Offline  errors soon !!")
 # print("-----------------------------------")
 
-# L2compressionErrors=[]
-# H1compressionErrors=[]
 
-# for _, problemData in collectionProblemData.GetProblemDatas().items(): #for each snapshot
-#     solutionU=problemData.GetSolution("U")
-#     CompressedSolutionU=solutionU.GetCompressedSnapshots()
-#     exactSolution = problemData.solutions["U"].GetSnapshot(0)
-#     reconstructedCompressedSolution = np.dot(CompressedSolutionU[0], reducedOrderBasisU) #pas de tps 0
-    
-#     norml2ExactSolution=np.sqrt(exactSolution@(l2ScalarProducMatrix@exactSolution))
-#     normh1ExactSolution=np.sqrt(exactSolution@(h1ScalarProducMatrix@exactSolution))
-   
-#     if norml2ExactSolution !=0 and normh1ExactSolution != 0:
-#         err=reconstructedCompressedSolution-exactSolution
-#         relL2Error=np.sqrt(err@l2ScalarProducMatrix@err)/norml2ExactSolution
-#         relH1Error=np.sqrt(err@h1ScalarProducMatrix@err)/normh1ExactSolution
-    
-#     else: #erreur absolue
-#         relL2Error=np.sqrt(err@l2ScalarProducMatrix@err)
-#         relH1Error=np.sqrt(err@h1ScalarProducMatrix@err)
-        
-#     L2compressionErrors.append(relL2Error)
-#     H1compressionErrors.append(relH1Error)
-    
-# print("compression relative errors L2 =", L2compressionErrors)
-# print("compression relative errors H1 =", H1compressionErrors)
-
-# print("Offline DONE ... ")
-# print("to be continued, with the online part ... ")
-
-# ## save results
-# print("Save state in ",OfflineResuFolder)
-# # collectionProblemData.SetDataCompressionData("h1ScalarProducMatrix",h1ScalarProducMatrix)
-# # collectionProblemData.SetOperatorCompressionData(l2ScalarProducMatrix)
-# FileName=OfflineResuFolder+"collectionProblemData"
-# SIO.SaveState(FileName, collectionProblemData)
-# # SIO.SaveState("h1ScalarProducMatrix", h1ScalarProducMatrix)
-# # SIO.SaveState("snapshotCorrelationOperator", l2ScalarProducMatrix)
-
+print("Offline DONE ... ")
+print("to be continued, with the online part ... ")

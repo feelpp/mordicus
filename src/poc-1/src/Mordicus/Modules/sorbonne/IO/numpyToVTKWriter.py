@@ -165,19 +165,34 @@ class VTKWriter(SolutionReaderBase):
         #print("shape vtkfile", np.shape(numpySnap_array))
         
         p=self.VTKBase.nodes
+
+        print(p)
+
         numberOfNodes=np.shape(p)[0]
         
+        #print('number of node vtk = ', numberOfNodes)
+
         vtkPts = vtk.vtkPoints()
-        #for i in range(numberOfNodes):
-        #    vtkPts.InsertNextPoint(p[i])
-        vtkPts.SetData(numpy_support.numpy_to_vtk(p, deep=True))
+        # for i in range(numberOfNodes):
+        #    vtkPts.InsertNextPoint(i,p[i])
+
+        # for i in range(numberOfNodes):
+        #     pi = p[i].tolist()
+        #     pi.append(0.0)
+        #     vtkPts.InsertNextPoint(pi)
+            # point_id = vtkPts.InsertNextPoint(pi)
+            # vertices.InsertNextCell(1)
+            # vertices.InsertCellPoint(point_id)
+
+        vtkPts.SetData(numpy_support.numpy_to_vtk(p))
+
         VTKBase = vtk.vtkUnstructuredGrid()
         VTKBase.SetPoints(vtkPts)#pts
         #print(VTKBase)
         
         #VTK_data = numpy_support.numpy_to_vtk(num_array=numpySnap_array.ravel(), deep=True, array_type=vtk.VTK_FLOAT)
         VTK_data = numpy_support.numpy_to_vtk(num_array=numpySnap_array, deep=True, array_type=vtk.VTK_FLOAT)
-        
+
         size = VTK_data.GetSize()
         #print("size array", size)
         VTK_data.SetName(FieldName)
@@ -200,5 +215,6 @@ class VTKWriter(SolutionReaderBase):
         writer.SetFileName(out_fname)
         writer.SetInputData(VTKBase)
         writer.SetDataModeToAscii()
+        writer.Update()
         writer.Write()
         print('\nfile ', out_fname, ' written\n' )

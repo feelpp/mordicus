@@ -26,8 +26,10 @@ def InterpolationOperator(dataFolder,mesh1,mesh2,dimension,option=None):
     if option=="ff":
         # call of freefem (output: InterpolI.txt)
         print("interpolation with FreeFem++")
-
-        scriptFreeFemInterpolation=osp.join(externalFolder,'FF_Interpolation_Mat_3D.edp')
+        
+        #scriptFreeFemInterpolation=osp.join(externalFolder,'FF_Interpolation_Mat_3D.edp')
+        scriptFreeFemInterpolation=osp.join(externalFolder,'FF_Interpolation.edp')
+        
         try:
             FNULL = open(os.devnull, 'w')
             ret = subprocess.run(["FreeFem++", scriptFreeFemInterpolation,

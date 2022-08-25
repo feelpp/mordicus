@@ -245,4 +245,4 @@ def Rectification(collectionProblemData,FineSolutionName,CoarseSolutionName,snap
 
 def addRectificationTocollectionProblemData(collectionProblemData,FineSolutionName,CoarseSolutionName,snapshotCorrelationOperator,nev):
     R=Rectification(collectionProblemData,FineSolutionName,CoarseSolutionName,snapshotCorrelationOperator,nev)
-    collectionProblemData.SetDataCompressionData("Rectification",R)
+    collectionProblemData.AddDataCompressionData("Rectification",R)

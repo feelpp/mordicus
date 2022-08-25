@@ -31,6 +31,7 @@ from Mordicus.Modules.sorbonne.MOR import Greedy as GD
 
 ## Directories
 currentFolder=os.getcwd()
+
 """
 # 3D Case
 OfflineResuFolder=osp.join(currentFolder,'3Dcase/3DData/FineSnapshots/') #folder for offline resu
@@ -41,6 +42,7 @@ CoarseMeshFolder=osp.join(currentFolder,'3Dcase/3DData/CoarseMesh/') #folder for
 
 """
 # 2D case
+
 externalFolder=osp.join(currentFolder,'StationaryNS/External') #FreeFem scripts
 OfflineResuFolder=osp.join(currentFolder,'StationaryNS/StationaryNSData/FineSnapshots/') #folder for offline resu
 FineDataFolder=osp.join(currentFolder,'StationaryNS/StationaryNSData/FineSnapshots/') #folder for fine snapshots
@@ -48,14 +50,15 @@ CoarseDataFolder=osp.join(currentFolder,'StationaryNS/StationaryNSData/CoarseSna
 FineMeshFolder=osp.join(currentFolder,'StationaryNS/StationaryNSData/FineMesh/') #folder for fine mesh (needed with Freefem snapshots)
 CoarseMeshFolder=osp.join(currentFolder,'StationaryNS/StationaryNSData/CoarseMesh/') #folder for coarse mesh (needed with Freefem)
 
+
 ## Parameters
 
 dimension=2 #dimension spatial domain
 nbeOfComponentsPrimal = 2 # number of components 
 FieldName="Velocity" #Snapshots fieldname
 Format= "FreeFem" # FreeFem or VTK
-Method="Greedy" #POD or Greedy
-Rectification=0 #1 with Rectification post-process (Coarse Snapshots required) or 0 without
+Method="POD" #POD or Greedy
+Rectification=1 #1 with Rectification post-process (Coarse Snapshots required) or 0 without
 
 ## Script Files - Initiate data
 # Create data (mesh1,mesh2,snapshots,uH) for Sorbonne usecase 

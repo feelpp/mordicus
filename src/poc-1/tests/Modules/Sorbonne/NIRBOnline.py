@@ -51,6 +51,7 @@ OnlineResuFolder=osp.join(currentFolder,'3Dcase/3DData/FineSnapshots/') #folder 
 """
 
 # 2D case
+
 externalFolder=osp.join(currentFolder,'StationaryNS/External') #FreeFem scripts
 OfflineResuFolder=osp.join(currentFolder,'StationaryNS/StationaryNSData/FineSnapshots/') #folder for offline resu
 FineDataFolder=osp.join(currentFolder,'StationaryNS/StationaryNSData/FineSolution/') #folder for fine Solution (optional)
@@ -66,7 +67,7 @@ nbeOfComponentsPrimal = 2 # number of components
 FieldName="Velocity" #Snapshots fieldname
 FieldNameExactSolution="u"#"Velocity" #Snapshots fieldname
 Format= "FreeFem" # FreeFem or VTK
-#Method="Greedy" #POD or Greedy
+Method="Greedy" #POD or Greedy
 Rectification=0 #1 with Rectification post-process (Coarse Snapshots required) or 0 without
 ComputingError=1 # 1 if the fine solution is provided 
 SavingApproximation=1 #if NIRB approximation saved

@@ -29,7 +29,7 @@ string snapCoarseFile=outputDir+"/coarsesnapshots.txt";
 //string meshFile1=getARGV("-outputMesh1","err.log"); 
 //string meshFile2=getARGV("-outputMesh2","err.log"); 
 
-
+cout<<"output dir = " << outputDir <<endl; 
 
 ofstream snapshot(snapFile);
 ofstream CoarseSnapshot(snapCoarseFile);
