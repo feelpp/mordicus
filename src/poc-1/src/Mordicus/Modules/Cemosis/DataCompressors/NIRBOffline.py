@@ -94,7 +94,7 @@ if Rectification==1 :
               generate snapshots
 --------------------------------------
 """
-nbeOfInitSnapshots = 30
+nbeOfInitSnapshots = 10
 nev =nbeOfInitSnapshots 
 print("-----------------------------------")
 print(" STEP I. 0: start init             ")
@@ -138,16 +138,17 @@ if Method=="Greedy":
         reducedOrderBasisU = SRB.ComputeReducedOrderBasisWithPOD(fineSnapList,l2ScalarProducMatrix)
 else : #POD 
         reducedOrderBasisU = SRB.ComputeReducedOrderBasisWithPOD(fineSnapList, l2ScalarProducMatrix)
-        # reducedOrderBasisU = SPOD.ComputeReducedOrderBasisWithPOD(fineSnapList)
+
+# number of modes 
+nev = reducedOrderBasisU.size[0]
+print("number of modes: ", nev)
 
 ### Add basis to collectionProblemData
-collectionProblemData.AddReducedOrderBasis("U", reducedOrderBasisU)
-# collectionProblemData.CompressSolutions("U", l2ScalarProducMatrix) #Mass matrix
-nev=collectionProblemData.GetReducedOrderBasisNumberOfModes("U")
-collectionProblemData.AddOperatorCompressionData("U", l2ScalarProducMatrix) # Mass matrix 
-collectionProblemData.AddDataCompressionData("U", h1ScalarProducMatrix) # Energy matrix 
-
-print("number of modes: ", nev)
+# collectionProblemData.AddReducedOrderBasis("U", reducedOrderBasisU)
+# # collectionProblemData.CompressSolutions("U", l2ScalarProducMatrix) #Mass matrix
+# nev=collectionProblemData.GetReducedOrderBasisNumberOfModes("U")
+# collectionProblemData.AddOperatorCompressionData("U", l2ScalarProducMatrix) # Mass matrix 
+# collectionProblemData.AddDataCompressionData("U", h1ScalarProducMatrix) # Energy matrix 
 
 
 print("----------------------------------------")
@@ -161,7 +162,8 @@ SavePetscArrayBin(file, l2ScalarProducMatrix.mat())
 file = "stiffnessMatrix.dat"
 SavePetscArrayBin(file, h1ScalarProducMatrix.mat())
 file="reducedBasisU"
-SIO.SaveState(file, reducedOrderBasisU)
+SavePetscArrayBin(file, reducedOrderBasisU)
+# SIO.SaveState(file, reducedOrderBasisU)
 
 ## Ortho basis verification
 """

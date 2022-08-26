@@ -5,8 +5,9 @@
 #
 #
 
-from ast import MatMult
+# from ast import MatMult
 import os
+# from statistics import correlation
 from mpi4py import MPI
 if MPI.COMM_WORLD.Get_size() > 1: # pragma: no cover
     os.environ["OMP_NUM_THREADS"] = "1"
@@ -21,6 +22,7 @@ from scipy import sparse
 from petsc4py import PETSc
 import petsc4py
 from petsc4py import *
+from slepc4py import SLEPc 
 
 
 def ComputeReducedOrderBasisWithPOD(snapshotList, snapshotCorrelationOperator, tolerance=1.e-6):
@@ -50,42 +52,87 @@ def ComputeReducedOrderBasisWithPOD(snapshotList, snapshotCorrelationOperator, t
 
     numberOfDofs = snapshotList[0].functionSpace().nDof() 
 
-    for s in snapshotList:
-        snapshots.append(s.to_petsc().vec()[:])
-
     # snapshots = np.array(snapshots)
 
     # numberOfSnapshots = snapshots.shape[0]
     numberOfSnapshots = len(snapshotList)
     print('number of snapshots = ', numberOfSnapshots)
     
-    correlationMatrix = np.zeros((numberOfSnapshots, numberOfSnapshots))
+    #correlationMatrix = np.zeros((numberOfSnapshots, numberOfSnapshots))
+
+    correlationMatrix = PETSc.Mat().create()
+    correlationMatrix.setSizes([numberOfSnapshots, numberOfSnapshots])
+    correlationMatrix.setFromOptions()
+    correlationMatrix.setUp()
+
     for i, snapshot1 in enumerate(snapshotList):
         for j, snapshot2 in enumerate(snapshotList):
             if i >= j:
                 correlationMatrix[i, j] = snapshotCorrelationOperator.energy(snapshot1, snapshot2)
 
+    correlationMatrix.assemble()
 
-    mpiReducedCorrelationMatrix = np.zeros((numberOfSnapshots, numberOfSnapshots))
-    MPI.COMM_WORLD.Allreduce([correlationMatrix,  MPI.DOUBLE], [mpiReducedCorrelationMatrix,  MPI.DOUBLE])
+    # Get eigenpairs of the correlation matrix 
+    E = SLEPc.EPS() 
+    E.create()  # create the solver 
+    E.setOperators(correlationMatrix)
+    E.setFromOptions()
+    E.setWhichEigenpairs(E.Which.LARGEST_MAGNITUDE)
+    E.setDimensions(numberOfSnapshots)
 
-    from Mordicus.Core.BasicAlgorithms import SVD as SVD
-
-
-    eigenValuesRed, eigenVectorsRed = SVD.TruncatedSVDSymLower(mpiReducedCorrelationMatrix, tolerance)
-
-    nbePODModes = eigenValuesRed.shape[0]
+    E.solve()
+    nbePODModes = E.getConverged() # number of eigenpairs 
 
     print("nbePODModes =", nbePODModes)
 
+    eigenval = np.zeros(nbePODModes)
 
-    changeOfBasisMatrix = np.zeros((nbePODModes,numberOfSnapshots))
-    for j in range(nbePODModes):
-        changeOfBasisMatrix[j,:] = eigenVectorsRed[:,j]/np.sqrt(eigenValuesRed[j])
+    eigenvect = PETSc.Vec().create()
+    eigenvect.setSizes(nbePODModes)
+    eigenvect.setFromOptions()
+    eigenvect.setUp()
 
-    snapshots = np.array(snapshots)
-    reducedOrderBasis = np.dot(changeOfBasisMatrix,snapshots)
+    eigenMatrix = PETSc.Mat().createDense(nbePODModes)
+    # eigenMatrix.setSizes([nbePODModes, nbePODModes])
+    eigenMatrix.setFromOptions()
+    eigenMatrix.setUp()
 
+    eigenpairs = {}
+
+    for i in range(nbePODModes):
+        eigenval[i] = float(E.getEigenvalue(i).real)
+        E.getEigenvector(i, eigenvect)
+        eigenpairs[eigenval[i]] = eigenvect/np.sqrt(eigenval[i]) # normalized eigenvect
+        eigenMatrix[i,:] = eigenvect[:]/np.sqrt(eigenval[i])
+
+    eigenMatrix.assemble()
+
+    
+
+    ## Set reduced basis 
+    for s in snapshotList:
+        snapshots.append(s.to_petsc().vec()[:])
+
+
+    reducedOrderBasis = PETSc.Mat().createDense(size=(nbePODModes,numberOfDofs))
+    reducedOrderBasis.setFromOptions()
+    reducedOrderBasis.setUp()
+
+    reducedOrderBasis.assemble()
+
+    tempMat = reducedOrderBasis.copy()
+
+    # for i in range(nbePODModes):
+    #     for j in range(numberOfDofs):
+    #         reducedOrderBasis[i,j] = 
+
+    for i in range(nbePODModes):
+        tempMat[i,:] = snapshotList[i].to_petsc().vec()[:]
+        # reducedOrderBasis[i,:] = snapshotList[i].to_petsc().vec()[:]
+
+    tempMat.assemble() 
+
+    eigenMatrix.matMult(tempMat, reducedOrderBasis)
 
     return reducedOrderBasis
 
