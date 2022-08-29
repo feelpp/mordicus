@@ -4,8 +4,16 @@ import os
 from mpi4py import MPI 
 
 
-def SavePetscArrayBin(filename, PetscAray):
 
+def LoadPetscArrayBin(filename):
+    """ Load a PETSc array from filename writing in binary format """
+    outputfile = os.path.join(filename)
+    viewer = PETSc.Viewer().createBinary(outputfile, 'r')
+    PetscAray = PETSc.Mat().load(viewer)
+    return PetscAray
+
+def SavePetscArrayBin(filename, PetscAray):
+    """ Save a PETSc array on filename in binary format """
     outputfile = os.path.join(filename)
     
     viewer = PETSc.Viewer().createBinary(outputfile, 'w')
@@ -13,6 +21,7 @@ def SavePetscArrayBin(filename, PetscAray):
 
 
 def SavePetscArrayASCII(filename, PetscAray):
+    """ Save a PETSc array on filename in ASCII format """
 
     outputfile = os.path.join(filename)
 

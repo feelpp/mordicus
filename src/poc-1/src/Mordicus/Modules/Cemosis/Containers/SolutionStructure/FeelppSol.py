@@ -17,6 +17,7 @@ import numpy as np
 
 import feelpp
 from mpi4py import MPI
+from petsc4py import PETSc
 
 
 class FeelppSolution(object):
@@ -96,17 +97,18 @@ class FeelppSolution(object):
             of size (numberOfModes, numberOfDOFs)
         """
 
-        numberOfModes = reducedOrderBasis.shape[0]
+        numberOfModes = reducedOrderBasis.size[0]
 
+        globalScalarProduct = PETSc.Vec().create()
+        globalScalarProduct.setSizes(numberOfModes)
+        globalScalarProduct.setFromOptions()
+        
         for time, solution in self.solution.items():
 
             matVecProduct =solution.to_petsc().vec().copy()
-            CorrelationOperator.mat().mult(solution.to_petsc().vec(), matVecProduct)
+            CorrelationOperator.mult(solution.to_petsc().vec(), matVecProduct)
 
-            matVecProduct = np.array(matVecProduct)
-            localScalarProduct = np.dot(reducedOrderBasis, matVecProduct)
-            globalScalarProduct = np.zeros(numberOfModes)
-            MPI.COMM_WORLD.Allreduce([localScalarProduct, MPI.DOUBLE], [globalScalarProduct, MPI.DOUBLE])
+            reducedOrderBasis.mult(matVecProduct, globalScalarProduct)
 
             self.compressedSol[time] = globalScalarProduct
 
@@ -144,7 +146,7 @@ class FeelppSolution(object):
         return self.snapshots[time]
 
 
-    def GetreducedCoeff(self):
+    def GetCompressedSolution(self):
         """
         Returns the compressed snapshot at time time
 
@@ -155,8 +157,7 @@ class FeelppSolution(object):
 
         Returns
         -------
-        np.ndarray
-            compressed snapshot
+        PETSc vector of compressed solution 
         """
         return self.compressedSol
 
@@ -207,42 +208,6 @@ class FeelppSolution(object):
             the number of degrees of nodes of the solution
         """
         return self.numberOfNodes
-
-
-    def GetSnapshots(self):
-        """
-        Returns the complete snapshots dictionary
-
-        Returns
-        -------
-        dict
-            the snapshots dictionary of the solution
-        """
-        return self.solution
-
-
-    def GetCompressedSnapshots(self):
-        """
-        Returns the complete compressedSnapshots dictionary
-
-        Returns
-        -------
-        dict
-            the compressed representation of the solution
-        """
-        return self.compressedSnapshots
-
-
-    def GetCompressedSnapshotsList(self):
-        """
-        Returns the compressed snapshots in the form of a list
-
-        Returns
-        -------
-        list
-            list containing the snapshots of the solution
-        """
-        return list(self.compressedSnapshots.values())
 
 
     def GetNumberOfSnapshots(self):

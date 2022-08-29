@@ -4,6 +4,7 @@
 ## 01/2021
 
 from dataclasses import Field
+# from fileinput import filename
 from hashlib import new
 import os
 import os.path as osp
@@ -15,6 +16,7 @@ import numpy as np
 from pathlib import Path
 import array
 import warnings
+import timeit 
 
 
 import feelpp 
@@ -24,7 +26,7 @@ import feelpp.operators as FppOp
 import SnapshotReducedBasis as SRB
 from Mordicus.Modules.Cemosis.Containers.SolutionStructure.FeelppSol import FeelppSolution as FppSol
 from NIRBinitCase import * 
-from Mordicus.Core.IO import StateIO as SIO
+from Mordicus.Modules.Cemosis.IO.StateIO import *
 
 
 print("-----------------------------------")
@@ -73,6 +75,8 @@ cfg_path = f"{modelsFolder}/square/square.cfg"
 geo_path = f"{modelsFolder}/square/square.geo"
 model_path = f"{modelsFolder}/square/square.json"
 
+msh_path = f"{dataFolder}/square.msh"
+
 # fineness of two grids
 H = 0.1  # CoarseMeshSize 
 h = H**2 # fine mesh size 
@@ -102,21 +106,19 @@ numberOfNodes = CoarseMesh.numGlobalPoints()
          Load offline datas for online part 
 -------------------------------------------------------
 """
+filename= dataFolder + "reducedBasisU.dat"
+reducedOrderBasisU = LoadPetscArrayBin(filename)
+nev = reducedOrderBasisU.size[0]
+filename= dataFolder + "massMatrix.dat"
+MassMatrix = LoadPetscArrayBin(filename)
+filename= dataFolder + "stiffnessMatrix.dat"
+StiffnessMatrix = LoadPetscArrayBin(filename)
 
-reducedOrderBasisU = SIO.LoadState(dataFolder+"reducedBasisU")
-nev = reducedOrderBasisU.shape[0]
-
-# to be done later (read the matrix from file)
-Vh = feelpp.functionSpace(mesh=FineMesh)
-MassMatrix=FppOp.mass(test=Vh,trial=Vh,range=feelpp.elements(FineMesh))
-StiffnessMatrix=FppOp.stiffness(test=Vh,trial=Vh,range=feelpp.elements(FineMesh))
-MassMatrix.mat().assemble()
-StiffnessMatrix.mat().assemble()
+MassMatrix.assemble()
+StiffnessMatrix.assemble()
 
 l2ScalarProducMatrix = MassMatrix
 h1ScalarProducMatrix = StiffnessMatrix
-
-
 """ 
 -----------------------------------------------------------------
         Get coarse solution and project it on fine mesh 
@@ -137,25 +139,49 @@ interpSol = interpOper.interpolate(coarseSol)
 newSol = FppSol("UH",dimension, numberOfNodes) 
 newSol.AddSolution(interpSol, 0)
 newSol.CompressSolution(l2ScalarProducMatrix, reducedOrderBasisU)
-newCompressedSol = newSol.GetreducedCoeff()
-reconstructedSolution = np.dot(newCompressedSol[0], reducedOrderBasisU)
+newCompressedSol = newSol.GetCompressedSolution()
 
+## Get new reconstructed solution  
+reconstructedSolution = interpSol.to_petsc().vec().copy()
+reducedOrderBasisU.multTranspose(newCompressedSol[0], reconstructedSolution)
 
+##################################################
+# Save Online data for vizualisation 
+##################################################
+
+print("-----------------------------------")
+print(" STEP II. 4: Saving datas on Disk  ")
+print("-----------------------------------")
+
+# export = feelpp.exporter(mesh=FineMesh, name="feelpp_nirb")
+# export.addScalar("un", 1.)
+# export.addP1c("u", reconstructedSolution)
+# export.addP1c("U_interp", interpSol)
+# e.addP0d("pid", feelpp.pid(P0h))
+# export.save()
 ##################################################
 # ONLINE ERRORS
 ##################################################
 if ComputingError==1:
-    
-    print("-----------------------------------")
-    print(" STEP II. 3: Compute online errors ")
-    print("-----------------------------------")
 
-    fineSol = np.array(interpSol.to_petsc().vec())
-    reducedSol = reconstructedSolution 
-    diff = np.abs(fineSol - reducedSol)
+        print("-----------------------------------")
+        print(" STEP II. 3: Compute online errors ")
+        print("-----------------------------------")
 
-    print('Inf norm = ', np.max(diff)/np.max(fineSol))
-    print('l2 discret norm = ',np.sqrt(diff.dot(diff))/np.sqrt(fineSol.dot(fineSol)) )
+        FineSol = SolveFpp(tbFine, mu)
+
+        diffSolve = FineSol.to_petsc().vec() - reconstructedSolution 
+        diffInterp = FineSol.to_petsc().vec() - interpSol.to_petsc().vec() 
+        
+        print("---------- NIRB Solve Error -----------------")
+        print ('l2-norm  =', diffSolve.norm())
+        print ('Infinity-norm =', diffSolve.norm(PETSc.NormType.NORM_INFINITY))
+
+        print("---------- NIRB Interp Error -----------------")
+        print ('l2-norm  =', diffInterp.norm())
+        print ('Infinity-norm =', diffInterp.norm(PETSc.NormType.NORM_INFINITY))
+
+        print("-----------------------------------------------")
 
 print("NIRB ONLINE DONE! ")
 

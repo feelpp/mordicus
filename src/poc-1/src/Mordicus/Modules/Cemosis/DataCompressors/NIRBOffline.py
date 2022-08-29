@@ -161,7 +161,7 @@ file = "massMatrix.dat"
 SavePetscArrayBin(file, l2ScalarProducMatrix.mat())
 file = "stiffnessMatrix.dat"
 SavePetscArrayBin(file, h1ScalarProducMatrix.mat())
-file="reducedBasisU"
+file="reducedBasisU.dat"
 SavePetscArrayBin(file, reducedOrderBasisU)
 # SIO.SaveState(file, reducedOrderBasisU)
 

@@ -97,12 +97,12 @@ def ComputeReducedOrderBasisWithPOD(snapshotList, snapshotCorrelationOperator, t
     eigenMatrix.setFromOptions()
     eigenMatrix.setUp()
 
-    eigenpairs = {}
+    # eigenpairs = {}
 
     for i in range(nbePODModes):
         eigenval[i] = float(E.getEigenvalue(i).real)
         E.getEigenvector(i, eigenvect)
-        eigenpairs[eigenval[i]] = eigenvect/np.sqrt(eigenval[i]) # normalized eigenvect
+        # eigenpairs[eigenval[i]] = eigenvect/np.sqrt(eigenval[i]) # normalized eigenvect
         eigenMatrix[i,:] = eigenvect[:]/np.sqrt(eigenval[i])
 
     eigenMatrix.assemble()
@@ -110,10 +110,6 @@ def ComputeReducedOrderBasisWithPOD(snapshotList, snapshotCorrelationOperator, t
     
 
     ## Set reduced basis 
-    for s in snapshotList:
-        snapshots.append(s.to_petsc().vec()[:])
-
-
     reducedOrderBasis = PETSc.Mat().createDense(size=(nbePODModes,numberOfDofs))
     reducedOrderBasis.setFromOptions()
     reducedOrderBasis.setUp()
@@ -122,13 +118,8 @@ def ComputeReducedOrderBasisWithPOD(snapshotList, snapshotCorrelationOperator, t
 
     tempMat = reducedOrderBasis.copy()
 
-    # for i in range(nbePODModes):
-    #     for j in range(numberOfDofs):
-    #         reducedOrderBasis[i,j] = 
-
     for i in range(nbePODModes):
         tempMat[i,:] = snapshotList[i].to_petsc().vec()[:]
-        # reducedOrderBasis[i,:] = snapshotList[i].to_petsc().vec()[:]
 
     tempMat.assemble() 
 
