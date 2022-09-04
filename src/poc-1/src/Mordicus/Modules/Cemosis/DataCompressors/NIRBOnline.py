@@ -25,8 +25,14 @@ import feelpp.mor.reducedbasis.reducedbasis as FppRb
 import feelpp.operators as FppOp 
 import SnapshotReducedBasis as SRB
 from Mordicus.Modules.Cemosis.Containers.SolutionStructure.FeelppSol import FeelppSolution as FppSol
+
+from Mordicus.Modules.Cemosis.Containers.SolutionStructure.FeelppSol import energy
 from NIRBinitCase import * 
+from feelpp.toolboxes.heat import *
 from Mordicus.Modules.Cemosis.IO.StateIO import *
+nirb_dir = "/data/home/elarif/devel/feelpp/python/pyfeelpp-toolboxes/feelpp/toolboxes/nirb/"
+sys.path.append(nirb_dir)
+from nirb import *
 
 
 print("-----------------------------------")
@@ -63,6 +69,8 @@ SavingApproximation=1 #if NIRB approximation saved
         initialize toolbox 
 --------------------------------------
 """
+start = timeit.timeit()
+
 ## Current Directories
 currentFolder=os.getcwd()
 
@@ -90,8 +98,9 @@ order =1
 # load model 
 model = loadModel(model_path)
 
-tbCoarse = setToolbox(H, geo_path, model, order)
-tbFine = setToolbox(h, geo_path, model,order)
+tbCoarse = setToolbox(H, geo_path, model, dim=dimension, order=order,type_tb=toolboxesOptions)
+tbFine = setToolbox(h, geo_path, model, dim=dimension, order=order,type_tb=toolboxesOptions)
+
 Dmu = loadParameterSpace(model_path)
 
 # ----------------------------------------------------------
@@ -127,8 +136,11 @@ h1ScalarProducMatrix = StiffnessMatrix
 ## Solve equation with new parameter on Coarse Mesh
 mu = Dmu.element()
 coarseSol = SolveFpp(tbCoarse, mu)
-interpOper = createInterpolator(tbCoarse, tbFine)
+interpOper = createInterpolator(tbCoarse, tbFine, type_tb='heat')
 interpSol = interpOper.interpolate(coarseSol)
+
+FineSol = SolveFpp(tbFine, mu)
+
 
 """ 
 -------------------------------------------------------
@@ -145,6 +157,8 @@ newCompressedSol = newSol.GetCompressedSolution()
 reconstructedSolution = interpSol.to_petsc().vec().copy()
 reducedOrderBasisU.multTranspose(newCompressedSol[0], reconstructedSolution)
 
+
+# reconstructedSolution = interpSol.to_petsc()
 ##################################################
 # Save Online data for vizualisation 
 ##################################################
@@ -152,30 +166,61 @@ reducedOrderBasisU.multTranspose(newCompressedSol[0], reconstructedSolution)
 print("-----------------------------------")
 print(" STEP II. 4: Saving datas on Disk  ")
 print("-----------------------------------")
+feelppsol = feelpp.functionSpace(mesh=FineMesh, order=1)
 
-# export = feelpp.exporter(mesh=FineMesh, name="feelpp_nirb")
-# export.addScalar("un", 1.)
-# export.addP1c("u", reconstructedSolution)
-# export.addP1c("U_interp", interpSol)
-# e.addP0d("pid", feelpp.pid(P0h))
-# export.save()
+# sol_ublas = feelpp._alg.VectorUBlas.createFromPETSc(reconstructedSolution)
+
+# uu = reconstructedSolution
+
+# sol_ublas = feelppsol.createFromPETSc(uu)
+
+# sol_ublas = reconstructedSolution.to_
+# print(type(sol_ublas))
+
+# feelppsol._alg.VectorUBlas.createFromPETSc(reconstructedSolution)
+
+# print(feelppsol)
+
+
+# print('blas ', v_ublas)
+
+# feelppsol = coarseSol.functionSpace()
+# petscsol = reconstructedSolution.copy() 
+# print('petsol', petscsol)
+# print(feelppsol)
+# print(coarseSol)
+# coarseSol.createFromPETSc(reconstructedSolution)
+# print(help(interpSol))
+
+
+export = feelpp.exporter(mesh=FineMesh, name="feelpp_nirb")
+# export.addP1c("u", FineSol)
+export.addP1c("u_interp", interpSol)
+export.save()
 ##################################################
 # ONLINE ERRORS
 ##################################################
+
+# finish = timeit.timeit() 
+
 if ComputingError==1:
 
         print("-----------------------------------")
         print(" STEP II. 3: Compute online errors ")
         print("-----------------------------------")
 
-        FineSol = SolveFpp(tbFine, mu)
+        # FineSol = SolveFpp(tbFine, mu)
 
         diffSolve = FineSol.to_petsc().vec() - reconstructedSolution 
-        diffInterp = FineSol.to_petsc().vec() - interpSol.to_petsc().vec() 
+        diffInterp = (FineSol - interpSol).to_petsc().vec() 
         
-        print("---------- NIRB Solve Error -----------------")
+        print("---------- NIRB Solve absolute Error -----------------")
         print ('l2-norm  =', diffSolve.norm())
         print ('Infinity-norm =', diffSolve.norm(PETSc.NormType.NORM_INFINITY))
+
+        print("---------- NIRB Solve relative Error -----------------")
+        print ('l2-norm  =', diffSolve.norm()/FineSol.to_petsc().vec().norm())
+        print ('Infinity-norm =', diffSolve.norm(PETSc.NormType.NORM_INFINITY)/FineSol.to_petsc().vec().norm(PETSc.NormType.NORM_INFINITY))
 
         print("---------- NIRB Interp Error -----------------")
         print ('l2-norm  =', diffInterp.norm())
@@ -183,6 +228,9 @@ if ComputingError==1:
 
         print("-----------------------------------------------")
 
+
+finish = timeit.timeit() 
+print("Elapsed time = ", finish - start )
 print("NIRB ONLINE DONE! ")
 
 

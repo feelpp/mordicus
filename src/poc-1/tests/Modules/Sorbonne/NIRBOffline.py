@@ -88,7 +88,7 @@ print("-----------------------------------")
 ----------------------------------------------------------------------------------------
 """
 
-nev=1 #default value number of modes
+nev=0 #default value number of modes
 ns=1 #default value number of snapshots
 
 if len(sys.argv)>1:

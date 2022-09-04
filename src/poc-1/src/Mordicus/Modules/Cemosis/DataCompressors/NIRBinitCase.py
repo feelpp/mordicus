@@ -6,31 +6,36 @@ import feelpp
 import sys, os
 import feelpp
 import feelpp.mor as mor
-from feelpp.toolboxes.heat import *
+import feelpp.toolboxes.heat as heat 
+import feelpp.toolboxes.fluid as fluid
 import feelpp.interpolation as fi
 import json5 as json
 
-
-
-def assembleToolbox(tb, mu):
-
-    for i in range(0,mu.size()):
-        tb.addParameterInModelProperties(mu.parameterName(i), mu(i))
-    tb.updateParameterValues()
+nirb_dir = "/data/home/elarif/devel/feelpp/python/pyfeelpp-toolboxes/feelpp/toolboxes/nirb/"
+sys.path.append(nirb_dir)
+from nirb import *
 
 
 
-def createInterpolator(tbCoarse, tbFine):
-    """Create an interpolator between two toolboxes
+# def assembleToolbox(tb, mu):
+
+#     for i in range(0,mu.size()):
+#         tb.addParameterInModelProperties(mu.parameterName(i), mu(i))
+#     tb.updateParameterValues()
+
+
+
+# def createInterpolator(tbCoarse, tbFine):
+#     """Create an interpolator between two toolboxes
     
-    Args:
-        tbCorase (Toolbox): coarse toolbox
-        tbFine (Toolbox): fine toolbox
-    """
-    Vh_coarse = tbCoarse.spaceTemperature()
-    Vh_fine = tbFine.spaceTemperature()
-    interpolator = fi.interpolator(domain = Vh_coarse, image = Vh_fine, range = tbCoarse.rangeMeshElements())
-    return interpolator
+#     Args:
+#         tbCorase (Toolbox): coarse toolbox
+#         tbFine (Toolbox): fine toolbox
+#     """
+#     Vh_coarse = tbCoarse.spaceTemperature()
+#     Vh_fine = tbFine.spaceTemperature()
+#     interpolator = fi.interpolator(domain = Vh_coarse, image = Vh_fine, range = tbCoarse.rangeMeshElements())
+#     return interpolator
 
 
 
@@ -42,7 +47,7 @@ def initproblem(numberOfInitSnapshot, tbFine, tbCoarse, Dmu):
     ----------------------------------------------------
     tbFine : toolbox for fine mesh (initialized) 
     tbCoarse : toolbox for coarse mesh (initialized)
-    Dmu : Space parameters 
+    ListParam : list of Space parameters (to be done)
     numberOfSnapshot : the number of snapshot for initialization 
 
     """ 
@@ -56,11 +61,19 @@ def initproblem(numberOfInitSnapshot, tbFine, tbCoarse, Dmu):
     fineSnapList = []
     coarseSnapList = []
 
+    print('init mu', mu.view())
     for param in range(numberOfInitSnapshot):
 
-        dicparam = dict([ (mu.parameterName(i), mu(i)/float(param+1)) for i in range(mu.size())])
+        dicparam = dict([ (mu.parameterName(i), mu(i)+float(2)) for i in range(mu.size())])
+        lmu = [ mu(i)+float(2) for i in range(mu.size())]
+        
 
+        # Dmu.setParameters(dicparam)
+        # for i in range(mu.size()):
+            # mu.setParameter(i, lmu[i])
         mu.setParameters(dicparam)
+
+        # print('init mu', mu.view())
 
         if feelpp.Environment.isMasterRank():
             print(f"Running simulation with mu = {mu}")
@@ -73,7 +86,7 @@ def initproblem(numberOfInitSnapshot, tbFine, tbCoarse, Dmu):
 
         fineSnapList.append(tbFine.fieldTemperature())
         coarseSnapList.append(tbCoarse.fieldTemperature())
-
+        
     #     exportFine = feelpp.exporter(mesh=fineMesh, name="Snapshot")
     #     exportFine.addScalar(f"mu{param}", mu(1))
     #     # exportFine.step()
@@ -93,44 +106,81 @@ def initproblem(numberOfInitSnapshot, tbFine, tbCoarse, Dmu):
     
     print("Number of Snapshots computed = ", len(fineSnapList))
     print("Initialize Snapshots DONE ")
+
     return fineSnapList, coarseSnapList
 
-def loadModel(model_path):
-    """Load the model from given modele path
+# def loadModel(model_path):
+#     """Load the model from given modele path
 
-    Args:
-        model_path (str): path to the model file (JSON)
+#     Args:
+#         model_path (str): path to the model file (JSON)
 
-    Returns:
-        json: model loaded
-    """
-    f = open(model_path, "r")
-    model = json.load(f)
-    f.close()
-    return model
+#     Returns:
+#         json: model loaded
+#     """
+#     f = open(model_path, "r")
+#     model = json.load(f)
+#     f.close()
+#     return model
 
-def loadParameterSpace(model_path):
+# def loadParameterSpace(model_path):
 
-    crb_model_properties = mor.CRBModelProperties("", feelpp.Environment.worldCommPtr(), "")
-    crb_model_properties.setup(model_path)
-    Dmu = feelpp.mor._mor.ParameterSpace.New(crb_model_properties.parameters(), feelpp.Environment.worldCommPtr())
-    return Dmu
+#     crb_model_properties = mor.CRBModelProperties("", feelpp.Environment.worldCommPtr(), "")
+#     crb_model_properties.setup(model_path)
+#     Dmu = feelpp.mor._mor.ParameterSpace.New(crb_model_properties.parameters(), feelpp.Environment.worldCommPtr())
+#     return Dmu
 
 
-def setToolbox(h, geo_path, model, order=2):
+# def setToolbox(h, geo_path, model, order=2):
 
-    # load meshes
-    mesh_ = feelpp.mesh(dim=2, realdim=2)
-    mesh = feelpp.load(mesh_, geo_path, h)
+#     # load meshes
+#     mesh_ = feelpp.mesh(dim=2, realdim=2)
+#     mesh = feelpp.load(mesh_, geo_path, h)
 
-    # set mesh and model properties
-    tb = heat(dim=2, order=order)
-    tb.setMesh(mesh)
-    tb.setModelProperties(model)
+#     # set mesh and model properties
+#     tb = heat(dim=2, order=order)
+#     tb.setMesh(mesh)
+#     tb.setModelProperties(model)
 
-    tb.init()
+#     tb.init()
 
-    return tb
+#     return tb
+
+# def setToolbox(h, geo_path, model, dim=2, order=2, type_tb="heat"):
+#     """Set up the toolbox object for the given model and mesh
+
+#     Args:
+#         h (float): size of the mesh
+#         geo_path (str): path to the goemetries file
+#         model (str): path to the model file
+#         dim (int): dimension of the mesh
+#         order (int): order of the finite elements
+#         type_tb (str): name of the toolbox {"heat"|"fluid"}
+
+#     Returns:
+#         Toolbox: toolbox object
+#     """
+
+#     # load meshes
+#     mesh_ = feelpp.mesh(dim=2, realdim=2)
+#     mesh = feelpp.load(mesh_, geo_path, h)
+
+#     # set mesh and model properties
+#     if type_tb == "heat":
+#         tb = heat.heat(dim=dim, order=order)
+#     elif type_tb == "fluid":
+#         tb = fluid.fluid(dim=dim)
+#     else:
+#         raise ValueError("Unknown toolbox")
+
+#     tb.setMesh(mesh)
+#     tb.setModelProperties(model)
+
+#     tb.init()
+
+#     return tb
+
+
 
 def SolveFpp(toolBox, mu):
         

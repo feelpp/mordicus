@@ -10,6 +10,7 @@ import os
 import os.path as osp
 import glob
 import sys
+import timeit
 import numpy as np
 from pathlib import Path
 import array
@@ -21,10 +22,17 @@ import feelpp.mor.reducedbasis.reducedbasis as FppRb
 import feelpp.operators as FppOp 
 import SnapshotReducedBasis as SRB 
 from NIRBinitCase import * 
+from feelpp.toolboxes.heat import *
+from Mordicus.Core.DataCompressors import SnapshotPOD as SP
+from petsc4py import PETSc
 
+nirb_dir = "/data/home/elarif/devel/feelpp/python/pyfeelpp-toolboxes/feelpp/toolboxes/nirb/"
+sys.path.append(nirb_dir)
+from nirb import *
 
 from Mordicus.Core.Containers import CollectionProblemData as CPD
 from Mordicus.Core.IO import StateIO as SIO
+
 
 ## Directories
 currentFolder=os.getcwd()
@@ -50,13 +58,23 @@ Rectification=1 #1 with Rectification post-process (Coarse Snapshots required) o
 currentFolder=os.getcwd()
 
 # model directories 
-toolboxesOptions='heat'
+toolboxesOptions='heat' # 'fluid'
 
-modelsFolder = f"{currentFolder}/models/" 
-modelsFolder = f"{modelsFolder}{toolboxesOptions}" 
-cfg_path = f"{modelsFolder}/square/square.cfg" 
-geo_path = f"{modelsFolder}/square/square.geo"
-model_path = f"{modelsFolder}/square/square.json"
+if (toolboxesOptions=='heat') :
+        modelsFolder = f"{currentFolder}/models/" 
+        modelsFolder = f"{modelsFolder}{toolboxesOptions}" 
+        cfg_path = f"{modelsFolder}/square/square.cfg" 
+        geo_path = f"{modelsFolder}/square/square.geo"
+        model_path = f"{modelsFolder}/square/square.json"
+elif (toolboxesOptions=='fluid'):
+        modelsFolder = f"{currentFolder}/models/lid-driven-cavity" 
+        # modelsFolder = f"{modelsFolder}{toolboxesOptions}" 
+        cfg_path = f"{modelsFolder}/cfd2d.cfg" 
+        geo_path = f"{modelsFolder}/cfd2d.geo"
+        model_path = f"{modelsFolder}/cfd2d.json"
+
+
+start = timeit.timeit() 
 
 # fineness of two grids
 H = 0.1  # CoarseMeshSize 
@@ -71,15 +89,14 @@ order =1
 # load model 
 model = loadModel(model_path)
 
-tbCoarse = setToolbox(H, geo_path, model, order)
-tbFine = setToolbox(h, geo_path, model,order)
+tbCoarse = setToolbox(H, geo_path, model, dim=dimension, order=order,type_tb=toolboxesOptions)
+tbFine = setToolbox(h, geo_path, model, dim=dimension, order=order,type_tb=toolboxesOptions)
 Dmu = loadParameterSpace(model_path)
 # ----------------------------------------------------------
 # ----------------------------------------------------------
 ## MESH infos 
 FineMesh = tbFine.mesh()
 CoarseMesh = tbCoarse.mesh()
-
 ## Fine Mesh reader 
 numberOfNodes = FineMesh.numGlobalPoints()
 print("Fine Mesh --> Number of nodes : ", numberOfNodes)
@@ -133,12 +150,31 @@ if Rectification == 1:
 
 cpt=0 #num snapshot
 
+nbPODMode = len(fineSnapList)
+nbDofs = fineSnapList[0].functionSpace().nDof() 
+
+oper = l2ScalarProducMatrix.mat()
+oper.assemble()
+oper = np.array(oper[:,:])
+snaparray = []
+for s in fineSnapList:
+        snaparray.append(s.to_petsc().vec()[:])
+        
 if Method=="Greedy":
         #reducedOrderBasisU=GD.Greedy(collectionProblemData,"U",l2ScalarProducMatrix,h1ScalarProducMatrix,nev) # greedy algorith
         reducedOrderBasisU = SRB.ComputeReducedOrderBasisWithPOD(fineSnapList,l2ScalarProducMatrix)
 else : #POD 
-        reducedOrderBasisU = SRB.ComputeReducedOrderBasisWithPOD(fineSnapList, l2ScalarProducMatrix)
+        # reducedOrderBasisU = SRB.ComputeReducedOrderBasisWithPOD(fineSnapList, l2ScalarProducMatrix)
+        rbb = SP.ComputeReducedOrderBasis(snaparray, oper, 1.e-6)
 
+nbPODMode = rbb.shape[0]
+reducedOrderBasisU = PETSc.Mat().createDense(size=(nbPODMode,nbDofs))
+reducedOrderBasisU.setFromOptions()
+reducedOrderBasisU.setUp()
+reducedOrderBasisU.assemble()
+
+print('shape = ', rbb.shape)
+reducedOrderBasisU[:,:] = rbb
 # number of modes 
 nev = reducedOrderBasisU.size[0]
 print("number of modes: ", nev)
@@ -181,6 +217,7 @@ for i in range(nev):
 # print(" STEP I. 4: Offline  errors soon !!")
 # print("-----------------------------------")
 
-
+finish = timeit.timeit() 
+print("Elapsed time = ", finish - start )
 print("Offline DONE ... ")
 print("to be continued, with the online part ... ")

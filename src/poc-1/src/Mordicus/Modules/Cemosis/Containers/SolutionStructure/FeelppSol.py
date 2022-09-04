@@ -19,7 +19,10 @@ import feelpp
 from mpi4py import MPI
 from petsc4py import PETSc
 
-
+def energy(Mat, Vec):
+    """ Comput the Vect*Mat*V """ 
+    return Vec@(Mat@Vec)
+    
 class FeelppSolution(object):
     """
     Class containing a wrapping of element in Feelpp function space  

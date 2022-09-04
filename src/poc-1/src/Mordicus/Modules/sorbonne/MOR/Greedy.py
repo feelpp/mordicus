@@ -83,11 +83,9 @@ def Greedy(collectionProblemData,solutionName,snapshotCorrelationOperator,h1Scal
         reducedOrderBasisU=np.zeros((NumberOfModes,DegreesOfFreedom)) #nev, nbd
     Index=SnaphotsNorm.index(max(SnaphotsNorm)) #first mode
     print("Mode 0: ", Index)
-   
     reducedOrderBasisU[0,:]=snapshots[Index]/SnaphotsNorm[Index] #first mode
     ListeIndex=[Index] #first snapshot 
     BasisNorm=[SnaphotsNorm[Index]]
-    
     Basis=[snapshots[Index]]
     MatrixBasisProduct=[snapshotCorrelationOperator.dot(Basis[0])]
     if NumberOfModes>0:
@@ -98,13 +96,13 @@ def Greedy(collectionProblemData,solutionName,snapshotCorrelationOperator,h1Scal
             for j in range(NumberOfSnapshots): 
                 if not (j in ListeIndex) and SnaphotsNorm[j]>1e-10: #if index not yet in the basis
                     w=snapshots[j]-np.sum((b*np.dot(MatrixBasisProduct[k],snapshots[j])/BasisNorm[k]**2 for k,b in enumerate(Basis)),axis=0)#potential vector to add in the reduced basis
+
                     if (w > 1e-10).any():
                         NormW=Norm(snapshotCorrelationOperator,w)#np.sqrt(np.dot((l2ScalarProducMatrix.dot(w)),w))
                         GreedyMaximumTest=NormW/SnaphotsNorm[j] #we seek the max
                         TestVector[j]=[GreedyMaximumTest,w,NormW]
   
             Index=max(TestVector, key = lambda k: TestVector[k][0]) #index of the snapshot used
-            print(TestVector[Index])
             print("index",Index)
             ListeIndex.append(Index) #adding in the list
         
@@ -130,10 +128,10 @@ def Greedy(collectionProblemData,solutionName,snapshotCorrelationOperator,h1Scal
                         TestVector[j]=[GreedyMaximumTest,w,NormW]
   
             Index=max(TestVector, key = lambda k: TestVector[k][0]) #index of the snapshot used
-            print(TestVector[Index])
+            # print(TestVector[Index])
             print("index",Index)
             ListeIndex.append(Index) #adding in the list
-            assert TestVector[Index][0]<Threshold, "error: Tolerance too big"
+            assert TestVector[Index][0]<Threshold, f"error: Tolerance too big {TestVector[Index][0]} vs {Threshold}"
             Threshold=TestVector[Index][0]
             Basis.append(TestVector[Index][1])
             BasisNorm.append(TestVector[Index][2])
@@ -197,7 +195,6 @@ def Greedy(collectionProblemData,solutionName,snapshotCorrelationOperator,h1Scal
         for i in range(NumberOfModes):
             reducedOrderBasisNorm=np.sqrt(reducedOrderBasisU[i,:]@(snapshotCorrelationOperator@reducedOrderBasisU[i,:]))
             reducedOrderBasisU[i,:]/=reducedOrderBasisNorm#np.sqrt(M[i,i]) #L2 orthonormalization
-    
     
     return reducedOrderBasisU
 
