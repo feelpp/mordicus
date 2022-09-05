@@ -23,86 +23,74 @@ import feelpp.operators as FppOp
 import SnapshotReducedBasis as SRB 
 from NIRBinitCase import * 
 from feelpp.toolboxes.heat import *
-from Mordicus.Core.DataCompressors import SnapshotPOD as SP
 from petsc4py import PETSc
 
 nirb_dir = "/data/home/elarif/devel/feelpp/python/pyfeelpp-toolboxes/feelpp/toolboxes/nirb/"
 sys.path.append(nirb_dir)
 from nirb import *
 
-from Mordicus.Core.Containers import CollectionProblemData as CPD
-from Mordicus.Core.IO import StateIO as SIO
+# from Mordicus.Core.Containers import CollectionProblemData as CPD
+# from Mordicus.Core.IO import StateIO as SIO
+
+
+print("-----------------------------------")
+print(" STEP II. 0: start Online nirb     ")
+print("-----------------------------------")
+
+## Parameters
+dimension=2 #dimension spatial domain
+Method="POD" #POD or Greedy
+Rectification=True #True with Rectification post-process (Coarse Snapshots required) or 0 without
+ComputingError=True # True will take more time for compution direct FE solution in fine mesh 
+export = True # True will save the NIRB result and interpolation of coarse solution in fine mesh  
+toolboxesOptions='heat'
+modelfile={'heat':'square/square', 'fluid':'lid-driven-cavity/cfd2d'}
+order = 1
+# fineness of two grids
+H = 0.1  # CoarseMeshSize 
+h = H**2 # fine mesh size 
 
 
 ## Directories
-currentFolder=os.getcwd()
-dataFolder = osp.expanduser("~/feelppdb/nirb/")
-modelFolder = "StationaryNS/" # or "heat"
+PWD=os.getcwd()
+dataFolder = osp.expanduser(f"~/feelppdb/nirb/{toolboxesOptions}/np_1/")
+# model directories 
+modelsFolder = f"{PWD}/models/" 
+modelsFolder = f"{modelsFolder}{toolboxesOptions}/" 
+cfg_path = f"{modelsFolder}{modelfile[toolboxesOptions]}.cfg" 
+geo_path = f"{modelsFolder}{modelfile[toolboxesOptions]}.geo"
+model_path = f"{modelsFolder}{modelfile[toolboxesOptions]}.json"
+msh_path = f"{dataFolder}{modelfile[toolboxesOptions]}.msh"
 
-## Parameters
-
-dimension=2 #dimension spatial domain
-nbeOfComponentsPrimal = 2 # number of components 
-FieldName="Velocity" #Snapshots fieldname
-Method="POD" #POD or Greedy
-Rectification=1 #1 with Rectification post-process (Coarse Snapshots required) or 0 without
-
-## Script Files - Initiate data
-# Create data (mesh1,mesh2,snapshots,uH) for Sorbonne usecase 
 """ 
 --------------------------------------
         initialize toolbox 
 --------------------------------------
 """
-## Current Directories
-currentFolder=os.getcwd()
-
-# model directories 
-toolboxesOptions='heat' # 'fluid'
-
-if (toolboxesOptions=='heat') :
-        modelsFolder = f"{currentFolder}/models/" 
-        modelsFolder = f"{modelsFolder}{toolboxesOptions}" 
-        cfg_path = f"{modelsFolder}/square/square.cfg" 
-        geo_path = f"{modelsFolder}/square/square.geo"
-        model_path = f"{modelsFolder}/square/square.json"
-elif (toolboxesOptions=='fluid'):
-        modelsFolder = f"{currentFolder}/models/lid-driven-cavity" 
-        # modelsFolder = f"{modelsFolder}{toolboxesOptions}" 
-        cfg_path = f"{modelsFolder}/cfd2d.cfg" 
-        geo_path = f"{modelsFolder}/cfd2d.geo"
-        model_path = f"{modelsFolder}/cfd2d.json"
-
-
-start = timeit.timeit() 
-
-# fineness of two grids
-H = 0.1  # CoarseMeshSize 
-h = H**2 # fine mesh size 
-
+start = timeit.timeit()
 # set the feelpp environment
 config = feelpp.globalRepository(f"nirb/{toolboxesOptions}")
 e=feelpp.Environment(sys.argv, opts = toolboxes_options(toolboxesOptions).add(mor.makeToolboxMorOptions()), config=config)
 e.setConfigFile(cfg_path)
-order =1
 
 # load model 
 model = loadModel(model_path)
-
-tbCoarse = setToolbox(H, geo_path, model, dim=dimension, order=order,type_tb=toolboxesOptions)
+# define the toolboxes 
 tbFine = setToolbox(h, geo_path, model, dim=dimension, order=order,type_tb=toolboxesOptions)
-Dmu = loadParameterSpace(model_path)
+# Get actual mu parameter 
+Dmu = loadParameterSpace(model_path) 
+
 # ----------------------------------------------------------
 # ----------------------------------------------------------
-## MESH infos 
+## Fine mesh infos 
 FineMesh = tbFine.mesh()
-CoarseMesh = tbCoarse.mesh()
-## Fine Mesh reader 
 numberOfNodes = FineMesh.numGlobalPoints()
 print("Fine Mesh --> Number of nodes : ", numberOfNodes)
 
-## Coarse Mesh reader if rectification process 
-if Rectification==1 :
+if Rectification :
+        # define the coarse toolboxes and mesh 
+        tbCoarse = setToolbox(H, geo_path, model, dim=dimension, order=order,type_tb=toolboxesOptions)
+        CoarseMesh = tbCoarse.mesh()
         numberOfNodes2 = CoarseMesh.numGlobalPoints() 
         print("Coarse Mesh --> Number of nodes : ", numberOfNodes2)
 
@@ -116,8 +104,10 @@ nev =nbeOfInitSnapshots
 print("-----------------------------------")
 print(" STEP I. 0: start init             ")
 print("-----------------------------------")
-
-fineSnapList, coarseSnapList = initproblem(nbeOfInitSnapshots, tbFine, tbCoarse, Dmu)
+if Rectification :
+        fineSnapList, coarseSnapList = initproblem(nbeOfInitSnapshots, Dmu, tbFine, tbCoarse, type_tb=toolboxesOptions)
+else :
+        fineSnapList, _ = initproblem(nbeOfInitSnapshots,Dmu, tbFine, type_tb=toolboxesOptions)
 
 """
 ----------------------------------------------------------------------------------------
@@ -126,55 +116,31 @@ fineSnapList, coarseSnapList = initproblem(nbeOfInitSnapshots, tbFine, tbCoarse,
 ----------------------------------------------------------------------------------------
 ----------------------------------------------------------------------------------------
 """
+print("--------------------------------------------")
+print(" STEP I. 2: Generate L2 and H1 operator     ")
+print("--------------------------------------------")
 
-print("-----------------------------------")
-print(" STEP I. 2: Generate operator      ")
-print("-----------------------------------")
-
-Vh = feelpp.functionSpace(mesh=FineMesh)
-MassMatrix=FppOp.mass(test=Vh,trial=Vh,range=feelpp.elements(FineMesh))
-StiffnessMatrix=FppOp.stiffness(test=Vh,trial=Vh,range=feelpp.elements(FineMesh))
-
-l2ScalarProducMatrix = MassMatrix
-h1ScalarProducMatrix = StiffnessMatrix
+Vh = feelpp.functionSpace(mesh=FineMesh) # feelpp space function 
+l2ScalarProducMatrix=FppOp.mass(test=Vh,trial=Vh,range=feelpp.elements(FineMesh))
+h1ScalarProducMatrix=FppOp.stiffness(test=Vh,trial=Vh,range=feelpp.elements(FineMesh))
 
 print("-----------------------------------")
 print(" STEP I. 2: Creating Reduced Basis ")
-print("-----------------------------------")
-        
-collectionProblemData = CPD.CollectionProblemData()
-collectionProblemData.AddVariabilityAxis('unused',int,description="unused parameter")
-collectionProblemData.DefineQuantity("U", full_name=FieldName, unit="unused") #fine
-if Rectification == 1:
-        collectionProblemData.DefineQuantity("UH", full_name=FieldName, unit="unused") #coarse
+print("-----------------------------------")    
+# collectionProblemData = CPD.CollectionProblemData()
+# collectionProblemData.AddVariabilityAxis('unused',int,description="unused parameter")
+# collectionProblemData.DefineQuantity("U", full_name=FieldName, unit="unused") #fine
+# if Rectification == 1:
+#         collectionProblemData.DefineQuantity("UH", full_name=FieldName, unit="unused") #coarse
 
-cpt=0 #num snapshot
-
-nbPODMode = len(fineSnapList)
-nbDofs = fineSnapList[0].functionSpace().nDof() 
-
-oper = l2ScalarProducMatrix.mat()
-oper.assemble()
-oper = np.array(oper[:,:])
-snaparray = []
-for s in fineSnapList:
-        snaparray.append(s.to_petsc().vec()[:])
-        
+cpt=0 #num snapshot        
 if Method=="Greedy":
         #reducedOrderBasisU=GD.Greedy(collectionProblemData,"U",l2ScalarProducMatrix,h1ScalarProducMatrix,nev) # greedy algorith
-        reducedOrderBasisU = SRB.ComputeReducedOrderBasisWithPOD(fineSnapList,l2ScalarProducMatrix)
+        reducedOrderBasisU = SRB.PODReducedBasisPETSc(fineSnapList,l2ScalarProducMatrix)
 else : #POD 
-        # reducedOrderBasisU = SRB.ComputeReducedOrderBasisWithPOD(fineSnapList, l2ScalarProducMatrix)
-        rbb = SP.ComputeReducedOrderBasis(snaparray, oper, 1.e-6)
+        # reducedOrderBasisU = SRB.PODReducedBasisPETSc(fineSnapList, l2ScalarProducMatrix)
+        reducedOrderBasisU = SRB.PODReducedBasisNumpy(fineSnapList, l2ScalarProducMatrix)
 
-nbPODMode = rbb.shape[0]
-reducedOrderBasisU = PETSc.Mat().createDense(size=(nbPODMode,nbDofs))
-reducedOrderBasisU.setFromOptions()
-reducedOrderBasisU.setUp()
-reducedOrderBasisU.assemble()
-
-print('shape = ', rbb.shape)
-reducedOrderBasisU[:,:] = rbb
 # number of modes 
 nev = reducedOrderBasisU.size[0]
 print("number of modes: ", nev)
@@ -190,8 +156,6 @@ print("number of modes: ", nev)
 print("----------------------------------------")
 print(" STEP I. 3: Save datas for Online phase ")
 print("----------------------------------------")
-
-
 from Mordicus.Modules.Cemosis.IO.StateIO import *
 file = "massMatrix.dat"
 SavePetscArrayBin(file, l2ScalarProducMatrix.mat())
@@ -199,7 +163,6 @@ file = "stiffnessMatrix.dat"
 SavePetscArrayBin(file, h1ScalarProducMatrix.mat())
 file="reducedBasisU.dat"
 SavePetscArrayBin(file, reducedOrderBasisU)
-# SIO.SaveState(file, reducedOrderBasisU)
 
 ## Ortho basis verification
 """

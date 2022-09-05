@@ -15,44 +15,19 @@ nirb_dir = "/data/home/elarif/devel/feelpp/python/pyfeelpp-toolboxes/feelpp/tool
 sys.path.append(nirb_dir)
 from nirb import *
 
-
-
-# def assembleToolbox(tb, mu):
-
-#     for i in range(0,mu.size()):
-#         tb.addParameterInModelProperties(mu.parameterName(i), mu(i))
-#     tb.updateParameterValues()
-
-
-
-# def createInterpolator(tbCoarse, tbFine):
-#     """Create an interpolator between two toolboxes
-    
-#     Args:
-#         tbCorase (Toolbox): coarse toolbox
-#         tbFine (Toolbox): fine toolbox
-#     """
-#     Vh_coarse = tbCoarse.spaceTemperature()
-#     Vh_fine = tbFine.spaceTemperature()
-#     interpolator = fi.interpolator(domain = Vh_coarse, image = Vh_fine, range = tbCoarse.rangeMeshElements())
-#     return interpolator
-
-
-
-def initproblem(numberOfInitSnapshot, tbFine, tbCoarse, Dmu):
+def initproblem(numberOfInitSnapshot, Dmu, tbFine, tbCoarse=None, type_tb='heat'):
         
     """ 
     ----------------------------------------------------
          generate snapshots in case POD method 
     ----------------------------------------------------
     tbFine : toolbox for fine mesh (initialized) 
-    tbCoarse : toolbox for coarse mesh (initialized)
+    tbCoarse : toolbox for coarse mesh (initialized) if Rectification 
     ListParam : list of Space parameters (to be done)
     numberOfSnapshot : the number of snapshot for initialization 
 
     """ 
     mu = Dmu.element()
-
 
     print("-----------------------------------")
     print("   Get Initialized Snapshots       ")
@@ -61,32 +36,47 @@ def initproblem(numberOfInitSnapshot, tbFine, tbCoarse, Dmu):
     fineSnapList = []
     coarseSnapList = []
 
-    print('init mu', mu.view())
-    for param in range(numberOfInitSnapshot):
+    if tbCoarse!=None :
+        for param in range(numberOfInitSnapshot):
 
-        dicparam = dict([ (mu.parameterName(i), mu(i)+float(2)) for i in range(mu.size())])
-        lmu = [ mu(i)+float(2) for i in range(mu.size())]
-        
+            dicparam = dict([ (mu.parameterName(i), mu(i)/float(param+0.001)) for i in range(mu.size())])
+            
+            mu.setParameters(dicparam)
 
-        # Dmu.setParameters(dicparam)
-        # for i in range(mu.size()):
-            # mu.setParameter(i, lmu[i])
-        mu.setParameters(dicparam)
+            if feelpp.Environment.isMasterRank():
+                print(f"Running simulation with mu = {mu}")
 
-        # print('init mu', mu.view())
+            assembleToolbox(tbCoarse, mu)
+            assembleToolbox(tbFine, mu)
 
-        if feelpp.Environment.isMasterRank():
-            print(f"Running simulation with mu = {mu}")
+            tbFine.solve()
+            tbCoarse.solve()
 
-        assembleToolbox(tbCoarse, mu)
-        assembleToolbox(tbFine, mu)
+            if (type_tb=='fluid') :       
+                fineSnapList.append(tbFine.fieldVelocity())
+                coarseSnapList.append(tbCoarse.fieldVelocity())
+            else :
+                fineSnapList.append(tbFine.fieldTemperature())
+                coarseSnapList.append(tbCoarse.fieldTemperature())
+    else :
+        for param in range(numberOfInitSnapshot):
+    
+            dicparam = dict([ (mu.parameterName(i), mu(i)/float(param+0.001)) for i in range(mu.size())])
+            
+            mu.setParameters(dicparam)
 
-        tbFine.solve()
-        tbCoarse.solve()
+            if feelpp.Environment.isMasterRank():
+                print(f"Running simulation with mu = {mu}")
 
-        fineSnapList.append(tbFine.fieldTemperature())
-        coarseSnapList.append(tbCoarse.fieldTemperature())
-        
+            assembleToolbox(tbFine, mu)
+
+            tbFine.solve()
+
+            if (type_tb=='fluid') :       
+                fineSnapList.append(tbFine.fieldVelocity())
+            else :
+                fineSnapList.append(tbFine.fieldTemperature())
+
     #     exportFine = feelpp.exporter(mesh=fineMesh, name="Snapshot")
     #     exportFine.addScalar(f"mu{param}", mu(1))
     #     # exportFine.step()
@@ -109,96 +99,28 @@ def initproblem(numberOfInitSnapshot, tbFine, tbCoarse, Dmu):
 
     return fineSnapList, coarseSnapList
 
-# def loadModel(model_path):
-#     """Load the model from given modele path
-
-#     Args:
-#         model_path (str): path to the model file (JSON)
-
-#     Returns:
-#         json: model loaded
-#     """
-#     f = open(model_path, "r")
-#     model = json.load(f)
-#     f.close()
-#     return model
-
-# def loadParameterSpace(model_path):
-
-#     crb_model_properties = mor.CRBModelProperties("", feelpp.Environment.worldCommPtr(), "")
-#     crb_model_properties.setup(model_path)
-#     Dmu = feelpp.mor._mor.ParameterSpace.New(crb_model_properties.parameters(), feelpp.Environment.worldCommPtr())
-#     return Dmu
-
-
-# def setToolbox(h, geo_path, model, order=2):
-
-#     # load meshes
-#     mesh_ = feelpp.mesh(dim=2, realdim=2)
-#     mesh = feelpp.load(mesh_, geo_path, h)
-
-#     # set mesh and model properties
-#     tb = heat(dim=2, order=order)
-#     tb.setMesh(mesh)
-#     tb.setModelProperties(model)
-
-#     tb.init()
-
-#     return tb
-
-# def setToolbox(h, geo_path, model, dim=2, order=2, type_tb="heat"):
-#     """Set up the toolbox object for the given model and mesh
-
-#     Args:
-#         h (float): size of the mesh
-#         geo_path (str): path to the goemetries file
-#         model (str): path to the model file
-#         dim (int): dimension of the mesh
-#         order (int): order of the finite elements
-#         type_tb (str): name of the toolbox {"heat"|"fluid"}
-
-#     Returns:
-#         Toolbox: toolbox object
-#     """
-
-#     # load meshes
-#     mesh_ = feelpp.mesh(dim=2, realdim=2)
-#     mesh = feelpp.load(mesh_, geo_path, h)
-
-#     # set mesh and model properties
-#     if type_tb == "heat":
-#         tb = heat.heat(dim=dim, order=order)
-#     elif type_tb == "fluid":
-#         tb = fluid.fluid(dim=dim)
-#     else:
-#         raise ValueError("Unknown toolbox")
-
-#     tb.setMesh(mesh)
-#     tb.setModelProperties(model)
-
-#     tb.init()
-
-#     return tb
-
-
-
-def SolveFpp(toolBox, mu):
+def SolveFpp(toolBox, mu, type_tb='heat'):
         
     """ 
     ----------------------------------------------------
-         generate snapshots in case POD method 
+        Given a parameter mu, get Finite element solution 
+                associated to this parameter 
     ----------------------------------------------------
-    tbFine : toolbox for fine mesh (initialized) 
-    tbCoarse : toolbox for coarse mesh (initialized)
-    Dmu : Space parameters 
-    numberOfSnapshot : the number of snapshot for initialization 
-
+    toolBox : toolbox (initialized) 
+    mu : crb_parameter 
+    type_tb : type of toolbox ('heat' of 'fluid')
     """ 
 
     assembleToolbox(toolBox, mu)
 
     toolBox.solve()
 
-    return toolBox.fieldTemperature()
+    if (type_tb=='fluid') :       
+        return toolBox.fieldVelocity()
+    elif (type_tb=='heat') :
+        return toolBox.fieldTemperature()
+    else :
+        raise ValueError("type_tb must be 'heat' or 'fluid'")
+        
 
 

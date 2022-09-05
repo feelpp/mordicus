@@ -166,7 +166,7 @@ class VTKWriter(SolutionReaderBase):
         
         p=self.VTKBase.nodes
 
-        print(p)
+        # print(p)
 
         numberOfNodes=np.shape(p)[0]
         
@@ -192,7 +192,7 @@ class VTKWriter(SolutionReaderBase):
         
         #VTK_data = numpy_support.numpy_to_vtk(num_array=numpySnap_array.ravel(), deep=True, array_type=vtk.VTK_FLOAT)
         VTK_data = numpy_support.numpy_to_vtk(num_array=numpySnap_array, deep=True, array_type=vtk.VTK_FLOAT)
-
+        print(VTK_data)
         size = VTK_data.GetSize()
         #print("size array", size)
         VTK_data.SetName(FieldName)

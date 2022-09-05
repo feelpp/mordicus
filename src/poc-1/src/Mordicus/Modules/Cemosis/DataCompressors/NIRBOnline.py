@@ -28,8 +28,9 @@ from Mordicus.Modules.Cemosis.Containers.SolutionStructure.FeelppSol import Feel
 
 from Mordicus.Modules.Cemosis.Containers.SolutionStructure.FeelppSol import energy
 from NIRBinitCase import * 
-from feelpp.toolboxes.heat import *
+from feelpp.toolboxes.heat import toolboxes_options 
 from Mordicus.Modules.Cemosis.IO.StateIO import *
+
 nirb_dir = "/data/home/elarif/devel/feelpp/python/pyfeelpp-toolboxes/feelpp/toolboxes/nirb/"
 sys.path.append(nirb_dir)
 from nirb import *
@@ -39,30 +40,29 @@ print("-----------------------------------")
 print(" STEP II. 0: start Online nirb     ")
 print("-----------------------------------")
 
-
-#time=0.0 #steady
-## Directories
-currentFolder=os.getcwd()
-dataFolder = osp.expanduser("~/feelppdb/nirb/")
-dataFolder = osp.expanduser("~/feelppdb/nirb/heat/np_1/")
-modelFolder = "heat" # or "heat"
-
-
 ## Parameters
-
 dimension=2 #dimension spatial domain
-nbeOfComponentsPrimal = 2 # number of components 
-FieldName="Velocity" #Snapshots fieldname
-FieldNameExactSolution="u"#"Velocity" #Snapshots fieldname
-Format= "FreeFem" # FreeFem or VTK
 Method="POD" #POD or Greedy
 Rectification=0 #1 with Rectification post-process (Coarse Snapshots required) or 0 without
-ComputingError=1 # 1 if the fine solution is provided 
-SavingApproximation=1 #if NIRB approximation saved
+ComputingError=True # 1 will take more time for compution direct FE solution in fine mesh 
+export = True # True will save the NIRB result and interpolation of coarse solution in fine mesh  
+toolboxesOptions='heat'
+modelfile={'heat':'square/square', 'fluid':'lid-driven-cavity/cfd2d'}
+order = 1
+# fineness of two grids
+H = 0.1  # CoarseMeshSize 
+h = H**2 # fine mesh size 
 
-## Fine and coarse Solution files name
-#coarseName="snapshotH0.vtu"
-#fineName="snapshot0.vtu"
+## Directories
+PWD=os.getcwd()
+dataFolder = osp.expanduser(f"~/feelppdb/nirb/{toolboxesOptions}/np_1/")
+# model directories 
+modelsFolder = f"{PWD}/models/" 
+modelsFolder = f"{modelsFolder}{toolboxesOptions}/" 
+cfg_path = f"{modelsFolder}{modelfile[toolboxesOptions]}.cfg" 
+geo_path = f"{modelsFolder}{modelfile[toolboxesOptions]}.geo"
+model_path = f"{modelsFolder}{modelfile[toolboxesOptions]}.json"
+msh_path = f"{dataFolder}{modelfile[toolboxesOptions]}.msh"
 
 """ 
 --------------------------------------
@@ -70,38 +70,18 @@ SavingApproximation=1 #if NIRB approximation saved
 --------------------------------------
 """
 start = timeit.timeit()
-
-## Current Directories
-currentFolder=os.getcwd()
-
-# model directories 
-toolboxesOptions='heat'
-
-modelsFolder = f"{currentFolder}/models/" 
-modelsFolder = f"{modelsFolder}{toolboxesOptions}" 
-cfg_path = f"{modelsFolder}/square/square.cfg" 
-geo_path = f"{modelsFolder}/square/square.geo"
-model_path = f"{modelsFolder}/square/square.json"
-
-msh_path = f"{dataFolder}/square.msh"
-
-# fineness of two grids
-H = 0.1  # CoarseMeshSize 
-h = H**2 # fine mesh size 
-
 # set the feelpp environment
 config = feelpp.globalRepository(f"nirb/{toolboxesOptions}")
 e=feelpp.Environment(sys.argv, opts = toolboxes_options(toolboxesOptions).add(mor.makeToolboxMorOptions()), config=config)
 e.setConfigFile(cfg_path)
-order =1
 
 # load model 
 model = loadModel(model_path)
-
+# define the toolboxes 
 tbCoarse = setToolbox(H, geo_path, model, dim=dimension, order=order,type_tb=toolboxesOptions)
 tbFine = setToolbox(h, geo_path, model, dim=dimension, order=order,type_tb=toolboxesOptions)
-
-Dmu = loadParameterSpace(model_path)
+# Get actual mu parameter 
+Dmu = loadParameterSpace(model_path) 
 
 # ----------------------------------------------------------
 # ----------------------------------------------------------
@@ -109,6 +89,8 @@ Dmu = loadParameterSpace(model_path)
 FineMesh = tbFine.mesh()
 CoarseMesh = tbCoarse.mesh()
 numberOfNodes = CoarseMesh.numGlobalPoints()
+# Define feelpp function space  
+Xh = feelpp.functionSpace(mesh=FineMesh, order=order)
 
 """ 
 -------------------------------------------------------
@@ -119,15 +101,11 @@ filename= dataFolder + "reducedBasisU.dat"
 reducedOrderBasisU = LoadPetscArrayBin(filename)
 nev = reducedOrderBasisU.size[0]
 filename= dataFolder + "massMatrix.dat"
-MassMatrix = LoadPetscArrayBin(filename)
+l2ScalarProducMatrix = LoadPetscArrayBin(filename)
 filename= dataFolder + "stiffnessMatrix.dat"
-StiffnessMatrix = LoadPetscArrayBin(filename)
-
-MassMatrix.assemble()
-StiffnessMatrix.assemble()
-
-l2ScalarProducMatrix = MassMatrix
-h1ScalarProducMatrix = StiffnessMatrix
+h1ScalarProducMatrix = LoadPetscArrayBin(filename)
+l2ScalarProducMatrix.assemble()
+h1ScalarProducMatrix.assemble()
 """ 
 -----------------------------------------------------------------
         Get coarse solution and project it on fine mesh 
@@ -136,29 +114,34 @@ h1ScalarProducMatrix = StiffnessMatrix
 ## Solve equation with new parameter on Coarse Mesh
 mu = Dmu.element()
 coarseSol = SolveFpp(tbCoarse, mu)
-interpOper = createInterpolator(tbCoarse, tbFine, type_tb='heat')
+interpOper = createInterpolator(tbCoarse, tbFine, type_tb=toolboxesOptions)
 interpSol = interpOper.interpolate(coarseSol)
 
-FineSol = SolveFpp(tbFine, mu)
-
+# Export interpolated sol
+if export :
+        ep = feelpp.exporter(mesh=FineMesh, name="feelpp_interp")
+        ep.addScalar("un", 1.) 
+        if (order==1):
+                ep.addP1c("U_interp", interpSol)
+        elif (order==2):
+                ep.addP2c("U_interp", interpSol)
+        ep.save()
 
 """ 
 -------------------------------------------------------
          Get new solution on fine mesh 
 -------------------------------------------------------
 """
-## Compute coeff on reduced basis 
+## Get projection of interpolate solution on reduced space 
 newSol = FppSol("UH",dimension, numberOfNodes) 
 newSol.AddSolution(interpSol, 0)
 newSol.CompressSolution(l2ScalarProducMatrix, reducedOrderBasisU)
 newCompressedSol = newSol.GetCompressedSolution()
 
-## Get new reconstructed solution  
-reconstructedSolution = interpSol.to_petsc().vec().copy()
-reducedOrderBasisU.multTranspose(newCompressedSol[0], reconstructedSolution)
+## Get new reconstructed solution in PETSc format 
+resPETSc = Xh.element().to_petsc()
+reducedOrderBasisU.multTranspose(newCompressedSol[0], resPETSc.vec())
 
-
-# reconstructedSolution = interpSol.to_petsc()
 ##################################################
 # Save Online data for vizualisation 
 ##################################################
@@ -166,61 +149,48 @@ reducedOrderBasisU.multTranspose(newCompressedSol[0], reconstructedSolution)
 print("-----------------------------------")
 print(" STEP II. 4: Saving datas on Disk  ")
 print("-----------------------------------")
-feelppsol = feelpp.functionSpace(mesh=FineMesh, order=1)
+resFpp = Xh.element(resPETSc) # convert to feelpp element function 
+# Export NIRB approximation sol
+if export :
+        ep = feelpp.exporter(mesh=FineMesh, name="feelpp_nirb_discr")
+        ep.addScalar("un", 1.) 
+        if (order==1):
+                ep.addP1c("U_nirb", resFpp)
+        elif (order==2):
+                ep.addP2c("U_nirb", resFpp)
+        ep.save()
 
-# sol_ublas = feelpp._alg.VectorUBlas.createFromPETSc(reconstructedSolution)
-
-# uu = reconstructedSolution
-
-# sol_ublas = feelppsol.createFromPETSc(uu)
-
-# sol_ublas = reconstructedSolution.to_
-# print(type(sol_ublas))
-
-# feelppsol._alg.VectorUBlas.createFromPETSc(reconstructedSolution)
-
-# print(feelppsol)
-
-
-# print('blas ', v_ublas)
-
-# feelppsol = coarseSol.functionSpace()
-# petscsol = reconstructedSolution.copy() 
-# print('petsol', petscsol)
-# print(feelppsol)
-# print(coarseSol)
-# coarseSol.createFromPETSc(reconstructedSolution)
-# print(help(interpSol))
-
-
-export = feelpp.exporter(mesh=FineMesh, name="feelpp_nirb")
-# export.addP1c("u", FineSol)
-export.addP1c("u_interp", interpSol)
-export.save()
 ##################################################
 # ONLINE ERRORS
 ##################################################
 
-# finish = timeit.timeit() 
-
-if ComputingError==1:
+if ComputingError :
 
         print("-----------------------------------")
         print(" STEP II. 3: Compute online errors ")
         print("-----------------------------------")
 
-        # FineSol = SolveFpp(tbFine, mu)
+        FineSol = SolveFpp(tbFine, mu)
 
-        diffSolve = FineSol.to_petsc().vec() - reconstructedSolution 
+        diffSolve = FineSol.to_petsc().vec() - resPETSc.vec() 
         diffInterp = (FineSol - interpSol).to_petsc().vec() 
         
+        error = []
+        error.append(h)
+        error.append(diffSolve.norm())
+        error.append(diffSolve.norm(PETSc.NormType.NORM_INFINITY))
+
+        error = np.array(error)
+        filename = 'nirb_error'+str(H)+'.txt'
+        np.savetxt(filename, error)
+
         print("---------- NIRB Solve absolute Error -----------------")
-        print ('l2-norm  =', diffSolve.norm())
-        print ('Infinity-norm =', diffSolve.norm(PETSc.NormType.NORM_INFINITY))
+        print ('l2-norm  =', error[1])
+        print ('Infinity-norm =', error[2])
 
         print("---------- NIRB Solve relative Error -----------------")
-        print ('l2-norm  =', diffSolve.norm()/FineSol.to_petsc().vec().norm())
-        print ('Infinity-norm =', diffSolve.norm(PETSc.NormType.NORM_INFINITY)/FineSol.to_petsc().vec().norm(PETSc.NormType.NORM_INFINITY))
+        print ('l2-norm  =', error[1]/FineSol.to_petsc().vec().norm())
+        print ('Infinity-norm =', error[2]/FineSol.to_petsc().vec().norm(PETSc.NormType.NORM_INFINITY))
 
         print("---------- NIRB Interp Error -----------------")
         print ('l2-norm  =', diffInterp.norm())
@@ -231,7 +201,7 @@ if ComputingError==1:
 
 finish = timeit.timeit() 
 print("Elapsed time = ", finish - start )
-print("NIRB ONLINE DONE! ")
+print("NIRB ONLINE DONE ! ")
 
 
 
