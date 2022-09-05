@@ -25,6 +25,7 @@ from petsc4py import *
 from slepc4py import SLEPc 
 
 from Mordicus.Modules.Cemosis.Containers.SolutionStructure.FeelppSol import energy
+from Mordicus.Core.DataCompressors import SnapshotPOD as SP
 
 
 def orthogonality_check(Matrix,CorrelationMatrix):
@@ -217,14 +218,64 @@ def orthogonality_check(Matrix,CorrelationMatrix):
     
 #     return reducedOrderBasisU
 
-def ComputeReducedOrderBasisWithPOD(snapshotList, snapshotCorrelationOperator, tolerance=1.e-6):
+
+
+def PODReducedBasisNumpy(snapshotList, snapshotCorrelationOperator, tolerance=1.e-6):
     """
     Computes a reducedOrderBasis using the SnapshotPOD algorithm, from the
-    snapshots contained in the iterator snapshotsIterator, which a correlation
+    snapshots contained in the list snapshotList, which a correlation
     operator between the snapshots defined by the matrix
     snapshotCorrelationOperator, with tolerance as target accuracy of the data
     compression
 
+    This function convert PETSc matrix and vector to numpy and use numpy computation 
+    (not so efficient)
+    Parameters
+    ----------
+    snapshotList : List(of feelpp.functionSpace().element())
+        List  of the snapshots on which we want to compute a reducedOrderBasis
+    snapshotCorrelationOperator : feelpp.algMat
+        correlation operator between the snapshots
+    tolerance : float
+        target accuracy of the data compression
+
+    Returns
+    -------
+    np.ndarray
+        of size (numberOfModes, numberOfDOFs)
+    """
+
+
+    oper = snapshotCorrelationOperator.mat()
+    oper.assemble()
+    oper = np.array(oper[:,:])
+    snaparray = []
+    for s in snapshotList:
+        snaparray.append(s.to_petsc().vec()[:])
+
+    rbb = SP.ComputeReducedOrderBasis(snaparray, oper, tolerance)
+
+    nbPODMode = rbb.shape[0]
+    nbDofs = snapshotList[0].functionSpace().nDof() 
+    reducedOrderBasisU = PETSc.Mat().createDense(size=(nbPODMode,nbDofs))
+    reducedOrderBasisU.setFromOptions()
+    reducedOrderBasisU.setUp()
+    reducedOrderBasisU.assemble()
+    reducedOrderBasisU[:,:] = rbb
+
+    return reducedOrderBasisU
+
+
+def PODReducedBasisPETSc(snapshotList, snapshotCorrelationOperator, tolerance=1.e-6):
+    """
+    Computes a reducedOrderBasis using the SnapshotPOD algorithm, from the
+    snapshots contained in the list snapshotList, which a correlation
+    operator between the snapshots defined by the matrix
+    snapshotCorrelationOperator, with tolerance as target accuracy of the data
+    compression
+
+    All the computation are done in PETSc environnement 
+    
     Parameters
     ----------
     snapshotList : List(of feelpp.functionSpace().element())
