@@ -24,10 +24,7 @@ import SnapshotReducedBasis as SRB
 from NIRBinitCase import * 
 from feelpp.toolboxes.heat import *
 from petsc4py import PETSc
-
-nirb_dir = "/data/home/elarif/devel/feelpp/python/pyfeelpp-toolboxes/feelpp/toolboxes/nirb/"
-sys.path.append(nirb_dir)
-from nirb import *
+from feelpp.mor.nirb.nirb import * 
 
 # from Mordicus.Core.Containers import CollectionProblemData as CPD
 # from Mordicus.Core.IO import StateIO as SIO

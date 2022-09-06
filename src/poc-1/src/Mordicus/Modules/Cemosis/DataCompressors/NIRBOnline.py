@@ -30,11 +30,7 @@ from Mordicus.Modules.Cemosis.Containers.SolutionStructure.FeelppSol import ener
 from NIRBinitCase import * 
 from feelpp.toolboxes.heat import toolboxes_options 
 from Mordicus.Modules.Cemosis.IO.StateIO import *
-
-nirb_dir = "/data/home/elarif/devel/feelpp/python/pyfeelpp-toolboxes/feelpp/toolboxes/nirb/"
-sys.path.append(nirb_dir)
-from nirb import *
-
+from feelpp.mor.nirb.nirb import *
 
 print("-----------------------------------")
 print(" STEP II. 0: start Online nirb     ")
@@ -145,7 +141,6 @@ reducedOrderBasisU.multTranspose(newCompressedSol[0], resPETSc.vec())
 ##################################################
 # Save Online data for vizualisation 
 ##################################################
-
 print("-----------------------------------")
 print(" STEP II. 4: Saving datas on Disk  ")
 print("-----------------------------------")
@@ -170,7 +165,7 @@ if ComputingError :
         print(" STEP II. 3: Compute online errors ")
         print("-----------------------------------")
 
-        FineSol = SolveFpp(tbFine, mu)
+        FineSol = SolveFpp(tbFine, mu) # Get the FE solution calculate directly in the fine mesh  
 
         diffSolve = FineSol.to_petsc().vec() - resPETSc.vec() 
         diffInterp = (FineSol - interpSol).to_petsc().vec() 

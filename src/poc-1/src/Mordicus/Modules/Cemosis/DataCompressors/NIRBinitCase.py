@@ -10,10 +10,12 @@ import feelpp.toolboxes.heat as heat
 import feelpp.toolboxes.fluid as fluid
 import feelpp.interpolation as fi
 import json5 as json
+from feelpp.mor.nirb.nirb import * 
 
-nirb_dir = "/data/home/elarif/devel/feelpp/python/pyfeelpp-toolboxes/feelpp/toolboxes/nirb/"
-sys.path.append(nirb_dir)
-from nirb import *
+# nirb_dir = "/data/home/elarif/devel/feelpp/python/pyfeelpp-toolboxes/feelpp/toolboxes/nirb/"
+# sys.path.append(nirb_dir)
+# from feelpp.mor.
+# from nirb import *
 
 def initproblem(numberOfInitSnapshot, Dmu, tbFine, tbCoarse=None, type_tb='heat'):
         

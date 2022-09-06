@@ -295,103 +295,172 @@ def PODReducedBasisPETSc(snapshotList, snapshotCorrelationOperator, tolerance=1.
 
     numberOfDofs = snapshotList[0].functionSpace().nDof() 
 
-    # snapshots = np.array(snapshots)
-
-    # numberOfSnapshots = snapshots.shape[0]
     numberOfSnapshots = len(snapshotList)
     print('number of snapshots = ', numberOfSnapshots)
-    
-    #correlationMatrix = np.zeros((numberOfSnapshots, numberOfSnapshots))
 
     correlationMatrix = PETSc.Mat().create()
     correlationMatrix.setSizes([numberOfSnapshots, numberOfSnapshots])
     correlationMatrix.setFromOptions()
     correlationMatrix.setUp()
 
-    # print('ok create matrix ')
     for i, snapshot1 in enumerate(snapshotList):
         for j, snapshot2 in enumerate(snapshotList):
-            if i >= j:
                 correlationMatrix[i, j] = snapshotCorrelationOperator.energy(snapshot1, snapshot2)
 
-    print('max min correl ', np.max(correlationMatrix), np.min(correlationMatrix))
-
-    # print('ok before assemble')
     correlationMatrix.assemble()
 
-    # print('ok correlation')
-    # Get eigenpairs of the correlation matrix 
-    E = SLEPc.EPS() 
-    E.create()  # create the solver 
-    E.setOperators(correlationMatrix)
-    E.setFromOptions()
-    E.setWhichEigenpairs(E.Which.LARGEST_MAGNITUDE)
-    E.setDimensions(numberOfSnapshots)
+    eigenValues, eigenVectors =  TruncatedEVDPetscMat(correlationMatrix, tolerance) # truncate only eigenvalu >0 
 
-    # print('ok before eigen solve ')
-    E.solve()
-    nbePODModes = E.getConverged() # number of eigenpairs 
+    nbePODModes = len(eigenVectors)
 
     print("nbePODModes =", nbePODModes)
 
-    eigenval = np.zeros(nbePODModes)
-
-    eigenvect = PETSc.Vec().create()
-    eigenvect.setSizes(nbePODModes)
-    eigenvect.setFromOptions()
-    eigenvect.setUp()
-
-    eigenMatrix = PETSc.Mat().createDense(nbePODModes)
-    # eigenMatrix.setSizes([nbePODModes, nbePODModes])
+    eigenMatrix = PETSc.Mat().createDense([nbePODModes,numberOfSnapshots])
     eigenMatrix.setFromOptions()
     eigenMatrix.setUp()
 
-    # eigenpairs = {}
 
     for i in range(nbePODModes):
-        eigenval[i] = float(E.getEigenvalue(i).real)
-        E.getEigenvector(i, eigenvect)
-        # eigenpairs[eigenval[i]] = eigenvect/np.sqrt(eigenval[i]) # normalized eigenvect
-        eigenMatrix[i,:] = eigenvect[:]/np.sqrt(eigenval[i])
+        eigenMatrix[i,:] = eigenVectors[i]/np.sqrt(eigenValues[i])
 
     eigenMatrix.assemble()
-
     
 
     ## Set reduced basis 
-    reducedOrderBasis = PETSc.Mat().createDense(size=(nbePODModes,numberOfDofs))
-    reducedOrderBasis.setFromOptions()
-    reducedOrderBasis.setUp()
+    tempMat = PETSc.Mat().createDense(size=(numberOfSnapshots,numberOfDofs))
+    tempMat.setFromOptions()
+    tempMat.setUp()
+    tempMat.assemble()
 
-    reducedOrderBasis.assemble()
-
-    tempMat = reducedOrderBasis.copy()
-
-    for i in range(nbePODModes):
+    for i in range(numberOfSnapshots):
         tempMat[i,:] = snapshotList[i].to_petsc().vec()[:]
 
     tempMat.assemble() 
 
-    eigenMatrix.matMult(tempMat, reducedOrderBasis)
 
-    oper = snapshotCorrelationOperator.mat()
-    oper.assemble()
+    reducedOrderBasis = PETSc.Mat().createDense(size=(nbePODModes,numberOfDofs))
+    reducedOrderBasis.setFromOptions()
+    reducedOrderBasis.setUp()
     reducedOrderBasis.assemble()
 
-    oper = np.array(oper[:,:]) 
-    rb = reducedOrderBasis[:,:]
+    eigenMatrix.matMult(tempMat, reducedOrderBasis)
+
+    # oper = snapshotCorrelationOperator.mat()
+    # oper.assemble()
+    # # reducedOrderBasis.assemble()
+
+    # oper = np.array(oper[:,:]) 
+    # rb = reducedOrderBasis[:,:]
 
 
-    for i in range(nbePODModes):
-        # reducedOrderBasisNorm= np.sqrt(snapshotCorrelationOperator.energy(reducedOrderBasis[i,:], reducedOrderBasis[i,:]))
-        reducedOrderBasisNorm= np.sqrt(energy(oper[:,:], rb[i,:]))
-        rb[i,:]/=reducedOrderBasisNorm # L2 orthonormalization
+    # for i in range(nbePODModes):
+    #     # reducedOrderBasisNorm= np.sqrt(snapshotCorrelationOperator.energy(reducedOrderBasis[i,:], reducedOrderBasis[i,:]))
+    #     reducedOrderBasisNorm= np.sqrt(energy(oper[:,:], rb[i,:]))
+    #     rb[i,:]/=reducedOrderBasisNorm # L2 orthonormalization
 
-    reducedOrderBasis[:,:] = rb
+    # reducedOrderBasis[:,:] = rb
 
-    check = orthogonality_check(rb,oper)
-    print("orthogonality = ", check )
+    # check = orthogonality_check(rb,oper)
+    # print("orthogonality = ", check )
     return reducedOrderBasis
+
+
+def TruncatedEVDPetscMat(matrix, epsilon = None, nbModes = None):
+    """
+    Computes a truncated eigen value decomposition of a symetric definite
+    matrix in petsc.mat format. Only the lower triangular part needs
+    to be defined
+
+    Parameters
+    ----------
+    matrix : petsc.Mat 
+        the input matrix
+    epsilon : float
+        the truncation tolerence, determining the number of keps eigenvalues
+    nbModes : int
+        the number of keps eigenvalues
+
+    Returns
+    -------
+    np.ndarray
+        kept eigenvalues, of size (numberOfEigenvalues)
+    np.ndarray
+        kept eigenvectors, of size (numberOfEigenvalues, numberOfSnapshots)
+    """
+
+    if epsilon != None and nbModes != None:# pragma: no cover
+        raise("cannot specify both epsilon and nbModes")
+
+    # Get eigenpairs of the matrix 
+    E = SLEPc.EPS() # SVD for singular value decomposition or EPS for Eigen Problem Solver  
+    E.create()  # create the solver
+
+    E.setOperators(matrix)
+    E.setFromOptions()
+    E.setWhichEigenpairs(E.Which.LARGEST_MAGNITUDE)
+    E.setDimensions(matrix.size[1]) # set the number of eigen val to compute
+    # E.setTolerances(epsilon) # set the tolerance used for the convergence 
+
+    # print('ok before eigen solve ')
+    E.solve()
+    nbmaxEv = E.getConverged() # number of eigenpairs 
+
+    print("max number of Eigen value = ", nbmaxEv)
+
+    eigenValues = []
+    eigenVectors = []
+
+    eigenvect = PETSc.Vec().create()
+    eigenvect.setSizes(nbmaxEv)
+    eigenvect.setFromOptions()
+    eigenvect.setUp()
+
+    for i in range(nbmaxEv):
+        eigenValues.append(float(E.getEigenvalue(i).real))
+        E.getEigenvector(i, eigenvect)
+        eigenVectors.append(eigenvect)
+
+    E.destroy() # destroy the solver object 
+
+    eigenValues = np.array(eigenValues)
+
+    idx = eigenValues.argsort()[::-1]
+
+    eigenValues = eigenValues[idx]
+    eigenVectors = [eigenVectors[i] for i in idx]
+
+    if nbModes == None:
+        if epsilon == None:
+            nbModes  = matrix.size[0]
+        else:
+            nbModes = 0
+            bound = (epsilon ** 2) * eigenValues[0]
+            for e in eigenValues:
+                if e > bound:
+                    nbModes += 1
+            id_max2 = 0
+            bound = (1 - epsilon ** 2) * np.sum(eigenValues)
+            temp = 0
+            for e in eigenValues:
+                temp += e
+                if temp < bound:
+                    id_max2 += 1  # pragma: no cover
+
+            nbModes = max(nbModes, id_max2)
+
+    if nbModes > matrix.size[0]:
+        print("nbModes taken to max possible value of "+str(matrix.shape[0])+" instead of provided value "+str(nbModes))
+        nbModes = matrix.size[0]
+
+    index = np.where(eigenValues<0)
+    if len(eigenValues[index])>0:
+        if index[0][0]<nbModes:
+            #print(nbModes, index[0][0])
+            print("removing numerical noise from eigenvalues, nbModes is set to "+str(index[0][0])+" instead of "+str(nbModes))
+            nbModes = index[0][0]
+    
+    return eigenValues[0:nbModes], eigenVectors[0:nbModes]
+
 
 
 
