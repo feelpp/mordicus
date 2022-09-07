@@ -41,7 +41,7 @@ def initproblem(numberOfInitSnapshot, Dmu, tbFine, tbCoarse=None, type_tb='heat'
     if tbCoarse!=None :
         for param in range(numberOfInitSnapshot):
 
-            dicparam = dict([ (mu.parameterName(i), mu(i)/float(param+0.001)) for i in range(mu.size())])
+            dicparam = dict([ (mu.parameterName(i), mu(i)/float(param+0.1)) for i in range(mu.size())])
             
             mu.setParameters(dicparam)
 

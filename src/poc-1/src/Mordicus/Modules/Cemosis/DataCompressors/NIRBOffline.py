@@ -96,7 +96,10 @@ if Rectification :
               generate snapshots
 --------------------------------------
 """
-nbeOfInitSnapshots = 10
+if len(sys.argv)==2:
+        nbeOfInitSnapshots = int(sys.argv[1])
+else :
+        nbeOfInitSnapshots = 10
 nev =nbeOfInitSnapshots 
 print("-----------------------------------")
 print(" STEP I. 0: start init             ")
