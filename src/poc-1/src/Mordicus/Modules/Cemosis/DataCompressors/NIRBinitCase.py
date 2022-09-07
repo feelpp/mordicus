@@ -17,7 +17,7 @@ from feelpp.mor.nirb.nirb import *
 # from feelpp.mor.
 # from nirb import *
 
-def initproblem(numberOfInitSnapshot, Dmu, tbFine, tbCoarse=None, type_tb='heat'):
+def initproblem(numberOfInitSnapshot, Dmu, tbFine, tbCoarse=None, type_tb='heat', samplingMode="log-random"):
         
     """ 
     ----------------------------------------------------
@@ -27,6 +27,7 @@ def initproblem(numberOfInitSnapshot, Dmu, tbFine, tbCoarse=None, type_tb='heat'
     tbCoarse : toolbox for coarse mesh (initialized) if Rectification 
     ListParam : list of Space parameters (to be done)
     numberOfSnapshot : the number of snapshot for initialization 
+    samplingMode : sampling mode for parameter space  random, log-random, log-equidistribute, equidistribute
 
     """ 
     mu = Dmu.element()
@@ -38,12 +39,12 @@ def initproblem(numberOfInitSnapshot, Dmu, tbFine, tbCoarse=None, type_tb='heat'
     fineSnapList = []
     coarseSnapList = []
 
-    if tbCoarse!=None :
-        for param in range(numberOfInitSnapshot):
+    s = Dmu.sampling()
+    s.sampling(numberOfInitSnapshot, samplingMode)
+    vector_mu = s.getVector()
 
-            dicparam = dict([ (mu.parameterName(i), mu(i)/float(param+0.1)) for i in range(mu.size())])
-            
-            mu.setParameters(dicparam)
+    if tbCoarse!=None :
+        for mu in vector_mu :
 
             if feelpp.Environment.isMasterRank():
                 print(f"Running simulation with mu = {mu}")
