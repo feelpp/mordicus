@@ -116,7 +116,6 @@ else :
 print("--------------------------------------------")
 print(" STEP I. 2: Generate L2 and H1 operator     ")
 print("--------------------------------------------")
-
 Vh = feelpp.functionSpace(mesh=FineMesh) # feelpp space function 
 l2ScalarProducMatrix=FppOp.mass(test=Vh,trial=Vh,range=feelpp.elements(FineMesh))
 h1ScalarProducMatrix=FppOp.stiffness(test=Vh,trial=Vh,range=feelpp.elements(FineMesh))
@@ -135,8 +134,8 @@ if Method=="Greedy":
         #reducedOrderBasisU=GD.Greedy(collectionProblemData,"U",l2ScalarProducMatrix,h1ScalarProducMatrix,nev) # greedy algorith
         reducedOrderBasisU = SRB.PODReducedBasisPETSc(fineSnapList,l2ScalarProducMatrix)
 else : #POD 
-        # reducedOrderBasisU = SRB.PODReducedBasisPETSc(fineSnapList, l2ScalarProducMatrix)
-        reducedOrderBasisU = SRB.PODReducedBasisNumpy(fineSnapList, l2ScalarProducMatrix)
+        reducedOrderBasisU = SRB.PODReducedBasisPETSc(fineSnapList, l2ScalarProducMatrix)
+        # reducedOrderBasisU = SRB.PODReducedBasisNumpy(fineSnapList, l2ScalarProducMatrix)
 
 # number of modes 
 nev = reducedOrderBasisU.size[0]

@@ -368,8 +368,8 @@ def PODReducedBasisPETSc(snapshotList, snapshotCorrelationOperator, tolerance=1.
 def TruncatedEVDPetscMat(matrix, epsilon = None, nbModes = None):
     """
     Computes a truncated eigen value decomposition of a symetric definite
-    matrix in petsc.mat format. Only the lower triangular part needs
-    to be defined
+    matrix in petsc.mat format. Get only eigen value lambda_i > epsilon^2 lambda_max
+    the basis vectors returned are orthonormalized 
 
     Parameters
     ----------
@@ -401,25 +401,26 @@ def TruncatedEVDPetscMat(matrix, epsilon = None, nbModes = None):
     E.setDimensions(matrix.size[1]) # set the number of eigen val to compute
     # E.setTolerances(epsilon) # set the tolerance used for the convergence 
 
-    # print('ok before eigen solve ')
     E.solve()
     nbmaxEv = E.getConverged() # number of eigenpairs 
 
-    print("max number of Eigen value = ", nbmaxEv)
+    # print('Does it converge ? (1 or 0) =', E.getConvergenceTest())
+    # print('Is it positive mat ? (1 or 0)', E.isPositive() )
+ 
 
     eigenValues = []
-    eigenVectors = []
+    eigenVectors = E.getInvariantSubspace() # Get orthonormal basis associated to eigenvalues 
 
-    eigenvect = PETSc.Vec().create()
-    eigenvect.setSizes(nbmaxEv)
-    eigenvect.setFromOptions()
-    eigenvect.setUp()
+    # eigenvect = PETSc.Vec().create()
+    # eigenvect.setSizes(nbmaxEv)
+    # eigenvect.setFromOptions()
+    # eigenvect.setUp()
 
     for i in range(nbmaxEv):
         eigenValues.append(float(E.getEigenvalue(i).real))
-        E.getEigenvector(i, eigenvect)
-        eigenVectors.append(eigenvect)
-
+        # E.getEigenvector(i, eigenvect)
+        # eigenVectors.append(eigenvect)
+    
     E.destroy() # destroy the solver object 
 
     eigenValues = np.array(eigenValues)
