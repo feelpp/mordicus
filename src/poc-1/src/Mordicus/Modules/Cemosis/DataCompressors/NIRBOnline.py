@@ -167,17 +167,29 @@ if ComputingError :
 
         FineSol = SolveFpp(tbFine, mu) # Get the FE solution calculate directly in the fine mesh  
 
+
+        # Export interpolated sol
+        if export :
+                ep = feelpp.exporter(mesh=FineMesh, name="feelpp_finesol")
+                ep.addScalar("un", 1.) 
+                if (order==1):
+                        ep.addP1c("U_fine", FineSol)
+                elif (order==2):
+                        ep.addP2c("U_fine", FineSol)
+                ep.save()
+
         diffSolve = FineSol.to_petsc().vec() - resPETSc.vec() 
         diffInterp = (FineSol - interpSol).to_petsc().vec() 
         
         error = []
-        error.append(h)
+        error.append(nev)
         error.append(diffSolve.norm())
         error.append(diffSolve.norm(PETSc.NormType.NORM_INFINITY))
 
-        error = np.array(error)
-        filename = 'nirb_error'+str(H)+'.txt'
-        np.savetxt(filename, error)
+        # error = np.array(error)
+        filename = 'nirb_error.txt'
+        WriteVecAppend(filename, error)
+        # np.savetxt(filename, error)
 
         print("---------- NIRB Solve absolute Error -----------------")
         print ('l2-norm  =', error[1])
