@@ -29,3 +29,10 @@ def SavePetscArrayASCII(filename, PetscAray):
     outputfile, format=PETSc.Viewer.Format.ASCII_COMMON,
     comm= PETSc.COMM_WORLD)
     PetscAray.view(myviewer)
+
+def WriteVecAppend(filename, array):
+    """ Write an array or list in filename with append mode 
+            the vector value will be writen horizontally 
+    """
+    with open(filename, 'a+') as file:
+        file.write(' '.join(str(i) for i in list(array)))
