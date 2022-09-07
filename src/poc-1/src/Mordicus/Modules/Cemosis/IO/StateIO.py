@@ -35,4 +35,4 @@ def WriteVecAppend(filename, array):
             the vector value will be writen horizontally 
     """
     with open(filename, 'a+') as file:
-        file.write(' '.join(str(i) for i in list(array)))
+        file.write(' '.join(str(i) for i in list(array))+"\n")

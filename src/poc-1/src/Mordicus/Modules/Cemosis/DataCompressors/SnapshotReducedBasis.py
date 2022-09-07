@@ -321,6 +321,10 @@ def PODReducedBasisPETSc(snapshotList, snapshotCorrelationOperator, tolerance=1.
 
 
     for i in range(nbePODModes):
+        # Does not work in parallel, need to update PetSc
+        # r = eigenMatrix.getDenseColumnVec(i)
+        # eigenVectors[i].copy(r)
+        # eigenMatrix.restoreDenseColumnVec(i)
         eigenMatrix[i,:] = eigenVectors[i]/np.sqrt(eigenValues[i])
 
     eigenMatrix.assemble()
