@@ -51,14 +51,6 @@ h = H**2 # fine mesh size
 
 ## Directories
 PWD=os.getcwd()
-dataFolder = osp.expanduser(f"~/feelppdb/nirb/{toolboxesOptions}/np_1/")
-# model directories 
-modelsFolder = f"{PWD}/models/" 
-modelsFolder = f"{modelsFolder}{toolboxesOptions}/" 
-cfg_path = f"{modelsFolder}{modelfile[toolboxesOptions]}.cfg" 
-geo_path = f"{modelsFolder}{modelfile[toolboxesOptions]}.geo"
-model_path = f"{modelsFolder}{modelfile[toolboxesOptions]}.json"
-msh_path = f"{dataFolder}{modelfile[toolboxesOptions]}.msh"
 
 """ 
 --------------------------------------
@@ -69,6 +61,17 @@ start = timeit.timeit()
 # set the feelpp environment
 config = feelpp.globalRepository(f"nirb/{toolboxesOptions}")
 e=feelpp.Environment(sys.argv, opts = toolboxes_options(toolboxesOptions).add(mor.makeToolboxMorOptions()), config=config)
+dataFolder = feelpp.Environment.appRepository() + "/"
+
+# model directories 
+modelsFolder = f"{PWD}/models/" 
+modelsFolder = f"{modelsFolder}{toolboxesOptions}/" 
+cfg_path = f"{modelsFolder}{modelfile[toolboxesOptions]}.cfg" 
+geo_path = f"{modelsFolder}{modelfile[toolboxesOptions]}.geo"
+model_path = f"{modelsFolder}{modelfile[toolboxesOptions]}.json"
+msh_path = f"{dataFolder}{modelfile[toolboxesOptions]}.msh"
+
+# set config file
 e.setConfigFile(cfg_path)
 
 # load model 
