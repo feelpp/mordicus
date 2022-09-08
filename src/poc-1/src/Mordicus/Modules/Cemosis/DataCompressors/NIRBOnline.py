@@ -114,14 +114,12 @@ interpOper = createInterpolator(tbCoarse, tbFine, type_tb=toolboxesOptions)
 interpSol = interpOper.interpolate(coarseSol)
 
 # Export interpolated sol
+ep = feelpp.exporter(mesh=FineMesh, name="feelpp_nirb")
 if export :
-        ep = feelpp.exporter(mesh=FineMesh, name="feelpp_interp")
-        ep.addScalar("un", 1.) 
         if (order==1):
                 ep.addP1c("U_interp", interpSol)
         elif (order==2):
                 ep.addP2c("U_interp", interpSol)
-        ep.save()
 
 """ 
 -------------------------------------------------------
@@ -145,15 +143,13 @@ print("-----------------------------------")
 print(" STEP II. 4: Saving datas on Disk  ")
 print("-----------------------------------")
 resFpp = Xh.element(resPETSc) # convert to feelpp element function 
+
 # Export NIRB approximation sol
 if export :
-        ep = feelpp.exporter(mesh=FineMesh, name="feelpp_nirb_discr")
-        ep.addScalar("un", 1.) 
         if (order==1):
                 ep.addP1c("U_nirb", resFpp)
         elif (order==2):
                 ep.addP2c("U_nirb", resFpp)
-        ep.save()
 
 ##################################################
 # ONLINE ERRORS
@@ -170,13 +166,10 @@ if ComputingError :
 
         # Export interpolated sol
         if export :
-                ep = feelpp.exporter(mesh=FineMesh, name="feelpp_finesol")
-                ep.addScalar("un", 1.) 
                 if (order==1):
                         ep.addP1c("U_fine", FineSol)
                 elif (order==2):
                         ep.addP2c("U_fine", FineSol)
-                ep.save()
 
         diffSolve = FineSol.to_petsc().vec() - resPETSc.vec() 
         diffInterp = (FineSol - interpSol).to_petsc().vec() 
@@ -205,6 +198,8 @@ if ComputingError :
 
         print("-----------------------------------------------")
 
+if export:
+        ep.save()
 
 finish = timeit.timeit() 
 print("Elapsed time = ", finish - start )
