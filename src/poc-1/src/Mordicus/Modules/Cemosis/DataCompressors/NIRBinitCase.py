@@ -62,11 +62,7 @@ def initproblem(numberOfInitSnapshot, Dmu, tbFine, tbCoarse=None, type_tb='heat'
                 fineSnapList.append(tbFine.fieldTemperature())
                 coarseSnapList.append(tbCoarse.fieldTemperature())
     else :
-        for param in range(numberOfInitSnapshot):
-    
-            dicparam = dict([ (mu.parameterName(i), mu(i)/float(param+0.001)) for i in range(mu.size())])
-            
-            mu.setParameters(dicparam)
+        for mu in vector_mu :
 
             if feelpp.Environment.isMasterRank():
                 print(f"Running simulation with mu = {mu}")

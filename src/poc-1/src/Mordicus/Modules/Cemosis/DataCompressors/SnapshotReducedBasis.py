@@ -466,6 +466,50 @@ def TruncatedEVDPetscMat(matrix, epsilon = None, nbModes = None):
     
     return eigenValues[0:nbModes], eigenVectors[0:nbModes]
 
+def Rectification(CoarseSnaps, FineSnaps, correlationMatrix, reducedBasis):
+    """ Compute the rectification matrix R given by : 
+            R[i,j] = B_h*(B_H)^-1 
+            with B_h[i,j] = <U_h(s_i),\phi_j >
+            and B_H[i,j] = <U_H(s_i),\phi_j >
+    """
+    nbModes = reducedBasis.size[0]
+
+    BH = np.zeros((nbModes,nbModes)) 
+    Bh = BH.copy()
+
+
+    R = PETSc.Mat().createDense(size=(nbModes,nbModes))
+    R.setFromOptions()
+    R.setUp()
+    R.assemble()
+ 
+    lfine = []
+    lcoarse = []
+
+    Udof,Usnap = reducedBasis.createVecs()
+    reducedBasis.assemble()
+
+    for i in range(nbModes):
+        lfine.append(FineSnaps[i].to_petsc().vec())
+        lcoarse.append(CoarseSnaps[i].to_petsc().vec())
+        
+    CM = correlationMatrix.mat()
+    
+    for i in range(nbModes): 
+        CM.mult(lfine[i],Udof)
+        reducedBasis.mult(Udof,Usnap)
+        Bh[i,:] = Usnap[:]
+
+        CM.mult(lcoarse[i],Udof)
+        reducedBasis.mult(Udof,Usnap)
+        BH[i,:] = Usnap[:]
+        
+
+    lambd=1e-10 #regularization (AT@A +lambda I_d)^-1
+    for i in range(nbModes):
+        R[i,:]=(np.linalg.inv(BH.transpose()@BH+lambd*np.eye(nbModes))@BH.transpose()@Bh[:,i])
+
+    return R 
 
 
 

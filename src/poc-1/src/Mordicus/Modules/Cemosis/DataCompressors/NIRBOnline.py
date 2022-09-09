@@ -39,12 +39,16 @@ print("-----------------------------------")
 ## Parameters
 dimension=2 #dimension spatial domain
 Method="POD" #POD or Greedy
-Rectification=0 #1 with Rectification post-process (Coarse Snapshots required) or 0 without
-ComputingError=True # 1 will take more time for compution direct FE solution in fine mesh 
+ComputingError=1 # 1 will take more time for compution direct FE solution in fine mesh 
 export = True # True will save the NIRB result and interpolation of coarse solution in fine mesh  
 toolboxesOptions='heat'
 modelfile={'heat':'square/square', 'fluid':'lid-driven-cavity/cfd2d'}
 order = 1
+
+if len(sys.argv)==2:
+        Rectification = int(sys.argv[1])
+else :
+        Rectification = 0 # 1 with Rectification post-process (Coarse Snapshots required) or 0 without
 # fineness of two grids
 H = 0.1  # CoarseMeshSize 
 h = H**2 # fine mesh size 
@@ -103,8 +107,14 @@ filename= dataFolder + "massMatrix.dat"
 l2ScalarProducMatrix = LoadPetscArrayBin(filename)
 filename= dataFolder + "stiffnessMatrix.dat"
 h1ScalarProducMatrix = LoadPetscArrayBin(filename)
+if Rectification :
+        filename= dataFolder + "rectification.dat"
+        RectificationMat = LoadPetscArrayBin(filename)
+        RectificationMat.assemble()
+
 l2ScalarProducMatrix.assemble()
 h1ScalarProducMatrix.assemble()
+
 """ 
 -----------------------------------------------------------------
         Get coarse solution and project it on fine mesh 
@@ -137,8 +147,14 @@ newCompressedSol = newSol.GetCompressedSolution()
 
 ## Get new reconstructed solution in PETSc format 
 resPETSc = Xh.element().to_petsc()
-reducedOrderBasisU.multTranspose(newCompressedSol[0], resPETSc.vec())
-
+if Rectification==1:
+        coef = newCompressedSol[0].copy()
+        RectificationMat.mult(newCompressedSol[0],coef)
+        reducedOrderBasisU.multTranspose(coef, resPETSc.vec())
+        print("Solution computed with Rectification process ")
+else :
+        reducedOrderBasisU.multTranspose(newCompressedSol[0], resPETSc.vec())
+        
 ##################################################
 # Save Online data for vizualisation 
 ##################################################
@@ -158,7 +174,7 @@ if export :
 # ONLINE ERRORS
 ##################################################
 
-if ComputingError :
+if ComputingError==1 :
 
         print("-----------------------------------")
         print(" STEP II. 3: Compute online errors ")
@@ -183,7 +199,11 @@ if ComputingError :
         error.append(diffSolve.norm(PETSc.NormType.NORM_INFINITY))
 
         # error = np.array(error)
-        filename = 'nirb_error.txt'
+        if Rectification==1:
+                filename = 'nirb_error_rectification.err'
+        else :
+                filename = 'nirb_error.err'
+
         WriteVecAppend(filename, error)
         # np.savetxt(filename, error)
 

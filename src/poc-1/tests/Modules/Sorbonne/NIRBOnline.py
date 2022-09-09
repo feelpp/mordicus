@@ -70,7 +70,7 @@ Format= "FreeFem" # FreeFem or VTK
 Method="Greedy" #POD or Greedy
 Rectification=0 #1 with Rectification post-process (Coarse Snapshots required) or 0 without
 ComputingError=1 # 1 if the fine solution is provided 
-SavingApproximation=1 #if NIRB approximation saved
+SavingApproximation=0 #if NIRB approximation saved
 
 ## Fine and coarse Solution files name
 #coarseName="snapshotH0.vtu"

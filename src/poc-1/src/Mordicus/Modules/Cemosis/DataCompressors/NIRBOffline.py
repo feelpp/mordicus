@@ -34,15 +34,22 @@ print("-----------------------------------")
 print(" STEP II. 0: start Online nirb     ")
 print("-----------------------------------")
 
-## Parameters
+## Parameter
 dimension=2 #dimension spatial domain
 Method="POD" #POD or Greedy
-Rectification=True #True with Rectification post-process (Coarse Snapshots required) or 0 without
 ComputingError=True # True will take more time for compution direct FE solution in fine mesh 
 export = True # True will save the NIRB result and interpolation of coarse solution in fine mesh  
 toolboxesOptions='heat'
 modelfile={'heat':'square/square', 'fluid':'lid-driven-cavity/cfd2d'}
 order = 1
+
+if len(sys.argv)==3:
+        nbeOfInitSnapshots = int(sys.argv[1])
+        Rectification = int(sys.argv[2])
+else :
+        nbeOfInitSnapshots = 10
+        Rectification = 0 # 1 with Rectification post-process (Coarse Snapshots required) or 0 without
+
 # fineness of two grids
 H = 0.1  # CoarseMeshSize 
 h = H**2 # fine mesh size 
@@ -84,7 +91,7 @@ FineMesh = tbFine.mesh()
 numberOfNodes = FineMesh.numGlobalPoints()
 print("Fine Mesh --> Number of nodes : ", numberOfNodes)
 
-if Rectification :
+if Rectification==1 :
         # define the coarse toolboxes and mesh 
         tbCoarse = setToolbox(H, geo_path, model, dim=dimension, order=order,type_tb=toolboxesOptions)
         CoarseMesh = tbCoarse.mesh()
@@ -96,10 +103,6 @@ if Rectification :
               generate snapshots
 --------------------------------------
 """
-if len(sys.argv)==2:
-        nbeOfInitSnapshots = int(sys.argv[1])
-else :
-        nbeOfInitSnapshots = 10
 nev =nbeOfInitSnapshots 
 print("-----------------------------------")
 print(" STEP I. 0: start init             ")
@@ -144,6 +147,16 @@ else : #POD
 nev = reducedOrderBasisU.size[0]
 print("number of modes: ", nev)
 
+if Rectification==1:
+        ## interpolate coarse snapshots in fine mesh 
+        interpOper = createInterpolator(tbCoarse, tbFine, type_tb=toolboxesOptions)
+        coarseSnapInterpList = []
+        for snap in coarseSnapList :
+                coarseSnapInterpList.append(interpOper.interpolate(snap))
+        RectificationMat = SRB.Rectification(coarseSnapInterpList, fineSnapList, l2ScalarProducMatrix, reducedOrderBasisU)
+        
+
+
 ### Add basis to collectionProblemData
 # collectionProblemData.AddReducedOrderBasis("U", reducedOrderBasisU)
 # # collectionProblemData.CompressSolutions("U", l2ScalarProducMatrix) #Mass matrix
@@ -162,6 +175,10 @@ file = "stiffnessMatrix.dat"
 SavePetscArrayBin(file, h1ScalarProducMatrix.mat())
 file="reducedBasisU.dat"
 SavePetscArrayBin(file, reducedOrderBasisU)
+if Rectification==1: 
+        file="rectification.dat"
+        SavePetscArrayBin(file, RectificationMat)
+
 
 ## Ortho basis verification
 """
