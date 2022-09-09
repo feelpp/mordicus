@@ -27,7 +27,7 @@ def initproblem(numberOfInitSnapshot, Dmu, tbFine, tbCoarse=None, type_tb='heat'
     tbCoarse : toolbox for coarse mesh (initialized) if Rectification 
     ListParam : list of Space parameters (to be done)
     numberOfSnapshot : the number of snapshot for initialization 
-    samplingMode : sampling mode for parameter space  random, log-random, log-equidistribute, equidistribute
+    samplingMode : sampling mode for parameter space random, log-random, log-equidistribute, equidistribute
 
     """ 
     mu = Dmu.element()
