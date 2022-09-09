@@ -99,22 +99,17 @@ class FeelppSolution(object):
         reducedOrderBasis : np.ndarray
             of size (numberOfModes, numberOfDOFs)
         """
-
-        numberOfModes = reducedOrderBasis.size[0]
-
-        globalScalarProduct = PETSc.Vec().create()
-        globalScalarProduct.setSizes(numberOfModes)
-        globalScalarProduct.setFromOptions()
         
+        ur,uc = reducedOrderBasis.createVecs()
+
         for time, solution in self.solution.items():
 
-            matVecProduct =solution.to_petsc().vec().copy()
-            CorrelationOperator.mult(solution.to_petsc().vec(), matVecProduct)
+            CorrelationOperator.mult(solution.to_petsc().vec(), ur)
 
-            reducedOrderBasis.mult(matVecProduct, globalScalarProduct)
+            reducedOrderBasis.mult(ur, uc)
 
-            self.compressedSol[time] = globalScalarProduct
-
+            self.compressedSol[time] = uc
+            
         self.compressedSol = dict(sorted(self.compressedSol.items(), key=lambda x: x[0]))
 
 
