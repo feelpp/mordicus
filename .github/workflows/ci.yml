@@ -29,7 +29,7 @@ jobs:
 #      BRANCH: "master"
 #      MESSAGE: ":github: Triggered from a GitHub Action by brain Project"
   build:
-    runs-on: self-ubuntu-20.04
+    runs-on: self-ubuntu-22.04
     if: "!contains(github.event.head_commit.message, 'ci skip')"
     name: Check Build, Install, Run
     steps:
@@ -70,7 +70,7 @@ jobs:
         path: build/install/assets/mordicus-*
 
   build-docker:
-    runs-on: ubuntu-22.04
+    runs-on: self-ubuntu-22.04
     if: "!contains(github.event.head_commit.message, 'ci skip')"
     container: python:${{ matrix.python-version }}
     strategy:
@@ -120,7 +120,7 @@ jobs:
       working-directory: src/poc-1/tests/Core
 
   deliver:
-    runs-on: ubuntu-20.04
+    runs-on: self-ubuntu-22.04
     needs: build
     # needs: check
     name: Docker Build, Tag, Push
