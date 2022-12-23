@@ -2,6 +2,7 @@ from logging import getLogger
 import py
 import sys
 import pytest
+import feelpp
 
 class fail_if_not_ok:
     def __init__(self, f):
@@ -41,14 +42,23 @@ def has_feelpp():
         return True
     except ImportError:
         return False
-
+        
 class InitFeelpp:
-    def __init__(self):
+    def __init__(self,config):
         try:
             sys.argv = ['test_feelpp']
             self.feelpp_env = feelpp.Environment(
-                sys.argv, config=feelpp.globalRepository("pyfeelpp-mordicus-tests"))
-        except Exception:
+                sys.argv, config=config)
+
+            self.env_mor = feelpp.Environment(
+                sys.argv, opts= feelpp.backend_options("Iv")
+                                .add(feelpp.toolboxes.core.toolboxes_options("heat"))
+                                .add(feelpp.toolboxes.core.toolboxes_options("fluid"))
+                                .add(feelpp.mor.makeToolboxMorOptions()),
+                config=config 
+                                )
+        except Exception as err:
+            print('Exception caught while initializing Feel++: '.format(err))
             return
             
             
@@ -56,4 +66,12 @@ class InitFeelpp:
 
 @pytest.fixture(scope="session")
 def feelpp_environment():
-    return None if not has_feelpp else InitFeelpp().feelpp_env
+    config = feelpp.globalRepository("pyfeelpp-mordicus-tests")
+    return None if not has_feelpp else InitFeelpp(config=config).feelpp_env
+
+
+@pytest.fixture(scope="session")
+def init_feelpp():
+    config = feelpp.globalRepository("pyfeelpp-mordicus-tests")
+    # return None if not has_feelpp else InitFeelpp(config=config).env_mor 
+    return InitFeelpp(config=config).env_mor 
