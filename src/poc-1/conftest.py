@@ -47,10 +47,10 @@ class InitFeelpp:
     def __init__(self,config):
         try:
             sys.argv = ['test_feelpp']
-            self.feelpp_env = feelpp.Environment(
-                sys.argv, config=config)
+            # self.feelpp_env = feelpp.Environment(
+            #     sys.argv, config=config)
 
-            self.env_mor = feelpp.Environment(
+            self.env = feelpp.Environment(
                 sys.argv, opts= feelpp.backend_options("Iv")
                                 .add(feelpp.toolboxes.core.toolboxes_options("heat"))
                                 .add(feelpp.toolboxes.core.toolboxes_options("fluid"))
@@ -64,14 +64,14 @@ class InitFeelpp:
             
 
 
-@pytest.fixture(scope="session")
-def feelpp_environment():
-    config = feelpp.globalRepository("pyfeelpp-mordicus-tests")
-    return None if not has_feelpp else InitFeelpp(config=config).feelpp_env
+# @pytest.fixture(scope="session")
+# def feelpp_environment():
+#     config = feelpp.globalRepository("pyfeelpp-mordicus-tests")
+#     return None if not has_feelpp else InitFeelpp(config=config).feelpp_env
 
 
 @pytest.fixture(scope="session")
 def init_feelpp():
     config = feelpp.globalRepository("pyfeelpp-mordicus-tests")
     # return None if not has_feelpp else InitFeelpp(config=config).env_mor 
-    return InitFeelpp(config=config).env_mor 
+    return InitFeelpp(config=config).env 

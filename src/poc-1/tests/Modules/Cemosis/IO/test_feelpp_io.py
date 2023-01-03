@@ -29,10 +29,10 @@ except ImportError:
 @pytest.mark.parametrize("dir,case_generator,dim,order,ndofs", cases)
 @pytest.mark.skipif('feelpp' not in sys.modules,
                     reason="requires the Feel++ library")
-def test_feelpp_generate_data(feelpp_environment, dir, case_generator, dim, order, ndofs):
-    feelpp_environment.env.changeRepository(dir)
+def test_feelpp_generate_data(init_feelpp, dir, case_generator, dim, order, ndofs):
+    init_feelpp.changeRepository(dir)
     mshname,*_ = case_generator()
-    feelpp_environment.logger.info("Generating mesh {} with dim: {}, order: {}".format(mshname,dim,order))
+    # init_feelpp.logger.info("Generating mesh {} with dim: {}, order: {}".format(mshname,dim,order))
     
     mesh = feelpp.load(feelpp.mesh(dim=dim, geo=1, realdim=dim), mshname,0.1)
     Xh=feelpp.functionSpace(mesh, "Pch", order)
@@ -45,10 +45,10 @@ def test_feelpp_generate_data(feelpp_environment, dir, case_generator, dim, orde
 @pytest.mark.parametrize("dir,case_generator,dim,order,ndofs", cases)
 @pytest.mark.skipif('feelpp' not in sys.modules,
                     reason="requires the Feel++ library")
-def test_feelpp_mesh_reader(feelpp_environment, dir, case_generator, dim, order, ndofs):
-    feelpp_environment.env.changeRepository(dir)
+def test_feelpp_mesh_reader(init_feelpp, dir, case_generator, dim, order, ndofs):
+    init_feelpp.changeRepository(dir)
     mshname, *_ = case_generator()
-    feelpp_environment.logger.info("Reading mesh {} with dim: {}, order: {}".format(mshname,dim,order))
+    # init_feelpp.logger.info("Reading mesh {} with dim: {}, order: {}".format(mshname,dim,order))
     r = FMR.FeelppMeshReader(mshname,dim)
     m = r.ReadMesh()
     assert m.GetDimensionality() == dim
@@ -58,17 +58,17 @@ def test_feelpp_mesh_reader(feelpp_environment, dir, case_generator, dim, order,
 @pytest.mark.parametrize("dir,case_generator,dim,order,ndofs", cases)
 @pytest.mark.skipif('feelpp' not in sys.modules,
                     reason="requires the Feel++ library")
-def test_feelpp_solution_reader(feelpp_environment, dir, case_generator, dim, order,ndofs):
-    feelpp_environment.env.changeRepository(dir)
+def test_feelpp_solution_reader(init_feelpp, dir, case_generator, dim, order,ndofs):
+    init_feelpp.changeRepository(dir)
     mshname, *_ = case_generator()
-    feelpp_environment.logger.info("Reading mesh {} with dim: {}, order: {} and solution".format(mshname,dim,order))
+    # init_feelpp.logger.info("Reading mesh {} with dim: {}, order: {} and solution".format(mshname,dim,order))
     mr = FMR.FeelppMeshReader(mshname,dim)
     m=mr.ReadMesh()
     folder = GetTestDataPath() + "Feelpp/"
     solution_name = "u"
 
     Xh = feelpp.functionSpace(m.GetInternalStorage(), "Pch", order)
-    feelpp_environment.logger.info("space Xh: {}\n".format(Xh.nDof()))
+    # init_feelpp.logger.info("space Xh: {}\n".format(Xh.nDof()))
     sr = FSR.FeelppSolutionReader(m, space=Xh)
     s = sr.ReadSnapshotComponent(folder+solution_name+".h5")
     #assert s.shape[0] == ndofs

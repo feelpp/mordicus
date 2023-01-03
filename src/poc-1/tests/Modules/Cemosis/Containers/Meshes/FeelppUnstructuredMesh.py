@@ -9,7 +9,7 @@ except:
 
 @pytest.mark.skipif('feelpp' not in sys.modules,
                     reason="requires the Feel++ library")
-def test_feelpp_unstructuredmesh(feelpp_environment):
+def test_feelpp_unstructuredmesh(init_feelpp):
 
     m = feelpp.load(feelpp.mesh(dim=2),"",5)
     mesh = FM.FeelppUnstructuredMesh(m)
