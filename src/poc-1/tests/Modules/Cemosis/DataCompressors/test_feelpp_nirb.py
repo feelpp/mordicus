@@ -47,6 +47,7 @@ def run_online(model_path, rect):
     uH = nirb_on.getInterpSol(mu)
     uh = nirb_on.getToolboxSol(mu, nirb_on.tbFine)
 
+@pytest.mark.skip('wait merge branch nirb into develop in feelpp')
 @pytest.mark.parametrize("dir,cfg,json,rect,greedy", cases_params, ids=cases_ids)
 @pytest.mark.skipif('feelpp' not in sys.modules,
                     reason="requires the Feel++ library")
