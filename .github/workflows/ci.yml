@@ -29,7 +29,7 @@ jobs:
 #      BRANCH: "master"
 #      MESSAGE: ":github: Triggered from a GitHub Action by brain Project"
   build:
-    runs-on: self-ubuntu-20.04
+    runs-on: self-ubuntu-22.04
     if: "!contains(github.event.head_commit.message, 'ci skip')"
     name: Check Build, Install, Run
     steps:
@@ -52,14 +52,14 @@ jobs:
         echo $GITHUB_WORKSPACE
         ls $GITHUB_WORKSPACE/src/poc-1/src
     - name: Run PyTest
-      run: $HOME/.local/bin/pytest --ignore Modules/Safran
+      run: pytest-3 --ignore Modules/Safran
       working-directory: src/poc-1/tests
     - name: Run Mordicus Core Coverage
       run: |
         echo '... NonRegression tests on Core ended'
         mkdir -p pages/coverageReportCore
         echo 'Starting coverage report on Core...'
-        $HOME/.local/bin/pytest --cov=../../src/Mordicus/Core --cov-report=html:../../../../pages/coverageReportCore && cd -
+        pytest-3 --cov=../../src/Mordicus/Core --cov-report=html:../../../../pages/coverageReportCore && cd -
       working-directory: src/poc-1/tests/Core
     - name: Upload 
       uses: actions/upload-artifact@v2
