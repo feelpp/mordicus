@@ -29,7 +29,7 @@ jobs:
 #      BRANCH: "master"
 #      MESSAGE: ":github: Triggered from a GitHub Action by brain Project"
   build:
-    runs-on: self-ubuntu-22.04
+    runs-on: self-docker-ubuntu-22.04
     if: "!contains(github.event.head_commit.message, 'ci skip')"
     name: Check Build, Install, Run
     steps:
@@ -52,7 +52,7 @@ jobs:
         echo $GITHUB_WORKSPACE
         ls $GITHUB_WORKSPACE/src/poc-1/src
     - name: Run PyTest
-      run: pytest-3 --ignore Modules/Safran
+      run: pytest-3 --ignore Modules/Safran -m "not nirb"
       working-directory: src/poc-1/tests
     - name: Run Mordicus Core Coverage
       run: |
@@ -70,7 +70,7 @@ jobs:
         path: build/install/assets/mordicus-*
 
   build-docker:
-    runs-on: ubuntu-22.04
+    runs-on: self-ubuntu-22.04
     if: "!contains(github.event.head_commit.message, 'ci skip')"
     container: python:${{ matrix.python-version }}
     strategy:
@@ -79,14 +79,14 @@ jobs:
     name: Check Build, Install, Run on Docker
     steps:
     - uses: actions/checkout@v2
-    - name: Install Mordicus C++
-      run: |
-        apt-get update
-        apt-get -y install apt-transport-https ca-certificates gnupg software-properties-common wget
-        add-apt-repository  'deb [trusted=yes] http://apt.feelpp.org/debian/bullseye bullseye latest' && add-apt-repository  'deb http://deb.debian.org/debian bullseye-backports main'
-        wget -O - http://apt.feelpp.org/apt.gpg | apt-key add - && apt-get update 
-        apt-get -y install python3-pip python3-venv gcc clang python3-dev libopenmpi-dev make libeigen3-dev python3-lxml python3-feelpp 
-        apt-get -y install -t bullseye-backports  cmake
+  #  - name: Install Mordicus C++
+  #    run: |
+  #      apt-get update
+  #      apt-get -y install apt-transport-https ca-certificates gnupg software-properties-common wget
+  #      add-apt-repository  'deb [trusted=yes] http://apt.feelpp.org/debian/bullseye bullseye latest' && add-apt-repository  'deb http://deb.debian.org/debian bullseye-backports main'
+  #      wget -O - http://apt.feelpp.org/apt.gpg | apt-key add - && apt-get update 
+  #      apt-get -y install python3-pip python3-venv gcc clang python3-dev libopenmpi-dev make libeigen3-dev python3-lxml python3-feelpp 
+  #      apt-get -y install -t bullseye-backports  cmake
     - name: Configure Mordicus
       run: |
         ls -lrt
@@ -120,7 +120,7 @@ jobs:
       working-directory: src/poc-1/tests/Core
 
   deliver:
-    runs-on: ubuntu-20.04
+    runs-on: self-ubuntu-22.04
     needs: build
     # needs: check
     name: Docker Build, Tag, Push

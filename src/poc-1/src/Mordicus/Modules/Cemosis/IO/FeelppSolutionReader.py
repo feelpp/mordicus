@@ -37,7 +37,7 @@ class FeelppSolutionReader(SolutionReaderBase):
         assert(solution.shape[0] == v.size())
         for i in range(solution.shape[0]):
             v.set(i, solution[i])
-        u = self.Xh.elementFromVec(v,0)
+        u = self.Xh.element(v,0)
         path, name = osp.split(fileName)
         #self.e.addP1c(name, u)
         u.save(path, name)
