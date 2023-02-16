@@ -10,6 +10,7 @@ class nirbOfflineFeelpp :
     def __init__(self, nbSnap=None, initCoarse=False, **kwargs ):
 
         self.nirbOffline = nirb.nirbOffline(initCoarse=initCoarse, **kwargs)
+        self.nirbOffline.initModel()
         self.doGreedy = kwargs['greedy-generation']
         self.N = nbSnap
         if self.N==None : self.N = kwargs['nbSnapshots'] 
@@ -61,6 +62,7 @@ class nirbOnlineFeelpp :
     def __init__(self, **kwargs) :
 
         self.nirbOnline = nirb.nirbOnline(**kwargs)
+        self.nirbOnline.initModel()
         self.tbFine = self.nirbOnline.tbFine 
         self.tbCoarse = self.nirbOnline.tbCoarse 
 
