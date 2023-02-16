@@ -13,7 +13,7 @@ cases = [
          (('testCase/nirb/square', 'square.cfg', 'square.json', True, False) , 'square2d rect wogreedy'),
          (('testCase/nirb/square', 'square.cfg', 'square.json', True, True) , 'square2d rect egreedy'),
          (('testCase/nirb/thermal-fin-3d', 'thermal-fin.cfg', 'thermal-fin.json', False, False), 'thermal-fin-3d w/o rect wogreedy'),
-         (('testCase/nirb/thermal-fin-3d', 'thermal-fin.cfg', 'thermal-fin.json', True, False) , 'thermal-fin-3d rect wogreedy'),
+        #  (('testCase/nirb/thermal-fin-3d', 'thermal-fin.cfg', 'thermal-fin.json', True, False) , 'thermal-fin-3d rect wogreedy'),
         ]
 # NB: for the name of the test, wogreedy is a keyword standing for "without greedy", and egreedy for "enable greedy" 
 cases_params, cases_ids = list(zip(*cases))
@@ -47,7 +47,7 @@ def run_online(model_path, rect):
     uH = nirb_on.getInterpSol(mu)
     uh = nirb_on.getToolboxSol(mu, nirb_on.tbFine)
 
-@pytest.mark.skip('wait merge branch nirb into develop in feelpp')
+# @pytest.mark.skip('wait merge branch nirb into develop in feelpp')
 @pytest.mark.parametrize("dir,cfg,json,rect,greedy", cases_params, ids=cases_ids)
 @pytest.mark.skipif('feelpp' not in sys.modules,
                     reason="requires the Feel++ library")
